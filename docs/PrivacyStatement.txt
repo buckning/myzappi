@@ -1,0 +1,37 @@
+This Privacy Statement describes how we collect, use, and protect your personal information when you use our Alexa skill ("My Zappi").
+
+Information We Collect:
+
+My Zappi may collect your myenergi serial number and API key in its database, along with your Amazon user ID. This is an
+opt-in process which you must complete in order to use My Zappi. My Zappi also collects your Amazon user ID. This ID is generated value
+and does not contain any personal identifiable information about you.
+
+How We Use Your Information:
+
+We use the information collected to provide functionality of My Zappi, personalize your experience, and respond to your inquiries or requests.
+We may also use the information to analyze user trends and preferences, troubleshoot technical issues, and ensure the security and integrity of My Zappi.
+
+Data Sharing and Disclosure:
+
+We do not share or disclose your personal information to third parties, except for myenergi when making requests on your behalf.
+
+Data Security:
+
+We take reasonable measures to protect your personal information against unauthorized access, alteration, disclosure, or destruction.
+However, please be aware that no method of transmission over the internet or electronic storage is 100% secure, and we cannot guarantee absolute security.
+
+Retention of Information:
+
+We retain your information only for as long as necessary for you to use My Zappi. You may delete this at any time through the My Zappi logout process.
+
+Your Choices:
+
+You have the right to access, correct, or delete your personal information. Please contact us using the information provided below to exercise these rights.
+
+Updates to this Privacy Statement:
+
+We may update this Privacy Statement from time to time. Any changes will be effective immediately upon posting the revised version of the Privacy Statement on our website or through other appropriate means.
+
+Contact Us:
+
+If you have any questions, concerns, or requests regarding this Privacy Statement or our handling of your personal information, please contact us at todo@email.com.
