@@ -16,7 +16,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class MyZappiSkillStreamHandlerTest {
 
-    private static final int EXPECTED_NUMBER_OF_INTENT_HANDLERS = 2;
+    private static final int EXPECTED_NUMBER_OF_INTENT_HANDLERS = 4;
 
     @Test
     void testConstructorDoesNotThrowAnException() {
