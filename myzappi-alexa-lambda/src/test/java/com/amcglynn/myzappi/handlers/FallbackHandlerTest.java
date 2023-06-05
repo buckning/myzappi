@@ -12,26 +12,27 @@ import static com.amcglynn.myzappi.handlers.HandlerTestUtils.handlerInputBuilder
 import static com.amcglynn.myzappi.handlers.HandlerTestUtils.requestEnvelopeBuilder;
 import static org.assertj.core.api.Assertions.assertThat;
 
-class LoginHandlerTest {
+class FallbackHandlerTest {
 
-    private LoginHandler handler;
     private IntentRequest intentRequest;
+
+    private FallbackHandler handler;
 
     @BeforeEach
     void setUp() {
-        handler = new LoginHandler();
+        handler = new FallbackHandler();
         intentRequest = IntentRequest.builder()
-                .withIntent(Intent.builder().withName("RegisterCredentials").build())
+                .withIntent(Intent.builder().withName("AMAZON.FallbackIntent").build())
                 .build();
     }
 
     @Test
-    void testCanHandleReturnsTrueForCorrectIntent() {
+    void testCanHandleOnlyTriggersForTheIntent() {
         assertThat(handler.canHandle(handlerInputBuilder(intentRequest).build())).isTrue();
     }
 
     @Test
-    void testCanHandleReturnsFalseForIncorrectIntent() {
+    void testCanHandleReturnsFalseWhenNotTheCorrectIntent() {
         intentRequest = IntentRequest.builder()
                 .withIntent(Intent.builder().withName("Unknown").build())
                 .build();
@@ -47,20 +48,17 @@ class LoginHandlerTest {
 
         var outputSpeech = (SsmlOutputSpeech) response.get().getOutputSpeech();
         assertThat(outputSpeech.getSsml())
-                .isEqualTo("<speak>Thank you, your My Zappi code is u. s. l. 2. 9. d. " +
-                        "Please use this on the My Zappi website when configuring your API key</speak>");
+                .isEqualTo("<speak>Sorry, I don't know how to handle that. Please try again.</speak>");
     }
 
     @Test
     void testHandleCardResponse() {
-        var response = handler.handle(HandlerInput.builder()
-                .withRequestEnvelope(requestEnvelopeBuilder(intentRequest).build()).build());
+        var response = handler.handle(handlerInputBuilder(intentRequest).build());
         assertThat(response).isPresent();
 
         assertThat(response.get().getCard()).isInstanceOf(SimpleCard.class);
         var simpleCard = (SimpleCard) response.get().getCard();
         assertThat(simpleCard.getTitle()).isEqualTo("My Zappi");
-        assertThat(simpleCard.getContent()).isEqualTo("Thank you, your My Zappi code is usl29d. " +
-                "Please use this on the My Zappi website when configuring your API key.");
+        assertThat(simpleCard.getContent()).isEqualTo("Sorry, I don't know how to handle that. Please try again.");
     }
 }

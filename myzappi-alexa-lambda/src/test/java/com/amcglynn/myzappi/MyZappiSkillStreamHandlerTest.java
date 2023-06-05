@@ -11,12 +11,14 @@ import java.util.stream.Collectors;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * I forgot to register some intent handlers before and wasted time figuring out what's wrong. The purpose of this test
- * is to prevent that from happening again.
+ * I forgot to register some intent handlers in the SkillStreamHandler before and wasted time figuring out what's wrong.
+ * The purpose of this test is to prevent that from happening again.
+ * If this test fails, make sure that you add your handler to MyZappiSkillStreamHandler and increment
+ * EXPECTED_NUMBER_OF_INTENT_HANDLERS.
  */
 class MyZappiSkillStreamHandlerTest {
 
-    private static final int EXPECTED_NUMBER_OF_INTENT_HANDLERS = 4;
+    private static final int EXPECTED_NUMBER_OF_INTENT_HANDLERS = 6;
 
     @Test
     void testConstructorDoesNotThrowAnException() {

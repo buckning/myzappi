@@ -12,16 +12,16 @@ import static com.amcglynn.myzappi.handlers.HandlerTestUtils.handlerInputBuilder
 import static com.amcglynn.myzappi.handlers.HandlerTestUtils.requestEnvelopeBuilder;
 import static org.assertj.core.api.Assertions.assertThat;
 
-class LoginHandlerTest {
+class LogoutHandlerTest {
 
-    private LoginHandler handler;
+    private LogoutHandler handler;
     private IntentRequest intentRequest;
 
     @BeforeEach
     void setUp() {
-        handler = new LoginHandler();
+        handler = new LogoutHandler();
         intentRequest = IntentRequest.builder()
-                .withIntent(Intent.builder().withName("RegisterCredentials").build())
+                .withIntent(Intent.builder().withName("Logout").build())
                 .build();
     }
 
@@ -47,8 +47,7 @@ class LoginHandlerTest {
 
         var outputSpeech = (SsmlOutputSpeech) response.get().getOutputSpeech();
         assertThat(outputSpeech.getSsml())
-                .isEqualTo("<speak>Thank you, your My Zappi code is u. s. l. 2. 9. d. " +
-                        "Please use this on the My Zappi website when configuring your API key</speak>");
+                .isEqualTo("<speak>You have been logged out.</speak>");
     }
 
     @Test
@@ -60,7 +59,6 @@ class LoginHandlerTest {
         assertThat(response.get().getCard()).isInstanceOf(SimpleCard.class);
         var simpleCard = (SimpleCard) response.get().getCard();
         assertThat(simpleCard.getTitle()).isEqualTo("My Zappi");
-        assertThat(simpleCard.getContent()).isEqualTo("Thank you, your My Zappi code is usl29d. " +
-                "Please use this on the My Zappi website when configuring your API key.");
+        assertThat(simpleCard.getContent()).isEqualTo("You have been logged out.");
     }
 }
