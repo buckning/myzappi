@@ -1,4 +1,5 @@
 .idea
 *.iml
 target
-
+myenergi-client
+.DS_Store
