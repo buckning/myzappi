@@ -5,6 +5,10 @@ import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.amazonaws.services.dynamodbv2.model.DeleteItemRequest;
 import com.amazonaws.services.dynamodbv2.model.GetItemResult;
 import com.amazonaws.services.dynamodbv2.model.PutItemRequest;
+import com.amcglynn.myzappi.core.dal.LoginCodeRepository;
+import com.amcglynn.myzappi.core.model.SerialNumber;
+import com.amcglynn.myzappi.core.model.ZappiCredentials;
+import com.amcglynn.myzappi.core.service.LoginCode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,7 +33,7 @@ class LoginCodeRepositoryTest {
     private AmazonDynamoDB mockDb;
     @Mock
     private GetItemResult mockGetResult;
-    private Instant createdTime = Instant.now();
+    private final Instant createdTime = Instant.now();
 
     @Captor
     private ArgumentCaptor<PutItemRequest> putItemCaptor;
@@ -67,7 +71,7 @@ class LoginCodeRepositoryTest {
 
     @Test
     void testWriteCredentialsWithNoEncryptedApiKey() {
-        var creds = new ZappiCredentials("userid", "12345678", "abc123");
+        var creds = new ZappiCredentials("userid", SerialNumber.from("12345678"), LoginCode.from("abc123"));
         repository.write(creds);
         verify(mockDb).putItem(putItemCaptor.capture());
         assertThat(putItemCaptor.getValue()).isNotNull();

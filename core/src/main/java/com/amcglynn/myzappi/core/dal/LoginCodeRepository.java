@@ -1,10 +1,12 @@
-package com.amcglynn.myzappi.core;
+package com.amcglynn.myzappi.core.dal;
 
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.amazonaws.services.dynamodbv2.model.DeleteItemRequest;
 import com.amazonaws.services.dynamodbv2.model.GetItemRequest;
 import com.amazonaws.services.dynamodbv2.model.PutItemRequest;
+import com.amcglynn.myzappi.core.model.LoginCodeEntry;
+import com.amcglynn.myzappi.core.model.ZappiCredentials;
 
 import java.time.Instant;
 import java.util.HashMap;
@@ -23,7 +25,7 @@ public class LoginCodeRepository {
 
     public void write(ZappiCredentials creds) {
         var codeItem = new HashMap<String, AttributeValue>();
-        codeItem.put(CODE_COLUMN, new AttributeValue(creds.getCode()));
+        codeItem.put(CODE_COLUMN, new AttributeValue(creds.getCode().toString()));
         codeItem.put(USER_ID_COLUMN, new AttributeValue(creds.getUserId()));
         codeItem.put(CREATED_COLUMN, new AttributeValue().withN(String.valueOf(Instant.now().toEpochMilli())));
         var putRequest = new PutItemRequest()

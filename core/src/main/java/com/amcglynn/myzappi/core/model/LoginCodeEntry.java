@@ -1,4 +1,4 @@
-package com.amcglynn.myzappi.core;
+package com.amcglynn.myzappi.core.model;
 
 import java.time.Instant;
 

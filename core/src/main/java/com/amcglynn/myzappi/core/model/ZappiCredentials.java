@@ -1,4 +1,7 @@
-package com.amcglynn.myzappi.core;
+package com.amcglynn.myzappi.core.model;
+
+import com.amcglynn.myzappi.core.service.LoginCode;
+import lombok.EqualsAndHashCode;
 
 import java.nio.ByteBuffer;
 import java.util.Optional;
@@ -6,8 +9,8 @@ import java.util.Optional;
 public class ZappiCredentials {
 
     private final String userId;
-    private final String serialNumber;
-    private final String code;
+    private final SerialNumber serialNumber;
+    private final LoginCode code;
     private final ByteBuffer encryptedApiKey;
 
     /**
@@ -17,7 +20,7 @@ public class ZappiCredentials {
      * @param serialNumber Zappi serial number
      * @param code generated My Zappi login code
      */
-    public ZappiCredentials(String userId, String serialNumber, String code) {
+    public ZappiCredentials(String userId, SerialNumber serialNumber, LoginCode code) {
         this.userId = userId;
         this.serialNumber = serialNumber;
         this.code = code;
@@ -31,7 +34,7 @@ public class ZappiCredentials {
      * @param code generated My Zappi login code
      * @param encryptedApiKey Encrypted Zappi API key
      */
-    public ZappiCredentials(String userId, String serialNumber, String code, ByteBuffer encryptedApiKey) {
+    public ZappiCredentials(String userId, SerialNumber serialNumber, LoginCode code, ByteBuffer encryptedApiKey) {
         this.userId = userId;
         this.serialNumber = serialNumber;
         this.code = code;
@@ -42,11 +45,11 @@ public class ZappiCredentials {
         return userId;
     }
 
-    public String getSerialNumber() {
+    public SerialNumber getSerialNumber() {
         return serialNumber;
     }
 
-    public String getCode() {
+    public LoginCode getCode() {
         return code;
     }
 
