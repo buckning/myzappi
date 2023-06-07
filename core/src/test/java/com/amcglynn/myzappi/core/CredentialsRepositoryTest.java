@@ -30,9 +30,9 @@ class CredentialsRepositoryTest {
     private GetItemResult mockGetResult;
 
     @Captor
-    ArgumentCaptor<PutItemRequest> putItemCaptor;
+    private ArgumentCaptor<PutItemRequest> putItemCaptor;
     @Captor
-    ArgumentCaptor<DeleteItemRequest> deleteItemCaptor;
+    private ArgumentCaptor<DeleteItemRequest> deleteItemCaptor;
 
     private CredentialsRepository credentialsRepository;
     private ByteBuffer encryptedApiKey;
