@@ -7,6 +7,7 @@ import com.amazonaws.services.dynamodbv2.model.GetItemRequest;
 import com.amazonaws.services.dynamodbv2.model.PutItemRequest;
 import com.amcglynn.myzappi.core.model.LoginCodeEntry;
 import com.amcglynn.myzappi.core.model.ZappiCredentials;
+import com.amcglynn.myzappi.core.service.LoginCode;
 
 import java.time.Instant;
 import java.util.HashMap;
@@ -34,19 +35,19 @@ public class LoginCodeRepository {
         dbClient.putItem(putRequest);
     }
 
-    public Optional<LoginCodeEntry> read(String code) {
+    public Optional<LoginCodeEntry> read(LoginCode code) {
         var request = new GetItemRequest()
                 .withTableName(TABLE_NAME)
-                .addKeyEntry(CODE_COLUMN, new AttributeValue(code));
+                .addKeyEntry(CODE_COLUMN, new AttributeValue(code.toString()));
         return Optional.ofNullable(dbClient.getItem(request).getItem())
-                .map(item -> new LoginCodeEntry(item.get(CODE_COLUMN).getS(),
+                .map(item -> new LoginCodeEntry(LoginCode.from(item.get(CODE_COLUMN).getS()),
                         item.get(USER_ID_COLUMN).getS(),
                         Instant.ofEpochMilli(Long.parseLong(item.get(CREATED_COLUMN).getN()))));
     }
 
-    public void delete(String code) {
+    public void delete(LoginCode code) {
         var deleteItem = new HashMap<String, AttributeValue>();
-        deleteItem.put(CODE_COLUMN, new AttributeValue(code));
+        deleteItem.put(CODE_COLUMN, new AttributeValue(code.toString()));
         dbClient.deleteItem(new DeleteItemRequest(TABLE_NAME, deleteItem));
     }
 }

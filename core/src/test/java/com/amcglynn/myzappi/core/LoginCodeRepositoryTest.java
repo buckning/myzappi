@@ -51,7 +51,7 @@ class LoginCodeRepositoryTest {
     void testReadReturnsEmptyOptionalWhenEntryDoesNotExist() {
         when(mockGetResult.getItem()).thenReturn(null);
         when(mockDb.getItem(any())).thenReturn(mockGetResult);
-        var result = repository.read("unknownuserid");
+        var result = repository.read(LoginCode.from("unknownlogincode"));
         assertThat(result).isEmpty();
     }
 
@@ -61,9 +61,9 @@ class LoginCodeRepositoryTest {
                 "code", new AttributeValue("abc123"),
                 "created", new AttributeValue().withN(String.valueOf(createdTime.toEpochMilli()))));
         when(mockDb.getItem(any())).thenReturn(mockGetResult);
-        var result = repository.read("abc123");
+        var result = repository.read(LoginCode.from("abc123"));
         assertThat(result).isPresent();
-        assertThat(result.get().getCode()).isEqualTo("abc123");
+        assertThat(result.get().getCode()).isEqualTo(LoginCode.from("abc123"));
         assertThat(result.get().getUserId()).isEqualTo("userid");
         assertThat(result.get().getCreated().minus(createdTime.toEpochMilli(), ChronoUnit.MILLIS).toEpochMilli())
                 .isZero();
@@ -85,7 +85,7 @@ class LoginCodeRepositoryTest {
 
     @Test
     void testDelete() {
-        repository.delete("abc123");
+        repository.delete(LoginCode.from("abc123"));
         verify(mockDb).deleteItem(deleteItemCaptor.capture());
         assertThat(deleteItemCaptor.getValue()).isNotNull();
         assertThat(deleteItemCaptor.getValue().getTableName()).isEqualTo("zappi-login-code");

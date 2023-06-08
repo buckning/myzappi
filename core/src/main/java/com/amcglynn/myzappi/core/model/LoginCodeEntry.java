@@ -1,14 +1,16 @@
 package com.amcglynn.myzappi.core.model;
 
+import com.amcglynn.myzappi.core.service.LoginCode;
+
 import java.time.Instant;
 
 public class LoginCodeEntry {
 
-    private final String code;
+    private final LoginCode code;
     private final String userId;
     private final Instant created;
 
-    public LoginCodeEntry(String code, String userId, Instant created) {
+    public LoginCodeEntry(LoginCode code, String userId, Instant created) {
         this.userId = userId;
         this.code = code;
         this.created = created;
@@ -18,7 +20,7 @@ public class LoginCodeEntry {
         return userId;
     }
 
-    public String getCode() {
+    public LoginCode getCode() {
         return code;
     }
 

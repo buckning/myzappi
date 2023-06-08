@@ -2,6 +2,8 @@ package com.amcglynn.myzappi.core.service;
 
 import com.amcglynn.myzappi.core.dal.CredentialsRepository;
 import com.amcglynn.myzappi.core.dal.LoginCodeRepository;
+import com.amcglynn.myzappi.core.model.CompleteLoginState;
+import com.amcglynn.myzappi.core.model.LoginCodeEntry;
 import com.amcglynn.myzappi.core.model.LoginState;
 import com.amcglynn.myzappi.core.model.SerialNumber;
 import com.amcglynn.myzappi.core.model.ZappiCredentials;
@@ -14,6 +16,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.nio.ByteBuffer;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -29,21 +33,26 @@ class LoginServiceTest {
     private CredentialsRepository mockCredentialsRepository;
     @Mock
     private LoginCodeRepository mockLoginCodeRepository;
+    @Mock
+    private EncryptionService mockEncryptionService;
 
     @Captor
     private ArgumentCaptor<ZappiCredentials> zappiCredentialsCaptor;
 
     private LoginService loginService;
-    private final ByteBuffer encryptedApiKey = ByteBuffer.wrap(new byte[] { 0x01, 0x02, 0x03 });
+    private final ByteBuffer encryptedApiKey = ByteBuffer.wrap(new byte[]{0x01, 0x02, 0x03});
     private final SerialNumber serialNumber = SerialNumber.from("12345678");
     private final LoginCode loginCode = LoginCode.from("abc123");
     private final String userId = "userid";
+    private final Instant createdTime = Instant.now();
+    private LoginCodeEntry loginCodeEntry;
     private ZappiCredentials zappiCredentials;
 
     @BeforeEach
     void setUp() {
         zappiCredentials = new ZappiCredentials(userId, serialNumber, loginCode, encryptedApiKey);
-        loginService = new LoginService(mockCredentialsRepository, mockLoginCodeRepository);
+        loginCodeEntry = new LoginCodeEntry(loginCode, userId, createdTime);
+        loginService = new LoginService(mockCredentialsRepository, mockLoginCodeRepository, mockEncryptionService);
     }
 
     @Test
@@ -93,6 +102,57 @@ class LoginServiceTest {
         assertThat(zappiCredentialsCaptor.getAllValues()).hasSize(2);
         assertEquals(zappiCredentialsCaptor.getAllValues().get(0), expectedZappiCredentials);
         assertEquals(zappiCredentialsCaptor.getAllValues().get(1), expectedZappiCredentials);
+    }
+
+    @Test
+    void testCompleteLoginReturnsLoginCodeNotFoundWhenItIsNotInTheLoginCodeTable() {
+        when(mockEncryptionService.encrypt("myApiKey")).thenReturn(encryptedApiKey);
+        var response = loginService.completeLogin(loginCode, "myApiKey");
+        assertThat(response.getState()).isEqualTo(CompleteLoginState.LOGIN_CODE_NOT_FOUND);
+        assertThat(response.getZappiCredentials()).isEmpty();
+        verify(mockLoginCodeRepository).delete(loginCode);
+    }
+
+    @Test
+    void testCompleteLoginReturnsLoginCodeExpiredWhenItIsOlderThan1DayAndDeletesLoginCode() {
+        when(mockEncryptionService.encrypt("myApiKey")).thenReturn(encryptedApiKey);
+        loginCodeEntry = new LoginCodeEntry(loginCode, userId, Instant.now().minus(2, ChronoUnit.DAYS));
+        when(mockLoginCodeRepository.read(loginCode)).thenReturn(Optional.of(loginCodeEntry));
+        var response = loginService.completeLogin(loginCode, "myApiKey");
+        assertThat(response.getState()).isEqualTo(CompleteLoginState.LOGIN_CODE_EXPIRED);
+        assertThat(response.getZappiCredentials()).isEmpty();
+        verify(mockLoginCodeRepository).delete(loginCode);
+    }
+
+    @Test
+    void testCompleteLoginReturnsCompleteWhenLoginCodeIsValidAndAssociatedUserIsFound() {
+        when(mockEncryptionService.encrypt("myApiKey")).thenReturn(encryptedApiKey);
+        loginCodeEntry = new LoginCodeEntry(loginCode, userId, Instant.now());
+        when(mockLoginCodeRepository.read(loginCode)).thenReturn(Optional.of(loginCodeEntry));
+        when(mockCredentialsRepository.read(userId)).thenReturn(Optional.of(zappiCredentials));
+
+        var response = loginService.completeLogin(loginCode, "myApiKey");
+
+        assertThat(response.getState()).isEqualTo(CompleteLoginState.COMPLETE);
+        verify(mockCredentialsRepository).delete(userId);
+        verify(mockCredentialsRepository).write(zappiCredentialsCaptor.capture());
+
+        assertThat(zappiCredentialsCaptor.getAllValues()).hasSize(1);
+        var newZappiCreds = zappiCredentialsCaptor.getValue();
+        assertThat(newZappiCreds.getUserId()).isEqualTo(userId);
+        assertThat(newZappiCreds.getCode()).isEqualTo(loginCode);
+        assertThat(newZappiCreds.getSerialNumber()).isEqualTo(serialNumber);
+        assertThat(newZappiCreds.getEncryptedApiKey()).contains(encryptedApiKey);
+        verify(mockLoginCodeRepository).delete(loginCode);
+    }
+
+    @Test
+    void testCompleteLoginReturnsAssociatedUserNotFoundWhenLoginCodeIsInTheDbButThereIsNoUserInTheCredentialsTable() {
+        when(mockEncryptionService.encrypt("myApiKey")).thenReturn(encryptedApiKey);
+        when(mockLoginCodeRepository.read(loginCode)).thenReturn(Optional.of(loginCodeEntry));
+        var response = loginService.completeLogin(loginCode, "myApiKey");
+        assertThat(response.getState()).isEqualTo(CompleteLoginState.ASSOCIATED_USER_NOT_FOUND);
+        assertThat(response.getZappiCredentials()).isEmpty();
     }
 
     private void assertEquals(ZappiCredentials expected, ZappiCredentials actual) {
