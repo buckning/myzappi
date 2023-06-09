@@ -35,12 +35,36 @@ public class LoginService {
             return handleNewLogin(user, serialNumber);
         }
 
-        var creds = credsOptional.get();
+        return handleLoginForExistingUser(credsOptional.get());
+    }
+
+    private LoginResponse handleLoginForExistingUser(ZappiCredentials creds) {
         if (isAlreadyLoggedIn(creds)) {
             return new LoginResponse(creds, LoginState.LOGIN_COMPLETE);
         }
 
+        return handleExpiredCode(creds);
+    }
+
+    private LoginResponse handleExpiredCode(ZappiCredentials creds) {
+        var existingLoginCode = loginCodeRepository.read(creds.getCode());
+
+        if (existingLoginCode.isEmpty() || isExpired(existingLoginCode.get())) {
+            credentialsRepository.delete(creds.getUserId());
+            loginCodeRepository.delete(creds.getCode());
+            delay();    // this should really be an update to the existing tables so this was just a quick hack instead.
+            var response = handleNewLogin(creds.getUserId(), creds.getSerialNumber());
+            return new LoginResponse(response.getCreds(), LoginState.RECREATED_NEW_CODE);
+        }
         return new LoginResponse(creds, LoginState.EXISTING_LOGIN_CODE);
+    }
+
+    private void delay() {
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     public CompleteLoginResponse completeLogin(LoginCode loginCode, String apiKey) {

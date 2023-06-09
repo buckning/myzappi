@@ -73,6 +73,7 @@ class LoginServiceTest {
     @Test
     void testLoginReturnsExistingLoginDetailsWhenLoginCodeIsAlreadyGeneratedButNotConsumed() {
         zappiCredentials = new ZappiCredentials(userId, serialNumber, loginCode);
+        when(mockLoginCodeRepository.read(loginCode)).thenReturn(Optional.of(loginCodeEntry));
         when(mockCredentialsRepository.read("userid")).thenReturn(Optional.of(zappiCredentials));
         var response = loginService.login(userId, serialNumber);
         var creds = response.getCreds();
@@ -83,6 +84,45 @@ class LoginServiceTest {
         assertThat(creds.getEncryptedApiKey()).isEmpty();
         verify(mockCredentialsRepository, never()).write(any());
         verify(mockLoginCodeRepository, never()).write(any());
+    }
+
+    @Test
+    void testLoginGeneratesNewLoginCodeWhenItHasExpired() {
+        zappiCredentials = new ZappiCredentials(userId, serialNumber, loginCode);
+        loginCodeEntry = new LoginCodeEntry(loginCode, userId, Instant.now().minus(10, ChronoUnit.DAYS));
+        when(mockCredentialsRepository.read("userid")).thenReturn(Optional.of(zappiCredentials));
+        when(mockLoginCodeRepository.read(loginCode)).thenReturn(Optional.of(loginCodeEntry));
+
+        var response = loginService.login(userId, serialNumber);
+        var creds = response.getCreds();
+
+        assertThat(response.getLoginState()).isEqualTo(LoginState.RECREATED_NEW_CODE);
+        assertThat(creds.getSerialNumber()).isEqualTo(SerialNumber.from("12345678"));
+        assertThat(creds.getCode()).isNotEqualTo(LoginCode.from("abc123")); // there should be a new code generated
+        assertThat(creds.getUserId()).isEqualTo("userid");
+        assertThat(creds.getEncryptedApiKey()).isEmpty();
+
+        verify(mockCredentialsRepository).write(any());
+        verify(mockLoginCodeRepository).write(any());
+    }
+
+    @Test
+    void testLoginGeneratesNewLoginCodeWhenItExistsInCredentialsTableButNotInCodeTable() {
+        zappiCredentials = new ZappiCredentials(userId, serialNumber, loginCode);
+        when(mockCredentialsRepository.read("userid")).thenReturn(Optional.of(zappiCredentials));
+        when(mockLoginCodeRepository.read(loginCode)).thenReturn(Optional.empty());
+
+        var response = loginService.login(userId, serialNumber);
+        var creds = response.getCreds();
+
+        assertThat(response.getLoginState()).isEqualTo(LoginState.RECREATED_NEW_CODE);
+        assertThat(creds.getSerialNumber()).isEqualTo(SerialNumber.from("12345678"));
+        assertThat(creds.getCode()).isNotEqualTo(LoginCode.from("abc123"));
+        assertThat(creds.getUserId()).isEqualTo("userid");
+        assertThat(creds.getEncryptedApiKey()).isEmpty();
+
+        verify(mockCredentialsRepository).write(any());
+        verify(mockLoginCodeRepository).write(any());
     }
 
     @Test
