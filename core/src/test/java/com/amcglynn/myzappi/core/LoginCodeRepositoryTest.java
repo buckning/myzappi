@@ -58,7 +58,7 @@ class LoginCodeRepositoryTest {
     @Test
     void testReadReturnsUserIdWhenItIsAssociatedWithCode() {
         when(mockGetResult.getItem()).thenReturn(Map.of("amazon-user-id", new AttributeValue("userid"),
-                "code", new AttributeValue("abc123"),
+                "otp", new AttributeValue("abc123"),
                 "created", new AttributeValue().withN(String.valueOf(createdTime.toEpochMilli()))));
         when(mockDb.getItem(any())).thenReturn(mockGetResult);
         var result = repository.read(LoginCode.from("abc123"));
@@ -75,10 +75,10 @@ class LoginCodeRepositoryTest {
         repository.write(creds);
         verify(mockDb).putItem(putItemCaptor.capture());
         assertThat(putItemCaptor.getValue()).isNotNull();
-        assertThat(putItemCaptor.getValue().getTableName()).isEqualTo("zappi-login-code");
+        assertThat(putItemCaptor.getValue().getTableName()).isEqualTo("zappi-otp");
         assertThat(putItemCaptor.getValue().getItem()).hasSize(3);
         assertThat(putItemCaptor.getValue().getItem().get("amazon-user-id").getS()).isEqualTo("userid");
-        assertThat(putItemCaptor.getValue().getItem().get("code").getS()).isEqualTo("abc123");
+        assertThat(putItemCaptor.getValue().getItem().get("otp").getS()).isEqualTo("abc123");
         var created = putItemCaptor.getValue().getItem().get("created").getN();
         assertThat(created).isNotNull();
     }
@@ -88,7 +88,7 @@ class LoginCodeRepositoryTest {
         repository.delete(LoginCode.from("abc123"));
         verify(mockDb).deleteItem(deleteItemCaptor.capture());
         assertThat(deleteItemCaptor.getValue()).isNotNull();
-        assertThat(deleteItemCaptor.getValue().getTableName()).isEqualTo("zappi-login-code");
-        assertThat(deleteItemCaptor.getValue().getKey().get("code").getS()).isEqualTo("abc123");
+        assertThat(deleteItemCaptor.getValue().getTableName()).isEqualTo("zappi-otp");
+        assertThat(deleteItemCaptor.getValue().getKey().get("otp").getS()).isEqualTo("abc123");
     }
 }

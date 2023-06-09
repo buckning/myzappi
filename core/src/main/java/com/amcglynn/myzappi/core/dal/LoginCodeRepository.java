@@ -15,8 +15,8 @@ import java.util.Optional;
 
 public class LoginCodeRepository {
     private final AmazonDynamoDB dbClient;
-    private static final String TABLE_NAME = "zappi-login-code";
-    private static final String CODE_COLUMN = "code";
+    private static final String TABLE_NAME = "zappi-otp";
+    private static final String CODE_COLUMN = "otp";
     private static final String USER_ID_COLUMN = "amazon-user-id";
     private static final String CREATED_COLUMN = "created";
 

@@ -64,6 +64,10 @@
                                         <exclude>com.amcglynn.myzappi.core.model.SerialNumber</exclude>
                                         <exclude>com.amcglynn.myzappi.core.service.LoginCode</exclude>
                                         <exclude>com.amcglynn.myzappi.core.service.EncryptionService</exclude>
+                                        <exclude>com.amcglynn.myzappi.config.ServiceManager</exclude>
+                                        <exclude>com.amcglynn.myzappi.config.Properties</exclude>
+                                        <exclude>com.amcglynn.myzappi.exception.MissingConfigurationException</exclude>
+                                        <exclude>com.amcglynn.myzappi.MyZappiSkillStreamHandler</exclude>
                                     </excludes>
                                 </rule>
                             </rules>

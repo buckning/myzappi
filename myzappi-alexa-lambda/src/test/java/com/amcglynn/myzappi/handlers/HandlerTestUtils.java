@@ -16,6 +16,6 @@ public class HandlerTestUtils {
     public static RequestEnvelope.Builder requestEnvelopeBuilder(IntentRequest intentRequest) {
         return RequestEnvelope.builder()
                 .withRequest(intentRequest)
-                .withSession(Session.builder().withUser(User.builder().withUserId("test").build()).build());
+                .withSession(Session.builder().withUser(User.builder().withUserId("userid").build()).build());
     }
 }

@@ -1,5 +1,6 @@
 package com.amcglynn.myzappi;
 
+import com.amcglynn.myzappi.config.ServiceManager;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -9,6 +10,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 /**
  * I forgot to register some intent handlers in the SkillStreamHandler before and wasted time figuring out what's wrong.
@@ -22,7 +24,7 @@ class MyZappiSkillStreamHandlerTest {
 
     @Test
     void testConstructorDoesNotThrowAnException() {
-        new MyZappiSkillStreamHandler();
+        new MyZappiSkillStreamHandler(mock(ServiceManager.class));
     }
 
     @Test

@@ -76,7 +76,7 @@ class LoginServiceTest {
         when(mockCredentialsRepository.read("userid")).thenReturn(Optional.of(zappiCredentials));
         var response = loginService.login(userId, serialNumber);
         var creds = response.getCreds();
-        assertThat(response.getLoginState()).isEqualTo(LoginState.GENERATED_LOGIN_CODE);
+        assertThat(response.getLoginState()).isEqualTo(LoginState.EXISTING_LOGIN_CODE);
         assertThat(creds.getSerialNumber()).isEqualTo(SerialNumber.from("12345678"));
         assertThat(creds.getCode()).isEqualTo(LoginCode.from("abc123"));
         assertThat(creds.getUserId()).isEqualTo("userid");

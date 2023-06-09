@@ -13,7 +13,6 @@ import com.amcglynn.myzappi.core.model.ZappiCredentials;
 import java.nio.ByteBuffer;
 import java.time.Duration;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 
 public class LoginService {
 
@@ -41,7 +40,7 @@ public class LoginService {
             return new LoginResponse(creds, LoginState.LOGIN_COMPLETE);
         }
 
-        return new LoginResponse(creds, LoginState.GENERATED_LOGIN_CODE);
+        return new LoginResponse(creds, LoginState.EXISTING_LOGIN_CODE);
     }
 
     public CompleteLoginResponse completeLogin(LoginCode loginCode, String apiKey) {
