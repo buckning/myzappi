@@ -66,6 +66,8 @@ aws lambda create-function --function-name myzappi-login --runtime java11 --hand
 * Create new REST API with Open security
 * Create POST method for the API and deploy it
 
+* Create `loginUrl` environment variable with the API endpoint for myzappi-login lambda
+
 ## Add Alexa trigger to lambda manually
 * Copy skillID from Alexa Skill and copy into new Alexa Trigger in Lambda
 * Add Lambda Function ARN to endpoints in Alexa skill configuration

@@ -7,12 +7,11 @@ import com.amazon.ask.model.Session;
 import com.amazon.ask.model.User;
 import com.amazon.ask.model.ui.SimpleCard;
 import com.amazon.ask.model.ui.SsmlOutputSpeech;
-import com.amcglynn.myzappi.Brand;
+import com.amcglynn.myzappi.core.Brand;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-
 
 class MyZappiExceptionHandlerTest {
 

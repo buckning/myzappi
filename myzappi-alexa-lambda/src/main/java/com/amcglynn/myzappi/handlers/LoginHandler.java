@@ -4,7 +4,7 @@ import com.amazon.ask.dispatcher.request.handler.HandlerInput;
 import com.amazon.ask.dispatcher.request.handler.RequestHandler;
 import com.amazon.ask.model.Response;
 import com.amazon.ask.request.RequestHelper;
-import com.amcglynn.myzappi.Brand;
+import com.amcglynn.myzappi.core.Brand;
 import com.amcglynn.myzappi.core.model.LoginState;
 import com.amcglynn.myzappi.core.model.SerialNumber;
 import com.amcglynn.myzappi.core.service.LoginService;

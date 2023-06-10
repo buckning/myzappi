@@ -61,7 +61,7 @@
                                         </limit>
                                     </limits>
                                     <excludes>
-                                        <exclude>com.amcglynn.myzappi.Brand</exclude>
+                                        <exclude>com.amcglynn.myzappi.core.Brand</exclude>
                                         <exclude>com.amcglynn.myzappi.core.model.SerialNumber</exclude>
                                         <exclude>com.amcglynn.myzappi.core.service.LoginCode</exclude>
                                         <exclude>com.amcglynn.myzappi.core.service.EncryptionService</exclude>

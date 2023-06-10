@@ -8,6 +8,10 @@ public class Properties {
         return getOrDefault("awsRegion", "eu-west-1");
     }
 
+    public String getLoginUrl() {
+        return getOrDefault("loginUrl", "http://localhost:8080/login");
+    }
+
     public String getKmsKeyArn() {
         return getOrThrow("kmsKeyArn");
     }

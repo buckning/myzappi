@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title th:text="${pageTitle}">Not Found</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        form {
+            max-width: 400px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 4px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        input[type="text"] {
+            width: 380px;
+            padding: 10px;
+            padding-right: 10px;
+            font-size: 14px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            margin-bottom: 10px; /* Added vertical spacing */
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: #fff;
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .message {
+            margin-top: 10px;
+            padding: 5px;
+            border-radius: 5px;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+    </style>
+</head>
+<body>
+    <h1 th:text="${welcomeMessage}">Welcome!</h1>
+    <form id="loginCodeForm">
+        <div>
+<!--            <label for="loginCode">My Zappi Code:</label>-->
+            <label for="loginCode" th:text="${loginCode}">Substitute Code:</label>
+            <input type="text" id="loginCode" name="loginCode" required>
+        </div>
+        <div>
+            <label for="apiKey" th:text="${apiKey}">Substitute Key:</label>
+            <input type="text" id="apiKey" name="apiKey" required>
+        </div>
+        <div>
+            <button type="button" id="submitBtn">Submit</button>
+        </div>
+    </form>
+
+    <div id="messageContainer"></div>
+
+    <script th:inline="javascript">
+        var submitButton = document.getElementById("submitBtn");
+        submitButton.addEventListener("click", function(event) {
+            var apiUrl = /*[[${apiUrl}]]*/ '';
+            event.preventDefault(); // Prevent form submission
+
+            var loginCodeValue = document.getElementById("loginCode").value;
+            var apiKeyValue = document.getElementById("apiKey").value;
+
+            submitButton.disabled = true;
+
+            var requestBody = {
+                "loginCode": loginCodeValue,
+                "apiKey": apiKeyValue
+            };
+
+            fetch(apiUrl, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(requestBody)
+            })
+            .then(function(response) {
+                if (response.ok) {
+                    document.getElementById("loginCodeForm").style.display = "none";
+                    showMessage("My Zappi is now configured. You can start using it on your Alexa device.", "success");
+                } else {
+                    submitButton.disabled = false;
+                    showMessage("Something went wrong. Please check you entered the correct My Zappi code.", "error");
+                }
+            })
+            .catch(function(error) {
+                submitButton.disabled = false;
+                showMessage("Something is very wrong, please try again later", "error");
+            });
+        });
+
+        function showMessage(message, type) {
+            var messageContainer = document.getElementById("messageContainer");
+            messageContainer.innerHTML = "<div class='message " + type + "'>" + message + "</div>";
+        }
+    </script>
+</body>
+</html>
