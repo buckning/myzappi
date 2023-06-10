@@ -38,6 +38,14 @@ public class LoginService {
         return handleLoginForExistingUser(credsOptional.get());
     }
 
+    public void logout(String user) {
+        var creds = credentialsRepository.read(user);
+        if (creds.isPresent()) {
+            credentialsRepository.delete(creds.get().getUserId());
+            loginCodeRepository.delete(creds.get().getCode());
+        }
+    }
+
     private LoginResponse handleLoginForExistingUser(ZappiCredentials creds) {
         if (isAlreadyLoggedIn(creds)) {
             return new LoginResponse(creds, LoginState.LOGIN_COMPLETE);

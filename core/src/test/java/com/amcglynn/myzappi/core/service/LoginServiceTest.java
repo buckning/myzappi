@@ -195,6 +195,22 @@ class LoginServiceTest {
         assertThat(response.getZappiCredentials()).isEmpty();
     }
 
+    @Test
+    void testLogoutWhenDataFoundInDb() {
+        when(mockCredentialsRepository.read(userId)).thenReturn(Optional.of(zappiCredentials));
+        loginService.logout(userId);
+        verify(mockCredentialsRepository).delete(userId);
+        verify(mockLoginCodeRepository).delete(loginCode);
+    }
+
+    @Test
+    void testLogoutWhenDataNotFoundInDb() {
+        when(mockCredentialsRepository.read(userId)).thenReturn(Optional.empty());
+        loginService.logout(userId);
+        verify(mockCredentialsRepository, never()).delete(userId);
+        verify(mockLoginCodeRepository, never()).delete(loginCode);
+    }
+
     private void assertEquals(ZappiCredentials expected, ZappiCredentials actual) {
         assertThat(actual.getSerialNumber()).isEqualTo(expected.getSerialNumber());
         assertThat(actual.getCode()).isNotNull();

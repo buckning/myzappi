@@ -5,21 +5,28 @@ import com.amazon.ask.model.Intent;
 import com.amazon.ask.model.IntentRequest;
 import com.amazon.ask.model.ui.SimpleCard;
 import com.amazon.ask.model.ui.SsmlOutputSpeech;
+import com.amcglynn.myzappi.core.service.LoginService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static com.amcglynn.myzappi.handlers.HandlerTestUtils.handlerInputBuilder;
 import static com.amcglynn.myzappi.handlers.HandlerTestUtils.requestEnvelopeBuilder;
 import static org.assertj.core.api.Assertions.assertThat;
 
+@ExtendWith(MockitoExtension.class)
 class LogoutHandlerTest {
 
     private LogoutHandler handler;
     private IntentRequest intentRequest;
+    @Mock
+    private LoginService loginService;
 
     @BeforeEach
     void setUp() {
-        handler = new LogoutHandler();
+        handler = new LogoutHandler(loginService);
         intentRequest = IntentRequest.builder()
                 .withIntent(Intent.builder().withName("Logout").build())
                 .build();

@@ -1,0 +1,327 @@
+{
+  "interactionModel": {
+    "languageModel": {
+      "invocationName": "my zappi",
+      "intents": [
+        {
+          "name": "AMAZON.CancelIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.HelpIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.StopIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.NavigateHomeIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.FallbackIntent",
+          "samples": []
+        },
+        {
+          "name": "StatusSummary",
+          "slots": [],
+          "samples": [
+            "give me my energy usage",
+            "energy usage",
+            "what's my energy usage",
+            "give me my electricity summary",
+            "tell me my electricity usage",
+            "electricity usage",
+            "give me my electricity usage",
+            "what's my summary",
+            "give me my summary",
+            "summary"
+          ]
+        },
+        {
+          "name": "SetChargeMode",
+          "slots": [
+            {
+              "name": "ChargeMode",
+              "type": "chargeMode",
+              "samples": [
+                "Please change to {ChargeMode} mode",
+                "I want {ChargeMode} mode",
+                "{ChargeMode}"
+              ]
+            }
+          ],
+          "samples": [
+            "to change to {ChargeMode} mode",
+            "switch to {ChargeMode}",
+            "set charge mode to {ChargeMode}"
+          ]
+        },
+        {
+          "name": "ChargeMyCar",
+          "slots": [],
+          "samples": [
+            "start charging",
+            "Charge my car"
+          ]
+        },
+        {
+          "name": "GoGreen",
+          "slots": [],
+          "samples": [
+            "switch to solar",
+            "go green"
+          ]
+        },
+        {
+          "name": "StopBoostMode",
+          "slots": [],
+          "samples": [
+            "disable boost",
+            "disable boost mode",
+            "stop boosting",
+            "Stop boost",
+            "Stop boost mode"
+          ]
+        },
+        {
+          "name": "StartBoostMode",
+          "slots": [
+            {
+              "name": "Duration",
+              "type": "AMAZON.DURATION"
+            },
+            {
+              "name": "Time",
+              "type": "AMAZON.TIME"
+            },
+            {
+              "name": "KiloWattHours",
+              "type": "AMAZON.NUMBER"
+            }
+          ],
+          "samples": [
+            "Charge for {KiloWattHours} kilowatt hours",
+            "Charge {KiloWattHours} kilowatt hours",
+            "Add {KiloWattHours} kilowatts",
+            "Add {KiloWattHours} kilowatt hours",
+            "Add {KiloWattHours} kilowatt hours to my car",
+            "Add {KiloWattHours} kilowatts now",
+            "Add {KiloWattHours} kilowatts to my car",
+            "Boost for {KiloWattHours} kilowatts",
+            "Boost for {KiloWattHours} Kilowatt hours",
+            "Boost until {Time}",
+            "Boost for {Duration}"
+          ]
+        },
+        {
+          "name": "GetEnergyUsage",
+          "slots": [
+            {
+              "name": "month",
+              "type": "AMAZON.Month"
+            },
+            {
+              "name": "year",
+              "type": "AMAZON.FOUR_DIGIT_NUMBER"
+            },
+            {
+              "name": "date",
+              "type": "AMAZON.DATE"
+            }
+          ],
+          "samples": [
+            "Calculate energy usage for {date}",
+            "Get usage for {date}",
+            "What's my usage for {date} "
+          ]
+        },
+        {
+          "name": "GetEnergyCost",
+          "slots": [
+            {
+              "name": "date",
+              "type": "AMAZON.DATE"
+            }
+          ],
+          "samples": [
+            "What was the cost for {date}",
+            "Give me an energy cost for {date}",
+            "How much did the electricity cost me for {date}"
+          ]
+        },
+        {
+          "name": "GetPlugStatus",
+          "slots": [],
+          "samples": [
+            "Is my E.V. charging",
+            "Has my car finished charging",
+            "Is my car charging",
+            "Is my car connected",
+            "Is my car plugged in",
+            "Is my E.V. plugged in"
+          ]
+        },
+        {
+          "name": "RegisterCredentials",
+          "slots": [
+            {
+              "name": "SerialNumber",
+              "type": "AMAZON.NUMBER",
+              "samples": [
+                "My serial number is {SerialNumber}",
+                "It is {SerialNumber}",
+                "{SerialNumber}"
+              ]
+            }
+          ],
+          "samples": [
+            "Register",
+            "Login"
+          ]
+        },
+        {
+          "name": "Logout",
+          "slots": [],
+          "samples": [
+            "log out",
+            "uninstall",
+            "forget my details",
+            "log me out",
+            "unregister",
+            "Forget me",
+            "Logout"
+          ]
+        },
+        {
+          "name": "GetCode",
+          "slots": [],
+          "samples": [
+            "get my zappi code",
+            "get my activation code",
+            "get my password",
+            "get my code",
+            "what is my password",
+            "what is my one time password",
+            "what is my activation code",
+            "what is my registration key",
+            "what is my login code",
+            "What is my zappi code",
+            "What is my code"
+          ]
+        }
+      ],
+      "types": [
+        {
+          "name": "chargeMode",
+          "values": [
+            {
+              "id": "2",
+              "name": {
+                "value": "ECO"
+              }
+            },
+            {
+              "id": "4",
+              "name": {
+                "value": "STOP"
+              }
+            },
+            {
+              "id": "3",
+              "name": {
+                "value": "ECO+"
+              }
+            },
+            {
+              "id": "1",
+              "name": {
+                "value": "FAST"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "dialog": {
+      "intents": [
+        {
+          "name": "SetChargeMode",
+          "confirmationRequired": false,
+          "prompts": {},
+          "slots": [
+            {
+              "name": "ChargeMode",
+              "type": "chargeMode",
+              "confirmationRequired": false,
+              "elicitationRequired": true,
+              "prompts": {
+                "elicitation": "Elicit.Slot.502862545532.234134617018"
+              }
+            }
+          ]
+        },
+        {
+          "name": "RegisterCredentials",
+          "confirmationRequired": false,
+          "prompts": {},
+          "slots": [
+            {
+              "name": "SerialNumber",
+              "type": "AMAZON.NUMBER",
+              "confirmationRequired": false,
+              "elicitationRequired": true,
+              "prompts": {
+                "elicitation": "Elicit.Slot.852280951809.667398285955"
+              }
+            }
+          ]
+        }
+      ],
+      "delegationStrategy": "ALWAYS"
+    },
+    "prompts": [
+      {
+        "id": "Elicit.Slot.502862545532.234134617018",
+        "variations": [
+          {
+            "type": "PlainText",
+            "value": "Please let me know what charge mode you need"
+          },
+          {
+            "type": "PlainText",
+            "value": "You need to provide a charge mode"
+          }
+        ]
+      },
+      {
+        "id": "Confirm.Intent.785250730999",
+        "variations": [
+          {
+            "type": "PlainText",
+            "value": "The serial number you want to add is {SerialNumber} , is this correct?"
+          }
+        ]
+      },
+      {
+        "id": "Elicit.Slot.852280951809.667398285955",
+        "variations": [
+          {
+            "type": "PlainText",
+            "value": "Please tell me your serial number"
+          }
+        ]
+      },
+      {
+        "id": "Confirm.Slot.852280951809.667398285955",
+        "variations": [
+          {
+            "type": "PlainText",
+            "value": "Thank you, I heard {SerialNumber} , is this correct?"
+          }
+        ]
+      }
+    ]
+  }
+}
