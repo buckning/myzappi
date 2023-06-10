@@ -1,4 +1,4 @@
-package com.amcglynn.myzappi.config;
+package com.amcglynn.myzappi.core.config;
 
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;

@@ -55,8 +55,11 @@ aws lambda create-function --function-name myzappi --runtime java11 --handler co
 ```
 ### Create Lambda for MyZappi Login page
 ```
-aws lambda create-function --function-name myzappi-login --runtime java11 --handler com.amcglynn.myenergi.loginlambda.ConfigureApiKeyHandler::handleRequest --role {arnFromRoleCreatedAbove}  --code S3Bucket={myzappiBuilds},S3Key={pathToJarFile} --memory-size 512 --timeout 30
+aws lambda create-function --function-name myzappi-login --runtime java11 --handler com.amcglynn.myzappi.login.CompleteLoginHandler::handleRequest --role {arnFromRoleCreatedAbove}  --code S3Bucket={myzappiBuilds},S3Key={pathToJarFile} --memory-size 512 --timeout 30
 ```
+
+# Configure environment variables
+* Create `kmsKeyArn` environment variable and `awsRegion` for both lambdas
 
 ## Manually configure API gateway for myzappi-login
 * Click Add Trigger, API Gateway

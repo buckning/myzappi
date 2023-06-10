@@ -10,6 +10,7 @@
     <modules>
         <module>myzappi-alexa-lambda</module>
         <module>core</module>
+        <module>login-lambda</module>
         <!--        <module>myenergi-client</module>-->
     </modules>
     <packaging>pom</packaging>
@@ -64,9 +65,9 @@
                                         <exclude>com.amcglynn.myzappi.core.model.SerialNumber</exclude>
                                         <exclude>com.amcglynn.myzappi.core.service.LoginCode</exclude>
                                         <exclude>com.amcglynn.myzappi.core.service.EncryptionService</exclude>
-                                        <exclude>com.amcglynn.myzappi.config.ServiceManager</exclude>
-                                        <exclude>com.amcglynn.myzappi.config.Properties</exclude>
-                                        <exclude>com.amcglynn.myzappi.exception.MissingConfigurationException</exclude>
+                                        <exclude>com.amcglynn.myzappi.core.config.ServiceManager</exclude>
+                                        <exclude>com.amcglynn.myzappi.core.config.Properties</exclude>
+                                        <exclude>com.amcglynn.myzappi.core.exception.MissingConfigurationException</exclude>
                                         <exclude>com.amcglynn.myzappi.MyZappiSkillStreamHandler</exclude>
                                     </excludes>
                                 </rule>

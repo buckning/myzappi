@@ -1,4 +1,4 @@
-package com.amcglynn.myzappi.exception;
+package com.amcglynn.myzappi.core.exception;
 
 public class MissingConfigurationException extends RuntimeException {
 

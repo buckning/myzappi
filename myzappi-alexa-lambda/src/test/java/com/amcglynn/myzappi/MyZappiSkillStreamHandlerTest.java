@@ -1,6 +1,6 @@
 package com.amcglynn.myzappi;
 
-import com.amcglynn.myzappi.config.ServiceManager;
+import com.amcglynn.myzappi.core.config.ServiceManager;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;

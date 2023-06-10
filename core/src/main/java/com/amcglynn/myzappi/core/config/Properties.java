@@ -1,6 +1,6 @@
-package com.amcglynn.myzappi.config;
+package com.amcglynn.myzappi.core.config;
 
-import com.amcglynn.myzappi.exception.MissingConfigurationException;
+import com.amcglynn.myzappi.core.exception.MissingConfigurationException;
 
 public class Properties {
 
