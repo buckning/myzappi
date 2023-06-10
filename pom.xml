@@ -11,7 +11,7 @@
         <module>myzappi-alexa-lambda</module>
         <module>core</module>
         <module>login-lambda</module>
-        <!--        <module>myenergi-client</module>-->
+        <module>myenergi-client</module>
     </modules>
     <packaging>pom</packaging>
 
@@ -69,6 +69,10 @@
                                         <exclude>com.amcglynn.myzappi.core.config.Properties</exclude>
                                         <exclude>com.amcglynn.myzappi.core.exception.MissingConfigurationException</exclude>
                                         <exclude>com.amcglynn.myzappi.MyZappiSkillStreamHandler</exclude>
+                                        <exclude>com.amcglynn.myenergi.units.*</exclude>
+                                        <exclude>com.amcglynn.myenergi.apiresponse.*</exclude>
+                                        <exclude>com.amcglynn.myenergi.energycost.*</exclude>
+                                        <exclude>com.amcglynn.myenergi.*</exclude>
                                     </excludes>
                                 </rule>
                             </rules>
