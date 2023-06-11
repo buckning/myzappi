@@ -7,7 +7,7 @@ import com.amazonaws.services.dynamodbv2.model.GetItemRequest;
 import com.amazonaws.services.dynamodbv2.model.PutItemRequest;
 import com.amcglynn.myzappi.core.model.SerialNumber;
 import com.amcglynn.myzappi.core.model.ZappiCredentials;
-import com.amcglynn.myzappi.core.service.LoginCode;
+import com.amcglynn.myzappi.core.model.LoginCode;
 
 import java.util.HashMap;
 import java.util.Optional;

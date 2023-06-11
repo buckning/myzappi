@@ -1,8 +1,5 @@
 package com.amcglynn.myzappi.core.model;
 
-import com.amcglynn.myzappi.core.service.LoginCode;
-import lombok.EqualsAndHashCode;
-
 import java.nio.ByteBuffer;
 import java.util.Optional;
 

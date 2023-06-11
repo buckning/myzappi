@@ -1,30 +1,49 @@
-package com.amcglynn.myenergi.service;
+package com.amcglynn.myzappi.core.service;
 
 import com.amcglynn.myenergi.MyEnergiClient;
 import com.amcglynn.myenergi.ZappiChargeMode;
 import com.amcglynn.myenergi.ZappiDaySummary;
-import com.amcglynn.myenergi.ZappiMonthSummary;
 import com.amcglynn.myenergi.ZappiStatusSummary;
-import com.amcglynn.myenergi.energycost.ImportedEnergyHourSummary;
 import com.amcglynn.myenergi.units.KiloWattHour;
+import com.amcglynn.myzappi.core.exception.UserNotLoggedInException;
 
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.time.YearMonth;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 public class ZappiService {
 
-    private final MyEnergiClient client;
-    private final Supplier<LocalTime> localTimeSupplier;
+    private MyEnergiClient client;
+    private Supplier<LocalTime> localTimeSupplier;
 
-    public ZappiService(MyEnergiClient client, Supplier<LocalTime> localTimeSupplier) {
+    private ZappiService(LoginService loginService, EncryptionService encryptionService, String user) {
+        var creds = loginService.readCredentials(user);
+        if (creds.isEmpty() || !loginService.isLoggedIn(creds.get())) {
+            throw new UserNotLoggedInException(user);
+        }
+
+        client = new MyEnergiClient(creds.get().getSerialNumber().toString(),
+                encryptionService.decrypt(creds.get().getEncryptedApiKey().get()));
+        localTimeSupplier = LocalTime::now;
+    }
+
+    /**
+     * Only for unit testing
+     * @param client mock client
+     */
+    protected void setClient(MyEnergiClient client) {
         this.client = client;
+    }
+
+    /**
+     * Only for unit testing
+     * @param localTimeSupplier mock LocalTime supplier
+     */
+    protected void setLocalTimeSupplier(Supplier<LocalTime> localTimeSupplier) {
         this.localTimeSupplier = localTimeSupplier;
     }
 
@@ -41,6 +60,11 @@ public class ZappiService {
         client.boost(targetChargeAmount);
     }
 
+    /**
+     * Start Smart Boost for a certain duration. The myenergi APIs expect everything to be rounded to the nearest 15 minutes.
+     * @param duration minimum duration of the boost. This will be rounded to the nearest 15 minutes of the requested time.
+     * @return end time of the boost
+     */
     public LocalTime startSmartBoost(final Duration duration) {
         var boostEndTime = roundToNearest15Mins(duration);
         client.boost(boostEndTime);
@@ -61,22 +85,6 @@ public class ZappiService {
         return new ZappiDaySummary(client.getZappiHistory(localDate).getReadings());
     }
 
-    public ZappiMonthSummary getEnergyUsage(YearMonth yearMonth) {
-        var result = IntStream.range(1, yearMonth.lengthOfMonth() + 1)
-                .mapToObj(day -> {
-                    return client.getZappiHistory(LocalDate.of(yearMonth.getYear(), yearMonth.getMonth(), day));
-                })
-                .map(dayHistory -> new ZappiDaySummary(dayHistory.getReadings()))
-                .collect(Collectors.toList());
-        return new ZappiMonthSummary(yearMonth, result);
-    }
-
-    public List<ImportedEnergyHourSummary> getHourlySummary(LocalDate date) {
-        return client.getZappiHourlyHistory(date).getReadings().stream()
-                .map(ImportedEnergyHourSummary::new)
-                .collect(Collectors.toList());
-    }
-
     private LocalTime roundToNearest15Mins(Duration duration) {
         var targetChargeEndTime = localTimeSupplier.get().plus(duration);
         return roundToNearest15Mins(targetChargeEndTime);
@@ -88,5 +96,19 @@ public class ZappiService {
             return endTime.plus((15 - overflow15Minutes), ChronoUnit.MINUTES);
         }
         return endTime.minus(overflow15Minutes, ChronoUnit.MINUTES);
+    }
+
+    public static class Builder {
+        private final LoginService loginService;
+        private final EncryptionService encryptionService;
+
+        public Builder(LoginService loginService, EncryptionService encryptionService) {
+            this.loginService = loginService;
+            this.encryptionService = encryptionService;
+        }
+
+        public ZappiService build(String userId) {
+            return new ZappiService(loginService, encryptionService, userId);
+        }
     }
 }

@@ -8,13 +8,12 @@ import com.amcglynn.myzappi.core.Brand;
 import com.amcglynn.myzappi.core.config.Properties;
 import com.amcglynn.myzappi.core.config.ServiceManager;
 import com.amcglynn.myzappi.core.model.CompleteLoginState;
-import com.amcglynn.myzappi.core.service.LoginCode;
+import com.amcglynn.myzappi.core.model.LoginCode;
 import com.amcglynn.myzappi.core.service.LoginService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.thymeleaf.TemplateEngine;
-import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 
 import java.util.Collections;

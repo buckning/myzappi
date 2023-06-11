@@ -4,6 +4,7 @@ import com.amcglynn.myzappi.core.dal.CredentialsRepository;
 import com.amcglynn.myzappi.core.dal.LoginCodeRepository;
 import com.amcglynn.myzappi.core.model.CompleteLoginResponse;
 import com.amcglynn.myzappi.core.model.CompleteLoginState;
+import com.amcglynn.myzappi.core.model.LoginCode;
 import com.amcglynn.myzappi.core.model.LoginCodeEntry;
 import com.amcglynn.myzappi.core.model.LoginResponse;
 import com.amcglynn.myzappi.core.model.LoginState;
@@ -13,6 +14,7 @@ import com.amcglynn.myzappi.core.model.ZappiCredentials;
 import java.nio.ByteBuffer;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Optional;
 
 public class LoginService {
 
@@ -109,6 +111,14 @@ public class LoginService {
         credentialsRepository.write(newCreds);
 
         return new CompleteLoginResponse(CompleteLoginState.COMPLETE, newCreds);
+    }
+
+    public Optional<ZappiCredentials> readCredentials(String userId) {
+        return credentialsRepository.read(userId);
+    }
+
+    public boolean isLoggedIn(ZappiCredentials creds) {
+        return creds.getEncryptedApiKey().isPresent();
     }
 
     private boolean isExpired(LoginCodeEntry loginCodeEntry) {

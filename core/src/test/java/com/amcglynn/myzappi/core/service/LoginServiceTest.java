@@ -3,6 +3,7 @@ package com.amcglynn.myzappi.core.service;
 import com.amcglynn.myzappi.core.dal.CredentialsRepository;
 import com.amcglynn.myzappi.core.dal.LoginCodeRepository;
 import com.amcglynn.myzappi.core.model.CompleteLoginState;
+import com.amcglynn.myzappi.core.model.LoginCode;
 import com.amcglynn.myzappi.core.model.LoginCodeEntry;
 import com.amcglynn.myzappi.core.model.LoginState;
 import com.amcglynn.myzappi.core.model.SerialNumber;
@@ -104,6 +105,23 @@ class LoginServiceTest {
 
         verify(mockCredentialsRepository).write(any());
         verify(mockLoginCodeRepository).write(any());
+    }
+
+    @Test
+    void testIsLoggedInReturnsTrueWhenApiKeyIsPresent() {
+        assertThat(loginService.isLoggedIn(zappiCredentials)).isTrue();
+    }
+
+    @Test
+    void testIsLoggedInReturnsFalseWhenApiKeyIsPresent() {
+        zappiCredentials = new ZappiCredentials(userId, serialNumber, loginCode);
+        assertThat(loginService.isLoggedIn(zappiCredentials)).isFalse();
+    }
+
+    @Test
+    void testReadCredentialsReturnsValueFromDb() {
+        when(mockCredentialsRepository.read(userId)).thenReturn(Optional.of(zappiCredentials));
+        assertThat(loginService.readCredentials(userId)).isEqualTo(Optional.of(zappiCredentials));
     }
 
     @Test

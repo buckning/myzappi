@@ -10,7 +10,7 @@ import com.amcglynn.myzappi.core.model.LoginResponse;
 import com.amcglynn.myzappi.core.model.LoginState;
 import com.amcglynn.myzappi.core.model.SerialNumber;
 import com.amcglynn.myzappi.core.model.ZappiCredentials;
-import com.amcglynn.myzappi.core.service.LoginCode;
+import com.amcglynn.myzappi.core.model.LoginCode;
 import com.amcglynn.myzappi.core.service.LoginService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

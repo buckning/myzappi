@@ -9,6 +9,7 @@ import com.amcglynn.myzappi.handlers.LaunchHandler;
 import com.amcglynn.myzappi.handlers.LoginHandler;
 import com.amcglynn.myzappi.handlers.LogoutHandler;
 import com.amcglynn.myzappi.handlers.MyZappiExceptionHandler;
+import com.amcglynn.myzappi.handlers.StatusSummaryHandler;
 
 public class MyZappiSkillStreamHandler extends SkillStreamHandler {
 
@@ -22,6 +23,7 @@ public class MyZappiSkillStreamHandler extends SkillStreamHandler {
                 .addRequestHandler(new FallbackHandler())
                 .addRequestHandler(new LoginHandler(serviceManager.getLoginService()))
                 .addRequestHandler(new LogoutHandler(serviceManager.getLoginService()))
+                .addRequestHandler(new StatusSummaryHandler(serviceManager.getZappiServiceBuilder()))
                 .addExceptionHandler(new MyZappiExceptionHandler())
                 .build());
     }

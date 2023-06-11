@@ -1,4 +1,4 @@
-package com.amcglynn.myzappi.core.service;
+package com.amcglynn.myzappi.core.model;
 
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;

@@ -6,12 +6,14 @@ import com.amcglynn.myzappi.core.dal.CredentialsRepository;
 import com.amcglynn.myzappi.core.dal.LoginCodeRepository;
 import com.amcglynn.myzappi.core.service.EncryptionService;
 import com.amcglynn.myzappi.core.service.LoginService;
+import com.amcglynn.myzappi.core.service.ZappiService;
 
 public class ServiceManager {
 
     private EncryptionService encryptionService;
     private LoginCodeRepository loginCodeRepository;
     private CredentialsRepository credentialsRepository;
+    private ZappiService.Builder zappiServiceBuilder;
     private LoginService loginService;
 
     public ServiceManager(Properties properties) {
@@ -28,5 +30,12 @@ public class ServiceManager {
             loginService = new LoginService(credentialsRepository, loginCodeRepository, encryptionService);
         }
         return loginService;
+    }
+
+    public ZappiService.Builder getZappiServiceBuilder() {
+        if (this.zappiServiceBuilder == null) {
+            zappiServiceBuilder = new ZappiService.Builder(getLoginService(), encryptionService);
+        }
+        return this.zappiServiceBuilder;
     }
 }

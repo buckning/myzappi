@@ -1,7 +1,5 @@
 package com.amcglynn.myzappi.core.model;
 
-import com.amcglynn.myzappi.core.service.LoginCode;
-
 import java.time.Instant;
 
 public class LoginCodeEntry {
