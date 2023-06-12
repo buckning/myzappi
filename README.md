@@ -1,5 +1,14 @@
 # Welcome to MyZappi!
 
+## What is MyZappi?
+MyZappi is an Alexa skill that can be used to control your myenergi Zappi device all through an Amazon Echo or Alexa device.
+It offers functionality such as:
+* Get the current status of the Zappi, including import, export, solar generation, charge add to E.V., etc.
+* Set the Zappi charge mode to Eco, Eco+, Fast or Stop
+* Enable boost for a specific duration or kilowatt amount
+* Get energy usage for a specific day
+* Check if your E.V. is plugged in
+
 ## Build
 Build the project with the following command
 ```
