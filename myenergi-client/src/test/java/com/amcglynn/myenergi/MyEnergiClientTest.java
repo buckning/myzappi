@@ -57,6 +57,18 @@ class MyEnergiClientTest {
     }
 
     @Test
+    void test401ResponseResultsInClientExceptionBeingThrown() {
+        var mockResponse = new MockResponse()
+                .setResponseCode(401)
+                .addHeader("x_myenergi-asn", mockWebServer.url("").uri())
+                .setBody(ZappiResponse.getErrorResponse());
+        mockWebServer.enqueue(mockResponse);
+        var throwable = catchThrowable(() -> client.getZappiStatus());
+
+        assertThat(throwable).isInstanceOf(ClientException.class);
+    }
+
+    @Test
     void testGetStatusThrowsInvalidResponseExceptionWhenJsonResponseIsMalformed() {
         var mockResponse = new MockResponse()
                 .setResponseCode(200)

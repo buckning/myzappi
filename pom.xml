@@ -61,7 +61,6 @@
                                         </limit>
                                     </limits>
                                     <excludes>
-                                        <exclude>com.amcglynn.myzappi.core.Brand</exclude>
                                         <exclude>com.amcglynn.myzappi.core.model.SerialNumber</exclude>
                                         <exclude>com.amcglynn.myzappi.core.model.LoginCode</exclude>
                                         <exclude>com.amcglynn.myzappi.core.service.EncryptionService</exclude>
@@ -70,7 +69,6 @@
                                         <exclude>com.amcglynn.myzappi.core.exception.MissingConfigurationException</exclude>
                                         <exclude>com.amcglynn.myzappi.MyZappiSkillStreamHandler</exclude>
                                         <exclude>com.amcglynn.myenergi.units.*</exclude>
-                                        <exclude>com.amcglynn.myenergi.energycost.*</exclude>
                                         <exclude>com.amcglynn.myenergi.*</exclude>
                                     </excludes>
                                 </rule>

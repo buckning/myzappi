@@ -8,6 +8,7 @@ import com.amazon.ask.model.User;
 import com.amazon.ask.model.ui.SimpleCard;
 import com.amazon.ask.model.ui.SsmlOutputSpeech;
 import com.amcglynn.myenergi.exception.ClientException;
+import com.amcglynn.myenergi.exception.ServerCommunicationException;
 import com.amcglynn.myzappi.core.Brand;
 import com.amcglynn.myzappi.core.exception.UserNotLoggedInException;
 import org.junit.jupiter.api.BeforeEach;
@@ -69,6 +70,7 @@ class MyZappiExceptionHandlerTest {
         return Stream.of(
                 Arguments.of(new UserNotLoggedInException("test"), "You need to login first."),
                 Arguments.of(new ClientException(404), "Could not authenticate with myenergi APIs. Perhaps you entered the wrong serial number or API key. Ask me to log out and log in again to reset them."),
+                Arguments.of(new ServerCommunicationException(), "I couldn't communicate with myenergi servers."),
                 Arguments.of(new NullPointerException("unexpectedException"), "There was an unexpected error."));
     }
 
@@ -76,6 +78,7 @@ class MyZappiExceptionHandlerTest {
         return Stream.of(
                 Arguments.of(new UserNotLoggedInException("test"), "<speak>You need to login first.</speak>"),
                 Arguments.of(new ClientException(404), "<speak>Could not authenticate with my energy APIs. Perhaps you entered the wrong serial number or API key. Ask me to log out and log in again to reset them.</speak>"),
+                Arguments.of(new ServerCommunicationException(), "<speak>I couldn't communicate with my energy servers.</speak>"),
                 Arguments.of(new NullPointerException("unexpectedException"), "<speak>There was an unexpected error.</speak>"));
     }
 
