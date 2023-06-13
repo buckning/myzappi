@@ -4,9 +4,11 @@ import com.amazon.ask.SkillStreamHandler;
 import com.amazon.ask.Skills;
 import com.amcglynn.myzappi.core.config.Properties;
 import com.amcglynn.myzappi.core.config.ServiceManager;
+import com.amcglynn.myzappi.handlers.ChargeMyCarHandler;
 import com.amcglynn.myzappi.handlers.FallbackHandler;
 import com.amcglynn.myzappi.handlers.GetEnergyUsageHandler;
 import com.amcglynn.myzappi.handlers.GetPlugStatusHandler;
+import com.amcglynn.myzappi.handlers.GoGreenHandler;
 import com.amcglynn.myzappi.handlers.LaunchHandler;
 import com.amcglynn.myzappi.handlers.LoginHandler;
 import com.amcglynn.myzappi.handlers.LogoutHandler;
@@ -35,6 +37,8 @@ public class MyZappiSkillStreamHandler extends SkillStreamHandler {
                 .addRequestHandler(new GetPlugStatusHandler(serviceManager.getZappiServiceBuilder()))
                 .addRequestHandler(new GetEnergyUsageHandler(serviceManager.getZappiServiceBuilder()))
                 .addRequestHandler(new SetChargeModeHandler(serviceManager.getZappiServiceBuilder()))
+                .addRequestHandler(new GoGreenHandler(serviceManager.getZappiServiceBuilder()))
+                .addRequestHandler(new ChargeMyCarHandler(serviceManager.getZappiServiceBuilder()))
                 .addRequestHandler(new QuitHandler())
                 .addExceptionHandler(new MyZappiExceptionHandler())
                 .build());

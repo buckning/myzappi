@@ -70,6 +70,11 @@
           "name": "GoGreen",
           "slots": [],
           "samples": [
+            "change charge mode to eco plus",
+            "change to eco plus",
+            "switch to eco plus",
+            "switch to ecoplus mode",
+            "switch to eco plus mode",
             "switch to solar",
             "go green"
           ]
@@ -231,7 +236,7 @@
             {
               "id": "3",
               "name": {
-                "value": "ECO+"
+                "value": "ECO PLUS"
               }
             },
             {
