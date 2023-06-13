@@ -62,8 +62,8 @@ class ChargeMyCarHandlerTest {
         var result = handler.handle(handlerInputBuilder().build());
         assertThat(result).isPresent();
 
-        verifySpeechInResponse(result.get(), "<speak>Changed charging mode to Fast. This may take a few minutes.</speak>");
-        verifySimpleCardInResponse(result.get(), "My Zappi", "Changed charging mode to Fast. " +
+        verifySpeechInResponse(result.get(), "<speak>Changing charging mode to Fast. This may take a few minutes.</speak>");
+        verifySimpleCardInResponse(result.get(), "My Zappi", "Changing charging mode to Fast. " +
                 "This may take a few minutes.");
 
         verify(mockZappiService).setChargeMode(ZappiChargeMode.FAST);

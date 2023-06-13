@@ -6,6 +6,9 @@ import com.amazon.ask.model.Response;
 import com.amcglynn.myenergi.ZappiChargeMode;
 import com.amcglynn.myzappi.core.Brand;
 import com.amcglynn.myzappi.core.service.ZappiService;
+import com.amcglynn.myzappi.handlers.responses.CardResponse;
+import com.amcglynn.myzappi.handlers.responses.VoiceResponse;
+
 import java.util.Optional;
 
 import static com.amazon.ask.request.Predicates.intentName;
@@ -26,11 +29,11 @@ public class GoGreenHandler implements RequestHandler {
     @Override
     public Optional<Response> handle(HandlerInput handlerInput) {
         var zappiService = zappiServiceBuilder.build(handlerInput.getRequestEnvelope().getSession().getUser().getUserId());
-        zappiService.setChargeMode(ZappiChargeMode.ECO_PLUS);
+        var chargeMode = ZappiChargeMode.ECO_PLUS;
+        zappiService.setChargeMode(chargeMode);
         return handlerInput.getResponseBuilder()
-                .withSpeech("Changed charging mode to " + ZappiChargeMode.ECO_PLUS.getDisplayName() + ". This may take a few minutes.")
-                .withSimpleCard(Brand.NAME, "Changed charging mode to "
-                        + ZappiChargeMode.ECO_PLUS.getDisplayName() + ". This may take a few minutes.")
+                .withSpeech(VoiceResponse.get(ZappiChargeMode.class).replace("{zappiChargeMode}", chargeMode.getDisplayName()))
+                .withSimpleCard(Brand.NAME, CardResponse.get(ZappiChargeMode.class).replace("{zappiChargeMode}", chargeMode.getDisplayName()))
                 .build();
     }
 }

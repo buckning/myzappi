@@ -6,6 +6,8 @@ import com.amazon.ask.model.Response;
 import com.amcglynn.myenergi.ZappiChargeMode;
 import com.amcglynn.myzappi.core.Brand;
 import com.amcglynn.myzappi.core.service.ZappiService;
+import com.amcglynn.myzappi.handlers.responses.CardResponse;
+import com.amcglynn.myzappi.handlers.responses.VoiceResponse;
 
 import java.util.Optional;
 
@@ -27,11 +29,11 @@ public class ChargeMyCarHandler implements RequestHandler {
     @Override
     public Optional<Response> handle(HandlerInput handlerInput) {
         var zappiService = zappiServiceBuilder.build(handlerInput.getRequestEnvelope().getSession().getUser().getUserId());
-        zappiService.setChargeMode(ZappiChargeMode.FAST);
+        var chargeMode = ZappiChargeMode.FAST;
+        zappiService.setChargeMode(chargeMode);
         return handlerInput.getResponseBuilder()
-                .withSpeech("Changed charging mode to " + ZappiChargeMode.FAST.getDisplayName() + ". This may take a few minutes.")
-                .withSimpleCard(Brand.NAME, "Changed charging mode to "
-                        + ZappiChargeMode.FAST.getDisplayName() + ". This may take a few minutes.")
+                .withSpeech(VoiceResponse.get(ZappiChargeMode.class).replace("{zappiChargeMode}", chargeMode.getDisplayName()))
+                .withSimpleCard(Brand.NAME, CardResponse.get(ZappiChargeMode.class).replace("{zappiChargeMode}", chargeMode.getDisplayName()))
                 .build();
     }
 }

@@ -62,8 +62,8 @@ class GoGreenHandlerTest {
         var result = handler.handle(handlerInputBuilder().build());
         assertThat(result).isPresent();
 
-        verifySpeechInResponse(result.get(), "<speak>Changed charging mode to Eco+. This may take a few minutes.</speak>");
-        verifySimpleCardInResponse(result.get(), "My Zappi", "Changed charging mode to Eco+. " +
+        verifySpeechInResponse(result.get(), "<speak>Changing charging mode to Eco+. This may take a few minutes.</speak>");
+        verifySimpleCardInResponse(result.get(), "My Zappi", "Changing charging mode to Eco+. " +
                 "This may take a few minutes.");
 
         verify(mockZappiService).setChargeMode(ZappiChargeMode.ECO_PLUS);

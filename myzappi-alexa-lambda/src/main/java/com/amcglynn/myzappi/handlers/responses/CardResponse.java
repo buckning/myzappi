@@ -1,5 +1,6 @@
 package com.amcglynn.myzappi.handlers.responses;
 
+import com.amcglynn.myenergi.ZappiChargeMode;
 import com.amcglynn.myenergi.exception.ClientException;
 import com.amcglynn.myenergi.exception.ServerCommunicationException;
 import com.amcglynn.myzappi.core.exception.UserNotLoggedInException;
@@ -20,6 +21,7 @@ public class CardResponse {
         RESPONSE_MAP.put(UserNotLoggedInException.class, "You need to login first.");
         RESPONSE_MAP.put(ClientException.class, "Could not authenticate with myenergi APIs. Perhaps you entered the wrong serial number or API key. Ask me to log out and log in again to reset them.");
         RESPONSE_MAP.put(ServerCommunicationException.class, "I couldn't communicate with myenergi servers.");
+        RESPONSE_MAP.put(ZappiChargeMode.class, "Changing charging mode to {zappiChargeMode}. This may take a few minutes.");
         RESPONSE_MAP.put(Exception.class, "There was an unexpected error.");
     }
 
