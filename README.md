@@ -9,6 +9,9 @@ It offers functionality such as:
 * Get energy usage for a specific day
 * Check if your E.V. is plugged in
 
+## Known issues
+Get energy usage for a day will return the time based on UTC and not based on the timezone that the user is in.
+
 ## Build
 Build the project with the following command
 ```
