@@ -11,7 +11,7 @@ public class ZappiDaySummaryCardResponse {
         response += "Consumed: " + summary.getConsumed() + "kWh\n";
         response += "Solar generated: " + summary.getSolarGeneration() + "kWh\n";
         response += "Charged: " + summary.getEvSummary().getTotal() + "kWh\n";
-        if (summary.getSampleSize() < 24) {
+        if (summary.getSampleSize() < 1440) {
             response += "Note that there are missing data points so this reading is not completely accurate.";
         }
     }

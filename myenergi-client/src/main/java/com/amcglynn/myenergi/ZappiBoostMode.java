@@ -1,7 +1,5 @@
 package com.amcglynn.myenergi;
 
-import lombok.Getter;
-
 public enum ZappiBoostMode {
     // 2=Stop, 10=Boost, 11=SmartBoost
     STOP(2),

@@ -57,17 +57,17 @@ public class GetEnergyUsageHandler implements RequestHandler {
 
     private Optional<Response> getInvalidRequestedDateResponse(HandlerInput handlerInput) {
         return handlerInput.getResponseBuilder()
-                .withSpeech("You cannot request usage data for a time in the future.")
+                .withSpeech("I cannot give you usage data for a time in the future.")
                 .withSimpleCard(Brand.NAME,
-                        "You cannot request usage data for a time in the future.")
+                        "I cannot give you usage data for a time in the future.")
                 .build();
     }
 
     private Optional<Response> getInvalidInputResponse(HandlerInput handlerInput) {
         return handlerInput.getResponseBuilder()
-                .withSpeech("Please ask me for energy usage for a specific day or month")
+                .withSpeech("Please ask me for energy usage for a specific day.")
                 .withSimpleCard(Brand.NAME,
-                        "Please ask me for energy usage for a specific day or month.")
+                        "Please ask me for energy usage for a specific day.")
                 .build();
     }
 

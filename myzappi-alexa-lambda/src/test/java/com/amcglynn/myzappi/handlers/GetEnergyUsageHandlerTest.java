@@ -19,6 +19,7 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 
 import static com.amcglynn.myzappi.handlers.ResponseVerifier.verifySimpleCardInResponse;
 import static com.amcglynn.myzappi.handlers.ResponseVerifier.verifySpeechInResponse;
@@ -67,7 +68,7 @@ class GetEnergyUsageHandlerTest {
     void testHandleLocalDate() {
         initIntentRequest(LocalDate.of(2023, 2, 20));
         var zappiDaySummary = mock(ZappiDaySummary.class);
-        when(zappiDaySummary.getSampleSize()).thenReturn(1421);
+        when(zappiDaySummary.getSampleSize()).thenReturn(1440);
         when(zappiDaySummary.getImported()).thenReturn(new KiloWattHour(7));
         when(zappiDaySummary.getExported()).thenReturn(new KiloWattHour(10));
         when(zappiDaySummary.getConsumed()).thenReturn(new KiloWattHour(8));
@@ -89,13 +90,61 @@ class GetEnergyUsageHandlerTest {
     }
 
     @Test
+    void testHandleLocalDateInformsTheUserWhenDataPointsAreMissing() {
+        int missingDataPoints = 1421;   // should be 1440 for a day (60 * 24)
+        initIntentRequest(LocalDate.of(2023, 2, 20));
+        var zappiDaySummary = mock(ZappiDaySummary.class);
+        when(zappiDaySummary.getSampleSize()).thenReturn(missingDataPoints);
+        when(zappiDaySummary.getImported()).thenReturn(new KiloWattHour(7));
+        when(zappiDaySummary.getExported()).thenReturn(new KiloWattHour(10));
+        when(zappiDaySummary.getConsumed()).thenReturn(new KiloWattHour(8));
+        when(zappiDaySummary.getSolarGeneration()).thenReturn(new KiloWattHour(5));
+        when(zappiDaySummary.getEvSummary()).thenReturn(new ZappiDaySummary.EvSummary(new KiloWattHour(3),
+                new KiloWattHour(4), new KiloWattHour(7)));
+
+        when(mockZappiService.getEnergyUsage(any(LocalDate.class))).thenReturn(zappiDaySummary);
+        var result = handler.handle(handlerInputBuilder().build());
+        assertThat(result).isPresent();
+        verifySpeechInResponse(result.get(), "<speak>Imported 7.0 kilowatt hours. Exported 10.0 kilowatt hours. " +
+                "Consumed 8.0 kilowatt hours. Solar generation was 5.0 kilowatt hours. Charged 7.0 kilowatt hours to your E.V. " +
+                ". Note that there are missing data points so this reading is not completely accurate.</speak>");
+        verifySimpleCardInResponse(result.get(), "My Zappi", "Imported: 7.0kWh\n" +
+                "Exported: 10.0kWh\n" +
+                "Consumed: 8.0kWh\n" +
+                "Solar generated: 5.0kWh\n" +
+                "Charged: 7.0kWh\n" +
+                "Note that there are missing data points so this reading is not completely accurate.");
+        verify(mockZappiService).getEnergyUsage(LocalDate.of(2023, 2, 20));
+    }
+
+    @Test
+    void testHandleRejectsTheRequestWhenTheRequestedDateIsInTheFuture() {
+        initIntentRequest(LocalDate.now().plus(1, ChronoUnit.DAYS));
+        var result = handler.handle(handlerInputBuilder().build());
+        assertThat(result).isPresent();
+        verifySpeechInResponse(result.get(), "<speak>I cannot give you usage data for a time in the future.</speak>");
+        verifySimpleCardInResponse(result.get(), "My Zappi", "I cannot give you usage data for a time in the future.");
+    }
+
+    @Test
     void testHandleReturnsErrorMessageWhenDateIsNotProvided() {
         var result = handler.handle(handlerInputBuilder().build());
         assertThat(result).isPresent();
         verifySpeechInResponse(result.get(), "<speak>Please ask me for energy " +
-                "usage for a specific day or month</speak>");
+                "usage for a specific day.</speak>");
         verifySimpleCardInResponse(result.get(), "My Zappi", "Please ask me for energy " +
-                "usage for a specific day or month.");
+                "usage for a specific day.");
+    }
+
+    @Test
+    void testHandleReturnsErrorMessageWhenASpecificDateIsNotProvided() {
+        initIntentRequest("2023-06");
+        var result = handler.handle(handlerInputBuilder().build());
+        assertThat(result).isPresent();
+        verifySpeechInResponse(result.get(), "<speak>Please ask me for energy " +
+                "usage for a specific day.</speak>");
+        verifySimpleCardInResponse(result.get(), "My Zappi", "Please ask me for energy " +
+                "usage for a specific day.");
     }
 
     private HandlerInput.Builder handlerInputBuilder() {

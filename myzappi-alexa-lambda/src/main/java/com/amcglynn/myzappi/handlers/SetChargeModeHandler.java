@@ -11,7 +11,6 @@ import com.amcglynn.myzappi.handlers.responses.CardResponse;
 import com.amcglynn.myzappi.handlers.responses.VoiceResponse;
 import com.amcglynn.myzappi.mappers.AlexaZappiChargeModeMapper;
 
-import java.util.List;
 import java.util.Optional;
 
 import static com.amazon.ask.request.Predicates.intentName;
@@ -20,8 +19,6 @@ public class SetChargeModeHandler implements RequestHandler {
 
     private final ZappiService.Builder zappiServiceBuilder;
     private final AlexaZappiChargeModeMapper mapper;
-    private static final List<ZappiChargeMode> VALID_CHARGE_MODES = List.of(ZappiChargeMode.STOP, ZappiChargeMode.FAST,
-            ZappiChargeMode.ECO, ZappiChargeMode.ECO_PLUS);
 
     public SetChargeModeHandler(ZappiService.Builder zappiServiceBuilder) {
         this.zappiServiceBuilder = zappiServiceBuilder;
@@ -44,7 +41,7 @@ public class SetChargeModeHandler implements RequestHandler {
 
         var mappedChargeMode = mapper.getZappiChargeMode(chargeModeSlot.getValue().toLowerCase());
 
-        if (mappedChargeMode.isEmpty() || !validChargeMode(mappedChargeMode.get())) {
+        if (mappedChargeMode.isEmpty()) {
             // it should not be possible to get to this block since Alexa should only allow requests with valid values in the slot
             return handlerInput.getResponseBuilder()
                     .withSpeech("Sorry, I don't recognise that charge mode.")
@@ -58,9 +55,5 @@ public class SetChargeModeHandler implements RequestHandler {
                 .withSpeech(VoiceResponse.get(ZappiChargeMode.class).replace("{zappiChargeMode}", chargeMode.getDisplayName()))
                 .withSimpleCard(Brand.NAME, CardResponse.get(ZappiChargeMode.class).replace("{zappiChargeMode}", chargeMode.getDisplayName()))
                 .build();
-    }
-
-    private boolean validChargeMode(ZappiChargeMode chargeMode) {
-        return VALID_CHARGE_MODES.contains(chargeMode);
     }
 }
