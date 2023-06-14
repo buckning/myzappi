@@ -27,6 +27,7 @@ public class MyZappiSkillStreamHandler extends SkillStreamHandler {
 
     public MyZappiSkillStreamHandler(ServiceManager serviceManager) {
         super(Skills.standard()
+                .withSkillId(serviceManager.getSkillId())
                 .addRequestHandler(new LaunchHandler())
                 .addRequestHandler(new FallbackHandler())
                 .addRequestHandler(new LoginHandler(serviceManager.getLoginService()))

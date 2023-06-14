@@ -71,6 +71,7 @@ aws lambda create-function --function-name myzappi-login --runtime java11 --hand
 ```
 
 # Configure environment variables
+* Create `skillId` environment variable for `myzappi` lambda. The skill ID needs to be taken from the Alexa development console
 * Create `kmsKeyArn` environment variable and `awsRegion` for both lambdas
 
 ## Manually configure API gateway for myzappi-login

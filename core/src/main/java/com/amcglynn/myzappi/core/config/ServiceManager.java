@@ -15,6 +15,7 @@ public class ServiceManager {
     private CredentialsRepository credentialsRepository;
     private ZappiService.Builder zappiServiceBuilder;
     private LoginService loginService;
+    private Properties properties;
 
     public ServiceManager(Properties properties) {
         var amazonDynamoDB = AmazonDynamoDBClientBuilder.standard()
@@ -23,6 +24,11 @@ public class ServiceManager {
         encryptionService = new EncryptionService(properties.getKmsKeyArn());
         credentialsRepository = new CredentialsRepository(amazonDynamoDB);
         loginCodeRepository = new LoginCodeRepository(amazonDynamoDB);
+        this.properties = properties;
+    }
+
+    public String getSkillId() {
+        return properties.getSkillId();
     }
 
     public LoginService getLoginService() {

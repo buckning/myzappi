@@ -16,6 +16,10 @@ public class Properties {
         return getOrThrow("kmsKeyArn");
     }
 
+    public String getSkillId() {
+        return getOrThrow("skillId");
+    }
+
     private String getOrDefault(String propertyName, String defaultValue) {
         var property = System.getenv(propertyName);
         if (property == null) {
