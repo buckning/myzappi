@@ -77,26 +77,30 @@ public class LoginService {
         }
     }
 
-    public CompleteLoginResponse completeLogin(LoginCode loginCode, String apiKey) {
+    public CompleteLoginResponse completeLogin(LoginCode loginCode, SerialNumber serialNumber, String apiKey) {
         var encryptedKey = encryptionService.encrypt(apiKey);
-        var response = consumeLoginCode(loginCode, encryptedKey);
-        loginCodeRepository.delete(loginCode);
-        return response;
-    }
-
-    private CompleteLoginResponse consumeLoginCode(LoginCode loginCode, ByteBuffer encryptedKey) {
         var loginCodeOptional = loginCodeRepository.read(loginCode);
+
         if (loginCodeOptional.isEmpty()) {
             return new CompleteLoginResponse(CompleteLoginState.LOGIN_CODE_NOT_FOUND);
         }
 
-        if (isExpired(loginCodeOptional.get())) {
+        var response = consumeLoginCode(loginCodeOptional.get(), serialNumber, encryptedKey);
+        return response;
+    }
+
+    private CompleteLoginResponse consumeLoginCode(LoginCodeEntry loginCodeEntry, SerialNumber serialNumber, ByteBuffer encryptedKey) {
+        if (!serialNumber.equals(loginCodeEntry.getSerialNumber())) {
+            return new CompleteLoginResponse(CompleteLoginState.SERIAL_NUMBER_NOT_FOUND);
+        }
+        loginCodeRepository.delete(loginCodeEntry.getCode());
+        if (isExpired(loginCodeEntry)) {
             return new CompleteLoginResponse(CompleteLoginState.LOGIN_CODE_EXPIRED);
         }
 
-        var credsOptional = credentialsRepository.read(loginCodeOptional.get().getUserId());
+        var credsOptional = credentialsRepository.read(loginCodeEntry.getUserId());
 
-        if (credsOptional.isEmpty() || !isValidLoginCode(loginCode, credsOptional.get())) {
+        if (credsOptional.isEmpty() || !isValidLoginCode(loginCodeEntry.getCode(), credsOptional.get())) {
             return new CompleteLoginResponse(CompleteLoginState.ASSOCIATED_USER_NOT_FOUND);
         }
 
@@ -109,7 +113,6 @@ public class LoginService {
 
         credentialsRepository.delete(oldCreds.getUserId());
         credentialsRepository.write(newCreds);
-
         return new CompleteLoginResponse(CompleteLoginState.COMPLETE, newCreds);
     }
 

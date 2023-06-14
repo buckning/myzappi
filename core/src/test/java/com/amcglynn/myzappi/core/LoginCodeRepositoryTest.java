@@ -59,12 +59,14 @@ class LoginCodeRepositoryTest {
     void testReadReturnsUserIdWhenItIsAssociatedWithCode() {
         when(mockGetResult.getItem()).thenReturn(Map.of("amazon-user-id", new AttributeValue("userid"),
                 "otp", new AttributeValue("abc123"),
+                "serial-number", new AttributeValue("12345678"),
                 "created", new AttributeValue().withN(String.valueOf(createdTime.toEpochMilli()))));
         when(mockDb.getItem(any())).thenReturn(mockGetResult);
         var result = repository.read(LoginCode.from("abc123"));
         assertThat(result).isPresent();
         assertThat(result.get().getCode()).isEqualTo(LoginCode.from("abc123"));
         assertThat(result.get().getUserId()).isEqualTo("userid");
+        assertThat(result.get().getSerialNumber()).isEqualTo(SerialNumber.from("12345678"));
         assertThat(result.get().getCreated().minus(createdTime.toEpochMilli(), ChronoUnit.MILLIS).toEpochMilli())
                 .isZero();
     }
@@ -76,9 +78,10 @@ class LoginCodeRepositoryTest {
         verify(mockDb).putItem(putItemCaptor.capture());
         assertThat(putItemCaptor.getValue()).isNotNull();
         assertThat(putItemCaptor.getValue().getTableName()).isEqualTo("zappi-otp");
-        assertThat(putItemCaptor.getValue().getItem()).hasSize(3);
+        assertThat(putItemCaptor.getValue().getItem()).hasSize(4);
         assertThat(putItemCaptor.getValue().getItem().get("amazon-user-id").getS()).isEqualTo("userid");
         assertThat(putItemCaptor.getValue().getItem().get("otp").getS()).isEqualTo("abc123");
+        assertThat(putItemCaptor.getValue().getItem().get("serial-number").getS()).isEqualTo("12345678");
         var created = putItemCaptor.getValue().getItem().get("created").getN();
         assertThat(created).isNotNull();
     }

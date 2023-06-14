@@ -52,7 +52,7 @@ class LoginServiceTest {
     @BeforeEach
     void setUp() {
         zappiCredentials = new ZappiCredentials(userId, serialNumber, loginCode, encryptedApiKey);
-        loginCodeEntry = new LoginCodeEntry(loginCode, userId, createdTime);
+        loginCodeEntry = new LoginCodeEntry(loginCode, userId, serialNumber, createdTime);
         loginService = new LoginService(mockCredentialsRepository, mockLoginCodeRepository, mockEncryptionService);
     }
 
@@ -90,7 +90,7 @@ class LoginServiceTest {
     @Test
     void testLoginGeneratesNewLoginCodeWhenItHasExpired() {
         zappiCredentials = new ZappiCredentials(userId, serialNumber, loginCode);
-        loginCodeEntry = new LoginCodeEntry(loginCode, userId, Instant.now().minus(10, ChronoUnit.DAYS));
+        loginCodeEntry = new LoginCodeEntry(loginCode, userId, serialNumber, Instant.now().minus(10, ChronoUnit.DAYS));
         when(mockCredentialsRepository.read("userid")).thenReturn(Optional.of(zappiCredentials));
         when(mockLoginCodeRepository.read(loginCode)).thenReturn(Optional.of(loginCodeEntry));
 
@@ -165,18 +165,17 @@ class LoginServiceTest {
     @Test
     void testCompleteLoginReturnsLoginCodeNotFoundWhenItIsNotInTheLoginCodeTable() {
         when(mockEncryptionService.encrypt("myApiKey")).thenReturn(encryptedApiKey);
-        var response = loginService.completeLogin(loginCode, "myApiKey");
+        var response = loginService.completeLogin(loginCode, serialNumber, "myApiKey");
         assertThat(response.getState()).isEqualTo(CompleteLoginState.LOGIN_CODE_NOT_FOUND);
         assertThat(response.getZappiCredentials()).isEmpty();
-        verify(mockLoginCodeRepository).delete(loginCode);
     }
 
     @Test
     void testCompleteLoginReturnsLoginCodeExpiredWhenItIsOlderThan1DayAndDeletesLoginCode() {
         when(mockEncryptionService.encrypt("myApiKey")).thenReturn(encryptedApiKey);
-        loginCodeEntry = new LoginCodeEntry(loginCode, userId, Instant.now().minus(2, ChronoUnit.DAYS));
+        loginCodeEntry = new LoginCodeEntry(loginCode, userId, serialNumber, Instant.now().minus(2, ChronoUnit.DAYS));
         when(mockLoginCodeRepository.read(loginCode)).thenReturn(Optional.of(loginCodeEntry));
-        var response = loginService.completeLogin(loginCode, "myApiKey");
+        var response = loginService.completeLogin(loginCode, serialNumber, "myApiKey");
         assertThat(response.getState()).isEqualTo(CompleteLoginState.LOGIN_CODE_EXPIRED);
         assertThat(response.getZappiCredentials()).isEmpty();
         verify(mockLoginCodeRepository).delete(loginCode);
@@ -185,11 +184,11 @@ class LoginServiceTest {
     @Test
     void testCompleteLoginReturnsCompleteWhenLoginCodeIsValidAndAssociatedUserIsFound() {
         when(mockEncryptionService.encrypt("myApiKey")).thenReturn(encryptedApiKey);
-        loginCodeEntry = new LoginCodeEntry(loginCode, userId, Instant.now());
+        loginCodeEntry = new LoginCodeEntry(loginCode, userId, serialNumber, Instant.now());
         when(mockLoginCodeRepository.read(loginCode)).thenReturn(Optional.of(loginCodeEntry));
         when(mockCredentialsRepository.read(userId)).thenReturn(Optional.of(zappiCredentials));
 
-        var response = loginService.completeLogin(loginCode, "myApiKey");
+        var response = loginService.completeLogin(loginCode, serialNumber, "myApiKey");
 
         assertThat(response.getState()).isEqualTo(CompleteLoginState.COMPLETE);
         verify(mockCredentialsRepository).delete(userId);
@@ -208,8 +207,18 @@ class LoginServiceTest {
     void testCompleteLoginReturnsAssociatedUserNotFoundWhenLoginCodeIsInTheDbButThereIsNoUserInTheCredentialsTable() {
         when(mockEncryptionService.encrypt("myApiKey")).thenReturn(encryptedApiKey);
         when(mockLoginCodeRepository.read(loginCode)).thenReturn(Optional.of(loginCodeEntry));
-        var response = loginService.completeLogin(loginCode, "myApiKey");
+        var response = loginService.completeLogin(loginCode, serialNumber, "myApiKey");
         assertThat(response.getState()).isEqualTo(CompleteLoginState.ASSOCIATED_USER_NOT_FOUND);
+        assertThat(response.getZappiCredentials()).isEmpty();
+    }
+
+    @Test
+    void testCompleteLoginReturnsSerialNumberNotFoundWhenLoginCodeIsInTheDbButTheRequestedSerialNumberIsIncorrect() {
+        when(mockEncryptionService.encrypt("myApiKey")).thenReturn(encryptedApiKey);
+        loginCodeEntry = new LoginCodeEntry(loginCode, userId, SerialNumber.from("00000000"), Instant.now().minus(10, ChronoUnit.DAYS));
+        when(mockLoginCodeRepository.read(loginCode)).thenReturn(Optional.of(loginCodeEntry));
+        var response = loginService.completeLogin(loginCode, serialNumber, "myApiKey");
+        assertThat(response.getState()).isEqualTo(CompleteLoginState.SERIAL_NUMBER_NOT_FOUND);
         assertThat(response.getZappiCredentials()).isEmpty();
     }
 

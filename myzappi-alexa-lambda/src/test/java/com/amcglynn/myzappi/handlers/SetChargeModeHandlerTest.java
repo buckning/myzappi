@@ -72,9 +72,9 @@ class SetChargeModeHandlerTest {
         var result = handler.handle(handlerInputBuilder().build());
         assertThat(result).isPresent();
 
-        verifySpeechInResponse(result.get(), "<speak>Changing charging mode to "
+        verifySpeechInResponse(result.get(), "<speak>Changing charge mode to "
                 + zappiChargeMode.getDisplayName() + ". This may take a few minutes.</speak>");
-        verifySimpleCardInResponse(result.get(), "My Zappi", "Changing charging mode to " +
+        verifySimpleCardInResponse(result.get(), "My Zappi", "Changing charge mode to " +
                 zappiChargeMode.getDisplayName() + ". This may take a few minutes.");
 
         verify(mockZappiService).setChargeMode(zappiChargeMode);

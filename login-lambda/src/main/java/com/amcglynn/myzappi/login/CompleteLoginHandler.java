@@ -9,6 +9,7 @@ import com.amcglynn.myzappi.core.config.Properties;
 import com.amcglynn.myzappi.core.config.ServiceManager;
 import com.amcglynn.myzappi.core.model.CompleteLoginState;
 import com.amcglynn.myzappi.core.model.LoginCode;
+import com.amcglynn.myzappi.core.model.SerialNumber;
 import com.amcglynn.myzappi.core.service.LoginService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -50,7 +51,8 @@ public class CompleteLoginHandler implements RequestHandler<APIGatewayProxyReque
             thymeleafContext.setVariable("pageTitle", Brand.NAME);
             thymeleafContext.setVariable("welcomeMessage", "Welcome to " + Brand.NAME + "!");
             thymeleafContext.setVariable("loginCode", Brand.NAME + " Code:");
-            thymeleafContext.setVariable("apiKey", Brand.NAME + " API Key:");
+            thymeleafContext.setVariable("serialNumber", Brand.ZAPPI + " Serial Number:");
+            thymeleafContext.setVariable("apiKey", Brand.ZAPPI + " API Key:");
             thymeleafContext.setVariable("apiUrl", properties.getLoginUrl());
 
             // Process the Thymeleaf template
@@ -63,8 +65,10 @@ public class CompleteLoginHandler implements RequestHandler<APIGatewayProxyReque
             var body = new ObjectMapper().readValue(input.getBody(), new TypeReference<CompleteLoginRequest>(){});
 
             var loginCode = body.getLoginCode().replaceAll("\\s","").toLowerCase();
+            var serialNumber = body.getSerialNumber().replaceAll("\\s","").toLowerCase();
 
-            var result = loginService.completeLogin(LoginCode.from(loginCode), body.getApiKey().trim());
+            var result = loginService.completeLogin(LoginCode.from(loginCode),
+                    SerialNumber.from(serialNumber), body.getApiKey().trim());
             if (CompleteLoginState.COMPLETE.equals(result.getState())) {
                 response.setStatusCode(202);
                 response.setHeaders(Collections.singletonMap("Content-Type", "application/json"));

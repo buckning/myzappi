@@ -82,6 +82,10 @@
             <input type="text" id="loginCode" name="loginCode" required>
         </div>
         <div>
+            <label for="serialNumber" th:text="${serialNumber}">Substitute Serial Number:</label>
+            <input type="text" id="serialNumber" name="serialNumber" required>
+        </div>
+        <div>
             <label for="apiKey" th:text="${apiKey}">Substitute Key:</label>
             <input type="text" id="apiKey" name="apiKey" required>
         </div>
@@ -100,12 +104,14 @@
 
             var loginCodeValue = document.getElementById("loginCode").value;
             var apiKeyValue = document.getElementById("apiKey").value;
+            var serialNumberValue = document.getElementById("serialNumber").value;
 
             submitButton.disabled = true;
 
             var requestBody = {
                 "loginCode": loginCodeValue,
-                "apiKey": apiKeyValue
+                "apiKey": apiKeyValue,
+                "serialNumber": serialNumberValue
             };
 
             fetch(apiUrl, {
