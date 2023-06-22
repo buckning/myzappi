@@ -13,7 +13,7 @@ public class VoiceResponse {
     private static final Map<Object, String> RESPONSE_MAP = new HashMap<>();
     public static final String NOT_FOUND = "Voice response not found";
     static {
-        RESPONSE_MAP.put(LoginState.NEW, "Thank you, your {brandName} code is {myZappiCode}. Please use this on the {brandName} website when configuring your API key");
+        RESPONSE_MAP.put(LoginState.NEW, "Thank you, your {brandName} code is {myZappiCode}. Please enter this code on my zappi unofficial dot com with your API key and serial number");
         RESPONSE_MAP.put(LoginState.EXISTING_LOGIN_CODE, "Thank you, your {brandName} code is {myZappiCode}. Please use this on the {brandName} website when configuring your API key");
         RESPONSE_MAP.put(LoginState.RECREATED_NEW_CODE, "Your old {brandName} code has expired. Your new {brandName} code is {myZappiCode}. Please use this on the {brandName} website when configuring your API key");
         RESPONSE_MAP.put(LoginState.LOGIN_COMPLETE, "You already have Zappi credentials configured. There is no need to login again.");

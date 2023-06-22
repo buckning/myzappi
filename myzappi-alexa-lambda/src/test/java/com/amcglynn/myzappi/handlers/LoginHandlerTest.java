@@ -74,7 +74,7 @@ class LoginHandlerTest {
         var outputSpeech = (SsmlOutputSpeech) response.get().getOutputSpeech();
         assertThat(outputSpeech.getSsml())
                 .isEqualTo("<speak>Thank you, your My Zappi code is a. b. c. 1. 2. 3. " +
-                        "Please use this on the My Zappi website when configuring your API key</speak>");
+                        "Please enter this code on my zappi unofficial dot com with your API key and serial number</speak>");
     }
 
     @Test
@@ -114,7 +114,7 @@ class LoginHandlerTest {
         var simpleCard = (SimpleCard) response.get().getCard();
         assertThat(simpleCard.getTitle()).isEqualTo("My Zappi");
         assertThat(simpleCard.getContent()).isEqualTo("Thank you, your My Zappi code is abc123. " +
-                "Please use this on the My Zappi website when configuring your API key.");
+                "Please enter this code on https://myzappiunofficial.com with your API key and serial number.");
     }
 
     @Test
