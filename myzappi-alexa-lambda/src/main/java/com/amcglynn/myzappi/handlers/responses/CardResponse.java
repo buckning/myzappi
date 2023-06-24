@@ -18,7 +18,7 @@ public class CardResponse {
         RESPONSE_MAP.put(LoginState.EXISTING_LOGIN_CODE, "Thank you, your {brandName} code is {myZappiCode}. Please use this on the {brandName} website when configuring your API key.");
         RESPONSE_MAP.put(LoginState.RECREATED_NEW_CODE, "Your old {brandName} code has expired. Your new {brandName} code is {myZappiCode}. Please use this on the {brandName} website when configuring your API key");
         RESPONSE_MAP.put(LoginState.LOGIN_COMPLETE, "You already have Zappi credentials configured. There is no need to login again.");
-        RESPONSE_MAP.put(UserNotLoggedInException.class, "You need to login first.");
+        RESPONSE_MAP.put(UserNotLoggedInException.class, "You are not logged in. When you have your myenergi Zappi serial number and API key ready, ask me to login.");
         RESPONSE_MAP.put(ClientException.class, "Could not authenticate with myenergi APIs. Perhaps you entered the wrong serial number or API key. Ask me to log out and log in again to reset them.");
         RESPONSE_MAP.put(ServerCommunicationException.class, "I couldn't communicate with myenergi servers.");
         RESPONSE_MAP.put(ZappiChargeMode.class, "Changing charge mode to {zappiChargeMode}. This may take a few minutes.");

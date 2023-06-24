@@ -1,5 +1,6 @@
 package com.amcglynn.myzappi.core.service;
 
+import com.amcglynn.myenergi.MockMyEnergiClient;
 import com.amcglynn.myenergi.MyEnergiClient;
 import com.amcglynn.myenergi.ZappiChargeMode;
 import com.amcglynn.myenergi.ZappiDaySummary;
@@ -26,8 +27,14 @@ public class ZappiService {
             throw new UserNotLoggedInException(user);
         }
 
-        client = new MyEnergiClient(creds.get().getSerialNumber().toString(),
-                encryptionService.decrypt(creds.get().getEncryptedApiKey().get()));
+        var decryptedApiKey = encryptionService.decrypt(creds.get().getEncryptedApiKey().get());
+        var serialNumber = creds.get().getSerialNumber().toString();
+
+        if ("12345678".equals(serialNumber) && "myDemoApiKey".equals(decryptedApiKey)) {
+            client = new MockMyEnergiClient();
+        } else{
+            client = new MyEnergiClient(serialNumber, decryptedApiKey);
+        }
         localTimeSupplier = LocalTime::now;
     }
 
