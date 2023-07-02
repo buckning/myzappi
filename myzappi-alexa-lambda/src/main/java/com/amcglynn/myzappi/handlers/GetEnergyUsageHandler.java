@@ -4,6 +4,7 @@ import com.amazon.ask.dispatcher.request.handler.HandlerInput;
 import com.amazon.ask.dispatcher.request.handler.RequestHandler;
 import com.amazon.ask.model.Response;
 import com.amazon.ask.request.RequestHelper;
+import com.amcglynn.myzappi.UserIdResolverFactory;
 import com.amcglynn.myzappi.core.Brand;
 import com.amcglynn.myzappi.core.service.ZappiService;
 import com.amcglynn.myzappi.handlers.responses.ZappiDaySummaryCardResponse;
@@ -20,9 +21,11 @@ import static com.amazon.ask.request.Predicates.intentName;
 public class GetEnergyUsageHandler implements RequestHandler {
 
     private final ZappiService.Builder zappyServiceBuilder;
+    private final UserIdResolverFactory userIdResolverFactory;
 
-    public GetEnergyUsageHandler(ZappiService.Builder zappyServiceBuilder) {
+    public GetEnergyUsageHandler(ZappiService.Builder zappyServiceBuilder, UserIdResolverFactory userIdResolverFactory) {
         this.zappyServiceBuilder = zappyServiceBuilder;
+        this.userIdResolverFactory = userIdResolverFactory;
     }
 
     @Override
@@ -45,7 +48,7 @@ public class GetEnergyUsageHandler implements RequestHandler {
 
         // bug here due to DST when requesting energy usage for "today" when it is between 12AM - 1AM
 
-        var zappiService = zappyServiceBuilder.build(handlerInput.getRequestEnvelope().getSession().getUser().getUserId());
+        var zappiService = zappyServiceBuilder.build(userIdResolverFactory.newUserIdResolver(handlerInput));
         var history = zappiService.getEnergyUsage(localDate);
 
         return handlerInput.getResponseBuilder()

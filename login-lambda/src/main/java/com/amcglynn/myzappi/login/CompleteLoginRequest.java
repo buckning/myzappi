@@ -10,7 +10,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class CompleteLoginRequest {
-    private String loginCode;
     private String serialNumber;
     private String apiKey;
 }

@@ -12,6 +12,7 @@
         <module>core</module>
         <module>login-lambda</module>
         <module>myenergi-client</module>
+        <module>login-with-amazon</module>
     </modules>
     <packaging>pom</packaging>
 
@@ -71,13 +72,15 @@
                                     </limits>
                                     <excludes>
                                         <exclude>com.amcglynn.myzappi.core.model.SerialNumber</exclude>
-                                        <exclude>com.amcglynn.myzappi.core.model.LoginCode</exclude>
                                         <exclude>com.amcglynn.myzappi.core.service.EncryptionService</exclude>
                                         <exclude>com.amcglynn.myzappi.core.config.ServiceManager</exclude>
                                         <exclude>com.amcglynn.myzappi.core.config.Properties</exclude>
                                         <exclude>com.amcglynn.myzappi.core.service.ZappiService</exclude>
                                         <exclude>com.amcglynn.myzappi.core.exception.MissingConfigurationException</exclude>
                                         <exclude>com.amcglynn.myzappi.MyZappiSkillStreamHandler</exclude>
+                                        <exclude>com.amcglynn.myzappi.login.LwaClientFactory</exclude>
+                                        <exclude>com.amcglynn.myzappi.login.CompleteLoginRequest</exclude>
+                                        <exclude>com.amcglynn.myzappi.login.*</exclude>
                                         <exclude>com.amcglynn.myenergi.units.*</exclude>
                                         <exclude>com.amcglynn.myenergi.*</exclude>
                                     </excludes>

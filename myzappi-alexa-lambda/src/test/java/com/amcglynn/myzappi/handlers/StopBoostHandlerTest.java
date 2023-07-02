@@ -6,6 +6,7 @@ import com.amazon.ask.model.IntentRequest;
 import com.amazon.ask.model.RequestEnvelope;
 import com.amazon.ask.model.Session;
 import com.amazon.ask.model.User;
+import com.amcglynn.myzappi.UserIdResolverFactory;
 import com.amcglynn.myzappi.core.service.ZappiService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,7 +19,7 @@ import org.mockito.quality.Strictness;
 import static com.amcglynn.myzappi.handlers.ResponseVerifier.verifySimpleCardInResponse;
 import static com.amcglynn.myzappi.handlers.ResponseVerifier.verifySpeechInResponse;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -30,14 +31,16 @@ class StopBoostHandlerTest {
     private ZappiService.Builder mockZappiServiceBuilder;
     @Mock
     private ZappiService mockZappiService;
+    @Mock
+    private UserIdResolverFactory mockUserIdResolverFactory;
 
     private StopBoostHandler handler;
     private IntentRequest intentRequest;
 
     @BeforeEach
     void setUp() {
-        when(mockZappiServiceBuilder.build(anyString())).thenReturn(mockZappiService);
-        handler = new StopBoostHandler(mockZappiServiceBuilder);
+        when(mockZappiServiceBuilder.build(any())).thenReturn(mockZappiService);
+        handler = new StopBoostHandler(mockZappiServiceBuilder, mockUserIdResolverFactory);
         intentRequest = IntentRequest.builder()
                 .withIntent(Intent.builder().withName("StopBoostMode").build())
                 .build();

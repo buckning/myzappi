@@ -1,7 +1,7 @@
 {
   "interactionModel": {
     "languageModel": {
-      "invocationName": "my zappi",
+      "invocationName": "my charger",
       "intents": [
         {
           "name": "AMAZON.CancelIntent",
@@ -143,20 +143,6 @@
           ]
         },
         {
-          "name": "GetEnergyCost",
-          "slots": [
-            {
-              "name": "date",
-              "type": "AMAZON.DATE"
-            }
-          ],
-          "samples": [
-            "What was the cost for {date}",
-            "Give me an energy cost for {date}",
-            "How much did the electricity cost me for {date}"
-          ]
-        },
-        {
           "name": "GetPlugStatus",
           "slots": [],
           "samples": [
@@ -166,54 +152,6 @@
             "Is my car connected",
             "Is my car plugged in",
             "Is my E.V. plugged in"
-          ]
-        },
-        {
-          "name": "RegisterCredentials",
-          "slots": [
-            {
-              "name": "SerialNumber",
-              "type": "AMAZON.NUMBER",
-              "samples": [
-                "My serial number is {SerialNumber}",
-                "It is {SerialNumber}",
-                "{SerialNumber}"
-              ]
-            }
-          ],
-          "samples": [
-            "Register",
-            "Login"
-          ]
-        },
-        {
-          "name": "Logout",
-          "slots": [],
-          "samples": [
-            "log out",
-            "uninstall",
-            "forget my details",
-            "log me out",
-            "unregister",
-            "Forget me",
-            "Logout"
-          ]
-        },
-        {
-          "name": "GetCode",
-          "slots": [],
-          "samples": [
-            "get my zappi code",
-            "get my activation code",
-            "get my password",
-            "get my code",
-            "what is my password",
-            "what is my one time password",
-            "what is my activation code",
-            "what is my registration key",
-            "what is my login code",
-            "What is my zappi code",
-            "What is my code"
           ]
         }
       ],
@@ -266,22 +204,6 @@
               }
             }
           ]
-        },
-        {
-          "name": "RegisterCredentials",
-          "confirmationRequired": false,
-          "prompts": {},
-          "slots": [
-            {
-              "name": "SerialNumber",
-              "type": "AMAZON.NUMBER",
-              "confirmationRequired": false,
-              "elicitationRequired": true,
-              "prompts": {
-                "elicitation": "Elicit.Slot.852280951809.667398285955"
-              }
-            }
-          ]
         }
       ],
       "delegationStrategy": "ALWAYS"
@@ -297,33 +219,6 @@
           {
             "type": "PlainText",
             "value": "You need to provide a charge mode"
-          }
-        ]
-      },
-      {
-        "id": "Confirm.Intent.785250730999",
-        "variations": [
-          {
-            "type": "PlainText",
-            "value": "The serial number you want to add is {SerialNumber} , is this correct?"
-          }
-        ]
-      },
-      {
-        "id": "Elicit.Slot.852280951809.667398285955",
-        "variations": [
-          {
-            "type": "PlainText",
-            "value": "Please tell me your serial number"
-          }
-        ]
-      },
-      {
-        "id": "Confirm.Slot.852280951809.667398285955",
-        "variations": [
-          {
-            "type": "PlainText",
-            "value": "Thank you, I heard {SerialNumber} , is this correct?"
           }
         ]
       }

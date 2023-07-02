@@ -23,11 +23,11 @@ public class ZappiService {
 
     private ZappiService(LoginService loginService, EncryptionService encryptionService, String user) {
         var creds = loginService.readCredentials(user);
-        if (creds.isEmpty() || !loginService.isLoggedIn(creds.get())) {
+        if (creds.isEmpty()) {
             throw new UserNotLoggedInException(user);
         }
 
-        var decryptedApiKey = encryptionService.decrypt(creds.get().getEncryptedApiKey().get());
+        var decryptedApiKey = encryptionService.decrypt(creds.get().getEncryptedApiKey());
         var serialNumber = creds.get().getSerialNumber().toString();
 
         if ("12345678".equals(serialNumber) && "myDemoApiKey".equals(decryptedApiKey)) {
@@ -114,8 +114,8 @@ public class ZappiService {
             this.encryptionService = encryptionService;
         }
 
-        public ZappiService build(String userId) {
-            return new ZappiService(loginService, encryptionService, userId);
+        public ZappiService build(UserIdResolver userIdResolver) {
+            return new ZappiService(loginService, encryptionService, userIdResolver.getUserId());
         }
     }
 }

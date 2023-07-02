@@ -8,6 +8,7 @@ import com.amazon.ask.model.Session;
 import com.amazon.ask.model.Slot;
 import com.amazon.ask.model.User;
 import com.amcglynn.myenergi.units.KiloWattHour;
+import com.amcglynn.myzappi.UserIdResolverFactory;
 import com.amcglynn.myzappi.core.service.ZappiService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,7 +26,6 @@ import static com.amcglynn.myzappi.handlers.ResponseVerifier.verifySimpleCardInR
 import static com.amcglynn.myzappi.handlers.ResponseVerifier.verifySpeechInResponse;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -37,13 +37,15 @@ class StartBoostHandlerTest {
     private ZappiService.Builder mockBuilder;
     @Mock
     private ZappiService mockService;
+    @Mock
+    private UserIdResolverFactory mockUserIdResolverFactory;
     private StartBoostHandler handler;
     private IntentRequest intentRequest;
 
     @BeforeEach
     void setUp() {
-        when(mockBuilder.build(anyString())).thenReturn(mockService);
-        handler = new StartBoostHandler(mockBuilder);
+        when(mockBuilder.build(any())).thenReturn(mockService);
+        handler = new StartBoostHandler(mockBuilder, mockUserIdResolverFactory);
         initIntentRequest("Duration", "PT25M");
     }
 

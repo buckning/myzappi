@@ -6,7 +6,6 @@ import com.amcglynn.myenergi.apiresponse.ZappiDayHistory;
 import com.amcglynn.myenergi.apiresponse.ZappiHistory;
 import com.amcglynn.myenergi.units.KiloWattHour;
 import com.amcglynn.myzappi.core.exception.UserNotLoggedInException;
-import com.amcglynn.myzappi.core.model.LoginCode;
 import com.amcglynn.myzappi.core.model.SerialNumber;
 import com.amcglynn.myzappi.core.model.ZappiCredentials;
 import org.junit.jupiter.api.BeforeEach;
@@ -45,20 +44,20 @@ class ZappiServiceTest {
     private EncryptionService mockEncryptionService;
     @Mock
     private MyEnergiClient mockClient;
+    @Mock
+    private UserIdResolver mockUserIdResolver;
 
     private final String userId = "userId";
     private final SerialNumber serialNumber = SerialNumber.from("12345678");
-    private final LoginCode loginCode = LoginCode.from("abc123");
     private final ByteBuffer encryptedApiKey = ByteBuffer.wrap(new byte[] { 0x01, 0x02, 0x03 });
-    private ZappiCredentials zappiCreds;
 
     @BeforeEach
     void setUp() {
-        zappiCreds = new ZappiCredentials(userId, serialNumber, loginCode, encryptedApiKey);
+        var zappiCreds = new ZappiCredentials(userId, serialNumber, encryptedApiKey);
         when(mockLoginService.readCredentials(userId)).thenReturn(Optional.of(zappiCreds));
-        when(mockLoginService.isLoggedIn(zappiCreds)).thenReturn(true);
         when(mockEncryptionService.decrypt(encryptedApiKey)).thenReturn("myApiKey");
-        this.zappiService = new ZappiService.Builder(mockLoginService, mockEncryptionService).build(userId);
+        when(mockUserIdResolver.getUserId()).thenReturn(userId);
+        this.zappiService = new ZappiService.Builder(mockLoginService, mockEncryptionService).build(mockUserIdResolver);
         zappiService.setClient(mockClient);
     }
 
@@ -66,17 +65,7 @@ class ZappiServiceTest {
     void testConstructorThrowsUserNotLoggedInExceptionWhenThereIsNoRowInTheDb() {
         when(mockLoginService.readCredentials(userId)).thenReturn(Optional.empty());
         var throwable = catchThrowable(() -> new ZappiService
-                .Builder(mockLoginService, mockEncryptionService).build(userId));
-        assertThat(throwable).isInstanceOf(UserNotLoggedInException.class);
-        assertThat(throwable.getMessage()).isEqualTo("User not logged in - userId");
-    }
-
-    @Test
-    void testConstructorThrowsUserNotLoggedInExceptionWhenEncryptedApiIsNotConfiguredInDb() {
-        zappiCreds = new ZappiCredentials(userId, serialNumber, loginCode);
-        when(mockLoginService.readCredentials(userId)).thenReturn(Optional.of(zappiCreds));
-        var throwable = catchThrowable(() -> new ZappiService
-                .Builder(mockLoginService, mockEncryptionService).build(userId));
+                .Builder(mockLoginService, mockEncryptionService).build(mockUserIdResolver));
         assertThat(throwable).isInstanceOf(UserNotLoggedInException.class);
         assertThat(throwable.getMessage()).isEqualTo("User not logged in - userId");
     }
