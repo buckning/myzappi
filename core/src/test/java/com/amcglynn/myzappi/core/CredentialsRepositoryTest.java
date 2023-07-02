@@ -8,7 +8,6 @@ import com.amazonaws.services.dynamodbv2.model.PutItemRequest;
 import com.amcglynn.myzappi.core.dal.CredentialsRepository;
 import com.amcglynn.myzappi.core.model.SerialNumber;
 import com.amcglynn.myzappi.core.model.ZappiCredentials;
-import com.amcglynn.myzappi.core.model.LoginCode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -56,59 +55,28 @@ class CredentialsRepositoryTest {
     }
 
     @Test
-    void testReadCredentialsForUserWhoHasNotLoggedInExpectEncryptedApiKeyToBeNull() {
+    void testReadCredentialsForUserWhoHasSuccessfullyLoggedIn() {
         when(mockGetResult.getItem()).thenReturn(Map.of("serial-number", new AttributeValue("12345678"),
-                "code", new AttributeValue("abc123")));
-        when(mockDb.getItem(any())).thenReturn(mockGetResult);
-        var result = credentialsRepository.read("userid");
-        assertThat(result).isPresent();
-        assertThat(result.get().getCode()).isEqualTo(LoginCode.from("abc123"));
-        assertThat(result.get().getUserId()).isEqualTo("userid");
-        assertThat(result.get().getSerialNumber()).isEqualTo(SerialNumber.from("12345678"));
-        assertThat(result.get().getEncryptedApiKey()).isEmpty();
-    }
-
-    @Test
-    void testReadCredentialsForUserWhoHasSuccessfullyLoggedInExpectEncryptedApiKeyToNotBeNull() {
-        when(mockGetResult.getItem()).thenReturn(Map.of("serial-number", new AttributeValue("12345678"),
-                "code", new AttributeValue("abc123"),
                 "encrypted-api-key", new AttributeValue().withB(encryptedApiKey)));
         when(mockDb.getItem(any())).thenReturn(mockGetResult);
         var result = credentialsRepository.read("userid");
         assertThat(result).isPresent();
-        assertThat(result.get().getCode()).isEqualTo(LoginCode.from("abc123"));
-        assertThat(result.get().getCode()).hasSameHashCodeAs(LoginCode.from("abc123"));
         assertThat(result.get().getUserId()).isEqualTo("userid");
         assertThat(result.get().getSerialNumber()).isEqualTo(SerialNumber.from("12345678"));
         assertThat(result.get().getSerialNumber()).hasSameHashCodeAs(SerialNumber.from("12345678"));
-        assertThat(result.get().getEncryptedApiKey()).isPresent();
-        assertThat(result.get().getEncryptedApiKey()).contains(encryptedApiKey);
+        assertThat(result.get().getEncryptedApiKey()).isEqualTo(encryptedApiKey);
     }
 
     @Test
-    void testWriteCredentialsWithNoEncryptedApiKey() {
-        var creds = new ZappiCredentials("userid", SerialNumber.from("12345678"), LoginCode.from("abc123"));
+    void testWriteCredentials() {
+        var creds = new ZappiCredentials("userid", SerialNumber.from("12345678"), encryptedApiKey);
         credentialsRepository.write(creds);
         verify(mockDb).putItem(putItemCaptor.capture());
         assertThat(putItemCaptor.getValue()).isNotNull();
-        assertThat(putItemCaptor.getValue().getTableName()).isEqualTo("zappi-login-creds");
         assertThat(putItemCaptor.getValue().getItem()).hasSize(3);
-        assertThat(putItemCaptor.getValue().getItem().get("amazon-user-id").getS()).isEqualTo("userid");
-        assertThat(putItemCaptor.getValue().getItem().get("serial-number").getS()).isEqualTo("12345678");
-        assertThat(putItemCaptor.getValue().getItem().get("code").getS()).isEqualTo("abc123");
-    }
-
-    @Test
-    void testWriteCredentialsWithEncryptedApiKey() {
-        var creds = new ZappiCredentials("userid", SerialNumber.from("12345678"), LoginCode.from("abc123"), encryptedApiKey);
-        credentialsRepository.write(creds);
-        verify(mockDb).putItem(putItemCaptor.capture());
-        assertThat(putItemCaptor.getValue()).isNotNull();
-        assertThat(putItemCaptor.getValue().getItem()).hasSize(4);
         assertThat(putItemCaptor.getValue().getTableName()).isEqualTo("zappi-login-creds");
         assertThat(putItemCaptor.getValue().getItem().get("amazon-user-id").getS()).isEqualTo("userid");
         assertThat(putItemCaptor.getValue().getItem().get("serial-number").getS()).isEqualTo("12345678");
-        assertThat(putItemCaptor.getValue().getItem().get("code").getS()).isEqualTo("abc123");
         assertThat(putItemCaptor.getValue().getItem().get("encrypted-api-key").getB()).isEqualTo(encryptedApiKey);
     }
 

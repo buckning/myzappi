@@ -36,11 +36,14 @@ aws dynamodb create-table \
   --provisioned-throughput ReadCapacityUnits=1,WriteCapacityUnits=1
 
 aws dynamodb create-table \
-  --table-name zappi-otp \
-  --attribute-definitions AttributeName=otp,AttributeType=S \
-  --key-schema AttributeName=otp,KeyType=HASH \
+  --table-name session \
+  --attribute-definitions AttributeName=session-id,AttributeType=S \
+  --key-schema AttributeName=session-id,KeyType=HASH \
   --provisioned-throughput ReadCapacityUnits=1,WriteCapacityUnits=1
 
+aws dynamodb update-time-to-live \
+    --table-name session \
+    --time-to-live-specification "Enabled=true, AttributeName=ttl"
 ```
 
 ## Manually create role for Lambda
@@ -50,7 +53,6 @@ Create role `MyZappiLambdaPermissions` with the following:
 * AWSLambdaBasicExecutionRole
 Create inline policies for
 * `dynamodb:PutItem`, `dynamodb:DeleteItem`, `dynamodb:GetItem` for `zappi-login-creds` DynamoDB table
-* `dynamodb:PutItem`, `dynamodb:DeleteItem`, `dynamodb:GetItem`, `dynamodb:UpdateItem` for `zappi-otp` DynamodDB table
 * `kms:Decrypt` for `myZappiApiKey` created above
 
 ### Create role for myzappi-login-lambda
@@ -58,7 +60,6 @@ Create role with `MyZappiLoginLambdaPermissions` with the following:
 * `AWSLambdaBasicExecutionRole`
 Create inline policies for
 * `kms:Encrypt` for `myZappiApiKey` created above
-* `dynamodb:PutItem`, `dynamodb:DeleteItem`, `dynamodb:GetItem` for `zappi-login-creds` and `zappi-otp`  DynamodDB tables
 
 ## Create Lambdas
 ### Create Lambda for MyZappi Alexa skill

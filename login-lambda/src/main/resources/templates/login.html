@@ -3,7 +3,8 @@
 <head>
     <title th:text="${pageTitle}">Not Found</title>
     <link rel="icon" href="https://myzappi-site.s3.eu-west-1.amazonaws.com/myzappi-icon.ico" type="image/x-icon">
-    <link rel="shortcut icon" href="https://myzappi-site.s3.eu-west-1.amazonaws.com/myzappi-icon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="https://myzappi-site.s3.eu-west-1.amazonaws.com/myzappi-icon.ico"
+          type="image/x-icon">
     <style>
         body {
             background-color: #077ed5;
@@ -103,8 +104,28 @@
             margin-bottom: 10px; /* Added vertical spacing */
         }
 
+        input[type="password"] {
+            width: 380px;
+            padding: 10px;
+            padding-right: 10px;
+            font-size: 14px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            margin-bottom: 10px; /* Added vertical spacing */
+        }
+
         button {
             background-color: #4CAF50;
+            color: #fff;
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .forgetMyDetailsButton {
+            background-color: #ff6f6f;
             color: #fff;
             padding: 10px 20px;
             font-size: 16px;
@@ -139,50 +160,143 @@
     </style>
 </head>
 <body>
+<div id="amazon-root"></div>
+<script type="text/javascript">
+    window.onAmazonLoginReady = function () {
+        amazon.Login.setClientId('amzn1.application-oa2-client.d5625b3b0b334a388b07e0f70895ab84');
+    };
+    (function (d) {
+        var a = d.createElement('script');
+        a.type = 'text/javascript';
+        a.async = true;
+        a.id = 'amazon-login-sdk';
+        a.src = 'https://assets.loginwithamazon.com/sdk/na/login1.js';
+        d.getElementById('amazon-root').appendChild(a);
+    })(document);
+
+</script>
 <div class="container">
     <img class="logo" src="https://myzappi-site.s3.eu-west-1.amazonaws.com/myzappi-icon.png" alt="Logo">
     <h1 class="welcome-message">Welcome to My Zappi (unofficial)</h1>
     <p class="paragraph">Control myenergi Zappi with Alexa.</p>
+    <a href id="LoginWithAmazon" th:unless="${loggedIn}">
+        <img border="0" alt="Login with Amazon"
+             src="https://images-na.ssl-images-amazon.com/images/G/01/lwa/btnLWA_gold_156x32.png"
+             width="156" height="32"/>
+    </a>
 </div>
-<form id="loginCodeForm">
+<div class="container" th:if="${loggedIn && registered}" style="background-color: #2d84da; padding: 10px;">
     <div>
-        <label for="loginCode" th:text="${loginCode}">Substitute Code:</label>
-        <input type="text" id="loginCode" name="loginCode" required>
+        Your Zappi device is registered on My Zappi. You can start using My Zappi on your Alexa.
     </div>
     <div>
+        <p th:text="${existingSerialNumber}"></p>
+        <button id="forgetMyDetailsButton" class="forgetMyDetailsButton">Delete Zappi</button>
+    </div>
+</div>
+<script type="text/javascript">
+    document.getElementById('LoginWithAmazon').onclick = function () {
+        options = {}
+        options.scope = 'profile';
+        options.scope_data = {
+            'profile': {'essential': false}
+        };
+        amazon.Login.authorize(options,
+            'https://myzappiunofficial.com');
+        return false;
+    };
+</script>
+
+<div class="container" th:if="${loggedIn && !registered}">
+    <p>
+        Set up My Zappi by entering your myenergi details.
+    </p>
+</div>
+
+<form id="loginCodeForm" th:if="${loggedIn && !registered}">
+
+    <div>
         <label for="serialNumber" th:text="${serialNumber}">Substitute Serial Number:</label>
-        <input type="text" id="serialNumber" name="serialNumber" required>
+        <input type="text" id="serialNumber" name="serialNumber" autocomplete="off" required>
     </div>
     <div>
         <label for="apiKey" th:text="${apiKey}">Substitute Key:</label>
-        <input type="text" id="apiKey" name="apiKey" required>
+        <input type="password" id="apiKey" name="apiKey" autocomplete="off" required>
     </div>
     <div>
         <button type="button" id="submitBtn">Submit</button>
     </div>
 </form>
+
 <div id="messageContainer"></div>
-<div class="youtube-video">
-    <iframe width="560" height="315" src="https://www.youtube.com/embed/BXt8ScK4zLA" frameborder="0" allowfullscreen></iframe>
+
+<!--<div class="youtube-video" th:unless="${loggedIn}">-->
+<!--    <iframe width="560" height="315" src="https://www.youtube.com/embed/BXt8ScK4zLA" frameborder="0"-->
+<!--            allowfullscreen></iframe>-->
+<!--</div>-->
+
+<div class="container" th:if="${loggedIn}">
+    <button id="logoutButton">Logout</button>
 </div>
 <footer>
     <a href="https://myzappi-site.s3.eu-west-1.amazonaws.com/termsOfService.html">Terms of Service</a>|
     <a href="https://myzappi-site.s3.eu-west-1.amazonaws.com/privacyStatement.html">Privacy Statement</a>
 </footer>
+
+<script>
+    var forgetButton = document.getElementById("forgetMyDetailsButton");
+
+    forgetButton.addEventListener("click", function (event) {
+        var apiUrl = /*[[${apiUrl}]]*/ '';
+        event.preventDefault(); // Prevent form submission
+
+        forgetButton.disabled = true;
+
+        fetch(apiUrl, {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        })
+            .then(function (response) {
+                if (response.status === 204) {
+                    location.reload();
+                } else {
+                    forgetButton.disabled = false;
+                    showMessage("Something went wrong. Please try again later.", "error");
+                }
+            })
+            .catch(function (error) {
+                forgetButton.disabled = false;
+                showMessage("Something is very wrong, please try again later", "error");
+            });
+    });
+</script>
+
+<script>
+    // Move the logout button event listener here
+    document.getElementById('logoutButton').addEventListener('click', function () {
+        amazon.Login.logout();
+        var currentUrl = window.location.href;
+        var logoutUrl = currentUrl + (currentUrl.includes('?') ? '&' : '?') + 'logout=true';
+
+        // Redirect to the updated URL
+        window.location.href = logoutUrl;
+    });
+</script>
+
 <script th:inline="javascript">
     var submitButton = document.getElementById("submitBtn");
     submitButton.addEventListener("click", function (event) {
         var apiUrl = /*[[${apiUrl}]]*/ '';
         event.preventDefault(); // Prevent form submission
 
-        var loginCodeValue = document.getElementById("loginCode").value;
         var apiKeyValue = document.getElementById("apiKey").value;
         var serialNumberValue = document.getElementById("serialNumber").value;
 
         submitButton.disabled = true;
 
         var requestBody = {
-            "loginCode": loginCodeValue,
             "apiKey": apiKeyValue,
             "serialNumber": serialNumberValue
         };
@@ -197,10 +311,11 @@
             .then(function (response) {
                 if (response.ok) {
                     document.getElementById("loginCodeForm").style.display = "none";
+                    location.reload();
                     showMessage("My Zappi is now configured. You can start using it on your Alexa device.", "success");
                 } else {
                     submitButton.disabled = false;
-                    showMessage("Something went wrong. Please check you entered the correct My Zappi code.", "error");
+                    showMessage("Something went wrong. Please check you entered the correct serial number and API key.", "error");
                 }
             })
             .catch(function (error) {

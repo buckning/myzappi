@@ -15,6 +15,7 @@ import com.amcglynn.myenergi.EvConnectionStatus;
 import com.amcglynn.myenergi.ZappiChargeMode;
 import com.amcglynn.myenergi.ZappiStatusSummary;
 import com.amcglynn.myenergi.apiresponse.ZappiStatus;
+import com.amcglynn.myzappi.UserIdResolverFactory;
 import com.amcglynn.myzappi.core.service.ZappiService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,6 +30,7 @@ import java.util.List;
 import static com.amcglynn.myzappi.handlers.ResponseVerifier.verifySimpleCardInResponse;
 import static com.amcglynn.myzappi.handlers.ResponseVerifier.verifySpeechInResponse;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -42,16 +44,17 @@ class StatusSummaryHandlerTest {
     @Mock
     private ServiceClientFactory mockServiceClientFactory;
     @Mock
+    private UserIdResolverFactory mockUserIdResolverFactory;
+    @Mock
     private DirectiveServiceClient mockDirectiveServiceClient;
     @Captor
     private ArgumentCaptor<SendDirectiveRequest> mockSendDirectiveRequestCaptor;
     private IntentRequest intentRequest;
-    private String userId = "userId";
     private StatusSummaryHandler handler;
 
     @BeforeEach
     void setUp() {
-        handler = new StatusSummaryHandler(mockZappiServiceBuilder);
+        handler = new StatusSummaryHandler(mockZappiServiceBuilder, mockUserIdResolverFactory);
         intentRequest = IntentRequest.builder()
                 .withIntent(Intent.builder().withName("StatusSummary").build())
                 .build();
@@ -73,7 +76,7 @@ class StatusSummaryHandlerTest {
 
     @Test
     void testHandleSendsProgressiveResponseAndReturnsSummary() {
-        when(mockZappiServiceBuilder.build(userId)).thenReturn(mockZappiService);
+        when(mockZappiServiceBuilder.build(any())).thenReturn(mockZappiService);
         when(mockServiceClientFactory.getDirectiveService()).thenReturn(mockDirectiveServiceClient);
         when(mockZappiService.getStatusSummary()).thenReturn(List.of(new ZappiStatusSummary(
                 new ZappiStatus("12345678", 1500L, 1400L,
@@ -100,7 +103,7 @@ class StatusSummaryHandlerTest {
 
     @Test
     void testHandleSendsProgressiveResponseAndReturnsSummaryWithOnlyRequiredInformation() {
-        when(mockZappiServiceBuilder.build(userId)).thenReturn(mockZappiService);
+        when(mockZappiServiceBuilder.build(any())).thenReturn(mockZappiService);
         when(mockServiceClientFactory.getDirectiveService()).thenReturn(mockDirectiveServiceClient);
         when(mockZappiService.getStatusSummary()).thenReturn(List.of(new ZappiStatusSummary(
                 new ZappiStatus("12345678", 0L, 0L,
@@ -114,7 +117,7 @@ class StatusSummaryHandlerTest {
 
     @Test
     void testHandleSaysChargeCompleteWhenItChargeStatusIsComplete() {
-        when(mockZappiServiceBuilder.build(userId)).thenReturn(mockZappiService);
+        when(mockZappiServiceBuilder.build(any())).thenReturn(mockZappiService);
         when(mockServiceClientFactory.getDirectiveService()).thenReturn(mockDirectiveServiceClient);
         when(mockZappiService.getStatusSummary()).thenReturn(List.of(new ZappiStatusSummary(
                 new ZappiStatus("12345678", 0L, 0L,
@@ -129,7 +132,7 @@ class StatusSummaryHandlerTest {
 
     @Test
     void testHandleSaysExportRate() {
-        when(mockZappiServiceBuilder.build(userId)).thenReturn(mockZappiService);
+        when(mockZappiServiceBuilder.build(any())).thenReturn(mockZappiService);
         when(mockServiceClientFactory.getDirectiveService()).thenReturn(mockDirectiveServiceClient);
         when(mockZappiService.getStatusSummary()).thenReturn(List.of(new ZappiStatusSummary(
                 new ZappiStatus("12345678", 0L, 0L,
@@ -150,6 +153,6 @@ class StatusSummaryHandlerTest {
     private RequestEnvelope.Builder requestEnvelopeBuilder() {
         return RequestEnvelope.builder()
                 .withRequest(intentRequest)
-                .withSession(Session.builder().withUser(User.builder().withUserId(userId).build()).build());
+                .withSession(Session.builder().withUser(User.builder().withUserId("userId").build()).build());
     }
 }

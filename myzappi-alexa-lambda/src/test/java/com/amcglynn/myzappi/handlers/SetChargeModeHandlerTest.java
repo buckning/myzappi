@@ -8,6 +8,7 @@ import com.amazon.ask.model.Session;
 import com.amazon.ask.model.Slot;
 import com.amazon.ask.model.User;
 import com.amcglynn.myenergi.ZappiChargeMode;
+import com.amcglynn.myzappi.UserIdResolverFactory;
 import com.amcglynn.myzappi.core.service.ZappiService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,7 +27,6 @@ import static com.amcglynn.myzappi.handlers.ResponseVerifier.verifySimpleCardInR
 import static com.amcglynn.myzappi.handlers.ResponseVerifier.verifySpeechInResponse;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -39,13 +39,15 @@ class SetChargeModeHandlerTest {
     private ZappiService mockZappiService;
     @Mock
     private ZappiService.Builder mockZappiServiceBuilder;
+    @Mock
+    private UserIdResolverFactory mockUserIdResolverFactory;
     private IntentRequest intentRequest;
 
     private SetChargeModeHandler handler;
 
     @BeforeEach
     void setUp() {
-        handler = new SetChargeModeHandler(mockZappiServiceBuilder);
+        handler = new SetChargeModeHandler(mockZappiServiceBuilder, mockUserIdResolverFactory);
         intentRequest = IntentRequest.builder()
                 .withIntent(Intent.builder().withName("SetChargeMode").build())
                 .build();
@@ -67,7 +69,7 @@ class SetChargeModeHandlerTest {
     @ParameterizedTest
     @MethodSource("zappiChargeMode")
     void testHandle(ZappiChargeMode zappiChargeMode) {
-        when(mockZappiServiceBuilder.build(anyString())).thenReturn(mockZappiService);
+        when(mockZappiServiceBuilder.build(any())).thenReturn(mockZappiService);
         initIntentRequest(zappiChargeMode);
         var result = handler.handle(handlerInputBuilder().build());
         assertThat(result).isPresent();
@@ -83,7 +85,7 @@ class SetChargeModeHandlerTest {
     @ParameterizedTest
     @MethodSource("invalidChargeModes")
     void testHandleReturnsErrorIfChargeModeIsNotRecognised(String zappiChargeMode) {
-        when(mockZappiServiceBuilder.build(anyString())).thenReturn(mockZappiService);
+        when(mockZappiServiceBuilder.build(any())).thenReturn(mockZappiService);
         initIntentRequest(zappiChargeMode);
         var result = handler.handle(handlerInputBuilder().build());
         assertThat(result).isPresent();

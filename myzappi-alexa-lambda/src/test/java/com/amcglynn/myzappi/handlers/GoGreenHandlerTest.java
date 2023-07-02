@@ -7,6 +7,7 @@ import com.amazon.ask.model.RequestEnvelope;
 import com.amazon.ask.model.Session;
 import com.amazon.ask.model.User;
 import com.amcglynn.myenergi.ZappiChargeMode;
+import com.amcglynn.myzappi.UserIdResolverFactory;
 import com.amcglynn.myzappi.core.service.ZappiService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,6 +32,8 @@ class GoGreenHandlerTest {
     private ZappiService mockZappiService;
     @Mock
     private ZappiService.Builder mockZappiServiceBuilder;
+    @Mock
+    private UserIdResolverFactory mockUserIdResolverFactory;
     private IntentRequest intentRequest;
 
     private GoGreenHandler handler;
@@ -38,7 +41,7 @@ class GoGreenHandlerTest {
     @BeforeEach
     void setUp() {
         when(mockZappiServiceBuilder.build(any())).thenReturn(mockZappiService);
-        handler = new GoGreenHandler(mockZappiServiceBuilder);
+        handler = new GoGreenHandler(mockZappiServiceBuilder, mockUserIdResolverFactory);
         intentRequest = IntentRequest.builder()
                 .withIntent(Intent.builder().withName("GoGreen").build())
                 .build();
