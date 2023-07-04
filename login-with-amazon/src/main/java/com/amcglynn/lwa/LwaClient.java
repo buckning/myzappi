@@ -48,6 +48,16 @@ public class LwaClient {
         return makeRequest(request, TokenInfo.class);
     }
 
+    public Optional<String> getTimeZone(String baseUrl, String deviceId, String accessToken) {
+        var url = baseUrl + "/v2/devices/" + deviceId + "/settings/System.timeZone";
+        System.out.println("Making request to " + url);
+        var request = new Request.Builder()
+                .addHeader("Authorization", "Bearer " + accessToken)
+                .url(url)
+                .build();
+        return makeRequest(request, String.class);
+    }
+
     private <T> Optional<T> makeRequest(Request request, Class<T> clazz) {
         try {
             var client = new OkHttpClient.Builder().build();

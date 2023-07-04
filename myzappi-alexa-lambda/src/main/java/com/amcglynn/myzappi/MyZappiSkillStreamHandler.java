@@ -22,17 +22,18 @@ import com.amcglynn.myzappi.handlers.StopBoostHandler;
 public class MyZappiSkillStreamHandler extends SkillStreamHandler {
 
     public MyZappiSkillStreamHandler() {
-        this(new ServiceManager(new Properties()), new UserIdResolverFactory(new LwaClient()));
+        this(new ServiceManager(new Properties()), new UserIdResolverFactory(new LwaClient()), new UserZoneResolver(new LwaClient()));
     }
 
-    public MyZappiSkillStreamHandler(ServiceManager serviceManager, UserIdResolverFactory userIdResolverFactory) {
+    public MyZappiSkillStreamHandler(ServiceManager serviceManager, UserIdResolverFactory userIdResolverFactory,
+                                     UserZoneResolver userZoneResolver) {
         super(Skills.standard()
                 .withSkillId(serviceManager.getSkillId())
                 .addRequestHandler(new LaunchHandler())
                 .addRequestHandler(new FallbackHandler())
                 .addRequestHandler(new LogoutHandler(serviceManager.getLoginService()))
                 .addRequestHandler(new StatusSummaryHandler(serviceManager.getZappiServiceBuilder(), userIdResolverFactory))
-                .addRequestHandler(new StartBoostHandler(serviceManager.getZappiServiceBuilder(), userIdResolverFactory))
+                .addRequestHandler(new StartBoostHandler(serviceManager.getZappiServiceBuilder(), userIdResolverFactory, userZoneResolver))
                 .addRequestHandler(new StopBoostHandler(serviceManager.getZappiServiceBuilder(), userIdResolverFactory))
                 .addRequestHandler(new GetPlugStatusHandler(serviceManager.getZappiServiceBuilder(), userIdResolverFactory))
                 .addRequestHandler(new GetEnergyUsageHandler(serviceManager.getZappiServiceBuilder(), userIdResolverFactory))

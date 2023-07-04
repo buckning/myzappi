@@ -105,6 +105,22 @@ class LwaClientTest {
     }
 
     @Test
+    void testGetTimeZone() {
+        var mockWebServer = new MockWebServer();
+
+        var mockResponse = new MockResponse()
+                .setResponseCode(200)
+                .setBody("\"Europe/Dublin\"");
+        mockWebServer.enqueue(mockResponse);
+
+        var client = new LwaClient();
+        var url = mockWebServer.url("").toString();
+        var response = client.getTimeZone(url, "myDeviceId", "myAccessToken");
+        assertThat(response).isPresent();
+        assertThat(response.get()).contains("Europe/Dublin");
+    }
+
+    @Test
     void testGetTokenInfoReturnsEmptyOptionalIfAccessTokenIsInvalid() {
         var mockWebServer = new MockWebServer();
 

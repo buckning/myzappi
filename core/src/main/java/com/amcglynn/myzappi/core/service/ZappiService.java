@@ -49,11 +49,7 @@ public class ZappiService {
         this.client = client;
     }
 
-    /**
-     * Only for unit testing
-     * @param localTimeSupplier mock LocalTime supplier
-     */
-    protected void setLocalTimeSupplier(Supplier<LocalTime> localTimeSupplier) {
+    public void setLocalTimeSupplier(Supplier<LocalTime> localTimeSupplier) {
         this.localTimeSupplier = localTimeSupplier;
     }
 
