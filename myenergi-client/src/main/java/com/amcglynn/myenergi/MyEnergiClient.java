@@ -86,10 +86,21 @@ public class MyEnergiClient {
         invokeCgiZappiModeApi(ZappiChargeMode.BOOST, ZappiBoostMode.BOOST, kiloWattHour, localTimeMidnight);
     }
 
+    /**
+     * Start boost mode for the maximum kWh value and boost until the request end time.
+     * @param endTime end time of boost. Note that the API works with local time and not UTC.
+     *                This method does not handle conversion from UTC since LocalTime does not contain any time zone information.
+     */
     public void boost(LocalTime endTime) {
         invokeCgiZappiModeApi(ZappiChargeMode.BOOST, ZappiBoostMode.SMART_BOOST, maxKwh, endTime);
     }
 
+    /**
+     * Start boost mode for the specified kWh value or boost until the requested end time.
+     * @param endTime end time of boost. Note that the API works with local time and not UTC.
+     *                This method does not handle conversion from UTC since LocalTime does not contain any time zone information.
+     * @param kiloWattHour the requested kWh to be boosted to the E.V.
+     */
     public void boost(LocalTime endTime, KiloWattHour kiloWattHour) {
         invokeCgiZappiModeApi(ZappiChargeMode.BOOST, ZappiBoostMode.SMART_BOOST, kiloWattHour, endTime);
     }

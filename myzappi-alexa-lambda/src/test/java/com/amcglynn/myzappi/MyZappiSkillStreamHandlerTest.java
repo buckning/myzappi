@@ -24,7 +24,8 @@ class MyZappiSkillStreamHandlerTest {
 
     @Test
     void testConstructorDoesNotThrowAnException() {
-        new MyZappiSkillStreamHandler(mock(ServiceManager.class), mock(UserIdResolverFactory.class));
+        new MyZappiSkillStreamHandler(mock(ServiceManager.class), mock(UserIdResolverFactory.class),
+                mock(UserZoneResolver.class));
     }
 
     @Test

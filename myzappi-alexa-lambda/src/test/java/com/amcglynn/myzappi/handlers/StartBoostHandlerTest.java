@@ -9,6 +9,7 @@ import com.amazon.ask.model.Slot;
 import com.amazon.ask.model.User;
 import com.amcglynn.myenergi.units.KiloWattHour;
 import com.amcglynn.myzappi.UserIdResolverFactory;
+import com.amcglynn.myzappi.UserZoneResolver;
 import com.amcglynn.myzappi.core.service.ZappiService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -39,13 +40,15 @@ class StartBoostHandlerTest {
     private ZappiService mockService;
     @Mock
     private UserIdResolverFactory mockUserIdResolverFactory;
+    @Mock
+    private UserZoneResolver mockUserZoneResolver;
     private StartBoostHandler handler;
     private IntentRequest intentRequest;
 
     @BeforeEach
     void setUp() {
         when(mockBuilder.build(any())).thenReturn(mockService);
-        handler = new StartBoostHandler(mockBuilder, mockUserIdResolverFactory);
+        handler = new StartBoostHandler(mockBuilder, mockUserIdResolverFactory, mockUserZoneResolver);
         initIntentRequest("Duration", "PT25M");
     }
 
