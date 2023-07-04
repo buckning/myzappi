@@ -11,6 +11,7 @@ import com.amcglynn.myzappi.core.exception.UserNotLoggedInException;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.function.Supplier;
@@ -35,7 +36,9 @@ public class ZappiService {
         } else{
             client = new MyEnergiClient(serialNumber, decryptedApiKey);
         }
-        localTimeSupplier = LocalTime::now;
+
+        // Zappi control APIs work off of local time and not UTC. Times in the retrieve Zappi information API is in UTC.
+        localTimeSupplier = () -> LocalTime.now(ZoneId.of("Europe/London"));
     }
 
     /**
