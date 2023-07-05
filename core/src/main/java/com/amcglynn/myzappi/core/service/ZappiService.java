@@ -87,8 +87,27 @@ public class ZappiService {
         client.stopBoost();
     }
 
+    /**
+     * Get energy usage for a date. Note that this will return the values for the day in UTC.
+     * @param localDate specific date to retrieve energy usage
+     * @return summary of energy usage for the day
+     */
     public ZappiDaySummary getEnergyUsage(LocalDate localDate) {
         return new ZappiDaySummary(client.getZappiHistory(localDate).getReadings());
+    }
+
+    /**
+     * Return a time-zone adjusted energy usage for a date. This will return readings in UTC but they will be adjusted
+     * by an offset.
+     * @param localDate specific date to retrieve energy usage
+     * @param userZone time zone of the consumer.
+     * @return summary of energy usage for the day
+     */
+    public ZappiDaySummary getEnergyUsage(LocalDate localDate, ZoneId userZone) {
+        var utcTime = LocalTime.of(0, 0);   // start from 0:00AM local time for the user and then convert that to UTC for the API
+        var userTime = utcTime.atDate(localDate).atZone(userZone)
+                .withZoneSameInstant(ZoneId.of("UTC"));
+        return new ZappiDaySummary(client.getZappiHistory(userTime.toLocalDate(), userTime.toLocalTime().getHour()).getReadings());
     }
 
     private LocalTime roundToNearest15Mins(Duration duration) {

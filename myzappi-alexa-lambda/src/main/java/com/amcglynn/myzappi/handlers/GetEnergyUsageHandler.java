@@ -5,6 +5,7 @@ import com.amazon.ask.dispatcher.request.handler.RequestHandler;
 import com.amazon.ask.model.Response;
 import com.amazon.ask.request.RequestHelper;
 import com.amcglynn.myzappi.UserIdResolverFactory;
+import com.amcglynn.myzappi.UserZoneResolver;
 import com.amcglynn.myzappi.core.Brand;
 import com.amcglynn.myzappi.core.service.ZappiService;
 import com.amcglynn.myzappi.handlers.responses.ZappiDaySummaryCardResponse;
@@ -12,6 +13,7 @@ import com.amcglynn.myzappi.handlers.responses.ZappiDaySummaryVoiceResponse;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
@@ -22,10 +24,13 @@ public class GetEnergyUsageHandler implements RequestHandler {
 
     private final ZappiService.Builder zappyServiceBuilder;
     private final UserIdResolverFactory userIdResolverFactory;
+    private final UserZoneResolver userZoneResolver;
 
-    public GetEnergyUsageHandler(ZappiService.Builder zappyServiceBuilder, UserIdResolverFactory userIdResolverFactory) {
+    public GetEnergyUsageHandler(ZappiService.Builder zappyServiceBuilder, UserIdResolverFactory userIdResolverFactory,
+                                 UserZoneResolver userZoneResolver) {
         this.zappyServiceBuilder = zappyServiceBuilder;
         this.userIdResolverFactory = userIdResolverFactory;
+        this.userZoneResolver = userZoneResolver;
     }
 
     @Override
@@ -40,16 +45,15 @@ public class GetEnergyUsageHandler implements RequestHandler {
         if (date.isEmpty() || date.get().length() != 10) {
             return getInvalidInputResponse(handlerInput);
         }
-        log.info("Requested date is {}, localDate = {}", date.get(), LocalDate.now());
+        var userTimeZone = userZoneResolver.getZoneId(handlerInput);
         var localDate = LocalDate.parse(date.get(), DateTimeFormatter.ISO_DATE);
-        if (isInvalid(localDate)) {
+
+        if (isInvalid(localDate, userTimeZone)) {
             return getInvalidRequestedDateResponse(handlerInput);
         }
 
-        // bug here due to DST when requesting energy usage for "today" when it is between 12AM - 1AM
-
         var zappiService = zappyServiceBuilder.build(userIdResolverFactory.newUserIdResolver(handlerInput));
-        var history = zappiService.getEnergyUsage(localDate);
+        var history = zappiService.getEnergyUsage(localDate, userTimeZone);
 
         return handlerInput.getResponseBuilder()
                 .withSpeech(new ZappiDaySummaryVoiceResponse(history).toString())
@@ -74,8 +78,14 @@ public class GetEnergyUsageHandler implements RequestHandler {
                 .build();
     }
 
-    private boolean isInvalid(LocalDate date) {
-        return date.isAfter(LocalDate.now());
+    /**
+     * Invalid if date is in the future. Requesting for today is accepted but not future dates.
+     * @param date today or historical date
+     * @param userTimeZone time-zone of the user
+     * @return true if invalid
+     */
+    private boolean isInvalid(LocalDate date, ZoneId userTimeZone) {
+        return date.isAfter(LocalDate.now(userTimeZone));
     }
 
     private Optional<String> parseSlot(HandlerInput handlerInput, String slotName) {
