@@ -7,7 +7,6 @@ import com.amcglynn.myzappi.core.service.EncryptionService;
 
 import java.net.HttpCookie;
 import java.time.Instant;
-import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -39,7 +38,6 @@ public class SessionManagementService {
         var session = getSession(input);
 
         if (session.isPresent()) {
-            System.out.println("Found session with sessionID = " + session.get().getSessionId());
             return session;
         }
 
@@ -49,7 +47,6 @@ public class SessionManagementService {
             var newSession = session.get();
             sessionRepository.write(newSession);
 
-            System.out.println("Creating cookie with sessionID = " + newSession.getSessionId());
             var responseHeaders = new HashMap<>(response.getHeaders());
             responseHeaders.put("Set-Cookie", "sessionID=" + newSession.getSessionId() + "; Max-Age=" + newSession.getTtl() + "; Path=/; Secure; HttpOnly");
             response.setHeaders(responseHeaders);

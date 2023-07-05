@@ -161,6 +161,21 @@ public class MyEnergiClient {
         }
     }
 
+    public ZappiDayHistory getZappiHistory(LocalDate localDate, int offset) {
+        if (offset < 0) {
+            throw new IllegalArgumentException("offset must be positive");
+        }
+        String endPointUrl = "/cgi-jday-Z" + serialNumber + "-" + localDate.getYear() +
+                "-" + localDate.getMonthValue() + "-" + localDate.getDayOfMonth() + "-" + offset;
+        var response = getRequest(endPointUrl);
+
+        try {
+            return new ObjectMapper().readValue(response, new TypeReference<>(){});
+        } catch (JsonProcessingException e) {
+            throw new InvalidResponseFormatException();
+        }
+    }
+
     private String getRequest(String endPointUrl) {
         try {
             var request = new Request.Builder()

@@ -21,6 +21,7 @@ import java.nio.ByteBuffer;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -117,6 +118,62 @@ class ZappiServiceTest {
         assertThat(history.getEvSummary().getTotal()).isEqualTo(new KiloWattHour(0.3));
 
         verify(mockClient).getZappiHistory(localDate);
+    }
+
+    @Test
+    void testGetEnergyUsageAdjustsToLocalTimeForTimeZoneWithNoOffset() {
+        var mockHistory = mock(ZappiDayHistory.class);
+        when(mockHistory.getReadings()).thenReturn(List.of(new ZappiHistory(2023, 1, 2, 9, 0,
+                "Monday", 3600000L, 1800000L,
+                360000L, 720000L, 7200000L)));
+        var localDate = LocalDate.of(2023, 1, 20);
+        when(mockClient.getZappiHistory(localDate, 0))
+                .thenReturn(mockHistory);
+        zappiService.getEnergyUsage(localDate, ZoneId.of("Europe/Dublin"));
+
+        verify(mockClient).getZappiHistory(localDate, 0);
+    }
+
+    @Test
+    void testGetEnergyUsageAdjustsToLocalTimeForTimeZoneWithNoOffsetButInDayLightSavingsTime() {
+        var mockHistory = mock(ZappiDayHistory.class);
+        when(mockHistory.getReadings()).thenReturn(List.of(new ZappiHistory(2023, 1, 2, 9, 0,
+                "Monday", 3600000L, 1800000L,
+                360000L, 720000L, 7200000L)));
+        var localDate = LocalDate.of(2023, 5, 20);
+        when(mockClient.getZappiHistory(localDate.minusDays(1), 23))
+                .thenReturn(mockHistory);
+        zappiService.getEnergyUsage(localDate, ZoneId.of("Europe/Dublin"));
+
+        verify(mockClient).getZappiHistory(localDate.minusDays(1), 23);
+    }
+
+    @Test
+    void testGetEnergyUsageAdjustsToLocalTimeForTimeZoneWithPositiveOffset() {
+        var mockHistory = mock(ZappiDayHistory.class);
+        when(mockHistory.getReadings()).thenReturn(List.of(new ZappiHistory(2023, 1, 2, 9, 0,
+                "Monday", 3600000L, 1800000L,
+                360000L, 720000L, 7200000L)));
+        var localDate = LocalDate.of(2023, 1, 20);
+        when(mockClient.getZappiHistory(localDate.minusDays(1), 22))
+                .thenReturn(mockHistory);
+        zappiService.getEnergyUsage(localDate, ZoneId.of("Europe/Helsinki"));   // Eastern European Time
+
+        verify(mockClient).getZappiHistory(localDate.minusDays(1), 22);
+    }
+
+    @Test
+    void testGetEnergyUsageAdjustsToLocalTimeForTimeZoneWithNegativeOffset() {
+        var mockHistory = mock(ZappiDayHistory.class);
+        when(mockHistory.getReadings()).thenReturn(List.of(new ZappiHistory(2023, 1, 2, 9, 0,
+                "Monday", 3600000L, 1800000L,
+                360000L, 720000L, 7200000L)));
+        var localDate = LocalDate.of(2023, 1, 20);
+        when(mockClient.getZappiHistory(localDate, 5))
+                .thenReturn(mockHistory);
+        zappiService.getEnergyUsage(localDate, ZoneId.of("America/New_York"));
+
+        verify(mockClient).getZappiHistory(localDate, 5);
     }
 
     @Test
