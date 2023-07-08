@@ -49,12 +49,14 @@ public class SetChargeModeHandler implements RequestHandler {
             return handlerInput.getResponseBuilder()
                     .withSpeech("Sorry, I don't recognise that charge mode.")
                     .withSimpleCard(Brand.NAME, "Sorry, I don't recognise that charge mode.")
+                    .withShouldEndSession(false)
                     .build();
         }
         var chargeMode = mappedChargeMode.get();
 
         zappiService.setChargeMode(chargeMode);
         return handlerInput.getResponseBuilder()
+                .withShouldEndSession(false)
                 .withSpeech(VoiceResponse.get(ZappiChargeMode.class).replace("{zappiChargeMode}", chargeMode.getDisplayName()))
                 .withSimpleCard(Brand.NAME, CardResponse.get(ZappiChargeMode.class).replace("{zappiChargeMode}", chargeMode.getDisplayName()))
                 .build();

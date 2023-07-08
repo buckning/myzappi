@@ -21,6 +21,7 @@ public class FallbackHandler implements RequestHandler {
         return handlerInput.getResponseBuilder()
                 .withSpeech("Sorry, I don't know how to handle that. Please try again.")
                 .withSimpleCard(Brand.NAME, "Sorry, I don't know how to handle that. Please try again.")
+                .withShouldEndSession(false)
                 .build();
     }
 }

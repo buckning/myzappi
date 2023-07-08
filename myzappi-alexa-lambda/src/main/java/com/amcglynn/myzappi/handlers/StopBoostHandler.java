@@ -38,6 +38,7 @@ public class StopBoostHandler implements RequestHandler {
         return handlerInput.getResponseBuilder()
                 .withSpeech("Stopping boost mode now.")
                 .withSimpleCard(Brand.NAME, "Stopping boost mode now.")
+                .withShouldEndSession(false)
                 .build();
     }
 }

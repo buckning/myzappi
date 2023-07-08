@@ -27,6 +27,7 @@ public class MyZappiExceptionHandler implements ExceptionHandler {
         return handlerInput.getResponseBuilder()
                 .withSpeech(getVoiceResponse(throwable))
                 .withSimpleCard(Brand.NAME, getCardResponse(throwable))
+                .withShouldEndSession(false)
                 .build();
     }
 

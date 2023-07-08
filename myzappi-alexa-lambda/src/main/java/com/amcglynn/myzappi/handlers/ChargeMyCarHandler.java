@@ -37,6 +37,7 @@ public class ChargeMyCarHandler implements RequestHandler {
         return handlerInput.getResponseBuilder()
                 .withSpeech(VoiceResponse.get(ZappiChargeMode.class).replace("{zappiChargeMode}", chargeMode.getDisplayName()))
                 .withSimpleCard(Brand.NAME, CardResponse.get(ZappiChargeMode.class).replace("{zappiChargeMode}", chargeMode.getDisplayName()))
+                .withShouldEndSession(false)
                 .build();
     }
 }

@@ -59,6 +59,7 @@ public class GetEnergyUsageHandler implements RequestHandler {
                 .withSpeech(new ZappiDaySummaryVoiceResponse(history).toString())
                 .withSimpleCard(Brand.NAME,
                         new ZappiDaySummaryCardResponse(history).toString())
+                .withShouldEndSession(false)
                 .build();
     }
 
@@ -75,6 +76,7 @@ public class GetEnergyUsageHandler implements RequestHandler {
                 .withSpeech("Please ask me for energy usage for a specific day.")
                 .withSimpleCard(Brand.NAME,
                         "Please ask me for energy usage for a specific day.")
+                .withShouldEndSession(false)
                 .build();
     }
 

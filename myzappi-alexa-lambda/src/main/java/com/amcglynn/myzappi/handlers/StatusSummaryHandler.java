@@ -46,6 +46,7 @@ public class StatusSummaryHandler implements RequestHandler {
         return handlerInput.getResponseBuilder()
                 .withSpeech(new ZappiStatusSummaryVoiceResponse(summary).toString())
                 .withSimpleCard(Brand.NAME, new ZappiStatusSummaryCardResponse(summary).toString())
+                .withShouldEndSession(false)
                 .build();
     }
 }

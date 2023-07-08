@@ -81,6 +81,7 @@ public class StartBoostHandler implements RequestHandler {
                 .withSpeech("Boosting until " + endTime.format(DateTimeFormatter.ofPattern("h:mm a")))
                 .withSimpleCard(Brand.NAME, "Boosting until "
                         + endTime.format(DateTimeFormatter.ofPattern("h:mm a")) + ".")
+                .withShouldEndSession(false)
                 .build();
     }
 
@@ -88,6 +89,7 @@ public class StartBoostHandler implements RequestHandler {
         return handlerInput.getResponseBuilder()
                 .withSpeech("Charging " + kilowattHours + " kilowatt hours")
                 .withSimpleCard("My Zappi", "Charging " + kilowattHours + " kilowatt hours")
+                .withShouldEndSession(false)
                 .build();
     }
 
@@ -95,6 +97,7 @@ public class StartBoostHandler implements RequestHandler {
         return handlerInput.getResponseBuilder()
                 .withSpeech("Sorry, I didn't understand that")
                 .withSimpleCard(Brand.NAME, "Sorry, I didn't understand that")
+                .withShouldEndSession(false)
                 .build();
     }
 }
