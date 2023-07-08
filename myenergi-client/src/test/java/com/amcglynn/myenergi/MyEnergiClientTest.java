@@ -33,7 +33,7 @@ class MyEnergiClientTest {
     @BeforeEach
     public void setUp() {
         mockWebServer = new MockWebServer();
-        client = new MyEnergiClient("12345678", "apiKey", mockWebServer.url("").uri());
+        client = new MyEnergiClient("56781234", "12345678", "apiKey", mockWebServer.url("").uri());
     }
 
     @Test
@@ -161,7 +161,7 @@ class MyEnergiClientTest {
 
         client.boost(endTime, new KiloWattHour(5));
         var request = mockWebServer.takeRequest();
-        assertThat(request.getRequestUrl().url().getPath()).contains("/cgi-zappi-mode-Z12345678-0-11-5-0215");
+        assertThat(request.getRequestUrl().url().getPath()).contains("/cgi-zappi-mode-Z56781234-0-11-5-0215");
     }
 
     @Test
@@ -173,7 +173,7 @@ class MyEnergiClientTest {
         var endTime = LocalTime.now().withHour(15).withMinute(45);
         client.boost(endTime);
         var request = mockWebServer.takeRequest();
-        assertThat(request.getRequestUrl().url().getPath()).contains("/cgi-zappi-mode-Z12345678-0-11-99-1545");
+        assertThat(request.getRequestUrl().url().getPath()).contains("/cgi-zappi-mode-Z56781234-0-11-99-1545");
     }
 
     @Test
@@ -184,7 +184,7 @@ class MyEnergiClientTest {
         mockWebServer.enqueue(mockResponse);
         client.boost(new KiloWattHour(34));
         var request = mockWebServer.takeRequest();
-        assertThat(request.getRequestUrl().url().getPath()).contains("/cgi-zappi-mode-Z12345678-0-10-34-0000");
+        assertThat(request.getRequestUrl().url().getPath()).contains("/cgi-zappi-mode-Z56781234-0-10-34-0000");
     }
 
     @Test
@@ -211,7 +211,7 @@ class MyEnergiClientTest {
         mockWebServer.enqueue(mockResponse);
         client.stopBoost();
         var request = mockWebServer.takeRequest();
-        assertThat(request.getRequestUrl().url().getPath()).contains("/cgi-zappi-mode-Z12345678-0-2-0-0000");
+        assertThat(request.getRequestUrl().url().getPath()).contains("/cgi-zappi-mode-Z56781234-0-2-0-0000");
     }
 
     @Test
@@ -252,7 +252,7 @@ class MyEnergiClientTest {
         mockWebServer.enqueue(mockResponse);
         var response = client.getZappiHourlyHistory(LocalDate.of(2023, Month.JANUARY, 20));
         var request = mockWebServer.takeRequest();
-        assertThat(request.getRequestUrl().url().getPath()).contains("/cgi-jdayhour-Z12345678-2023-1-20");
+        assertThat(request.getRequestUrl().url().getPath()).contains("/cgi-jdayhour-Z56781234-2023-1-20");
         assertThat(response.getExpectedReadings()).isEqualTo(24);
         assertThat(response.getReadings()).hasSize(24);
     }
@@ -275,7 +275,7 @@ class MyEnergiClientTest {
         mockWebServer.enqueue(mockResponse);
         var response = client.getZappiHistory(LocalDate.of(2023, Month.JANUARY, 20));
         var request = mockWebServer.takeRequest();
-        assertThat(request.getRequestUrl().url().getPath()).contains("/cgi-jday-Z12345678-2023-1-20");
+        assertThat(request.getRequestUrl().url().getPath()).contains("/cgi-jday-Z56781234-2023-1-20");
         assertThat(response.getExpectedReadings()).isEqualTo(1440);
         assertThat(response.getReadings()).hasSize(5);  // reduced down to save space in file
 
@@ -298,10 +298,10 @@ class MyEnergiClientTest {
 
     private static Stream<Arguments> chargeModesAndExpectedUrls() {
         return Stream.of(
-                Arguments.of(ZappiChargeMode.FAST, "/cgi-zappi-mode-Z12345678-1-0-0-0000", ZappiResponse.getGenericResponse()),
-                Arguments.of(ZappiChargeMode.ECO_PLUS, "/cgi-zappi-mode-Z12345678-3-0-0-0000", ZappiResponse.getGenericResponse()),
-                Arguments.of(ZappiChargeMode.ECO, "/cgi-zappi-mode-Z12345678-2-0-0-0000", ZappiResponse.getGenericResponse()),
-                Arguments.of(ZappiChargeMode.STOP, "/cgi-zappi-mode-Z12345678-4-0-0-0000", ZappiResponse.getGenericResponse())
+                Arguments.of(ZappiChargeMode.FAST, "/cgi-zappi-mode-Z56781234-1-0-0-0000", ZappiResponse.getGenericResponse()),
+                Arguments.of(ZappiChargeMode.ECO_PLUS, "/cgi-zappi-mode-Z56781234-3-0-0-0000", ZappiResponse.getGenericResponse()),
+                Arguments.of(ZappiChargeMode.ECO, "/cgi-zappi-mode-Z56781234-2-0-0-0000", ZappiResponse.getGenericResponse()),
+                Arguments.of(ZappiChargeMode.STOP, "/cgi-zappi-mode-Z56781234-4-0-0-0000", ZappiResponse.getGenericResponse())
         );
     }
 }

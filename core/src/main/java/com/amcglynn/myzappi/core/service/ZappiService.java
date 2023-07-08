@@ -30,11 +30,12 @@ public class ZappiService {
 
         var decryptedApiKey = encryptionService.decrypt(creds.get().getEncryptedApiKey());
         var serialNumber = creds.get().getSerialNumber().toString();
+        var zappiSerialNumber = creds.get().getZappiSerialNumber().toString();
 
         if ("12345678".equals(serialNumber) && "myDemoApiKey".equals(decryptedApiKey)) {
             client = new MockMyEnergiClient();
         } else{
-            client = new MyEnergiClient(serialNumber, decryptedApiKey);
+            client = new MyEnergiClient(zappiSerialNumber, serialNumber, decryptedApiKey);
         }
 
         // Zappi control APIs work off of local time and not UTC. Times in the retrieve Zappi information API is in UTC.

@@ -71,7 +71,7 @@ public class CompleteLoginHandler implements RequestHandler<APIGatewayProxyReque
             var creds = loginService.readCredentials(session.get().getUserId());
             thymeleafContext.setVariable("registered", creds.isPresent());
             creds.ifPresent(credentials ->
-                    thymeleafContext.setVariable("existingSerialNumber", "Your Zappi: " + credentials.getSerialNumber()));
+                    thymeleafContext.setVariable("existingSerialNumber", "Your Zappi: " + credentials.getZappiSerialNumber()));
 
 
             if ("DELETE".equals(input.getHttpMethod())) {
@@ -156,6 +156,7 @@ public class CompleteLoginHandler implements RequestHandler<APIGatewayProxyReque
 
             if ("12345678".equals(serialNumber) && "myDemoApiKey".equals(body.getApiKey().trim())) {
                 loginService.register(session.getUserId(),
+                        SerialNumber.from(serialNumber),
                         SerialNumber.from(serialNumber), body.getApiKey().trim());
                 response.setStatusCode(202);
                 var responseHeaders = new HashMap<>(response.getHeaders());
@@ -168,6 +169,7 @@ public class CompleteLoginHandler implements RequestHandler<APIGatewayProxyReque
 
             if (zappiSerialNumber.isPresent()) {
                 loginService.register(session.getUserId(),
+                        SerialNumber.from(zappiSerialNumber.get()), // zappi serial number may be different to gateway/hub
                         SerialNumber.from(serialNumber), body.getApiKey().trim());
                 response.setStatusCode(202);
                 var responseHeaders = new HashMap<>(response.getHeaders());
@@ -187,19 +189,15 @@ public class CompleteLoginHandler implements RequestHandler<APIGatewayProxyReque
     private Optional<String> discover(String serialNumber, String apiKey) {
         var client = new MyEnergiClient(serialNumber, apiKey);
         try {
-            client.getZappiStatus();
-            return Optional.of(serialNumber);
-        } catch (ClientException e) {
-            System.out.println("Falling back to discovery");
             var zappis = client.getStatus().stream()
                     .filter(statusResponse -> statusResponse.getZappi() != null).findFirst();
-            if (zappis.isPresent()) {
-                if (zappis.get().getZappi().size() > 0) {
-                    return Optional.of(zappis.get().getZappi().get(0).getSerialNumber());
-                }
+            if (zappis.isPresent() && zappis.get().getZappi().size() > 0) {
+                return Optional.of(zappis.get().getZappi().get(0).getSerialNumber());
             }
-
-            return Optional.empty();
+            System.out.println("Zappi device not found");
+        } catch (ClientException e) {
+            System.out.println("Unexpected error " + e.getMessage());
         }
+        return Optional.empty();
     }
 }

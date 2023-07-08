@@ -39,15 +39,25 @@ public class MyEnergiClient {
     private final OkHttpClient client;
     private URI baseUrl = DIRECTOR_BASE_URL;
 
-    private final String serialNumber;
+    private final String zappiSerialNumber;
+
     private final LocalTime localTimeMidnight = LocalTime.now().withMinute(0).withHour(0);
     private final KiloWattHour zeroKwh = new KiloWattHour(0.0);
     private final KiloWattHour maxKwh = new KiloWattHour(99.0);
 
+    /**
+     * Build a myenergi client.
+     * @param serialNumber this is the hub/gateway serial number. This may or may not be the Zappi.
+     * @param apiKey api key of the hub/gateway
+     */
     public MyEnergiClient(String serialNumber, String apiKey) {
-        this.serialNumber = serialNumber;
+        this(serialNumber, serialNumber, apiKey);
+    }
 
-        var authenticator = new DigestAuthenticator(new Credentials(serialNumber, apiKey));
+    public MyEnergiClient(String zappiSerialNumber, String hubSerialNumber, String apiKey) {
+        this.zappiSerialNumber = zappiSerialNumber;
+
+        var authenticator = new DigestAuthenticator(new Credentials(hubSerialNumber, apiKey));
         Map<String, CachingAuthenticator> authCache = new ConcurrentHashMap<>();
         client = new OkHttpClient.Builder()
                 .authenticator(new CachingAuthenticatorDecorator(authenticator, authCache))
@@ -62,12 +72,24 @@ public class MyEnergiClient {
      * @param baseUrl base URL of the myenergi API
      */
     protected MyEnergiClient(String serialNumber, String apiKey, URI baseUrl) {
-        this(serialNumber, apiKey);
+        this(serialNumber, serialNumber, apiKey, baseUrl);
+        this.baseUrl = baseUrl;
+    }
+
+    /**
+     * This should only be used by tests
+     * @param zappiSerialNumber serial number of the zappi device
+     * @param serialNumber serial number of the hub device
+     * @param apiKey myenergi API key
+     * @param baseUrl base URL of the myenergi API
+     */
+    protected MyEnergiClient(String zappiSerialNumber, String serialNumber, String apiKey, URI baseUrl) {
+        this(zappiSerialNumber, serialNumber, apiKey);
         this.baseUrl = baseUrl;
     }
 
     public ZappiStatusResponse getZappiStatus() {
-        var response = getRequest("/cgi-jstatus-Z" + serialNumber);
+        var response = getRequest("/cgi-jstatus-Z" + zappiSerialNumber);
         try {
             return new ObjectMapper().readValue(response, new TypeReference<>(){});
         } catch (JsonProcessingException e) {
@@ -127,7 +149,7 @@ public class MyEnergiClient {
         var formatter = DateTimeFormatter.ofPattern("HHmm");
         String formattedTime = endTime.format(formatter);
 
-        var url = "/cgi-zappi-mode-Z" + serialNumber + "-" + zappiChargeMode.getApiValue() + "-"
+        var url = "/cgi-zappi-mode-Z" + zappiSerialNumber + "-" + zappiChargeMode.getApiValue() + "-"
                 + zappiBoostMode.getBoostValue() + "-" + kwh + "-" + formattedTime;
         var responseStr = getRequest(url);
         validateResponse(responseStr);
@@ -153,7 +175,7 @@ public class MyEnergiClient {
     }
 
     public ZappiHourlyDayHistory getZappiHourlyHistory(LocalDate localDate) {
-        var response = getRequest("/cgi-jdayhour-Z" + serialNumber + "-" + localDate.getYear() +
+        var response = getRequest("/cgi-jdayhour-Z" + zappiSerialNumber + "-" + localDate.getYear() +
                 "-" + localDate.getMonthValue()  + "-" + localDate.getDayOfMonth());
         try {
             return new ObjectMapper().readValue(response, new TypeReference<>(){});
@@ -163,7 +185,7 @@ public class MyEnergiClient {
     }
 
     public ZappiDayHistory getZappiHistory(LocalDate localDate) {
-        var response = getRequest("/cgi-jday-Z" + serialNumber + "-" + localDate.getYear() +
+        var response = getRequest("/cgi-jday-Z" + zappiSerialNumber + "-" + localDate.getYear() +
                 "-" + localDate.getMonthValue() + "-" + localDate.getDayOfMonth());
         try {
             return new ObjectMapper().readValue(response, new TypeReference<>(){});
@@ -176,7 +198,7 @@ public class MyEnergiClient {
         if (offset < 0) {
             throw new IllegalArgumentException("offset must be positive");
         }
-        String endPointUrl = "/cgi-jday-Z" + serialNumber + "-" + localDate.getYear() +
+        String endPointUrl = "/cgi-jday-Z" + zappiSerialNumber + "-" + localDate.getYear() +
                 "-" + localDate.getMonthValue() + "-" + localDate.getDayOfMonth() + "-" + offset;
         var response = getRequest(endPointUrl);
 
