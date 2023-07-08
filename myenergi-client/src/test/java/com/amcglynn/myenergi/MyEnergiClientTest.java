@@ -4,7 +4,6 @@ import com.amcglynn.myenergi.exception.ClientException;
 import com.amcglynn.myenergi.exception.InvalidRequestException;
 import com.amcglynn.myenergi.exception.InvalidResponseFormatException;
 import com.amcglynn.myenergi.exception.ServerCommunicationException;
-import com.amcglynn.myenergi.units.Joule;
 import com.amcglynn.myenergi.units.KiloWattHour;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -34,11 +33,11 @@ class MyEnergiClientTest {
     @BeforeEach
     public void setUp() {
         mockWebServer = new MockWebServer();
-        client = new MyEnergiClient("12345678","apiKey", mockWebServer.url("").uri());
+        client = new MyEnergiClient("12345678", "apiKey", mockWebServer.url("").uri());
     }
 
     @Test
-    void testGetStatus() {
+    void testGetZappiStatus() {
         var mockResponse = new MockResponse()
                 .setResponseCode(200)
                 .addHeader("x_myenergi-asn", mockWebServer.url("").uri())
@@ -54,6 +53,45 @@ class MyEnergiClientTest {
         assertThat(zappiResponse.getEvConnectionStatus()).isEqualTo("A");
         assertThat(zappiResponse.getZappiChargeMode()).isEqualTo(3);
         assertThat(zappiResponse.getChargeStatus()).isEqualTo(ChargeStatus.PAUSED.ordinal());
+    }
+
+    @Test
+    void testGetStatus() {
+        var mockResponse = new MockResponse()
+                .setResponseCode(200)
+                .addHeader("x_myenergi-asn", mockWebServer.url("").uri())
+                .setBody(ZappiResponse.getExampleStatusResponse());
+        mockWebServer.enqueue(mockResponse);
+        var response = client.getStatus();
+
+        assertThat(response).hasSize(5);
+        var zappis = response.stream().filter(statusResponse -> statusResponse.getZappi() != null).findFirst();
+        var eddis = response.stream().filter(statusResponse -> statusResponse.getEddi() != null).findFirst();
+        var harvis = response.stream().filter(statusResponse -> statusResponse.getHarvi() != null).findFirst();
+        var libbis = response.stream().filter(statusResponse -> statusResponse.getLibbi() != null).findFirst();
+        var hub = response.stream().filter(statusResponse -> statusResponse.getAsn() != null
+                && statusResponse.getFwv() != null && statusResponse.getVhub() != null).findFirst();
+
+        assertThat(zappis).isPresent();
+        assertThat(eddis).isPresent();
+        assertThat(harvis).isPresent();
+        assertThat(libbis).isPresent();
+        assertThat(hub).isPresent();
+
+        assertThat(zappis.get().getZappi()).hasSize(1);
+        assertThat(zappis.get().getZappi().get(0).getSerialNumber()).isEqualTo("12345678");
+
+        assertThat(libbis.get().getLibbi()).isEmpty();
+
+        assertThat(eddis.get().getEddi()).hasSize(1);
+        assertThat(eddis.get().getEddi().get(0).getSerialNumber()).isEqualTo("10088888");
+
+        assertThat(harvis.get().getHarvi()).hasSize(1);
+        assertThat(harvis.get().getHarvi().get(0).getSerialNumber()).isEqualTo("10203040");
+
+        assertThat(hub.get().getAsn()).isEqualTo("s18.myenergi.net");
+        assertThat(hub.get().getVhub()).isEqualTo(1);
+        assertThat(hub.get().getFwv()).isEqualTo("3401S5.044");
     }
 
     @Test
@@ -220,7 +258,7 @@ class MyEnergiClientTest {
     }
 
     @Test
-    void testGetHourlyHistoryThrowsInvalidResponseFormatExceptionWhenServerRespondsWithMalformedData() throws Exception {
+    void testGetHourlyHistoryThrowsInvalidResponseFormatExceptionWhenServerRespondsWithMalformedData() {
         var mockResponse = new MockResponse()
                 .setResponseCode(200)
                 .setBody(ZappiResponse.getHourlyHistoryResponse().substring(8));
@@ -249,7 +287,7 @@ class MyEnergiClientTest {
     }
 
     @Test
-    void testGetHistoryThrowsInvalidResponseFormatExceptionWhenServerRespondsWithMalformedData() throws Exception {
+    void testGetHistoryThrowsInvalidResponseFormatExceptionWhenServerRespondsWithMalformedData() {
         var mockResponse = new MockResponse()
                 .setResponseCode(200)
                 .setBody(ZappiResponse.getHistoryResponse().substring(8));

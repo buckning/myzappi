@@ -5,10 +5,12 @@ import java.net.URI;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.amcglynn.myenergi.apiresponse.GenericResponse;
+import com.amcglynn.myenergi.apiresponse.StatusResponse;
 import com.amcglynn.myenergi.apiresponse.ZappiDayHistory;
 import com.amcglynn.myenergi.apiresponse.ZappiHourlyDayHistory;
 import com.amcglynn.myenergi.apiresponse.ZappiStatusResponse;
@@ -66,6 +68,15 @@ public class MyEnergiClient {
 
     public ZappiStatusResponse getZappiStatus() {
         var response = getRequest("/cgi-jstatus-Z" + serialNumber);
+        try {
+            return new ObjectMapper().readValue(response, new TypeReference<>(){});
+        } catch (JsonProcessingException e) {
+            throw new InvalidResponseFormatException();
+        }
+    }
+
+    public List<StatusResponse> getStatus() {
+        var response = getRequest("/cgi-jstatus-*");
         try {
             return new ObjectMapper().readValue(response, new TypeReference<>(){});
         } catch (JsonProcessingException e) {
