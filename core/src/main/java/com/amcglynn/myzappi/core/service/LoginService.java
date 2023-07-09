@@ -22,9 +22,10 @@ public class LoginService {
         creds.ifPresent(credentials -> credentialsRepository.delete(credentials.getUserId()));
     }
 
-    public void register(String userId, SerialNumber serialNumber, String apiKey) {
+    public void register(String userId, SerialNumber zappiSerialNumber, SerialNumber serialNumber, String apiKey) {
         var encryptedKey = encryptionService.encrypt(apiKey);
         var newCreds = new ZappiCredentials(userId,
+                zappiSerialNumber,
                 serialNumber,
                 encryptedKey);
 

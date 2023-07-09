@@ -63,6 +63,118 @@ public class ZappiResponse {
                 "}";
     }
 
+    public static String getExampleStatusResponse() {
+        return "[\n" +
+                "    {\n" +
+                "        \"eddi\":[ \n" +
+                "         { \n" +
+                "            \"dat\":\"09-09-2019\",\n" +
+                "            \"tim\":\"16:55:50\",\n" +
+                "            \"ectp1\":1,\n" +
+                "            \"ectp2\":1,\n" +
+                "            \"ectt1\":\"Grid\",\n" +
+                "            \"ectt2\":\"Generation\",\n" +
+                "            \"frq\":50.15,\n" +
+                "            \"gen\":304,\n" +
+                "            \"grd\":4429,\n" +
+                "            \"hno\":1,\n" +
+                "            \"pha\":3,\n" +
+                "            \"sno\":10088888,\n" +
+                "            \"sta\":1,\n" +
+                "            \"vol\":0.0,\n" +
+                "            \"ht1\":\"Tank 1\",\n" +
+                "            \"ht2\":\"Tank 2\",\n" +
+                "            \"tp1\":-1,\n" +
+                "            \"tp2\":-1,\n" +
+                "            \"pri\":2,\n" +
+                "            \"cmt\":254,\n" +
+                "            \"r1a\":1,\n" +
+                "            \"r2a\":1,\n" +
+                "            \"r2b\":1,\n" +
+                "            \"che\":1\n" +
+                "         }\n" +
+                "      ]" +
+                "    },\n" +
+                "    {\n" +
+                "        \"zappi\": [\n" +
+                "            {\n" +
+                "                \"sno\": 12345678,\n" +
+                "                \"dat\": \"08-07-2023\",\n" +
+                "                \"tim\": \"08:51:48\",\n" +
+                "                \"ectp1\": 0,\n" +
+                "                \"ectp2\": 3239,\n" +
+                "                \"ectp3\": 0,\n" +
+                "                \"ectt1\": \"Internal Load\",\n" +
+                "                \"ectt2\": \"Grid\",\n" +
+                "                \"ectt3\": \"None\",\n" +
+                "                \"bsm\": 0,\n" +
+                "                \"bst\": 0,\n" +
+                "                \"cmt\": 254,\n" +
+                "                \"dst\": 1,\n" +
+                "                \"div\": 0,\n" +
+                "                \"frq\": 50.02,\n" +
+                "                \"fwv\": \"3562S5.044\",\n" +
+                "                \"gen\": 2254,\n" +
+                "                \"grd\": 3582,\n" +
+                "                \"pha\": 1,\n" +
+                "                \"pri\": 1,\n" +
+                "                \"sta\": 4,\n" +
+                "                \"tz\": 0,\n" +
+                "                \"vol\": 2286,\n" +
+                "                \"bss\": 0,\n" +
+                "                \"lck\": 7,\n" +
+                "                \"pst\": \"A\",\n" +
+                "                \"zmo\": 1,\n" +
+                "                \"pwm\": 1000,\n" +
+                "                \"zs\": 256,\n" +
+                "                \"rdc\": -1,\n" +
+                "                \"rac\": 3,\n" +
+                "                \"rrac\": -4,\n" +
+                "                \"zsh\": 1,\n" +
+                "                \"ectt4\": \"None\",\n" +
+                "                \"ectt5\": \"None\",\n" +
+                "                \"ectt6\": \"None\",\n" +
+                "                \"newAppAvailable\": false,\n" +
+                "                \"newBootloaderAvailable\": false,\n" +
+                "                \"beingTamperedWith\": false,\n" +
+                "                \"batteryDischargeEnabled\": false,\n" +
+                "                \"g100LockoutState\": \"NONE\",\n" +
+                "                \"mgl\": 30,\n" +
+                "                \"sbh\": 3,\n" +
+                "                \"sbk\": 99\n" +
+                "            }\n" +
+                "        ]\n" +
+                "    },\n" +
+                "    {\n" +
+                "        \"harvi\": [\n" +
+                "            {\n" +
+                "                \"sno\": 10203040,\n" +
+                "                \"dat\": \"08-07-2023\",\n" +
+                "                \"tim\": \"08:51:48\",\n" +
+                "                \"ectp1\": 2254,\n" +
+                "                \"ectp2\": 0,\n" +
+                "                \"ectp3\": 0,\n" +
+                "                \"ectt1\": \"Generation\",\n" +
+                "                \"ectt2\": \"None\",\n" +
+                "                \"ectt3\": \"None\",\n" +
+                "                \"ect1p\": 1,\n" +
+                "                \"ect2p\": 1,\n" +
+                "                \"ect3p\": 1,\n" +
+                "                \"fwv\": \"3170S0.000\"\n" +
+                "            }\n" +
+                "        ]\n" +
+                "    },\n" +
+                "    {\n" +
+                "        \"libbi\": []\n" +
+                "    },\n" +
+                "    {\n" +
+                "        \"asn\": \"s18.myenergi.net\",\n" +
+                "        \"fwv\": \"3401S5.044\",\n" +
+                "        \"vhub\": 1\n" +
+                "    }\n" +
+                "]";
+    }
+
     public static String getHistoryResponse() {
         return "{\n" +
                 "    \"U20149781\": [\n" +

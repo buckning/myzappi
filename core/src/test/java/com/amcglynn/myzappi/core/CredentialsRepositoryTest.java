@@ -57,6 +57,7 @@ class CredentialsRepositoryTest {
     @Test
     void testReadCredentialsForUserWhoHasSuccessfullyLoggedIn() {
         when(mockGetResult.getItem()).thenReturn(Map.of("serial-number", new AttributeValue("12345678"),
+                "zappi-serial-number", new AttributeValue("56781234"),
                 "encrypted-api-key", new AttributeValue().withB(encryptedApiKey)));
         when(mockDb.getItem(any())).thenReturn(mockGetResult);
         var result = credentialsRepository.read("userid");
@@ -69,14 +70,15 @@ class CredentialsRepositoryTest {
 
     @Test
     void testWriteCredentials() {
-        var creds = new ZappiCredentials("userid", SerialNumber.from("12345678"), encryptedApiKey);
+        var creds = new ZappiCredentials("userid", SerialNumber.from("56781234"), SerialNumber.from("12345678"), encryptedApiKey);
         credentialsRepository.write(creds);
         verify(mockDb).putItem(putItemCaptor.capture());
         assertThat(putItemCaptor.getValue()).isNotNull();
-        assertThat(putItemCaptor.getValue().getItem()).hasSize(3);
+        assertThat(putItemCaptor.getValue().getItem()).hasSize(4);
         assertThat(putItemCaptor.getValue().getTableName()).isEqualTo("zappi-login-creds");
         assertThat(putItemCaptor.getValue().getItem().get("amazon-user-id").getS()).isEqualTo("userid");
         assertThat(putItemCaptor.getValue().getItem().get("serial-number").getS()).isEqualTo("12345678");
+        assertThat(putItemCaptor.getValue().getItem().get("zappi-serial-number").getS()).isEqualTo("56781234");
         assertThat(putItemCaptor.getValue().getItem().get("encrypted-api-key").getB()).isEqualTo(encryptedApiKey);
     }
 

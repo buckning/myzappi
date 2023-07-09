@@ -49,12 +49,13 @@ class ZappiServiceTest {
     private UserIdResolver mockUserIdResolver;
 
     private final String userId = "userId";
+    private final SerialNumber zappiSerialNumber = SerialNumber.from("56781234");
     private final SerialNumber serialNumber = SerialNumber.from("12345678");
     private final ByteBuffer encryptedApiKey = ByteBuffer.wrap(new byte[] { 0x01, 0x02, 0x03 });
 
     @BeforeEach
     void setUp() {
-        var zappiCreds = new ZappiCredentials(userId, serialNumber, encryptedApiKey);
+        var zappiCreds = new ZappiCredentials(userId, zappiSerialNumber, serialNumber, encryptedApiKey);
         when(mockLoginService.readCredentials(userId)).thenReturn(Optional.of(zappiCreds));
         when(mockEncryptionService.decrypt(encryptedApiKey)).thenReturn("myApiKey");
         when(mockUserIdResolver.getUserId()).thenReturn(userId);

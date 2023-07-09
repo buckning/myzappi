@@ -30,6 +30,7 @@ class LoginServiceTest {
 
     private LoginService loginService;
     private final ByteBuffer encryptedApiKey = ByteBuffer.wrap(new byte[]{0x01, 0x02, 0x03});
+    private final SerialNumber zappiSerialNumber = SerialNumber.from("56781234");
     private final SerialNumber serialNumber = SerialNumber.from("12345678");
     private final String userId = "userid";
     private ZappiCredentials zappiCredentials;
@@ -38,7 +39,7 @@ class LoginServiceTest {
 
     @BeforeEach
     void setUp() {
-        zappiCredentials = new ZappiCredentials(userId, serialNumber, encryptedApiKey);
+        zappiCredentials = new ZappiCredentials(userId, zappiSerialNumber, serialNumber, encryptedApiKey);
         loginService = new LoginService(mockCredentialsRepository, mockEncryptionService);
     }
 
@@ -66,7 +67,7 @@ class LoginServiceTest {
     void testRegisterSavesDetailsToDb() {
         when(mockEncryptionService.encrypt(anyString())).thenReturn(encryptedApiKey);
 
-        loginService.register(userId, serialNumber, "apiKey");
+        loginService.register(userId, zappiSerialNumber, serialNumber, "apiKey");
 
         verify(mockEncryptionService).encrypt("apiKey");
         verify(mockCredentialsRepository).write(credsCaptor.capture());

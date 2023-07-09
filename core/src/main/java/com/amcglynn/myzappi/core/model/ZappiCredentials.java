@@ -5,17 +5,20 @@ import java.nio.ByteBuffer;
 public class ZappiCredentials {
 
     private final String userId;
+    private final SerialNumber zappiSerialNumber;
     private final SerialNumber serialNumber;
     private final ByteBuffer encryptedApiKey;
 
     /**
-     * Used for a user where they have successfully completed the login process.
-     * @param userId AWS userId
-     * @param serialNumber Zappi serial number
-     * @param encryptedApiKey Encrypted Zappi API key
+     *
+     * @param userId Amazon user ID
+     * @param zappiSerialNumber serial number of the Zappi device
+     * @param serialNumber serial number of the hub/gateway. This may or may not be the same as the zappi serial number
+     * @param encryptedApiKey API key of the hub/gateway.
      */
-    public ZappiCredentials(String userId, SerialNumber serialNumber, ByteBuffer encryptedApiKey) {
+    public ZappiCredentials(String userId, SerialNumber zappiSerialNumber, SerialNumber serialNumber, ByteBuffer encryptedApiKey) {
         this.userId = userId;
+        this.zappiSerialNumber = zappiSerialNumber;
         this.serialNumber = serialNumber;
         this.encryptedApiKey = encryptedApiKey;
     }
@@ -24,6 +27,10 @@ public class ZappiCredentials {
         return userId;
     }
 
+    /**
+     * Get the hub/gateway serial number.
+     * @return serial number
+     */
     public SerialNumber getSerialNumber() {
         return serialNumber;
     }
@@ -35,5 +42,14 @@ public class ZappiCredentials {
      */
     public ByteBuffer getEncryptedApiKey() {
         return encryptedApiKey;
+    }
+
+    /**
+     * Get the Zappi serial number. This may or may not be the same as the hub/gateway, depending on the Zappi verion
+     * and deployment.
+     * @return serial number
+     */
+    public SerialNumber getZappiSerialNumber() {
+        return zappiSerialNumber;
     }
 }

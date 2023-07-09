@@ -14,13 +14,12 @@ import com.amcglynn.myzappi.core.service.LoginService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.AccessLevel;
-import lombok.Setter;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 public class CompleteLoginHandler implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
 
@@ -43,6 +42,7 @@ public class CompleteLoginHandler implements RequestHandler<APIGatewayProxyReque
         templateEngine = new TemplateEngine();
         templateEngine.setTemplateResolver(templateResolver);
     }
+
     public CompleteLoginHandler() {
         this.properties = new Properties();
         var serviceManager = new ServiceManager(properties);
@@ -71,7 +71,7 @@ public class CompleteLoginHandler implements RequestHandler<APIGatewayProxyReque
             var creds = loginService.readCredentials(session.get().getUserId());
             thymeleafContext.setVariable("registered", creds.isPresent());
             creds.ifPresent(credentials ->
-                    thymeleafContext.setVariable("existingSerialNumber", "Your Zappi: " + credentials.getSerialNumber()));
+                    thymeleafContext.setVariable("existingSerialNumber", "Your Zappi: " + credentials.getZappiSerialNumber()));
 
 
             if ("DELETE".equals(input.getHttpMethod())) {
@@ -156,6 +156,7 @@ public class CompleteLoginHandler implements RequestHandler<APIGatewayProxyReque
 
             if ("12345678".equals(serialNumber) && "myDemoApiKey".equals(body.getApiKey().trim())) {
                 loginService.register(session.getUserId(),
+                        SerialNumber.from(serialNumber),
                         SerialNumber.from(serialNumber), body.getApiKey().trim());
                 response.setStatusCode(202);
                 var responseHeaders = new HashMap<>(response.getHeaders());
@@ -164,21 +165,39 @@ public class CompleteLoginHandler implements RequestHandler<APIGatewayProxyReque
                 return;
             }
 
-            var client = new MyEnergiClient(serialNumber, body.getApiKey().trim());
-            client.getZappiStatus();
+            var zappiSerialNumber = discover(serialNumber, body.getApiKey().trim());
 
-            loginService.register(session.getUserId(),
-                    SerialNumber.from(serialNumber), body.getApiKey().trim());
-            response.setStatusCode(202);
-            var responseHeaders = new HashMap<>(response.getHeaders());
-            responseHeaders.put("Content-Type", "application/json");
-            response.setHeaders(responseHeaders);
-        } catch (ClientException e) {
-            System.err.println("Wrong myenergi credentials entered");
-            response.setStatusCode(409);
+            if (zappiSerialNumber.isPresent()) {
+                loginService.register(session.getUserId(),
+                        SerialNumber.from(zappiSerialNumber.get()), // zappi serial number may be different to gateway/hub
+                        SerialNumber.from(serialNumber), body.getApiKey().trim());
+                response.setStatusCode(202);
+                var responseHeaders = new HashMap<>(response.getHeaders());
+                responseHeaders.put("Content-Type", "application/json");
+                response.setHeaders(responseHeaders);
+            } else {
+                System.err.println("Could not find Zappi for system");
+                response.setStatusCode(409);
+            }
+
         } catch (JsonProcessingException e) {
             response.setStatusCode(400);
             e.printStackTrace();
         }
+    }
+
+    private Optional<String> discover(String serialNumber, String apiKey) {
+        var client = new MyEnergiClient(serialNumber, apiKey);
+        try {
+            var zappis = client.getStatus().stream()
+                    .filter(statusResponse -> statusResponse.getZappi() != null).findFirst();
+            if (zappis.isPresent() && zappis.get().getZappi().size() > 0) {
+                return Optional.of(zappis.get().getZappi().get(0).getSerialNumber());
+            }
+            System.out.println("Zappi device not found");
+        } catch (ClientException e) {
+            System.out.println("Unexpected error " + e.getMessage());
+        }
+        return Optional.empty();
     }
 }

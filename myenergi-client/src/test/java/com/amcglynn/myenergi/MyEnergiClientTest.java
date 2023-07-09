@@ -4,7 +4,6 @@ import com.amcglynn.myenergi.exception.ClientException;
 import com.amcglynn.myenergi.exception.InvalidRequestException;
 import com.amcglynn.myenergi.exception.InvalidResponseFormatException;
 import com.amcglynn.myenergi.exception.ServerCommunicationException;
-import com.amcglynn.myenergi.units.Joule;
 import com.amcglynn.myenergi.units.KiloWattHour;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -34,11 +33,11 @@ class MyEnergiClientTest {
     @BeforeEach
     public void setUp() {
         mockWebServer = new MockWebServer();
-        client = new MyEnergiClient("12345678","apiKey", mockWebServer.url("").uri());
+        client = new MyEnergiClient("56781234", "12345678", "apiKey", mockWebServer.url("").uri());
     }
 
     @Test
-    void testGetStatus() {
+    void testGetZappiStatus() {
         var mockResponse = new MockResponse()
                 .setResponseCode(200)
                 .addHeader("x_myenergi-asn", mockWebServer.url("").uri())
@@ -54,6 +53,45 @@ class MyEnergiClientTest {
         assertThat(zappiResponse.getEvConnectionStatus()).isEqualTo("A");
         assertThat(zappiResponse.getZappiChargeMode()).isEqualTo(3);
         assertThat(zappiResponse.getChargeStatus()).isEqualTo(ChargeStatus.PAUSED.ordinal());
+    }
+
+    @Test
+    void testGetStatus() {
+        var mockResponse = new MockResponse()
+                .setResponseCode(200)
+                .addHeader("x_myenergi-asn", mockWebServer.url("").uri())
+                .setBody(ZappiResponse.getExampleStatusResponse());
+        mockWebServer.enqueue(mockResponse);
+        var response = client.getStatus();
+
+        assertThat(response).hasSize(5);
+        var zappis = response.stream().filter(statusResponse -> statusResponse.getZappi() != null).findFirst();
+        var eddis = response.stream().filter(statusResponse -> statusResponse.getEddi() != null).findFirst();
+        var harvis = response.stream().filter(statusResponse -> statusResponse.getHarvi() != null).findFirst();
+        var libbis = response.stream().filter(statusResponse -> statusResponse.getLibbi() != null).findFirst();
+        var hub = response.stream().filter(statusResponse -> statusResponse.getAsn() != null
+                && statusResponse.getFwv() != null && statusResponse.getVhub() != null).findFirst();
+
+        assertThat(zappis).isPresent();
+        assertThat(eddis).isPresent();
+        assertThat(harvis).isPresent();
+        assertThat(libbis).isPresent();
+        assertThat(hub).isPresent();
+
+        assertThat(zappis.get().getZappi()).hasSize(1);
+        assertThat(zappis.get().getZappi().get(0).getSerialNumber()).isEqualTo("12345678");
+
+        assertThat(libbis.get().getLibbi()).isEmpty();
+
+        assertThat(eddis.get().getEddi()).hasSize(1);
+        assertThat(eddis.get().getEddi().get(0).getSerialNumber()).isEqualTo("10088888");
+
+        assertThat(harvis.get().getHarvi()).hasSize(1);
+        assertThat(harvis.get().getHarvi().get(0).getSerialNumber()).isEqualTo("10203040");
+
+        assertThat(hub.get().getAsn()).isEqualTo("s18.myenergi.net");
+        assertThat(hub.get().getVhub()).isEqualTo(1);
+        assertThat(hub.get().getFwv()).isEqualTo("3401S5.044");
     }
 
     @Test
@@ -123,7 +161,7 @@ class MyEnergiClientTest {
 
         client.boost(endTime, new KiloWattHour(5));
         var request = mockWebServer.takeRequest();
-        assertThat(request.getRequestUrl().url().getPath()).contains("/cgi-zappi-mode-Z12345678-0-11-5-0215");
+        assertThat(request.getRequestUrl().url().getPath()).contains("/cgi-zappi-mode-Z56781234-0-11-5-0215");
     }
 
     @Test
@@ -135,7 +173,7 @@ class MyEnergiClientTest {
         var endTime = LocalTime.now().withHour(15).withMinute(45);
         client.boost(endTime);
         var request = mockWebServer.takeRequest();
-        assertThat(request.getRequestUrl().url().getPath()).contains("/cgi-zappi-mode-Z12345678-0-11-99-1545");
+        assertThat(request.getRequestUrl().url().getPath()).contains("/cgi-zappi-mode-Z56781234-0-11-99-1545");
     }
 
     @Test
@@ -146,7 +184,7 @@ class MyEnergiClientTest {
         mockWebServer.enqueue(mockResponse);
         client.boost(new KiloWattHour(34));
         var request = mockWebServer.takeRequest();
-        assertThat(request.getRequestUrl().url().getPath()).contains("/cgi-zappi-mode-Z12345678-0-10-34-0000");
+        assertThat(request.getRequestUrl().url().getPath()).contains("/cgi-zappi-mode-Z56781234-0-10-34-0000");
     }
 
     @Test
@@ -173,7 +211,7 @@ class MyEnergiClientTest {
         mockWebServer.enqueue(mockResponse);
         client.stopBoost();
         var request = mockWebServer.takeRequest();
-        assertThat(request.getRequestUrl().url().getPath()).contains("/cgi-zappi-mode-Z12345678-0-2-0-0000");
+        assertThat(request.getRequestUrl().url().getPath()).contains("/cgi-zappi-mode-Z56781234-0-2-0-0000");
     }
 
     @Test
@@ -214,13 +252,13 @@ class MyEnergiClientTest {
         mockWebServer.enqueue(mockResponse);
         var response = client.getZappiHourlyHistory(LocalDate.of(2023, Month.JANUARY, 20));
         var request = mockWebServer.takeRequest();
-        assertThat(request.getRequestUrl().url().getPath()).contains("/cgi-jdayhour-Z12345678-2023-1-20");
+        assertThat(request.getRequestUrl().url().getPath()).contains("/cgi-jdayhour-Z56781234-2023-1-20");
         assertThat(response.getExpectedReadings()).isEqualTo(24);
         assertThat(response.getReadings()).hasSize(24);
     }
 
     @Test
-    void testGetHourlyHistoryThrowsInvalidResponseFormatExceptionWhenServerRespondsWithMalformedData() throws Exception {
+    void testGetHourlyHistoryThrowsInvalidResponseFormatExceptionWhenServerRespondsWithMalformedData() {
         var mockResponse = new MockResponse()
                 .setResponseCode(200)
                 .setBody(ZappiResponse.getHourlyHistoryResponse().substring(8));
@@ -237,7 +275,7 @@ class MyEnergiClientTest {
         mockWebServer.enqueue(mockResponse);
         var response = client.getZappiHistory(LocalDate.of(2023, Month.JANUARY, 20));
         var request = mockWebServer.takeRequest();
-        assertThat(request.getRequestUrl().url().getPath()).contains("/cgi-jday-Z12345678-2023-1-20");
+        assertThat(request.getRequestUrl().url().getPath()).contains("/cgi-jday-Z56781234-2023-1-20");
         assertThat(response.getExpectedReadings()).isEqualTo(1440);
         assertThat(response.getReadings()).hasSize(5);  // reduced down to save space in file
 
@@ -249,7 +287,7 @@ class MyEnergiClientTest {
     }
 
     @Test
-    void testGetHistoryThrowsInvalidResponseFormatExceptionWhenServerRespondsWithMalformedData() throws Exception {
+    void testGetHistoryThrowsInvalidResponseFormatExceptionWhenServerRespondsWithMalformedData() {
         var mockResponse = new MockResponse()
                 .setResponseCode(200)
                 .setBody(ZappiResponse.getHistoryResponse().substring(8));
@@ -260,10 +298,10 @@ class MyEnergiClientTest {
 
     private static Stream<Arguments> chargeModesAndExpectedUrls() {
         return Stream.of(
-                Arguments.of(ZappiChargeMode.FAST, "/cgi-zappi-mode-Z12345678-1-0-0-0000", ZappiResponse.getGenericResponse()),
-                Arguments.of(ZappiChargeMode.ECO_PLUS, "/cgi-zappi-mode-Z12345678-3-0-0-0000", ZappiResponse.getGenericResponse()),
-                Arguments.of(ZappiChargeMode.ECO, "/cgi-zappi-mode-Z12345678-2-0-0-0000", ZappiResponse.getGenericResponse()),
-                Arguments.of(ZappiChargeMode.STOP, "/cgi-zappi-mode-Z12345678-4-0-0-0000", ZappiResponse.getGenericResponse())
+                Arguments.of(ZappiChargeMode.FAST, "/cgi-zappi-mode-Z56781234-1-0-0-0000", ZappiResponse.getGenericResponse()),
+                Arguments.of(ZappiChargeMode.ECO_PLUS, "/cgi-zappi-mode-Z56781234-3-0-0-0000", ZappiResponse.getGenericResponse()),
+                Arguments.of(ZappiChargeMode.ECO, "/cgi-zappi-mode-Z56781234-2-0-0-0000", ZappiResponse.getGenericResponse()),
+                Arguments.of(ZappiChargeMode.STOP, "/cgi-zappi-mode-Z56781234-4-0-0-0000", ZappiResponse.getGenericResponse())
         );
     }
 }

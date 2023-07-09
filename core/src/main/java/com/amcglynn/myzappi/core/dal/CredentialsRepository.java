@@ -16,6 +16,7 @@ public class CredentialsRepository {
     private final AmazonDynamoDB dbClient;
     private static final String TABLE_NAME = "zappi-login-creds";
     private static final String USER_ID_COLUMN = "amazon-user-id";
+    private static final String ZAPPI_SERIAL_NUMBER_COLUMN = "zappi-serial-number";
     private static final String SERIAL_NUMBER_COLUMN = "serial-number";
     private static final String ENCRYPTED_API_KEY_COLUMN = "encrypted-api-key";
 
@@ -32,9 +33,11 @@ public class CredentialsRepository {
         if (result.getItem() == null) {
             return Optional.empty();
         }
+        var zappiSerialNumber = result.getItem().get(ZAPPI_SERIAL_NUMBER_COLUMN).getS();
         var serialNumber = result.getItem().get(SERIAL_NUMBER_COLUMN).getS();
         var encrypted = result.getItem().get(ENCRYPTED_API_KEY_COLUMN).getB();
         return Optional.of(new ZappiCredentials(userId,
+                SerialNumber.from(zappiSerialNumber),
                 SerialNumber.from(serialNumber),
                 encrypted));
     }
@@ -43,6 +46,7 @@ public class CredentialsRepository {
         var item = new HashMap<String, AttributeValue>();
         item.put(USER_ID_COLUMN, new AttributeValue(creds.getUserId()));
         item.put(SERIAL_NUMBER_COLUMN, new AttributeValue(creds.getSerialNumber().toString()));
+        item.put(ZAPPI_SERIAL_NUMBER_COLUMN, new AttributeValue(creds.getZappiSerialNumber().toString()));
         item.put(ENCRYPTED_API_KEY_COLUMN, new AttributeValue().withB(creds.getEncryptedApiKey()));
 
         var request = new PutItemRequest()
