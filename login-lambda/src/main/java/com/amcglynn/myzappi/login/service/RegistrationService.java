@@ -6,6 +6,7 @@ import com.amcglynn.myzappi.core.model.SerialNumber;
 import com.amcglynn.myzappi.core.service.LoginService;
 import com.amcglynn.myzappi.login.UserId;
 import com.amcglynn.myzappi.login.rest.ServerException;
+import com.amcglynn.myzappi.login.rest.response.HubDetailsResponse;
 
 import java.util.Optional;
 
@@ -58,5 +59,12 @@ public class RegistrationService {
             System.out.println("Unexpected error " + e.getMessage());
         }
         return Optional.empty();
+    }
+
+    public Optional<HubDetailsResponse> read(String userId) {
+        var details = loginService.readCredentials(userId);
+        return details.map(creds ->
+            new HubDetailsResponse(creds.getSerialNumber().toString(), creds.getZappiSerialNumber().toString())
+        );
     }
 }

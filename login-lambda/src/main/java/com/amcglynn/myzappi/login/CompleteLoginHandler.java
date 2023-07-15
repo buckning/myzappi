@@ -47,8 +47,6 @@ public class CompleteLoginHandler implements RequestHandler<APIGatewayProxyReque
 
     public CompleteLoginHandler() {
         // TODO set up the redirect URL to /login
-
-
         this.properties = new Properties();
         var serviceManager = new ServiceManager(properties);
         this.loginService = serviceManager.getLoginService();

@@ -16,9 +16,11 @@ public class EndpointRouter {
     private Map<String, RestController> handlers;
 
     public EndpointRouter(ServiceManager serviceManager) {
+        var hubController = new HubController(new RegistrationService(serviceManager.getLoginService()));
         handlers = new HashMap<>();
-        handlers.put("POST /hub", new HubController(new RegistrationService(serviceManager.getLoginService())));
-        handlers.put("DELETE /hub", new HubController(new RegistrationService(serviceManager.getLoginService())));
+        handlers.put("POST /hub", hubController);
+        handlers.put("GET /hub", hubController);
+        handlers.put("DELETE /hub", hubController);
         handlers.put("GET /logout", new LogoutController(new SessionManagementService(new SessionRepository(serviceManager.getAmazonDynamoDB()),
                 serviceManager.getEncryptionService(), new LwaClientFactory())));
     }
