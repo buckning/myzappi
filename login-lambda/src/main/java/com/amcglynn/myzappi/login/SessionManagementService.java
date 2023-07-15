@@ -2,7 +2,6 @@ package com.amcglynn.myzappi.login;
 
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
-import com.amcglynn.lwa.LwaClient;
 import com.amcglynn.myzappi.core.service.EncryptionService;
 
 import java.net.HttpCookie;

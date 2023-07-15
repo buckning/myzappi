@@ -51,7 +51,7 @@
         .youtube-video {
             margin-top: 50px;
             text-align: center;
-            padding-bottom: 25px;
+            padding-bottom: 5px;
         }
 
         footer {
@@ -60,7 +60,7 @@
             bottom: 0;
             width: 100%;
             background-color: #333;
-            padding: 10px;
+            padding: 20px;
             text-align: center;
         }
 
@@ -230,24 +230,31 @@
 
 <div id="messageContainer"></div>
 
-<!--<div class="youtube-video" th:unless="${loggedIn}">-->
-<!--    <iframe width="560" height="315" src="https://www.youtube.com/embed/BXt8ScK4zLA" frameborder="0"-->
-<!--            allowfullscreen></iframe>-->
-<!--</div>-->
 
-<div class="container" th:if="${loggedIn}">
-    <button id="logoutButton">Logout</button>
+<div class="container">
+    <div class="container" th:if="${loggedIn}">
+        <button id="logoutButton">Logout</button>
+    </div>
+    <iframe th:unless="${loggedIn}" width="560" height="315" src="https://www.youtube.com/embed/O4uwwfODdfs" frameborder="0"
+            allowfullscreen></iframe>
+    </br>
+    <a href="https://alexa-skills.amazon.co.uk/apis/custom/skills/amzn1.ask.skill.6df2a131-f1f3-4b18-8edc-752a0e583512/launch">
+        <img border="0" alt="Launch with Amazon"
+             src="https://m.media-amazon.com/images/G/01/mobile-apps/dex/avs/docs/ux/branding/button1._TTH_.png"
+             width="76" height="76"/>
+    </a>
 </div>
+
 <footer>
     <a href="https://myzappi-site.s3.eu-west-1.amazonaws.com/termsOfService.html">Terms of Service</a>|
     <a href="https://myzappi-site.s3.eu-west-1.amazonaws.com/privacyStatement.html">Privacy Statement</a>
 </footer>
 
-<script>
+<script th:inline="javascript">
     var forgetButton = document.getElementById("forgetMyDetailsButton");
 
     forgetButton.addEventListener("click", function (event) {
-        var apiUrl = /*[[${apiUrl}]]*/ '';
+        var apiUrl = /*[[${registerUrl}]]*/ '';
         event.preventDefault(); // Prevent form submission
 
         forgetButton.disabled = true;
@@ -259,7 +266,7 @@
             }
         })
             .then(function (response) {
-                if (response.status === 204) {
+                if (response.status === 204 || response.status === 200) {
                     location.reload();
                 } else {
                     forgetButton.disabled = false;
@@ -288,7 +295,7 @@
 <script th:inline="javascript">
     var submitButton = document.getElementById("submitBtn");
     submitButton.addEventListener("click", function (event) {
-        var apiUrl = /*[[${apiUrl}]]*/ '';
+        var apiUrl = /*[[${registerUrl}]]*/ '';
         event.preventDefault(); // Prevent form submission
 
         var apiKeyValue = document.getElementById("apiKey").value;
