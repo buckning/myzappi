@@ -11,12 +11,14 @@ import com.amcglynn.myzappi.core.service.LoginService;
 import com.amcglynn.myzappi.login.rest.EndpointRouter;
 import com.amcglynn.myzappi.login.rest.Request;
 import com.amcglynn.myzappi.login.rest.RequestMethod;
+import lombok.extern.slf4j.Slf4j;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 public class CompleteLoginHandler implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
 
     private final LoginService loginService;
@@ -71,18 +73,17 @@ public class CompleteLoginHandler implements RequestHandler<APIGatewayProxyReque
         var request = new Request(RequestMethod.valueOf(input.getHttpMethod()), input.getPath(), input.getBody());
 
         var session = sessionManagementService.handle(input, responseEvent);
-        session.map(Session::getUserId).map(UserId::new)
-                .ifPresent(request::setUserId);
+        session.ifPresent(request::setSession);
 
         // All JSON APIs are handled here
         if (!"/".equals(request.getPath())) {
-            System.out.println("Running new code for " + request.getUserId());
             var response = endpointRouter.route(request);
 
             responseEvent.setStatusCode(response.getStatus());
-            var responseHeaders = new HashMap<>(responseEvent.getHeaders());
+            var responseHeaders = new HashMap<>(response.getHeaders());
             responseHeaders.put("Content-Type", "application/json");
             responseEvent.setHeaders(responseHeaders);
+
             response.getBody().ifPresent(body -> {
                 responseEvent.setBody(body);
             });
@@ -103,12 +104,6 @@ public class CompleteLoginHandler implements RequestHandler<APIGatewayProxyReque
         }
 
         if ("GET".equals(input.getHttpMethod())) {
-            session.ifPresent(s -> handleLogout(input, responseEvent, s));
-            if (session.isPresent()) {
-                if (handleLogout(input, responseEvent, session.get())) {
-                    return responseEvent;
-                }
-            }
             return buildPage(responseEvent, thymeleafContext);
         }
 
@@ -116,36 +111,10 @@ public class CompleteLoginHandler implements RequestHandler<APIGatewayProxyReque
     }
 
     private boolean devFeatureEnabled(Request request) {
-        if (request.getUserId() == null) {
+        if (request.getSession().isEmpty()) {
             return false;
         }
         return featureToggleUser.equals(request.getUserId().toString());
-    }
-
-    private boolean handleLogout(APIGatewayProxyRequestEvent input, APIGatewayProxyResponseEvent response, Session session) {
-        var map = input.getQueryStringParameters();
-        if (map == null) {
-            return false;
-        }
-
-        var logoutParam = map.get("logout");
-
-        if (logoutParam == null) {
-            return false;
-        }
-
-        if ("true".equals(logoutParam)) {
-            System.out.println("Logging out session " + session.getSessionId());
-            sessionManagementService.invalidateSession(session);
-            var responseHeaders = new HashMap<>(response.getHeaders());
-            responseHeaders.put("Set-Cookie", "sessionID=" + session.getSessionId() + "; expires=Thu, 01 Jan 1970 00:00:00 GMT; Path=/; Secure; HttpOnly");
-            responseHeaders.put("Location", "https://myzappiunofficial.com");
-            response.setHeaders(responseHeaders);
-            response.setStatusCode(302);
-            return true;
-        }
-
-        return false;
     }
 
     private APIGatewayProxyResponseEvent buildPage(APIGatewayProxyResponseEvent response, org.thymeleaf.context.Context thymeleafContext) {
@@ -159,6 +128,7 @@ public class CompleteLoginHandler implements RequestHandler<APIGatewayProxyReque
         thymeleafContext.setVariable("serialNumber", Brand.ZAPPI + " Serial Number:");
         thymeleafContext.setVariable("apiKey", Brand.ZAPPI + " API Key:");
         thymeleafContext.setVariable("apiUrl", properties.getLoginUrl());
+        thymeleafContext.setVariable("logoutUrl", properties.getLogoutUrl());
         thymeleafContext.setVariable("registerUrl", properties.getRegisterUrl());
 
         // Process the Thymeleaf template

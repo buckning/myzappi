@@ -235,7 +235,8 @@
     <div class="container" th:if="${loggedIn}">
         <button id="logoutButton">Logout</button>
     </div>
-    <iframe th:unless="${loggedIn}" width="560" height="315" src="https://www.youtube.com/embed/O4uwwfODdfs" frameborder="0"
+    <iframe th:unless="${loggedIn}" width="560" height="315" src="https://www.youtube.com/embed/O4uwwfODdfs"
+            frameborder="0"
             allowfullscreen></iframe>
     </br>
     <a href="https://alexa-skills.amazon.co.uk/apis/custom/skills/amzn1.ask.skill.6df2a131-f1f3-4b18-8edc-752a0e583512/launch">
@@ -280,15 +281,27 @@
     });
 </script>
 
-<script>
+<script th:inline="javascript">
     // Move the logout button event listener here
-    document.getElementById('logoutButton').addEventListener('click', function () {
+    document.getElementById('logoutButton').addEventListener('click', function (event) {
         amazon.Login.logout();
-        var currentUrl = window.location.href;
-        var logoutUrl = currentUrl + (currentUrl.includes('?') ? '&' : '?') + 'logout=true';
 
-        // Redirect to the updated URL
-        window.location.href = logoutUrl;
+        var logoutUrl = /*[[${logoutUrl}]]*/ '';
+        var baseUrl = /*[[${apiUrl}]]*/ '';
+        event.preventDefault(); // Prevent form submission
+
+        fetch(logoutUrl, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        })
+            .then(function (response) {
+                window.location.href = baseUrl;
+            })
+            .catch(function (error) {
+                window.location.href = baseUrl;
+            });
     });
 </script>
 

@@ -1,6 +1,9 @@
 package com.amcglynn.myzappi.login.rest;
 
 import com.amcglynn.myzappi.core.config.ServiceManager;
+import com.amcglynn.myzappi.login.LwaClientFactory;
+import com.amcglynn.myzappi.login.SessionManagementService;
+import com.amcglynn.myzappi.login.SessionRepository;
 import com.amcglynn.myzappi.login.service.RegistrationService;
 import lombok.extern.slf4j.Slf4j;
 
@@ -16,9 +19,11 @@ public class EndpointRouter {
         handlers = new HashMap<>();
         handlers.put("POST /hub", new HubController(new RegistrationService(serviceManager.getLoginService())));
         handlers.put("DELETE /hub", new HubController(new RegistrationService(serviceManager.getLoginService())));
+        handlers.put("GET /logout", new LogoutController(new SessionManagementService(new SessionRepository(serviceManager.getAmazonDynamoDB()),
+                serviceManager.getEncryptionService(), new LwaClientFactory())));
     }
     public Response route(Request request) {
-        if (request.getUserId() == null) {
+        if (request.getSession().isEmpty()) {
             log.info("User not authenticated");
             return new Response(401);
         }
