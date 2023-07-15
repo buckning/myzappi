@@ -12,6 +12,18 @@ public class Properties {
         return getOrDefault("loginUrl", "http://localhost:8080/login");
     }
 
+    public String getLogoutUrl() {
+        return getOrDefault("logoutUrl", "http://localhost:8080/logout");
+    }
+
+    public String getRegisterUrl() {
+        return getOrDefault("registerUrl", "http://localhost:8080/hub");
+    }
+
+    public String getDevFeatureToggle() {
+        return getOrDefault("devFeatureEnabled", "notConfigured");
+    }
+
     public String getKmsKeyArn() {
         return getOrThrow("kmsKeyArn");
     }
