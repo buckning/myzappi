@@ -4,8 +4,10 @@ import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 import com.amcglynn.myzappi.core.dal.CredentialsRepository;
+import com.amcglynn.myzappi.core.dal.TariffRepository;
 import com.amcglynn.myzappi.core.service.EncryptionService;
 import com.amcglynn.myzappi.core.service.LoginService;
+import com.amcglynn.myzappi.core.service.TariffService;
 import com.amcglynn.myzappi.core.service.ZappiService;
 
 public class ServiceManager {
@@ -14,6 +16,7 @@ public class ServiceManager {
     private final CredentialsRepository credentialsRepository;
     private ZappiService.Builder zappiServiceBuilder;
     private LoginService loginService;
+    private TariffService tariffService;
     private final Properties properties;
     private final AmazonDynamoDB amazonDynamoDB;
 
@@ -23,6 +26,7 @@ public class ServiceManager {
                 .build();
         encryptionService = new EncryptionService(properties.getKmsKeyArn());
         credentialsRepository = new CredentialsRepository(amazonDynamoDB);
+        tariffService = new TariffService(new TariffRepository(amazonDynamoDB));
         this.properties = properties;
     }
 
@@ -36,6 +40,10 @@ public class ServiceManager {
 
     public String getSkillId() {
         return properties.getSkillId();
+    }
+
+    public TariffService getTariffService() {
+        return tariffService;
     }
 
     public LoginService getLoginService() {

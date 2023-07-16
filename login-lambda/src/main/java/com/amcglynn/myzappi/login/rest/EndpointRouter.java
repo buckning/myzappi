@@ -21,6 +21,9 @@ public class EndpointRouter {
         handlers.put("POST /hub", hubController);
         handlers.put("GET /hub", hubController);
         handlers.put("DELETE /hub", hubController);
+        var tariffController = new TariffController(serviceManager.getTariffService());
+        handlers.put("GET /tariff", tariffController);
+        handlers.put("POST /tariff", tariffController);
         handlers.put("GET /logout", new LogoutController(new SessionManagementService(new SessionRepository(serviceManager.getAmazonDynamoDB()),
                 serviceManager.getEncryptionService(), new LwaClientFactory())));
     }
