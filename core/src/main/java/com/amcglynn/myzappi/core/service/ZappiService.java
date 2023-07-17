@@ -5,6 +5,7 @@ import com.amcglynn.myenergi.MyEnergiClient;
 import com.amcglynn.myenergi.ZappiChargeMode;
 import com.amcglynn.myenergi.ZappiDaySummary;
 import com.amcglynn.myenergi.ZappiStatusSummary;
+import com.amcglynn.myenergi.apiresponse.ZappiHistory;
 import com.amcglynn.myenergi.units.KiloWattHour;
 import com.amcglynn.myzappi.core.exception.UserNotLoggedInException;
 
@@ -109,6 +110,10 @@ public class ZappiService {
         var userTime = utcTime.atDate(localDate).atZone(userZone)
                 .withZoneSameInstant(ZoneId.of("UTC"));
         return new ZappiDaySummary(client.getZappiHistory(userTime.toLocalDate(), userTime.toLocalTime().getHour()).getReadings());
+    }
+
+    public List<ZappiHistory> getHourlySummary(LocalDate date) {
+        return client.getZappiHourlyHistory(date).getReadings();
     }
 
     private LocalTime roundToNearest15Mins(Duration duration) {

@@ -4,6 +4,7 @@ import com.amcglynn.myenergi.MyEnergiClient;
 import com.amcglynn.myenergi.ZappiChargeMode;
 import com.amcglynn.myenergi.apiresponse.ZappiDayHistory;
 import com.amcglynn.myenergi.apiresponse.ZappiHistory;
+import com.amcglynn.myenergi.apiresponse.ZappiHourlyDayHistory;
 import com.amcglynn.myenergi.units.KiloWattHour;
 import com.amcglynn.myzappi.core.exception.UserNotLoggedInException;
 import com.amcglynn.myzappi.core.model.SerialNumber;
@@ -181,6 +182,14 @@ class ZappiServiceTest {
     void testSetChargeModeGetsProxiedToClient() {
         zappiService.setChargeMode(ZappiChargeMode.FAST);
         verify(mockClient).setZappiChargeMode(ZappiChargeMode.FAST);
+    }
+
+    @Test
+    void testGetHourlySummaryProxiesResponseFromClient() {
+        var date = LocalDate.of(2023, 1, 1);
+        when(mockClient.getZappiHourlyHistory(date)).thenReturn(new ZappiHourlyDayHistory());
+        zappiService.getHourlySummary(date);
+        verify(mockClient).getZappiHourlyHistory(date);
     }
 
     @Test
