@@ -116,6 +116,13 @@ public class ZappiService {
         return client.getZappiHourlyHistory(date).getReadings();
     }
 
+    public List<ZappiHistory> getHourlySummary(LocalDate date, ZoneId userZone) {
+        var utcTime = LocalTime.of(0, 0);   // start from 0:00AM local time for the user and then convert that to UTC for the API
+        var userTime = utcTime.atDate(date).atZone(userZone)
+                .withZoneSameInstant(ZoneId.of("UTC"));
+        return client.getZappiHourlyHistory(userTime.toLocalDate(), userTime.toLocalTime().getHour()).getReadings();
+    }
+
     private LocalTime roundToNearest15Mins(Duration duration) {
         var targetChargeEndTime = localTimeSupplier.get().plus(duration);
         return roundToNearest15Mins(targetChargeEndTime);

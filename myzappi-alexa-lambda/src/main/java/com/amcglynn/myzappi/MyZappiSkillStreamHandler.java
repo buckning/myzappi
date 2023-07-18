@@ -40,7 +40,7 @@ public class MyZappiSkillStreamHandler extends SkillStreamHandler {
                 .addRequestHandler(new StopBoostHandler(serviceManager.getZappiServiceBuilder(), userIdResolverFactory))
                 .addRequestHandler(new GetPlugStatusHandler(serviceManager.getZappiServiceBuilder(), userIdResolverFactory))
                 .addRequestHandler(new GetEnergyUsageHandler(serviceManager.getZappiServiceBuilder(), userIdResolverFactory, userZoneResolver))
-                .addRequestHandler(new GetEnergyCostHandler(serviceManager.getZappiServiceBuilder(), userIdResolverFactory, userZoneResolver))
+                .addRequestHandler(new GetEnergyCostHandler(serviceManager.getZappiServiceBuilder(), userIdResolverFactory, userZoneResolver, serviceManager.getTariffService()))
                 .addRequestHandler(new SetChargeModeHandler(serviceManager.getZappiServiceBuilder(), userIdResolverFactory))
                 .addRequestHandler(new GoGreenHandler(serviceManager.getZappiServiceBuilder(), userIdResolverFactory))
                 .addRequestHandler(new ChargeMyCarHandler(serviceManager.getZappiServiceBuilder(), userIdResolverFactory))
