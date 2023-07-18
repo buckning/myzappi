@@ -60,8 +60,11 @@ public class GetEnergyCostHandler implements RequestHandler {
         var dayTariff = tariffService.get(userId).orElseThrow(() -> new TariffNotFoundException(userId));
 
         var zappiService = zappyServiceBuilder.build(userIdResolver);
-        var history = zappiService.getHourlySummary(localDate, userTimeZone);
 
+        // call getHistory instead of getHourlyHistory so that requests for "today" are always up to date
+        var history = zappiService.getHistory(localDate, userTimeZone);
+
+        // there is an issue here where Tariffs are local time and history is UTC. This needs to be converted first
         var cost = tariffService.calculateCost(dayTariff, history);
 
         return handlerInput.getResponseBuilder()

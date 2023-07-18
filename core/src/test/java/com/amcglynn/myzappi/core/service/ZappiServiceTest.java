@@ -185,14 +185,6 @@ class ZappiServiceTest {
     }
 
     @Test
-    void testGetHourlySummaryProxiesResponseFromClient() {
-        var date = LocalDate.of(2023, 1, 1);
-        when(mockClient.getZappiHourlyHistory(date)).thenReturn(new ZappiHourlyDayHistory());
-        zappiService.getHourlySummary(date);
-        verify(mockClient).getZappiHourlyHistory(date);
-    }
-
-    @Test
     void testStartBoostGetsProxiedToClient() {
         zappiService.startBoost(new KiloWattHour(100));
         verify(mockClient).boost(new KiloWattHour(100));
