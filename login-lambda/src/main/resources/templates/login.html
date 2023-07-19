@@ -250,6 +250,8 @@
 <div th:if="${loggedIn && registered}">
     <form id="tariffForm" class="tariffForm">
         <h1>Enter your tariffs</h1>
+        This is an experimental feature that will be released on Alexa soon! You can save your tariff details now and
+        the next version of the My Zappi skill on Alexa will contain this feature.
         <div>
             Submit your tariff details here for Alexa to tell you your energy costs.
             </br>
@@ -278,6 +280,7 @@
             <tbody>
             <!-- Tariff rows will be dynamically added here -->
             </tbody>
+            <button type="button" id="editButton" onclick="toggleEdit()">Edit</button>
         </table>
 
         <button type="button" onclick="addTariffRow()" id="addTariffButton">Add Tariff</button>
@@ -286,6 +289,90 @@
         <button type="submit">Submit</button>
     </form>
 </div>
+<script th:if="${loggedIn && registered}">
+    var tariffCounter = 0;
+    var isEditable = false;
+
+    function toggleEdit() {
+        console.log("edit");
+        isEditable = !isEditable;
+        var editButton = document.getElementById("editButton");
+        editButton.style.display = "none";
+        updateTableEditability();
+    }
+
+    window.addEventListener("load", function() {
+        fetchTariffDetails();
+        updateAddTariffButton();
+    });
+
+    function fetchTariffDetails() {
+        fetch("https://myzappiunofficial.com/tariff")
+          .then(function(response) {
+              if (response.ok) {
+                  return response.json();
+              } else {
+                  var editButton = document.getElementById("editButton");
+                  editButton.style.display = "none";
+              }
+          })
+          .then(function(response) {
+              populateTariffTable(response);
+          })
+          .catch(function(error) {
+            console.error(error);
+          });
+    }
+
+    function populateTariffTable(tariffs) {
+        var tariffTable = document.getElementById("tariffTable");
+
+        tariffs.tariffs.forEach(function(tariff) {
+            var tariffRow = document.createElement("tr");
+            tariffRow.id = "tariffRow_" + tariffCounter;
+
+            tariffRow.innerHTML = `
+        <td>
+          <input type="text" name="name" class="tariffName" required oninput="updateAddTariffButton()" ${isEditable ? "" : "readonly"} value="${tariff.name}">
+        </td>
+        <td>
+          <input type="number" name="startTime" min="0" max="23" required oninput="updateAddTariffButton()" ${isEditable ? "" : "readonly"} value="${tariff.startTime}">
+        </td>
+        <td>
+          <input type="number" name="endTime" min="1" max="24" required oninput="updateAddTariffButton()" ${isEditable ? "" : "readonly"} value="${tariff.endTime}">
+        </td>
+        <td>
+          <input type="number" step="0.0001" name="importCostPerKwh" min="0" required oninput="updateAddTariffButton()" ${isEditable ? "" : "readonly"} value="${tariff.importCostPerKwh}">
+        </td>
+        <td>
+          <input type="number" step="0.0001" name="exportCostPerKwh" min="0" required oninput="updateAddTariffButton()" ${isEditable ? "" : "readonly"} value="${tariff.exportCostPerKwh}">
+        </td>
+        <td>
+          <button type="button" class="deleteButton" onclick="deleteTariffRow(${tariffCounter})" ${isEditable ? "" : "disabled"}>X</button>
+        </td>`;
+
+            tariffTable.querySelector("tbody").appendChild(tariffRow);
+            tariffCounter++;
+        });
+
+        updateAddTariffButton();
+    }
+    function updateTableEditability() {
+        var tariffRows = document.querySelectorAll("#tariffTable tbody tr");
+        tariffRows.forEach(function (row) {
+            var inputs = row.querySelectorAll("input");
+            inputs.forEach(function (input) {
+                input.readOnly = !isEditable;
+            });
+
+            var buttons = tariffTable.querySelectorAll("button");
+
+            buttons.forEach(function(button) {
+                button.disabled = false;
+            });
+        });
+    }
+</script>
 <script type="text/javascript">
     document.getElementById('LoginWithAmazon').onclick = function () {
         options = {}
