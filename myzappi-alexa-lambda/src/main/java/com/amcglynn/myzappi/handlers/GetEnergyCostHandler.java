@@ -44,11 +44,12 @@ public class GetEnergyCostHandler implements RequestHandler {
     @Override
     public Optional<Response> handle(HandlerInput handlerInput) {
         // expected date format is 2023-05-06
+        var userTimeZone = userZoneResolver.getZoneId(handlerInput);
+
         var date = parseSlot(handlerInput, "date");
         if (date.isEmpty() || date.get().length() != 10) {
             return getInvalidInputResponse(handlerInput);
         }
-        var userTimeZone = userZoneResolver.getZoneId(handlerInput);
         var localDate = LocalDate.parse(date.get(), DateTimeFormatter.ISO_DATE);
 
         if (isInvalid(localDate, userTimeZone)) {
@@ -64,8 +65,9 @@ public class GetEnergyCostHandler implements RequestHandler {
         // call getHistory instead of getHourlyHistory so that requests for "today" are always up to date
         var history = zappiService.getHistory(localDate, userTimeZone);
 
-        // there is an issue here where Tariffs are local time and history is UTC. This needs to be converted first
-        var cost = tariffService.calculateCost(dayTariff, history);
+        // Tariffs are local time and history is UTC. This needs to be converted first so date and time zone need to be
+        // handled in the cost calculation
+        var cost = tariffService.calculateCost(dayTariff, history, localDate, userTimeZone);
 
         return handlerInput.getResponseBuilder()
                 .withSpeech(new ZappiEnergyCostVoiceResponse(cost).toString())

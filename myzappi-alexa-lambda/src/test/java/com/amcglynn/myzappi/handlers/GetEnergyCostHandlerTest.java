@@ -11,10 +11,15 @@ import com.amazon.ask.model.Slot;
 import com.amazon.ask.model.User;
 import com.amazon.ask.model.interfaces.system.SystemState;
 import com.amcglynn.myenergi.ZappiDaySummary;
+import com.amcglynn.myenergi.apiresponse.ZappiHistory;
 import com.amcglynn.myenergi.units.KiloWattHour;
 import com.amcglynn.myzappi.TariffNotFoundException;
 import com.amcglynn.myzappi.UserIdResolverFactory;
 import com.amcglynn.myzappi.UserZoneResolver;
+import com.amcglynn.myzappi.core.model.DayCost;
+import com.amcglynn.myzappi.core.model.DayTariff;
+import com.amcglynn.myzappi.core.model.Tariff;
+import com.amcglynn.myzappi.core.service.EnergyCostHourSummary;
 import com.amcglynn.myzappi.core.service.TariffService;
 import com.amcglynn.myzappi.core.service.UserIdResolver;
 import com.amcglynn.myzappi.core.service.ZappiService;
@@ -29,6 +34,7 @@ import org.mockito.quality.Strictness;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.Optional;
 
 import static com.amcglynn.myzappi.handlers.ResponseVerifier.verifySimpleCardInResponse;
@@ -101,6 +107,72 @@ class GetEnergyCostHandlerTest {
         when(mockTariffService.get(anyString())).thenReturn(Optional.empty());
         var throwable = catchThrowable(() -> handler.handle(handlerInputBuilder().build()));
         assertThat(throwable).isNotNull().isInstanceOf(TariffNotFoundException.class);
+    }
+
+    @Test
+    void testHandleSuccessExportCredit() {
+        initIntentRequest(LocalDate.of(2023, 2, 20));
+
+        var dayCost = new DayCost("EUR");
+        var tariff = new Tariff("MockTariff", 0, 24, 1, 1);
+        dayCost.add(new EnergyCostHourSummary(tariff, new ZappiHistory(2023, 1, 6, 0, 0, "Monday",
+                3600000L, 7200000L, 3600000L, 3600000L, 3600000L)));
+
+        when(mockTariffService.get(anyString())).thenReturn(Optional.of(new DayTariff("EUR", List.of(tariff))));
+        when(mockTariffService.calculateCost(any(), any(), any(), any())).thenReturn(dayCost);
+
+        var response = handler.handle(handlerInputBuilder().build());
+        verifySpeechInResponse(response.get(), "<speak>Total credit is 1 Euro and 0 cent. You imported 1 Euro " +
+                "and 0 cent. You exported 2 Euro and 0 cent. Total saved 1 Euro and 0 cent.</speak>");
+        verifySimpleCardInResponse(response.get(), "My Zappi", "Total cost: €-1.00\n" +
+                "Import cost: €1.00\n" +
+                "Export cost: €2.00\n" +
+                "Solar consumed saved: €-1.00\n" +
+                "Total saved: €1.00");
+    }
+
+    @Test
+    void testHandleSuccess() {
+        initIntentRequest(LocalDate.of(2023, 2, 20));
+
+        var dayCost = new DayCost("EUR");
+        var tariff = new Tariff("MockTariff", 0, 24, 1, 1);
+        dayCost.add(new EnergyCostHourSummary(tariff, new ZappiHistory(2023, 1, 6, 0, 0, "Monday",
+                3600000L, 3600000L, 3600000L, 3600000L, 7200000L)));
+
+        when(mockTariffService.get(anyString())).thenReturn(Optional.of(new DayTariff("EUR", List.of(tariff))));
+        when(mockTariffService.calculateCost(any(), any(), any(), any())).thenReturn(dayCost);
+
+        var response = handler.handle(handlerInputBuilder().build());
+        verifySpeechInResponse(response.get(), "<speak>Total cost is 1 Euro and 0 cent. You imported 2 Euro " +
+                "and 0 cent. You exported 1 Euro and 0 cent. Total saved 1 Euro and 0 cent.</speak>");
+        verifySimpleCardInResponse(response.get(), "My Zappi", "Total cost: €1.00\n" +
+                "Import cost: €2.00\n" +
+                "Export cost: €1.00\n" +
+                "Solar consumed saved: €0.00\n" +
+                "Total saved: €1.00");
+    }
+
+    @Test
+    void testHandleSuccessInGbp() {
+        initIntentRequest(LocalDate.of(2023, 2, 20));
+
+        var dayCost = new DayCost("GBP");
+        var tariff = new Tariff("MockTariff", 0, 24, 1, 1);
+        dayCost.add(new EnergyCostHourSummary(tariff, new ZappiHistory(2023, 1, 6, 0, 0, "Monday",
+                3600000L, 3600000L, 3600000L, 3600000L, 7200000L)));
+
+        when(mockTariffService.get(anyString())).thenReturn(Optional.of(new DayTariff("EUR", List.of(tariff))));
+        when(mockTariffService.calculateCost(any(), any(), any(), any())).thenReturn(dayCost);
+
+        var response = handler.handle(handlerInputBuilder().build());
+        verifySpeechInResponse(response.get(), "<speak>Total cost is 1 Pound and 0 pence. You imported 2 Pounds " +
+                "and 0 pence. You exported 1 Pound and 0 pence. Total saved 1 Pound and 0 pence.</speak>");
+        verifySimpleCardInResponse(response.get(), "My Zappi", "Total cost: £1.00\n" +
+                "Import cost: £2.00\n" +
+                "Export cost: £1.00\n" +
+                "Solar consumed saved: £0.00\n" +
+                "Total saved: £1.00");
     }
 
     @Test

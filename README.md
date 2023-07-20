@@ -1,9 +1,7 @@
 # Welcome to MyZappi!
 
 ## Add tariff support
-* Add front-end changes to read the existing tariffs and display them on the main page. 
-* Add edit button to allow the user change their tariffs
-* Fix the UTC energy cost defect where myenergi APIs work in UTC but tariffs are local time 
+* Have a default cost for today
 
 ## What is MyZappi?
 MyZappi is an Alexa skill that can be used to control your myenergi Zappi device all through an Amazon Echo or Alexa device.
