@@ -4,12 +4,14 @@ import com.amazon.ask.dispatcher.request.handler.HandlerInput;
 import com.amazon.ask.dispatcher.request.handler.RequestHandler;
 import com.amazon.ask.model.Response;
 import com.amazon.ask.request.RequestHelper;
+import com.amcglynn.myzappi.TariffNotFoundException;
 import com.amcglynn.myzappi.UserIdResolverFactory;
 import com.amcglynn.myzappi.UserZoneResolver;
 import com.amcglynn.myzappi.core.Brand;
+import com.amcglynn.myzappi.core.service.TariffService;
 import com.amcglynn.myzappi.core.service.ZappiService;
-import com.amcglynn.myzappi.handlers.responses.ZappiDaySummaryCardResponse;
-import com.amcglynn.myzappi.handlers.responses.ZappiDaySummaryVoiceResponse;
+import com.amcglynn.myzappi.handlers.responses.ZappiEnergyCostCardResponse;
+import com.amcglynn.myzappi.handlers.responses.ZappiEnergyCostVoiceResponse;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDate;
@@ -20,63 +22,75 @@ import java.util.Optional;
 import static com.amazon.ask.request.Predicates.intentName;
 
 @Slf4j
-public class GetEnergyUsageHandler implements RequestHandler {
-
+public class GetEnergyCostHandler implements RequestHandler {
     private final ZappiService.Builder zappyServiceBuilder;
     private final UserIdResolverFactory userIdResolverFactory;
     private final UserZoneResolver userZoneResolver;
+    private final TariffService tariffService;
 
-    public GetEnergyUsageHandler(ZappiService.Builder zappyServiceBuilder, UserIdResolverFactory userIdResolverFactory,
-                                 UserZoneResolver userZoneResolver) {
+    public GetEnergyCostHandler(ZappiService.Builder zappyServiceBuilder, UserIdResolverFactory userIdResolverFactory,
+                                UserZoneResolver userZoneResolver, TariffService tariffService) {
         this.zappyServiceBuilder = zappyServiceBuilder;
         this.userIdResolverFactory = userIdResolverFactory;
         this.userZoneResolver = userZoneResolver;
+        this.tariffService = tariffService;
     }
 
     @Override
     public boolean canHandle(HandlerInput handlerInput) {
-        return handlerInput.matches(intentName("GetEnergyUsage"));
+        return handlerInput.matches(intentName("GetEnergyCost"));
     }
 
     @Override
     public Optional<Response> handle(HandlerInput handlerInput) {
         // expected date format is 2023-05-06
+        var userTimeZone = userZoneResolver.getZoneId(handlerInput);
+
         var date = parseSlot(handlerInput, "date");
         if (date.isEmpty() || date.get().length() != 10) {
             return getInvalidInputResponse(handlerInput);
         }
-        var userTimeZone = userZoneResolver.getZoneId(handlerInput);
         var localDate = LocalDate.parse(date.get(), DateTimeFormatter.ISO_DATE);
 
         if (isInvalid(localDate, userTimeZone)) {
             return getInvalidRequestedDateResponse(handlerInput);
         }
 
-        var zappiService = zappyServiceBuilder.build(userIdResolverFactory.newUserIdResolver(handlerInput));
-        var history = zappiService.getEnergyUsage(localDate, userTimeZone);
+        var userIdResolver = userIdResolverFactory.newUserIdResolver(handlerInput);
+        var userId = userIdResolver.getUserId();
+        var dayTariff = tariffService.get(userId).orElseThrow(() -> new TariffNotFoundException(userId));
+
+        var zappiService = zappyServiceBuilder.build(userIdResolver);
+
+        // call getHistory instead of getHourlyHistory so that requests for "today" are always up to date
+        var history = zappiService.getHistory(localDate, userTimeZone);
+
+        // Tariffs are local time and history is UTC. This needs to be converted first so date and time zone need to be
+        // handled in the cost calculation
+        var cost = tariffService.calculateCost(dayTariff, history, localDate, userTimeZone);
 
         return handlerInput.getResponseBuilder()
-                .withSpeech(new ZappiDaySummaryVoiceResponse(history).toString())
+                .withSpeech(new ZappiEnergyCostVoiceResponse(cost).toString())
                 .withSimpleCard(Brand.NAME,
-                        new ZappiDaySummaryCardResponse(history).toString())
+                        new ZappiEnergyCostCardResponse(cost).toString())
                 .withShouldEndSession(false)
                 .build();
     }
 
     private Optional<Response> getInvalidRequestedDateResponse(HandlerInput handlerInput) {
         return handlerInput.getResponseBuilder()
-                .withSpeech("I cannot give you usage data for a time in the future.")
+                .withSpeech("I cannot give you a cost for a time in the future.")
                 .withSimpleCard(Brand.NAME,
-                        "I cannot give you usage data for a time in the future.")
+                        "I cannot give you a cost for a time in the future.")
                 .withShouldEndSession(false)
                 .build();
     }
 
     private Optional<Response> getInvalidInputResponse(HandlerInput handlerInput) {
         return handlerInput.getResponseBuilder()
-                .withSpeech("Please ask me for energy usage for a specific day.")
+                .withSpeech("Please ask me for an energy cost for a specific day.")
                 .withSimpleCard(Brand.NAME,
-                        "Please ask me for energy usage for a specific day.")
+                        "Please ask me for an energy cost for a specific day.")
                 .withShouldEndSession(false)
                 .build();
     }

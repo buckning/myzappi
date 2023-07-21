@@ -4,6 +4,7 @@ import com.amcglynn.myenergi.MyEnergiClient;
 import com.amcglynn.myenergi.ZappiChargeMode;
 import com.amcglynn.myenergi.apiresponse.ZappiDayHistory;
 import com.amcglynn.myenergi.apiresponse.ZappiHistory;
+import com.amcglynn.myenergi.apiresponse.ZappiHourlyDayHistory;
 import com.amcglynn.myenergi.units.KiloWattHour;
 import com.amcglynn.myzappi.core.exception.UserNotLoggedInException;
 import com.amcglynn.myzappi.core.model.SerialNumber;

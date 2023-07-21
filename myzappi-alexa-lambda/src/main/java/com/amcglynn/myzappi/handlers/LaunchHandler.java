@@ -27,6 +27,7 @@ public class LaunchHandler implements LaunchRequestHandler {
                         "You can also ask me for an energy summary.")
                 .withSimpleCard(Brand.NAME, "I can change your charge type and provide you energy usage. " +
                         "Ask me to start charging or to switch to solar. You can also ask me for an energy summary.")
+                .withShouldEndSession(false)
                 .build();
     }
 }

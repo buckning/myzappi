@@ -5,6 +5,7 @@ import com.amcglynn.myenergi.MyEnergiClient;
 import com.amcglynn.myenergi.ZappiChargeMode;
 import com.amcglynn.myenergi.ZappiDaySummary;
 import com.amcglynn.myenergi.ZappiStatusSummary;
+import com.amcglynn.myenergi.apiresponse.ZappiHistory;
 import com.amcglynn.myenergi.units.KiloWattHour;
 import com.amcglynn.myzappi.core.exception.UserNotLoggedInException;
 
@@ -109,6 +110,20 @@ public class ZappiService {
         var userTime = utcTime.atDate(localDate).atZone(userZone)
                 .withZoneSameInstant(ZoneId.of("UTC"));
         return new ZappiDaySummary(client.getZappiHistory(userTime.toLocalDate(), userTime.toLocalTime().getHour()).getReadings());
+    }
+
+    public List<ZappiHistory> getHourlyHistory(LocalDate date, ZoneId userZone) {
+        var utcTime = LocalTime.of(0, 0);   // start from 0:00AM local time for the user and then convert that to UTC for the API
+        var userTime = utcTime.atDate(date).atZone(userZone)
+                .withZoneSameInstant(ZoneId.of("UTC"));
+        return client.getZappiHourlyHistory(userTime.toLocalDate(), userTime.toLocalTime().getHour()).getReadings();
+    }
+
+    public List<ZappiHistory> getHistory(LocalDate date, ZoneId userZone) {
+        var utcTime = LocalTime.of(0, 0);   // start from 0:00AM local time for the user and then convert that to UTC for the API
+        var userTime = utcTime.atDate(date).atZone(userZone)
+                .withZoneSameInstant(ZoneId.of("UTC"));
+        return client.getZappiHistory(userTime.toLocalDate(), userTime.toLocalTime().getHour()).getReadings();
     }
 
     private LocalTime roundToNearest15Mins(Duration duration) {

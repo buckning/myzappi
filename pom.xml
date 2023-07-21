@@ -83,6 +83,7 @@
                                         <exclude>com.amcglynn.myzappi.login.*</exclude>
                                         <exclude>com.amcglynn.myenergi.units.*</exclude>
                                         <exclude>com.amcglynn.myenergi.*</exclude>
+                                        <exclude>com.amcglynn.myzappi.handlers.responses.ZappiEnergyCostVoiceResponse</exclude>
                                     </excludes>
                                 </rule>
                             </rules>

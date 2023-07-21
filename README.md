@@ -1,5 +1,8 @@
 # Welcome to MyZappi!
 
+## Add tariff support
+* Have a default cost for today
+
 ## What is MyZappi?
 MyZappi is an Alexa skill that can be used to control your myenergi Zappi device all through an Amazon Echo or Alexa device.
 It offers functionality such as:
@@ -44,6 +47,13 @@ aws dynamodb create-table \
 aws dynamodb update-time-to-live \
     --table-name session \
     --time-to-live-specification "Enabled=true, AttributeName=ttl"
+
+aws dynamodb create-table \
+  --table-name tariff \
+  --attribute-definitions AttributeName=user-id,AttributeType=S \
+  --key-schema AttributeName=user-id,KeyType=HASH \
+  --provisioned-throughput ReadCapacityUnits=1,WriteCapacityUnits=1
+
 ```
 
 ## Manually create role for Lambda

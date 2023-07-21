@@ -184,6 +184,17 @@ public class MyEnergiClient {
         }
     }
 
+    public ZappiHourlyDayHistory getZappiHourlyHistory(LocalDate localDate, int offset) {
+        String endPointUrl = "/cgi-jdayhour-Z" + zappiSerialNumber + "-" + localDate.getYear() +
+                "-" + localDate.getMonthValue() + "-" + localDate.getDayOfMonth() + "-" + offset;
+        var response = getRequest(endPointUrl);
+        try {
+            return new ObjectMapper().readValue(response, new TypeReference<>(){});
+        } catch (JsonProcessingException e) {
+            throw new InvalidResponseFormatException();
+        }
+    }
+
     public ZappiDayHistory getZappiHistory(LocalDate localDate) {
         var response = getRequest("/cgi-jday-Z" + zappiSerialNumber + "-" + localDate.getYear() +
                 "-" + localDate.getMonthValue() + "-" + localDate.getDayOfMonth());
@@ -201,7 +212,6 @@ public class MyEnergiClient {
         String endPointUrl = "/cgi-jday-Z" + zappiSerialNumber + "-" + localDate.getYear() +
                 "-" + localDate.getMonthValue() + "-" + localDate.getDayOfMonth() + "-" + offset;
         var response = getRequest(endPointUrl);
-
         try {
             return new ObjectMapper().readValue(response, new TypeReference<>(){});
         } catch (JsonProcessingException e) {
