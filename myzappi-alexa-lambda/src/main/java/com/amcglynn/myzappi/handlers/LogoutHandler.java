@@ -29,6 +29,7 @@ public class LogoutHandler implements RequestHandler {
         return handlerInput.getResponseBuilder()
                 .withSpeech(responseText)
                 .withSimpleCard(Brand.NAME, responseText)
+                .withShouldEndSession(false)
                 .build();
     }
 }

@@ -68,6 +68,7 @@ public class GetEnergyUsageHandler implements RequestHandler {
                 .withSpeech("I cannot give you usage data for a time in the future.")
                 .withSimpleCard(Brand.NAME,
                         "I cannot give you usage data for a time in the future.")
+                .withShouldEndSession(false)
                 .build();
     }
 
