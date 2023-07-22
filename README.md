@@ -1,7 +1,28 @@
 # Welcome to MyZappi!
 
-## Add tariff support
-* Have a default cost for today
+## Next Features
+* Add scheduled charging
+** Set up an SQS queue.
+** Add a new intent handler
+** Add new schedule table
+** Save action into table and schedule in SQS
+** Create consumer that gets notified of the event and performs the action 
+* Better metrics
+* Notify if the charger is offline 
+* If the car charge mode is changed or if boost was set, notify if the car is not plugged in
+* Support different social logins
+* Localization
+
+## Premium features
+* sync history
+* Query history between 2 times 
+* Add PIN so that only those with a PIN can control the Zappi
+* Unlock charger remotely (maybe a bad idea without a PIN)
+* Add guest mode where the host authorizes guests can use the charger and can get information from it for their sessions.
+** Guests are issued a guest key. The guests enter it into the website to unlock the charger.
+** Guests enter key whenever they are charging
+** Guest have a prorated session that the owner gets reported of 
+** May be useful in AirBnBs 
 
 ## What is MyZappi?
 MyZappi is an Alexa skill that can be used to control your myenergi Zappi device all through an Amazon Echo or Alexa device.

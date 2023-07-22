@@ -52,7 +52,9 @@ public class RegistrationService {
             var zappis = client.getStatus().stream()
                     .filter(statusResponse -> statusResponse.getZappi() != null).findFirst();
             if (zappis.isPresent() && !zappis.get().getZappi().isEmpty()) {
-                return Optional.of(SerialNumber.from(zappis.get().getZappi().get(0).getSerialNumber()));
+                var zappiSerialNumber = SerialNumber.from(zappis.get().getZappi().get(0).getSerialNumber());
+                new MyEnergiClient(zappiSerialNumber.toString(), serialNumber.toString(), apiKey).getStatus();
+                return Optional.of(zappiSerialNumber);
             }
             System.out.println("Zappi device not found");
         } catch (ClientException e) {

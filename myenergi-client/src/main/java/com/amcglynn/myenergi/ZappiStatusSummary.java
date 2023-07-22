@@ -18,6 +18,7 @@ public class ZappiStatusSummary {
     private EvConnectionStatus evConnectionStatus;
     private ZappiChargeMode chargeMode;
     private ChargeStatus chargeStatus;
+    private LockStatus lockStatus;
 
     public ZappiStatusSummary(ZappiStatus zappiStatus) {
         gridImport = new Watt(Math.max(0, zappiStatus.getGridWatts()));
@@ -32,6 +33,7 @@ public class ZappiStatusSummary {
         chargeAddedThisSession = new KiloWattHour(zappiStatus.getChargeAddedThisSessionKwh());
         evChargeRate = new Watt(zappiStatus.getCarDiversionAmountWatts());
         evConnectionStatus = EvConnectionStatus.fromString(zappiStatus.getEvConnectionStatus());
+        lockStatus = LockStatus.from(zappiStatus.getLockStatus());
     }
 
     public Watt getGridImport() {
@@ -68,6 +70,10 @@ public class ZappiStatusSummary {
 
     public ChargeStatus getChargeStatus() {
         return this.chargeStatus;
+    }
+
+    public LockStatus getLockStatus() {
+        return this.lockStatus;
     }
 
     public String toString() {

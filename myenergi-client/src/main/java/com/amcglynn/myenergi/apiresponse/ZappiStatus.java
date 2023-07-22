@@ -17,7 +17,8 @@ public class ZappiStatus {
     private Long gridWatts = 0L; // minus means pushing back to grid, positive means importing
     @JsonProperty("zmo")
     private int zappiChargeMode;  //1=Fast, 2=Eco, 3=Eco+, 4=Stopped
-
+    @JsonProperty("lck")
+    private int lockStatus = -1;
     @JsonProperty("sta")
     private int chargeStatus;
 
@@ -70,6 +71,10 @@ public class ZappiStatus {
         return this.chargeStatus;
     }
 
+    public int getLockStatus() {
+        return this.lockStatus;
+    }
+
     public String getEvConnectionStatus() {
         return this.evConnectionStatus;
     }
@@ -107,6 +112,11 @@ public class ZappiStatus {
     @JsonProperty("sta")
     public void setChargeStatus(int chargeStatus) {
         this.chargeStatus = chargeStatus;
+    }
+
+    @JsonProperty("lck")
+    public void setLockStatus(int lockStatus) {
+        this.lockStatus = lockStatus;
     }
 
     @JsonProperty("pst")

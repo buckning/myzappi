@@ -7,7 +7,7 @@ import java.util.Map;
 
 public enum EvConnectionStatus {
     EV_DISCONNECTED("A"),
-    EV_CONNECTED("B1"),     // plugged in, waiting for PV charge (awaiting surplus)
+    EV_CONNECTED("B1"),     // plugged in, waiting for PV charge (awaiting surplus). This can be the case when the charger is looked too.
     WAITING_FOR_EV("B2"),   // plugged in, charging is complete
     READY_TO_CHARGE("C1"),
     CHARGING("C2"),         // plugged in, charging from PV or grid
