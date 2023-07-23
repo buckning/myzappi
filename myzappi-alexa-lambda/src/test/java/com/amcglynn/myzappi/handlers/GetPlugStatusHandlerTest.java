@@ -8,6 +8,7 @@ import com.amazon.ask.model.Session;
 import com.amazon.ask.model.User;
 import com.amcglynn.myenergi.ChargeStatus;
 import com.amcglynn.myenergi.EvConnectionStatus;
+import com.amcglynn.myenergi.LockStatus;
 import com.amcglynn.myenergi.ZappiChargeMode;
 import com.amcglynn.myenergi.ZappiStatusSummary;
 import com.amcglynn.myenergi.apiresponse.ZappiStatus;
@@ -101,6 +102,18 @@ class GetPlugStatusHandlerTest {
         assertThat(result).isPresent();
         verifySpeechInResponse(result.get(), "<speak>Your E.V. is finished charging. 25.0 kilowatt hours added this session.</speak>");
         verifySimpleCardInResponse(result.get(), "My Zappi", "Your E.V. is finished charging. 25.0kWh added this session.\n");
+    }
+
+    @Test
+    void testHandleNotifiesIfTheChargerIsLockedButTheCarIsPluggedIn() {
+        when(mockZappiService.getStatusSummary()).thenReturn(List.of(new ZappiStatusSummary(
+                new ZappiStatus("12345678", 0L, 0L,
+                        25.0, 0L, ZappiChargeMode.ECO_PLUS.getApiValue(),
+                        ChargeStatus.PAUSED.ordinal(), EvConnectionStatus.EV_CONNECTED.getCode(), LockStatus.LOCKED.getCode()))));
+        var result = handler.handle(handlerInputBuilder().build());
+        assertThat(result).isPresent();
+        verifySpeechInResponse(result.get(), "<speak>Your E.V. is connected but your charger is locked. It needs to be unlocked before you can start charging.</speak>");
+        verifySimpleCardInResponse(result.get(), "My Zappi", "Your E.V. is connected but your charger is locked. It needs to be unlocked before you can start charging.\n");
     }
 
     private HandlerInput.Builder handlerInputBuilder() {

@@ -6,6 +6,7 @@ import com.amcglynn.myenergi.exception.ServerCommunicationException;
 import com.amcglynn.myzappi.TariffNotFoundException;
 import com.amcglynn.myzappi.UserNotLinkedException;
 import com.amcglynn.myzappi.core.exception.UserNotLoggedInException;
+import com.amcglynn.myzappi.handlers.UnlockZappiHandler;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -20,6 +21,7 @@ public class VoiceResponse {
         RESPONSE_MAP.put(ClientException.class, "Could not authenticate with my energy APIs. Perhaps you entered the wrong serial number or API key. Ask me to log out and log in again to reset them.");
         RESPONSE_MAP.put(ServerCommunicationException.class, "I couldn't communicate with my energy servers.");
         RESPONSE_MAP.put(ZappiChargeMode.class, "Changing charge mode to {zappiChargeMode}. This may take a few minutes.");
+        RESPONSE_MAP.put(UnlockZappiHandler.class, "Unlocking your charger. This may take a few minutes.");
         RESPONSE_MAP.put(Exception.class, "There was an unexpected error.");
     }
 

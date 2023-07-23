@@ -151,6 +151,9 @@
             }
           ],
           "samples": [
+            "energy cost",
+            "Tell me an energy cost",
+            "Give me an energy cost",
             "What was the cost for {date}",
             "Give me an energy cost for {date}",
             "How much did the electricity cost me for {date}"
@@ -166,6 +169,15 @@
             "Is my car connected",
             "Is my car plugged in",
             "Is my E.V. plugged in"
+          ]
+        },
+        {
+          "name": "UnlockZappi",
+          "slots": [],
+          "samples": [
+            "Unlock my Zappi",
+            "Unlock my charger",
+            "Unlock"
           ]
         }
       ],

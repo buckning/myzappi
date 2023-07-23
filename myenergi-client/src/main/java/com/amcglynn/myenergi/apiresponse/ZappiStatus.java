@@ -36,6 +36,11 @@ public class ZappiStatus {
         this.evConnectionStatus = evConnectionStatus;
     }
 
+    public ZappiStatus(String serialNumber, Long solarGeneration, Long carDiversionAmountWatts, Double chargeAddedThisSessionKwh, Long gridWatts, int zappiChargeMode, int chargeStatus, String evConnectionStatus, int lockStatus) {
+        this(serialNumber, solarGeneration, carDiversionAmountWatts, chargeAddedThisSessionKwh, gridWatts, zappiChargeMode, chargeStatus, evConnectionStatus);
+        this.lockStatus = lockStatus;
+    }
+
     public ZappiStatus() {
     }
 
