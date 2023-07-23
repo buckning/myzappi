@@ -53,6 +53,7 @@ class MyEnergiClientTest {
         assertThat(zappiResponse.getEvConnectionStatus()).isEqualTo("A");
         assertThat(zappiResponse.getZappiChargeMode()).isEqualTo(3);
         assertThat(zappiResponse.getChargeStatus()).isEqualTo(ChargeStatus.PAUSED.ordinal());
+        assertThat(zappiResponse.getLockStatus()).isEqualTo(LockStatus.LOCKED.getCode());
     }
 
     @Test
@@ -136,6 +137,23 @@ class MyEnergiClientTest {
         assertThat(zappiResponse.getEvConnectionStatus()).isEqualTo("A");
         assertThat(zappiResponse.getZappiChargeMode()).isEqualTo(3);
         assertThat(zappiResponse.getChargeStatus()).isEqualTo(ChargeStatus.PAUSED.ordinal());
+    }
+
+    @Test
+    void testGetStatusWithNoLockStatus() {
+        var mockResponse = new MockResponse()
+                .setResponseCode(200)
+                .setBody(ZappiResponse.getExampleResponse()
+                        .replace("            \"lck\": 7,\n", ""));
+        mockWebServer.enqueue(mockResponse);
+
+        var response = client.getZappiStatus();
+
+        assertThat(response.getZappi()).hasSize(1);
+        var zappiResponse = response.getZappi().get(0);
+        assertThat(zappiResponse.getSerialNumber()).isEqualTo("12345678");
+        assertThat(zappiResponse.getLockStatus()).isEqualTo(LockStatus.UNKNOWN.getCode());
+
     }
 
     @Test

@@ -184,6 +184,10 @@ public class MyEnergiClient {
         }
     }
 
+    public void unlockZappi() {
+        getRequest("/cgi-jlock-" + zappiSerialNumber + "-01000000");
+    }
+
     public ZappiHourlyDayHistory getZappiHourlyHistory(LocalDate localDate, int offset) {
         String endPointUrl = "/cgi-jdayhour-Z" + zappiSerialNumber + "-" + localDate.getYear() +
                 "-" + localDate.getMonthValue() + "-" + localDate.getDayOfMonth() + "-" + offset;

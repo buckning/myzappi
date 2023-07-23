@@ -112,6 +112,10 @@ public class ZappiService {
         return new ZappiDaySummary(client.getZappiHistory(userTime.toLocalDate(), userTime.toLocalTime().getHour()).getReadings());
     }
 
+    public void unlockZappi() {
+        client.unlockZappi();
+    }
+
     public List<ZappiHistory> getHourlyHistory(LocalDate date, ZoneId userZone) {
         var utcTime = LocalTime.of(0, 0);   // start from 0:00AM local time for the user and then convert that to UTC for the API
         var userTime = utcTime.atDate(date).atZone(userZone)

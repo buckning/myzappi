@@ -102,4 +102,13 @@ public class MockMyEnergiClient extends MyEnergiClient {
         mockWebServer.enqueue(mockResponse);
         return super.getZappiHistory(localDate, offset);
     }
+
+    @Override
+    public void unlockZappi() {
+        var mockResponse = new MockResponse()
+                .setResponseCode(200)
+                .setBody(ZappiResponse.getGenericResponse());
+        mockWebServer.enqueue(mockResponse);
+        super.unlockZappi();
+    }
 }

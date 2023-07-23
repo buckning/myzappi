@@ -46,11 +46,13 @@ public class GetEnergyCostHandler implements RequestHandler {
         // expected date format is 2023-05-06
         var userTimeZone = userZoneResolver.getZoneId(handlerInput);
 
-        var date = parseSlot(handlerInput, "date");
-        if (date.isEmpty() || date.get().length() != 10) {
+        var date = parseSlot(handlerInput);
+        if (date.isPresent() && date.get().length() != 10) {
             return getInvalidInputResponse(handlerInput);
         }
-        var localDate = LocalDate.parse(date.get(), DateTimeFormatter.ISO_DATE);
+
+        var localDate = date.map(d -> LocalDate.parse(d, DateTimeFormatter.ISO_DATE))
+                .orElse(LocalDate.now(userTimeZone));
 
         if (isInvalid(localDate, userTimeZone)) {
             return getInvalidRequestedDateResponse(handlerInput);
@@ -105,8 +107,8 @@ public class GetEnergyCostHandler implements RequestHandler {
         return date.isAfter(LocalDate.now(userTimeZone));
     }
 
-    private Optional<String> parseSlot(HandlerInput handlerInput, String slotName) {
+    private Optional<String> parseSlot(HandlerInput handlerInput) {
         return RequestHelper.forHandlerInput(handlerInput)
-                .getSlotValue(slotName);
+                .getSlotValue("date");
     }
 }

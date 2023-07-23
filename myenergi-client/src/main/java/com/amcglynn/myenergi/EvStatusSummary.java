@@ -13,11 +13,13 @@ public class EvStatusSummary {
     private EvConnectionStatus evConnectionStatus;
     private KiloWatt chargeRate;
     private KiloWattHour chargeAddedThisSession;
+    private LockStatus lockStatus;
 
     public EvStatusSummary(ZappiStatusSummary status) {
         this.chargeAddedThisSession = status.getChargeAddedThisSession();
         this.evConnectionStatus = status.getEvConnectionStatus();
         this.chargeRate = new KiloWatt(status.getEvChargeRate());
+        this.lockStatus = status.getLockStatus();
     }
 
     public KiloWatt getChargeRate() {
@@ -34,5 +36,9 @@ public class EvStatusSummary {
 
     public boolean isFinishedCharging() {
         return evConnectionStatus == EvConnectionStatus.WAITING_FOR_EV;
+    }
+
+    public LockStatus getLockStatus() {
+        return lockStatus;
     }
 }

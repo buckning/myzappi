@@ -185,13 +185,12 @@ class GetEnergyCostHandlerTest {
     }
 
     @Test
-    void testHandleReturnsErrorMessageWhenDateIsNotProvided() {
+    void testHandleUsesCurrentDateIfNoDateIsSpecified() {
+        when(mockTariffService.get(anyString())).thenReturn(Optional.of(new DayTariff("EUR", List.of())));
+        when(mockTariffService.calculateCost(any(), any(), any(), any())).thenReturn(new DayCost("EUR"));
         var result = handler.handle(handlerInputBuilder().build());
         assertThat(result).isPresent();
-        verifySpeechInResponse(result.get(), "<speak>Please ask me for an energy " +
-                "cost for a specific day.</speak>");
-        verifySimpleCardInResponse(result.get(), "My Zappi", "Please ask me for an energy " +
-                "cost for a specific day.");
+        verify(mockZappiService).getHistory(LocalDate.now(), ZoneId.of("Europe/Dublin"));
     }
 
     @Test
