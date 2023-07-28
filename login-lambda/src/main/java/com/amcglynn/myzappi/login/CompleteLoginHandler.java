@@ -80,6 +80,9 @@ public class CompleteLoginHandler implements RequestHandler<APIGatewayProxyReque
             responseEvent.setStatusCode(response.getStatus());
             var responseHeaders = new HashMap<>(response.getHeaders());
             responseHeaders.put("Content-Type", "application/json");
+            responseHeaders.put("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS");
+            responseHeaders.put("Access-Control-Allow-Origin", "http://localhost:4200");
+            responseHeaders.put("Access-Control-Allow-Headers", "content-type");
             responseEvent.setHeaders(responseHeaders);
 
             response.getBody().ifPresent(body -> {
@@ -119,6 +122,7 @@ public class CompleteLoginHandler implements RequestHandler<APIGatewayProxyReque
         response.setStatusCode(200);
         var responseHeaders = new HashMap<>(response.getHeaders());
         responseHeaders.put("Content-Type", "text/html");
+        responseHeaders.put("Access-Control-Allow-Origin", "http://localhost:4200");
         response.setHeaders(responseHeaders);
 
         thymeleafContext.setVariable("pageTitle", Brand.NAME);

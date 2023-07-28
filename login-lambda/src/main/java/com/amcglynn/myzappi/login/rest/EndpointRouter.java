@@ -50,6 +50,10 @@ public class EndpointRouter {
     public Response route(Request request) {
         var routeEndpoint = request.getMethod() + " " + request.getPath();
 
+        if (RequestMethod.OPTIONS == request.getMethod()) {
+            return new Response(204);
+        }
+
         // POST /authenticate does not require a sessionId
         if (!"POST /authenticate".equals(routeEndpoint)) {
             if (request.getSession().isEmpty()) {
