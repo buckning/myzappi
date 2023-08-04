@@ -41,7 +41,7 @@ public class HubController implements RestController {
 
     @SneakyThrows
     private Response get(Request request) {
-        var creds = registrationService.read(request.getSession().get().getUserId());
+        var creds = registrationService.read(request.getUserId().toString());
         if (creds.isEmpty()) {
             log.info("No hub found for user {}", request.getUserId());
             return new Response(404);

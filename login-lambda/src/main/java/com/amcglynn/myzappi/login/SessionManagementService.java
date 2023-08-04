@@ -3,6 +3,7 @@ package com.amcglynn.myzappi.login;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
 import com.amcglynn.myzappi.core.service.EncryptionService;
+import lombok.extern.slf4j.Slf4j;
 
 import java.net.HttpCookie;
 import java.time.Instant;
@@ -14,6 +15,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Supplier;
 
+@Slf4j
 public class SessionManagementService {
 
     private SessionRepository sessionRepository;
@@ -73,8 +75,7 @@ public class SessionManagementService {
             return Optional.empty();
         }
 
-        var expiryTimestamp = instantSupplier.get().plus(Long.parseLong(expiresIn), ChronoUnit.SECONDS);
-        return Optional.of(createSession(userId.get(), accessToken, expiryTimestamp.getEpochSecond()));
+        return Optional.of(createSession(userId.get(), accessToken, Long.parseLong(expiresIn)));
     }
 
     public Session createSession(String userId, String accessToken, long expiresIn) {

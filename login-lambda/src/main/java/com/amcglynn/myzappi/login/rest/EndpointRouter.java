@@ -15,6 +15,7 @@ import java.util.Map;
 public class EndpointRouter {
 
     private Map<String, RestController> handlers;
+    private AuthenticateController authenticateController;
 
     public EndpointRouter(ServiceManager serviceManager) {
         this(serviceManager, new HubController(new RegistrationService(serviceManager.getLoginService())),
@@ -45,6 +46,8 @@ public class EndpointRouter {
         handlers.put("POST /tariff", tariffController);
         handlers.put("POST /authenticate", authenticateController);
         handlers.put("GET /logout", logoutController);
+
+        this.authenticateController = authenticateController;
     }
 
     public Response route(Request request) {
@@ -55,7 +58,7 @@ public class EndpointRouter {
         }
 
         // POST /authenticate does not require a sessionId
-        if (!"POST /authenticate".equals(routeEndpoint)) {
+        if (!isAuthenticated(request)) {
             if (request.getSession().isEmpty()) {
                 log.info("User not authenticated");
                 return new Response(401);
@@ -73,5 +76,37 @@ public class EndpointRouter {
         } catch (ServerException e) {
             return new Response(e.getStatus());
         }
+    }
+
+    private boolean isAuthenticated(Request request) {
+        var routeEndpoint = request.getMethod() + " " + request.getPath();
+
+        if ("POST /authenticate".equals(routeEndpoint)) {
+            return true;
+        }
+
+        if (request.getHeaders().containsKey("Authorization")) {
+            return isValidBearerToken(request, request.getHeaders().get("Authorization"));
+        }
+
+        if (request.getSession().isPresent()) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private boolean isValidBearerToken(Request request, String authorization) {
+        // split token
+        if (authorization == null) {
+            return false;
+        }
+
+        var tokens = authorization.split("Bearer ");
+        if (tokens.length == 2) {
+            return authenticateController.isAuthenticated(request, tokens[1]);
+        }
+
+        return false;
     }
 }

@@ -10,8 +10,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
+import java.util.Map;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -152,5 +155,23 @@ class EndpointRouterTest {
         var response = router.route(request);
         assertThat(response.getStatus()).isEqualTo(200);
         verify(mockHubController).handle(request);
+    }
+
+    @Test
+    void deleteHubRoutedToHubControllerIfLwaAccessTokenIsPresent() {
+        var request = new Request(RequestMethod.DELETE, "/hub", "{}", Map.of("Authorization", "Bearer 1234"));
+        when(mockAuthController.isAuthenticated(any(), eq("1234"))).thenReturn(true);
+        var response = router.route(request);
+        assertThat(response.getStatus()).isEqualTo(200);
+        verify(mockHubController).handle(request);
+    }
+
+    @Test
+    void deleteHubDoesNotGetRoutedToHubControllerIfLwaAccessTokenIsInvalid() {
+        var request = new Request(RequestMethod.DELETE, "/hub", "{}", Map.of("Authorization", "Bearer 1234"));
+        when(mockAuthController.isAuthenticated(any(), eq("1234"))).thenReturn(false);
+        var response = router.route(request);
+        assertThat(response.getStatus()).isEqualTo(401);
+        verify(mockHubController, never()).handle(request);
     }
 }

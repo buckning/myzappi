@@ -64,4 +64,12 @@ public class AuthenticateController implements RestController {
         }
     }
 
+    public boolean isAuthenticated(Request request, String lwaToken) {
+        var tokenInfo = tokenService.getTokenInfo(lwaToken);
+        if (tokenInfo.isPresent()) {
+            request.setUserId(tokenInfo.get().getUserId());
+        }
+        return tokenInfo.isPresent();
+    }
+
 }

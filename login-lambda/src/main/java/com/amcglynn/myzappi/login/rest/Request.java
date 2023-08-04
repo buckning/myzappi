@@ -2,7 +2,10 @@ package com.amcglynn.myzappi.login.rest;
 
 import com.amcglynn.myzappi.login.Session;
 import com.amcglynn.myzappi.login.UserId;
+import lombok.Getter;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 public class Request {
@@ -11,6 +14,8 @@ public class Request {
     private String path;
     private String body;
     private Session session;
+    @Getter
+    private Map<String, String> headers;
 
     public Request(UserId userId, RequestMethod method, String path, String body) {
         this(method, path, body);
@@ -21,6 +26,14 @@ public class Request {
         this.method = method;
         this.path = path;
         this.body = body;
+        this.headers = new HashMap<>();
+    }
+
+    public Request(RequestMethod method, String path, String body, Map<String, String> headers) {
+        this.method = method;
+        this.path = path;
+        this.body = body;
+        this.headers = headers;
     }
 
     public RequestMethod getMethod() {
@@ -32,7 +45,7 @@ public class Request {
     }
 
     public UserId getUserId() {
-        return new UserId(session.getUserId());
+        return userId == null? new UserId(session.getUserId()) : userId;
     }
 
     public Optional<Session> getSession() {
@@ -45,5 +58,9 @@ public class Request {
 
     public void setSession(Session session) {
         this.session = session;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = new UserId(userId);
     }
 }
