@@ -1,6 +1,7 @@
 # Welcome to MyZappi!
 
 ## Next Features
+* Move front-end to S3
 * Add scheduled charging
 ** Set up an SQS queue.
 ** Add a new intent handler
@@ -10,7 +11,6 @@
 * Better metrics
 * Notify if the charger is offline 
 * If the car charge mode is changed or if boost was set, notify if the car is not plugged in
-* Support different social logins
 * Localization
 
 ## Premium features

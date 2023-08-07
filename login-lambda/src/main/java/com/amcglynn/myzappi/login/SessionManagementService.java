@@ -3,6 +3,7 @@ package com.amcglynn.myzappi.login;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
 import com.amcglynn.myzappi.core.service.EncryptionService;
+import lombok.extern.slf4j.Slf4j;
 
 import java.net.HttpCookie;
 import java.time.Instant;
@@ -14,6 +15,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Supplier;
 
+@Slf4j
 public class SessionManagementService {
 
     private SessionRepository sessionRepository;
@@ -44,7 +46,6 @@ public class SessionManagementService {
 
         if (session.isPresent()) {
             var newSession = session.get();
-            sessionRepository.write(newSession);
 
             var responseHeaders = new HashMap<>(response.getHeaders());
             responseHeaders.put("Set-Cookie", "sessionID=" + newSession.getSessionId() + "; Max-Age=" + newSession.getTtl() + "; Path=/; Secure; HttpOnly");
@@ -67,8 +68,6 @@ public class SessionManagementService {
             return Optional.empty();
         }
 
-        var sessionId = UUID.randomUUID().toString();
-
         var lwaClient = lwaClientFactory.newLwaClient();
         var userId = lwaClient.getUserId(accessToken);
 
@@ -76,9 +75,16 @@ public class SessionManagementService {
             return Optional.empty();
         }
 
+        return Optional.of(createSession(userId.get(), accessToken, Long.parseLong(expiresIn)));
+    }
+
+    public Session createSession(String userId, String accessToken, long expiresIn) {
+        var sessionId = UUID.randomUUID().toString();
         var encryptedToken = encryptionService.encrypt(accessToken);
-        var expiryTimestamp = instantSupplier.get().plus(Long.parseLong(expiresIn), ChronoUnit.SECONDS);
-        return Optional.of(new Session(sessionId, userId.get(), encryptedToken, expiryTimestamp.getEpochSecond()));
+        var expiryTimestamp = instantSupplier.get().plus(expiresIn, ChronoUnit.SECONDS);
+        var session = new Session(sessionId, userId, encryptedToken, expiryTimestamp.getEpochSecond());
+        sessionRepository.write(session);
+        return session;
     }
 
     private Optional<Session> getSession(APIGatewayProxyRequestEvent input) {
