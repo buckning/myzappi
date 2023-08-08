@@ -163,6 +163,12 @@
           "name": "GetPlugStatus",
           "slots": [],
           "samples": [
+            "Charging status",
+            "Get charging status",
+            "get charging report",
+            "charging report",
+            "charging status report",
+            "Get charging status report",
             "Is my E.V. charging",
             "Has my car finished charging",
             "Is my car charging",

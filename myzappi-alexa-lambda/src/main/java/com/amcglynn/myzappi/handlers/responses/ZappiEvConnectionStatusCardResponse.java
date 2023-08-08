@@ -18,15 +18,23 @@ public class ZappiEvConnectionStatusCardResponse {
     }
 
     private String getSummaryForConnected(EvStatusSummary summary) {
-        if (summary.isFinishedCharging()) {
-            return "Your E.V. is finished charging. " +
-                    summary.getChargeAddedThisSession() + "kWh added this session.\n";
-        }
         if (summary.getLockStatus() == LockStatus.LOCKED) {
             return "Your E.V. is connected but your charger is locked. It needs to be unlocked before you can start charging.\n";
         }
 
-        return "Your E.V. is connected.\n";
+        if (summary.isFinishedCharging()) {
+            return "Your E.V. is finished charging.\n"+
+                    getChargeMode(summary) +
+                    summary.getChargeAddedThisSession() + "kWh added this session.\n";
+        }
+
+        return "Your E.V. is connected.\n" +
+                getChargeMode(summary) +
+                summary.getChargeAddedThisSession() + "kWh added this session.\n";
+    }
+
+    private String getChargeMode(EvStatusSummary summary) {
+        return "Charge mode: " + summary.getChargeMode().getDisplayName() + "\n";
     }
 
     @Override

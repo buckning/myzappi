@@ -83,12 +83,15 @@ class GetPlugStatusHandlerTest {
     void testHandleReturnsIfEvIsConnectedAndCharging() {
         when(mockZappiService.getStatusSummary()).thenReturn(List.of(new ZappiStatusSummary(
                 new ZappiStatus("12345678", 0L, 1000L,
-                        0.0, 0L, ZappiChargeMode.ECO_PLUS.getApiValue(),
+                        2.3, 0L, ZappiChargeMode.ECO_PLUS.getApiValue(),
                         ChargeStatus.PAUSED.ordinal(), EvConnectionStatus.CHARGING.getCode()))));
         var result = handler.handle(handlerInputBuilder().build());
         assertThat(result).isPresent();
-        verifySpeechInResponse(result.get(), "<speak>Your E.V. is connected. Charge rate is 1.0 kilowatts.</speak>");
+        verifySpeechInResponse(result.get(), "<speak>Your E.V. is connected. Charge mode is Eco+. " +
+                "2.3 kilowatt hours added this session. Charge rate is 1.0 kilowatts.</speak>");
         verifySimpleCardInResponse(result.get(), "My Zappi", "Your E.V. is connected.\n" +
+                "Charge mode: Eco+\n" +
+                "2.3kWh added this session.\n" +
                 "Charge rate is 1.0kW.");
     }
 
@@ -100,8 +103,10 @@ class GetPlugStatusHandlerTest {
                         ChargeStatus.COMPLETE.ordinal(), EvConnectionStatus.WAITING_FOR_EV.getCode()))));
         var result = handler.handle(handlerInputBuilder().build());
         assertThat(result).isPresent();
-        verifySpeechInResponse(result.get(), "<speak>Your E.V. is finished charging. 25.0 kilowatt hours added this session.</speak>");
-        verifySimpleCardInResponse(result.get(), "My Zappi", "Your E.V. is finished charging. 25.0kWh added this session.\n");
+        verifySpeechInResponse(result.get(), "<speak>Your E.V. is finished charging. Charge mode is Eco+. 25.0 kilowatt hours added this session.</speak>");
+        verifySimpleCardInResponse(result.get(), "My Zappi", "Your E.V. is finished charging.\n" +
+                "Charge mode: Eco+\n" +
+                "25.0kWh added this session.\n");
     }
 
     @Test

@@ -15,11 +15,14 @@ public class EvStatusSummary {
     private KiloWattHour chargeAddedThisSession;
     private LockStatus lockStatus;
 
+    private ZappiChargeMode chargeMode;
+
     public EvStatusSummary(ZappiStatusSummary status) {
         this.chargeAddedThisSession = status.getChargeAddedThisSession();
         this.evConnectionStatus = status.getEvConnectionStatus();
         this.chargeRate = new KiloWatt(status.getEvChargeRate());
         this.lockStatus = status.getLockStatus();
+        this.chargeMode = status.getChargeMode();
     }
 
     public KiloWatt getChargeRate() {
@@ -41,4 +44,9 @@ public class EvStatusSummary {
     public LockStatus getLockStatus() {
         return lockStatus;
     }
+
+    public ZappiChargeMode getChargeMode() {
+        return chargeMode;
+    }
+
 }

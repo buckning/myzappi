@@ -2,6 +2,7 @@ package com.amcglynn.myzappi.handlers.responses;
 
 import com.amcglynn.myenergi.EvStatusSummary;
 import com.amcglynn.myenergi.LockStatus;
+import com.amcglynn.myenergi.ZappiStatusSummary;
 
 public class ZappiEvConnectionStatusVoiceResponse {
     private String response;
@@ -18,9 +19,14 @@ public class ZappiEvConnectionStatusVoiceResponse {
         }
     }
 
+    private String getChargeMode(EvStatusSummary summary) {
+        return "Charge mode is " + summary.getChargeMode().getDisplayName() + ". ";
+    }
+
     private String getSummaryForConnected(EvStatusSummary summary) {
         if (summary.isFinishedCharging()) {
             return "Your E.V. is finished charging. " +
+                    getChargeMode(summary) +
                     summary.getChargeAddedThisSession() + " kilowatt hours added this session. ";
         }
 
@@ -28,7 +34,9 @@ public class ZappiEvConnectionStatusVoiceResponse {
             return "Your E.V. is connected but your charger is locked. It needs to be unlocked before you can start charging. ";
         }
 
-        return "Your E.V. is connected. ";
+        return "Your E.V. is connected. " +
+                getChargeMode(summary) +
+                summary.getChargeAddedThisSession() + " kilowatt hours added this session. ";
     }
 
     @Override
