@@ -1,0 +1,10 @@
+<style>
+  
+</style>
+
+<div class="content" role="main">
+  <app-logged-in-content [bearerToken]="bearerToken" (logoutEvent)="logOut()" *ngIf="loggedIn; else elseBlock" ></app-logged-in-content>
+  <ng-template #elseBlock>
+    <app-logged-out-content></app-logged-out-content>
+  </ng-template>
+</div>
