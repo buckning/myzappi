@@ -2,3 +2,5 @@
 *.iml
 target
 .DS_Store
+node_modules
+site/myzappi/.vscode

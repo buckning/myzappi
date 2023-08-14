@@ -1,0 +1,29 @@
+<div class="container" style="background-color: #2d84da; padding: 10px;">
+    
+    <div *ngIf="registered === false">
+        <app-register-panel></app-register-panel>
+    </div>
+    <div *ngIf="hubDetails == null && registered !== false">
+        <p>
+            Loading your details...
+        </p>
+    </div>
+    
+    <div *ngIf="hubDetails != null">
+        <div>
+            Your Zappi device is registered on My Zappi. You can start using My Zappi on your Alexa.
+        </div>
+        <p>
+            hub serial number: {{hubDetails.hubSerialNumber}}
+            <br>
+            zappi serial number: {{hubDetails.zappiSerialNumber}}
+        </p>
+        <button (click)="deleteZappi()" id="forgetMyDetailsButton" class="forgetMyDetailsButton">Delete Zappi</button>
+    </div>
+</div>
+<br>
+<!-- <app-tariff-panel [bearerToken]="bearerToken"></app-tariff-panel> -->
+
+<div class="container">
+    <button (click)="logOut()" class="logOutButton" id="logoutButton">Logout</button>
+</div>

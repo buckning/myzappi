@@ -4,7 +4,6 @@ import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
-import com.amcglynn.myzappi.core.Brand;
 import com.amcglynn.myzappi.core.config.Properties;
 import com.amcglynn.myzappi.core.config.ServiceManager;
 import com.amcglynn.myzappi.core.service.LoginService;
@@ -72,40 +71,26 @@ public class CompleteLoginHandler implements RequestHandler<APIGatewayProxyReque
         var session = sessionManagementService.handle(input, responseEvent);
         session.ifPresent(request::setSession);
 
-        // All JSON APIs are handled here
-        if (!"/".equals(request.getPath())) {
-            var response = endpointRouter.route(request);
+        var response = endpointRouter.route(request);
 
-            responseEvent.setStatusCode(response.getStatus());
-            var responseHeaders = new HashMap<>(response.getHeaders());
-            responseHeaders.put("Content-Type", "application/json");
-            responseHeaders.put("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS");
-            responseHeaders.put("Access-Control-Allow-Origin", "http://localhost:4200");
-            responseHeaders.put("Access-Control-Allow-Headers", "content-type");
-            responseEvent.setHeaders(responseHeaders);
-
-            response.getBody().ifPresent(body -> {
-                responseEvent.setBody(body);
-            });
-            // TODO convert to JSON instead of string
-            return responseEvent;
+        responseEvent.setStatusCode(response.getStatus());
+        var responseHeaders = new HashMap<>(response.getHeaders());
+        responseHeaders.put("Content-Type", "application/json");
+        responseHeaders.put("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS");
+        if (input.getHeaders().containsKey("origin")) {
+            var origin = input.getHeaders().get("origin");
+            if ("https://www.myzappiunofficial.com".equals(origin) ||
+                    "https://myzappiunofficial.com".equals(origin) ||
+                    "http://localhost:4200".equals(origin)) {
+                responseHeaders.put("Access-Control-Allow-Origin", origin);
+            }
         }
+        responseHeaders.put("Access-Control-Allow-Headers", "content-type");
+        responseEvent.setHeaders(responseHeaders);
 
-
-        // all rendered HTML is here
-        var thymeleafContext = new org.thymeleaf.context.Context();
-        thymeleafContext.setVariable("loggedIn", session.isPresent());
-
-        if (session.isPresent()) {
-            var creds = loginService.readCredentials(session.get().getUserId());
-            thymeleafContext.setVariable("registered", creds.isPresent());
-            creds.ifPresent(credentials ->
-                    thymeleafContext.setVariable("existingSerialNumber", "Your Zappi: " + credentials.getZappiSerialNumber()));
-        }
-
-        if ("GET".equals(input.getHttpMethod())) {
-            return buildPage(responseEvent, thymeleafContext);
-        }
+        response.getBody().ifPresent(body ->
+            responseEvent.setBody(body)
+        );
 
         return responseEvent;
     }
@@ -115,26 +100,5 @@ public class CompleteLoginHandler implements RequestHandler<APIGatewayProxyReque
             return false;
         }
         return featureToggleUser.equals(request.getUserId().toString());
-    }
-
-    private APIGatewayProxyResponseEvent buildPage(APIGatewayProxyResponseEvent response, org.thymeleaf.context.Context thymeleafContext) {
-        response.setStatusCode(200);
-        var responseHeaders = new HashMap<>(response.getHeaders());
-        responseHeaders.put("Content-Type", "text/html");
-        responseHeaders.put("Access-Control-Allow-Origin", "http://localhost:4200");
-        response.setHeaders(responseHeaders);
-
-        thymeleafContext.setVariable("pageTitle", Brand.NAME);
-        thymeleafContext.setVariable("welcomeMessage", "Welcome to " + Brand.NAME + "!");
-        thymeleafContext.setVariable("serialNumber", Brand.ZAPPI + " Serial Number:");
-        thymeleafContext.setVariable("apiKey", Brand.ZAPPI + " API Key:");
-        thymeleafContext.setVariable("apiUrl", properties.getLoginUrl());
-        thymeleafContext.setVariable("logoutUrl", properties.getLogoutUrl());
-        thymeleafContext.setVariable("registerUrl", properties.getRegisterUrl());
-
-        // Process the Thymeleaf template
-        String htmlContent = templateEngine.process("login", thymeleafContext);
-        response.setBody(htmlContent.replace("\\/", "/"));
-        return response;
     }
 }
