@@ -10,7 +10,7 @@
     <modules>
         <module>myzappi-alexa-lambda</module>
         <module>core</module>
-        <module>login-lambda</module>
+        <module>api</module>
         <module>myenergi-client</module>
         <module>login-with-amazon</module>
     </modules>
