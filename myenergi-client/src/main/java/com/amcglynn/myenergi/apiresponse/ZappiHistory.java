@@ -100,6 +100,10 @@ public class ZappiHistory {
         return this.hour;
     }
 
+    public Integer getMinute() {
+        return this.minute;
+    }
+
     public static class ZappiHistoryBuilder {
         private int year;
         private int dayOfMonth;

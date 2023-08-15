@@ -14,11 +14,11 @@ import lombok.extern.slf4j.Slf4j;
 public class TariffController implements RestController {
 
     private TariffService tariffService;
-    private TariffRequestValidator validator;
+    private TariffRequestValidatorV2 validator;
 
     public TariffController(TariffService tariffService) {
         this.tariffService = tariffService;
-        this.validator = new TariffRequestValidator();
+        this.validator = new TariffRequestValidatorV2(tariffService);
     }
 
 

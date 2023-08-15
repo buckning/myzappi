@@ -32,6 +32,7 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -114,12 +115,12 @@ class GetEnergyCostHandlerTest {
         initIntentRequest(LocalDate.of(2023, 2, 20));
 
         var dayCost = new DayCost("EUR");
-        var tariff = new Tariff("MockTariff", 0, 24, 1, 1);
+        var tariff = new Tariff("MockTariff", LocalTime.of(0, 0), LocalTime.of(0, 0), 1, 1);
         dayCost.add(new EnergyCostHourSummary(tariff, new ZappiHistory(2023, 1, 6, 0, 0, "Monday",
                 3600000L, 7200000L, 3600000L, 3600000L, 3600000L)));
 
         when(mockTariffService.get(anyString())).thenReturn(Optional.of(new DayTariff("EUR", List.of(tariff))));
-        when(mockTariffService.calculateCost(any(), any(), any(), any())).thenReturn(dayCost);
+        when(mockTariffService.calculateCostV2(any(), any(), any(), any())).thenReturn(dayCost);
 
         var response = handler.handle(handlerInputBuilder().build());
         verifySpeechInResponse(response.get(), "<speak>Total credit is 1 Euro and 0 cent. You imported 1 Euro " +
@@ -136,12 +137,12 @@ class GetEnergyCostHandlerTest {
         initIntentRequest(LocalDate.of(2023, 2, 20));
 
         var dayCost = new DayCost("EUR");
-        var tariff = new Tariff("MockTariff", 0, 24, 1, 1);
+        var tariff = new Tariff("MockTariff", LocalTime.of(0, 0), LocalTime.of(0, 0), 1, 1);
         dayCost.add(new EnergyCostHourSummary(tariff, new ZappiHistory(2023, 1, 6, 0, 0, "Monday",
                 3600000L, 3600000L, 3600000L, 3600000L, 7200000L)));
 
         when(mockTariffService.get(anyString())).thenReturn(Optional.of(new DayTariff("EUR", List.of(tariff))));
-        when(mockTariffService.calculateCost(any(), any(), any(), any())).thenReturn(dayCost);
+        when(mockTariffService.calculateCostV2(any(), any(), any(), any())).thenReturn(dayCost);
 
         var response = handler.handle(handlerInputBuilder().build());
         verifySpeechInResponse(response.get(), "<speak>Total cost is 1 Euro and 0 cent. You imported 2 Euro " +
@@ -158,12 +159,12 @@ class GetEnergyCostHandlerTest {
         initIntentRequest(LocalDate.of(2023, 2, 20));
 
         var dayCost = new DayCost("GBP");
-        var tariff = new Tariff("MockTariff", 0, 24, 1, 1);
+        var tariff = new Tariff("MockTariff", LocalTime.of(0, 0), LocalTime.of(0, 0), 1, 1);
         dayCost.add(new EnergyCostHourSummary(tariff, new ZappiHistory(2023, 1, 6, 0, 0, "Monday",
                 3600000L, 3600000L, 3600000L, 3600000L, 7200000L)));
 
         when(mockTariffService.get(anyString())).thenReturn(Optional.of(new DayTariff("EUR", List.of(tariff))));
-        when(mockTariffService.calculateCost(any(), any(), any(), any())).thenReturn(dayCost);
+        when(mockTariffService.calculateCostV2(any(), any(), any(), any())).thenReturn(dayCost);
 
         var response = handler.handle(handlerInputBuilder().build());
         verifySpeechInResponse(response.get(), "<speak>Total cost is 1 Pound and 0 pence. You imported 2 Pounds " +
@@ -187,7 +188,7 @@ class GetEnergyCostHandlerTest {
     @Test
     void testHandleUsesCurrentDateIfNoDateIsSpecified() {
         when(mockTariffService.get(anyString())).thenReturn(Optional.of(new DayTariff("EUR", List.of())));
-        when(mockTariffService.calculateCost(any(), any(), any(), any())).thenReturn(new DayCost("EUR"));
+        when(mockTariffService.calculateCostV2(any(), any(), any(), any())).thenReturn(new DayCost("EUR"));
         var result = handler.handle(handlerInputBuilder().build());
         assertThat(result).isPresent();
         verify(mockZappiService).getHistory(LocalDate.now(), ZoneId.of("Europe/Dublin"));

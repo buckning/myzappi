@@ -6,13 +6,13 @@ import com.amcglynn.myzappi.core.model.DayCost;
 import com.amcglynn.myzappi.core.model.DayTariff;
 import com.amcglynn.myzappi.core.model.Tariff;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 public class TariffService {
@@ -27,47 +27,66 @@ public class TariffService {
         return tariffRepository.read(userId);
     }
 
-    private int convertHourToUtc(int hour, LocalDate localDate, ZoneId zoneId) {
-        var localTime = LocalTime.of(hour, 0);
-        var zonedDateTime = ZonedDateTime.of(localDate, localTime, zoneId);
-        return zonedDateTime.withZoneSameInstant(ZoneId.of("UTC")).toLocalTime().getHour();
+    private LocalTime convertToLocalTime(LocalTime localTime, LocalDate localDate, ZoneId zoneId) {
+        var zonedDateTime = ZonedDateTime.of(localDate, localTime, ZoneId.of("UTC"));
+        return zonedDateTime.withZoneSameInstant(zoneId).toLocalTime();
     }
 
     public void write(String userId, DayTariff dayTariff) {
         tariffRepository.write(userId, dayTariff);
     }
 
-    /**
-     * ZappiHistory is in UTC. Tariffs are stored as localtime. So this means that timezones and DST impact the cost of
-     * the calculation. To get accurate costs, the local time of the user is needed and also the date.
-     * @param tariffFromDb user tariffs from the DB in Local time
-     * @param hourlyEnergyUsage Zappi History in UTC
-     * @param localDate date of the cost calculation
-     * @param zoneId time zone ID of the user
-     * @return calculated cost
-     */
-    public DayCost calculateCost(DayTariff tariffFromDb, List<ZappiHistory> hourlyEnergyUsage,
+    public DayCost calculateCostV2(DayTariff tariffFromDb, List<ZappiHistory> hourlyEnergyUsage,
                                  LocalDate localDate, ZoneId zoneId) {
-        var tariffMap = buildTariffMap(tariffFromDb.getTariffs(), localDate, zoneId);
         var dayCost = new DayCost(tariffFromDb.getCurrency());
+        var tariffList = constructTariffList(tariffFromDb.getTariffs());
 
         for (var history : hourlyEnergyUsage) {
-            var tariff = tariffMap.get(history.getHour());
+            // zappi history is UTC but tariffs are in local time, they need to be converted before using
+            var localHistoryTime = convertToLocalTime(LocalTime.of(history.getHour(), history.getMinute()), localDate, zoneId);
+
+            var tariff = getTariff(localHistoryTime, tariffList);
             var energyCost = new EnergyCostHourSummary(tariff, history);
             dayCost.add(energyCost);
         }
         return dayCost;
     }
 
-    private Map<Integer, Tariff> buildTariffMap(List<Tariff> tariffs, LocalDate localDate, ZoneId zoneId) {
-        var hourlyTariffs = new HashMap<Integer, Tariff>();
-        for (var tariff : tariffs) {
-            for (int i = tariff.getStartTime(); i < tariff.getEndTime(); i++) {
-                // convert tariff to UTC so it easier to calculate cost against ZappiHistory since ZappiHistory is in UTC
-                var utcHour = convertHourToUtc(i, localDate, zoneId);
-                hourlyTariffs.put(utcHour, tariff);
+    public Tariff getTariff(LocalTime localTime, List<Tariff> tariffList) {
+        // This variable controls what type of resolution is used for tariffs. 1 means there is just 1 tariff per hour, 2 means 2 per hour or one per 30 mins
+        int resolution = 2; // should be less than or equal to 6 (10 minutes). It must be a number that evenly divides into 60.
+
+        int blockSize = 60 / resolution;
+
+        return tariffList.get((int)(Duration.between(LocalTime.of(0, 0), localTime).toMinutes() / blockSize));
+    }
+
+    public List<Tariff> constructTariffList(List<Tariff> tariffsFromDb) {
+        List<Tariff> results = new ArrayList<>();
+
+        // This variable controls what type of resolution is used for tariffs. 1 means there is just 1 tariff per hour, 2 means 2 per hour or one per 30 mins
+        int resolution = 2; // should be less than or equal to 6 (10 minutes). It must be a number that evenly divides into 60.
+
+        int blockSize = 60 / resolution;
+
+        for (var tariff : tariffsFromDb) {
+            var duration = Duration.between(tariff.getStart(), tariff.getEnd());
+
+            var minutes = duration.toMinutes();
+
+            if (minutes < 0) {
+                // local time does not have date associated with it so when the end time is 0:00, the duration doesn't
+                // roll into the next day, it treats it as a negative duration, so we need to add 24 hours in minutes to
+                // the calculation to fix it.
+                minutes += Duration.ofDays(1).toMinutes();
+            }
+
+            var stepCount = minutes / blockSize;
+            for (int i = 0; i < stepCount; i++) {
+                results.add(tariff);
             }
         }
-        return hourlyTariffs;
+
+        return results;
     }
 }
