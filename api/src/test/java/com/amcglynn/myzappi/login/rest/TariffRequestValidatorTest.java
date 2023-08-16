@@ -3,6 +3,7 @@ package com.amcglynn.myzappi.login.rest;
 import com.amcglynn.myzappi.core.model.Tariff;
 import com.amcglynn.myzappi.core.service.TariffService;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -25,6 +26,13 @@ class TariffRequestValidatorTest {
         validator = new TariffRequestValidator(new TariffService(null));
     }
 
+    @Test
+    void testValidTariffs() {
+        var throwable = catchThrowable(() ->
+                validator.validate("EUR", List.of(new Tariff("24HourTariff", LocalTime.of(0, 0), LocalTime.of(0, 0), 1.0, 0.5))));
+        assertThat(throwable).isNull();
+    }
+
     @MethodSource("invalidTariffs")
     @ParameterizedTest
     void testInvalidTariffs(String currency, List<Tariff> invalidTariffs) {
@@ -44,7 +52,8 @@ class TariffRequestValidatorTest {
                 Arguments.of("EUR", generateTariffs(25)),  // list too big
                 Arguments.of("EUR", List.of(new Tariff("Test", LocalTime.of(0, 0), LocalTime.of(0, 0), 1.0, 0.5),
                         new Tariff("Test", LocalTime.of(5, 0), LocalTime.of(0, 0), 1.0, 0.5))), // overlap in tariffs
-                Arguments.of("EUR", List.of(new Tariff("Test", LocalTime.of(0, 0), LocalTime.of(8, 0), 1.0, 0.5))) // incomplete tariffs. Not all times are covered
+                Arguments.of("EUR", List.of(new Tariff("Test", LocalTime.of(0, 0), LocalTime.of(8, 0), 1.0, 0.5))), // incomplete tariffs. Not all times are covered
+                Arguments.of("EUR", List.of(new Tariff("Test", LocalTime.of(8, 0), LocalTime.of(8, 0), 1.0, 0.5))) // both start and end time are the same but not covering all times
         );
     }
 
