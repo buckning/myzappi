@@ -56,7 +56,9 @@
         </tbody>
     </table>
 
-    <button type="button" *ngIf="loaded" class="addTariffButton" (click)="addTariffRow()" id="addTariffButton">Add Tariff</button>
+    <button type="button" *ngIf="loaded" class="addTariffButton" (click)="addTariffRow()" id="addTariffButton">
+      {{ tariffRows.length > 0 ? '+' : 'Add tariff' }}
+    </button>
     <br><br>
 
     <div id="messageContainer" class="container" *ngIf="messageText !== ''">

@@ -11,6 +11,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -58,7 +59,7 @@ public class TariffService {
 
         int blockSize = 60 / resolution;
 
-        return tariffList.get((int)(Duration.between(LocalTime.of(0, 0), localTime).toMinutes() / blockSize));
+        return tariffList.get((int) (Duration.between(LocalTime.of(0, 0), localTime).toMinutes() / blockSize));
     }
 
     public List<Tariff> constructTariffList(List<Tariff> tariffsFromDb) {
@@ -71,6 +72,11 @@ public class TariffService {
 
         for (var tariff : tariffsFromDb) {
             var duration = Duration.between(tariff.getStart(), tariff.getEnd());
+
+            if (tariff.getStart().equals(LocalTime.of(0, 0)) &&
+                    tariff.getStart().equals(tariff.getEnd())) {
+                duration = Duration.of(24, ChronoUnit.HOURS);
+            }
 
             var minutes = duration.toMinutes();
 
