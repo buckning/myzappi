@@ -7,13 +7,15 @@ import { LoggedOutContentComponent } from './logged-out-content/logged-out-conte
 import { LoggedInContentComponent } from './logged-in-content/logged-in-content.component';
 import { HttpClientModule } from '@angular/common/http';
 import { RegisterPanelComponent } from './register-panel/register-panel.component';
+import { TariffPanelComponent } from './tariff-panel/tariff-panel.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     LoggedOutContentComponent,
     LoggedInContentComponent,
-    RegisterPanelComponent
+    RegisterPanelComponent,
+    TariffPanelComponent
   ],
   imports: [
     BrowserModule,

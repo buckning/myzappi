@@ -1,0 +1,66 @@
+<div id="tariffForm" class="tariffForm" (submit)="onSubmit()">
+    <h1>Enter your tariffs</h1>
+    <div>
+        Submit your tariff details here for Alexa to tell you your energy costs.
+        <br>
+        <i>"Alexa, ask my charger for an energy cost for today"</i>
+    </div>
+    <br>
+    <label for="currency">Currency:</label>
+    <select id="currency" name="currency" [(ngModel)]="tariffCurrency" required>
+        <option value="EUR">EUR</option>
+        <option value="GBP">GBP</option>
+    </select><br><br>
+
+    <h2 *ngIf="tariffRows.length > 0">Tariffs:</h2>
+
+    <table id="tariffTable" *ngIf="tariffRows.length > 0" class="tariffTable">
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Start Time</th>
+            <th>End Time</th>
+            <th>Import Cost per kWh</th>
+            <th>Export Cost per kWh</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let row of tariffRows; let i = index">
+                <td>
+                    <input type="text" name="name" class="tariffName" [(ngModel)]="row.name">
+                  </td>
+                  <td>
+                    <input type="string" name="start" placeholder="HH:mm" [(ngModel)]="row.start" [style.background-color]="isValidTime(row.start) ? '' : '#f8d7da'">
+                  </td>
+                  <td>
+                    <input type="string" name="end" placeholder="HH:mm" [(ngModel)]="row.end" [style.background-color]="isValidTime(row.end) ? '' : '#f8d7da'">
+                  </td>
+                  <td>
+                    <input type="number" step="0.0001" name="importCostPerKwh" min="0" [(ngModel)]="row.importCostPerKwh" [style.background-color]="isValidTariff(row.importCostPerKwh) ? '' : '#f8d7da'">
+                  </td>
+                  <td>
+                    <input type="number" step="0.0001" name="exportCostPerKwh" min="0" [(ngModel)]="row.exportCostPerKwh" [style.background-color]="isValidTariff(row.exportCostPerKwh) ? '' : '#f8d7da'">
+                  </td>
+                  <td>
+                    <button type="button" class="deleteButton" (click)="deleteTariffRow(i)">X</button>
+                  </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <button type="button" class="addTariffButton" (click)="addTariffRow()" id="addTariffButton">Add Tariff</button>
+    <br><br>
+
+    <div id="messageContainer" class="container" *ngIf="messageText !== ''">
+        <div class="errorMessage">{{messageText}}</div>
+        <br><br>
+    </div>
+
+    <div id="messageContainer" class="container" *ngIf="successMessageText !== ''">
+        <div class="successMessage">{{successMessageText}}</div>
+        <br><br>
+    </div>
+
+    <button type="submit" [disabled]="submitButtonDisabled || !isFormValid()" (click)="onSubmit()">Save Tariffs</button>
+</div>
