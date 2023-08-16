@@ -14,6 +14,7 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
 
@@ -33,38 +34,39 @@ class TariffRepositoryTest {
     private ArgumentCaptor<PutItemRequest> putItemCaptor;
 
     private TariffRepository repository;
+
     private final String testTariffString = "[\n" +
             "        {\n" +
-            "            \"startTime\": 0,\n" +
-            "            \"endTime\": 8,\n" +
+            "            \"start\": \"00:00\",\n" +
+            "            \"end\": \"08:00\",\n" +
             "            \"name\": \"Tariff1\",\n" +
             "            \"importCostPerKwh\": 0.2092,\n" +
             "            \"exportCostPerKwh\": 0.21\n" +
             "        },\n" +
             "        {\n" +
-            "            \"startTime\": 8,\n" +
-            "            \"endTime\": 17,\n" +
+            "            \"start\": \"08:00\",\n" +
+            "            \"end\": \"17:00\",\n" +
             "            \"name\": \"Tariff2\",\n" +
             "            \"importCostPerKwh\": 0.4241,\n" +
             "            \"exportCostPerKwh\": 0.10\n" +
             "        },\n" +
             "        {\n" +
-            "            \"startTime\": 17,\n" +
-            "            \"endTime\": 19,\n" +
+            "            \"start\": \"17:00\",\n" +
+            "            \"end\": \"19:00\",\n" +
             "            \"name\": \"Tariff3\",\n" +
             "            \"importCostPerKwh\": 0.5,\n" +
             "            \"exportCostPerKwh\": 0.2\n" +
             "        },\n" +
             "        {\n" +
-            "            \"startTime\": 19,\n" +
-            "            \"endTime\": 23,\n" +
+            "            \"start\": \"19:00\",\n" +
+            "            \"end\": \"23:00\",\n" +
             "            \"name\": \"Tariff4\",\n" +
             "            \"importCostPerKwh\": 10.01,\n" +
             "            \"exportCostPerKwh\": 5.21\n" +
             "        },\n" +
             "        {\n" +
-            "            \"startTime\": 23,\n" +
-            "            \"endTime\": 24,\n" +
+            "            \"start\": \"23:00\",\n" +
+            "            \"end\": \"24:00\",\n" +
             "            \"name\": \"Tariff5\",\n" +
             "            \"importCostPerKwh\": 2.9,\n" +
             "            \"exportCostPerKwh\": 0.7\n" +
@@ -107,28 +109,28 @@ class TariffRepositoryTest {
         assertThat(result.get().getCurrency()).isEqualTo("EUR");
         var tariffs = result.get().getTariffs();
         assertThat(tariffs).hasSize(5);
-        verifyTariffsAreEqual(tariffs.get(0), new Tariff("Tariff1", 0, 8, 0.2092, 0.21));
-        verifyTariffsAreEqual(tariffs.get(1), new Tariff("Tariff2", 8, 17, 0.4241, 0.1));
-        verifyTariffsAreEqual(tariffs.get(2), new Tariff("Tariff3", 17, 19, 0.5, 0.2));
-        verifyTariffsAreEqual(tariffs.get(3), new Tariff("Tariff4", 19, 23, 10.01, 5.21));
-        verifyTariffsAreEqual(tariffs.get(4), new Tariff("Tariff5", 23, 24, 2.9, 0.7));
+        verifyTariffsAreEqual(tariffs.get(0), new Tariff("Tariff1", LocalTime.of(0, 0), LocalTime.of(8, 0), 0.2092, 0.21));
+        verifyTariffsAreEqual(tariffs.get(1), new Tariff("Tariff2", LocalTime.of(8, 0), LocalTime.of(17, 0), 0.4241, 0.1));
+        verifyTariffsAreEqual(tariffs.get(2), new Tariff("Tariff3", LocalTime.of(17, 0), LocalTime.of(19, 0), 0.5, 0.2));
+        verifyTariffsAreEqual(tariffs.get(3), new Tariff("Tariff4", LocalTime.of(19, 0), LocalTime.of(23, 0), 10.01, 5.21));
+        verifyTariffsAreEqual(tariffs.get(4), new Tariff("Tariff5", LocalTime.of(23, 0), LocalTime.of(0, 0), 2.9, 0.7));
     }
 
     private void verifyTariffsAreEqual(Tariff tariffFromDb, Tariff expected) {
         assertThat(tariffFromDb.getName()).isEqualTo(expected.getName());
-        assertThat(tariffFromDb.getEndTime()).isEqualTo(expected.getEndTime());
-        assertThat(tariffFromDb.getStartTime()).isEqualTo(expected.getStartTime());
+        assertThat(tariffFromDb.getStart()).isEqualTo(expected.getStart());
+        assertThat(tariffFromDb.getEnd()).isEqualTo(expected.getEnd());
         assertThat(tariffFromDb.getExportCostPerKwh()).isEqualTo(expected.getExportCostPerKwh());
         assertThat(tariffFromDb.getImportCostPerKwh()).isEqualTo(expected.getImportCostPerKwh());
     }
 
     @Test
     void testWrite() {
-        var tariffs = List.of(new Tariff("Tariff1", 0, 8, 0.2092, 0.21),
-                new Tariff("Tariff2", 8, 17, 0.4241, 0.1),
-                new Tariff("Tariff3", 17, 19, 0.5, 0.2),
-                new Tariff("Tariff4", 19, 23, 10.01, 5.21),
-                new Tariff("Tariff5", 23, 24, 2.9, 0.7));
+        var tariffs = List.of(new Tariff("Tariff1", LocalTime.of(0, 0), LocalTime.of(8, 0), 0.2092, 0.21),
+                new Tariff("Tariff2", LocalTime.of(8, 0), LocalTime.of(17, 0), 0.4241, 0.1),
+                new Tariff("Tariff3", LocalTime.of(17, 0), LocalTime.of(19, 0), 0.5, 0.2),
+                new Tariff("Tariff4", LocalTime.of(19, 0), LocalTime.of(23, 0),10.01, 5.21),
+                new Tariff("Tariff5", LocalTime.of(23, 0), LocalTime.of(0, 0), 2.9, 0.7));
         var dayTariff = new DayTariff("EUR", tariffs);
         repository.write("testUser", dayTariff);
         verify(mockDb).putItem(putItemCaptor.capture());
@@ -138,10 +140,10 @@ class TariffRepositoryTest {
         assertThat(putItemCaptor.getValue().getItem().get("currency").getS()).isEqualTo("EUR");
         assertThat(putItemCaptor.getValue().getItem().get("user-id").getS()).isEqualTo("testUser");
         assertThat(putItemCaptor.getValue().getItem().get("tariffs").getS())
-                .isEqualTo("[{\"startTime\":0,\"endTime\":8,\"name\":\"Tariff1\",\"importCostPerKwh\":0.2092,\"exportCostPerKwh\":0.21}," +
-                        "{\"startTime\":8,\"endTime\":17,\"name\":\"Tariff2\",\"importCostPerKwh\":0.4241,\"exportCostPerKwh\":0.1}," +
-                        "{\"startTime\":17,\"endTime\":19,\"name\":\"Tariff3\",\"importCostPerKwh\":0.5,\"exportCostPerKwh\":0.2}," +
-                        "{\"startTime\":19,\"endTime\":23,\"name\":\"Tariff4\",\"importCostPerKwh\":10.01,\"exportCostPerKwh\":5.21}," +
-                        "{\"startTime\":23,\"endTime\":24,\"name\":\"Tariff5\",\"importCostPerKwh\":2.9,\"exportCostPerKwh\":0.7}]");
+                .isEqualTo("[{\"start\":\"00:00\",\"end\":\"08:00\",\"name\":\"Tariff1\",\"importCostPerKwh\":0.2092,\"exportCostPerKwh\":0.21}," +
+                        "{\"start\":\"08:00\",\"end\":\"17:00\",\"name\":\"Tariff2\",\"importCostPerKwh\":0.4241,\"exportCostPerKwh\":0.1}," +
+                        "{\"start\":\"17:00\",\"end\":\"19:00\",\"name\":\"Tariff3\",\"importCostPerKwh\":0.5,\"exportCostPerKwh\":0.2}," +
+                        "{\"start\":\"19:00\",\"end\":\"23:00\",\"name\":\"Tariff4\",\"importCostPerKwh\":10.01,\"exportCostPerKwh\":5.21}," +
+                        "{\"start\":\"23:00\",\"end\":\"00:00\",\"name\":\"Tariff5\",\"importCostPerKwh\":2.9,\"exportCostPerKwh\":0.7}]");
     }
 }

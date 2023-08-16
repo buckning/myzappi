@@ -1,16 +1,24 @@
 package com.amcglynn.myzappi.core.model;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+
+import java.time.LocalTime;
 
 @NoArgsConstructor
 @ToString
 public class Tariff {
     @Getter
-    private int startTime;
+    @JsonDeserialize(using = LocalTimeDeserializer.class)
+    @JsonSerialize(using = LocalTimeSerializer.class)
+    private LocalTime start;
     @Getter
-    private int endTime;
+    @JsonDeserialize(using = LocalTimeDeserializer.class)
+    @JsonSerialize(using = LocalTimeSerializer.class)
+    private LocalTime end;
     @Getter
     private String name;
     @Getter
@@ -18,11 +26,19 @@ public class Tariff {
     @Getter
     private double exportCostPerKwh;
 
-    public Tariff(String name, int startTime, int endTime, double importCostPerKwh, double exportCostPerKwh) {
+    public Tariff(String name, LocalTime startTime, LocalTime endTime, double importCostPerKwh, double exportCostPerKwh) {
         this.name = name;
         this.importCostPerKwh = importCostPerKwh;
         this.exportCostPerKwh = exportCostPerKwh;
-        this.startTime = startTime;
-        this.endTime = endTime;
+        this.start = startTime;
+        this.end = endTime;
+    }
+
+    public LocalTime getStart() {
+        return start;
+    }
+
+    public LocalTime getEnd() {
+        return end;
     }
 }

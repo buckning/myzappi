@@ -32,6 +32,7 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -114,7 +115,7 @@ class GetEnergyCostHandlerTest {
         initIntentRequest(LocalDate.of(2023, 2, 20));
 
         var dayCost = new DayCost("EUR");
-        var tariff = new Tariff("MockTariff", 0, 24, 1, 1);
+        var tariff = new Tariff("MockTariff", LocalTime.of(0, 0), LocalTime.of(0, 0), 1, 1);
         dayCost.add(new EnergyCostHourSummary(tariff, new ZappiHistory(2023, 1, 6, 0, 0, "Monday",
                 3600000L, 7200000L, 3600000L, 3600000L, 3600000L)));
 
@@ -136,7 +137,7 @@ class GetEnergyCostHandlerTest {
         initIntentRequest(LocalDate.of(2023, 2, 20));
 
         var dayCost = new DayCost("EUR");
-        var tariff = new Tariff("MockTariff", 0, 24, 1, 1);
+        var tariff = new Tariff("MockTariff", LocalTime.of(0, 0), LocalTime.of(0, 0), 1, 1);
         dayCost.add(new EnergyCostHourSummary(tariff, new ZappiHistory(2023, 1, 6, 0, 0, "Monday",
                 3600000L, 3600000L, 3600000L, 3600000L, 7200000L)));
 
@@ -158,7 +159,7 @@ class GetEnergyCostHandlerTest {
         initIntentRequest(LocalDate.of(2023, 2, 20));
 
         var dayCost = new DayCost("GBP");
-        var tariff = new Tariff("MockTariff", 0, 24, 1, 1);
+        var tariff = new Tariff("MockTariff", LocalTime.of(0, 0), LocalTime.of(0, 0), 1, 1);
         dayCost.add(new EnergyCostHourSummary(tariff, new ZappiHistory(2023, 1, 6, 0, 0, "Monday",
                 3600000L, 3600000L, 3600000L, 3600000L, 7200000L)));
 

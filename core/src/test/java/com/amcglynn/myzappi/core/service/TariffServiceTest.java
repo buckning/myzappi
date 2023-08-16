@@ -11,6 +11,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
@@ -58,8 +59,8 @@ class TariffServiceTest {
     @Test
     void calculateCost() {
         var dayTariff = new DayTariff("EUR",
-                List.of(new Tariff("Tariff1", 0, 8, 0.5, 0.25),
-                        new Tariff("Tariff2", 8, 24, 0.75, 0.5)));
+                List.of(new Tariff("Tariff1", LocalTime.of(0, 0), LocalTime.of(8, 0), 0.5, 0.25),
+                        new Tariff("Tariff2", LocalTime.of(8, 0), LocalTime.of(0, 0), 0.75, 0.5)));
 
         List<ZappiHistory> hourlyHistory = List.of(getZappiHistory(0),
                 getZappiHistory(1),
@@ -80,8 +81,8 @@ class TariffServiceTest {
     @Test
     void calculateCostForSecondTariff() {
         var dayTariff = new DayTariff("EUR",
-                List.of(new Tariff("Tariff1", 0, 8, 0.5, 0.25),
-                        new Tariff("Tariff2", 8, 24, 0.75, 0.5)));
+                List.of(new Tariff("Tariff1", LocalTime.of(0, 0), LocalTime.of(8, 0), 0.5, 0.25),
+                        new Tariff("Tariff2", LocalTime.of(8, 0), LocalTime.of(0, 0), 0.75, 0.5)));
 
         List<ZappiHistory> hourlyHistory = List.of(getZappiHistory(10),
                 getZappiHistory(11),
@@ -102,8 +103,8 @@ class TariffServiceTest {
     @Test
     void calculateCostForBothTariffs() {
         var dayTariff = new DayTariff("EUR",
-                List.of(new Tariff("Tariff1", 0, 8, 0.5, 0.25),
-                        new Tariff("Tariff2", 8, 24, 0.75, 0.5)));
+                List.of(new Tariff("Tariff1", LocalTime.of(0, 0), LocalTime.of(8, 0), 0.5, 0.25),
+                        new Tariff("Tariff2", LocalTime.of(8, 0), LocalTime.of(0, 0), 0.75, 0.5)));
 
         List<ZappiHistory> hourlyHistory = List.of(getZappiHistory(0),
                 getZappiHistory(1),
@@ -122,8 +123,8 @@ class TariffServiceTest {
     @Test
     void calculateCostForDst() {
         var dayTariff = new DayTariff("EUR",
-                List.of(new Tariff("Tariff1", 0, 8, 0.0, 0.0),
-                        new Tariff("Tariff2", 8, 24, 0.75, 0.5)));
+                List.of(new Tariff("Tariff1", LocalTime.of(0, 0), LocalTime.of(8, 0), 0.0, 0.0),
+                        new Tariff("Tariff2", LocalTime.of(8, 0), LocalTime.of(0, 0), 0.75, 0.5)));
 
         List<ZappiHistory> hourlyHistory = List.of(getZappiHistory(7));    // 7 UTC is 8 local time so Tariff2 should be used
         var dayCost = service.calculateCost(dayTariff, hourlyHistory, localDateWithDst, zoneId);
@@ -137,10 +138,10 @@ class TariffServiceTest {
     void calculateCostWithoutDst() {
         // this is the same as the previous test but the date is different. DST changed on March 26th 2023.
         var dayTariff = new DayTariff("EUR",
-                List.of(new Tariff("Tariff1", 0, 8, 0.0, 0.0),
-                        new Tariff("Tariff2", 8, 24, 0.75, 0.5)));
+                List.of(new Tariff("Tariff1", LocalTime.of(0, 0), LocalTime.of(8, 0), 0.0, 0.0),
+                        new Tariff("Tariff2", LocalTime.of(8, 0), LocalTime.of(0, 0), 0.75, 0.5)));
 
-        List<ZappiHistory> hourlyHistory = List.of(getZappiHistory(7));    // 7 UTC is 8 local time so Tariff2 should be used
+        List<ZappiHistory> hourlyHistory = List.of(getZappiHistory(7, 5));    // 7 UTC is 8 local time so Tariff2 should be used
         var dayCost = service.calculateCost(dayTariff, hourlyHistory, localDate, zoneId);
 
         assertThat(dayCost.getExportCost()).isEqualTo(0.0);
@@ -151,18 +152,86 @@ class TariffServiceTest {
     @Test
     void calculateCostWithHistorySpanningTwoTariffs() {
         var dayTariff = new DayTariff("EUR",
-                List.of(new Tariff("Night1", 0, 8, 0.0, 0.0),
-                        new Tariff("Day1", 8, 17, 1, 5),
-                        new Tariff("Peak", 17, 19, 7, 20),
-                        new Tariff("Day2", 19, 23, 3, 3),
-                        new Tariff("Night2", 23, 24, 0.5, 0.5)));
+                List.of(new Tariff("Night1", LocalTime.of(0, 0), LocalTime.of(8, 0), 0.0, 0.0),
+                        new Tariff("Day1", LocalTime.of(8, 0), LocalTime.of(17, 0), 1, 5),
+                        new Tariff("Peak", LocalTime.of(17, 0), LocalTime.of(19, 0), 7, 20),
+                        new Tariff("Day2", LocalTime.of(19, 0), LocalTime.of(23, 0), 3, 3),
+                        new Tariff("Night2", LocalTime.of(23, 0), LocalTime.of(0, 0), 0.5, 0.5)));
 
         var hourlyHistory = new ArrayList<ZappiHistory>();
-        IntStream.range(0, 8).forEach(i -> hourlyHistory.add(getZappiHistoryWith1KWH(i)));
+        IntStream.range(0, 8).forEach(i -> hourlyHistory.add(getZappiHistoryWith1KWH(i, 59)));
         var dayCost = service.calculateCost(dayTariff, hourlyHistory, localDateWithDst, zoneId);
         // zappi history hours are from 0 - 8 UTC (1 - 9 local), 7 hours in Night1 and 1 hour in Day1
         assertThat(dayCost.getImportCost()).isEqualTo(1);
         assertThat(dayCost.getExportCost()).isEqualTo(5);
+    }
+
+    @Test
+    void testBuildList() {
+        var tariff1 = new Tariff("Night1", LocalTime.of(0, 0), LocalTime.of(8, 0), 0.0, 0.0);
+        Tariff tariff2 = new Tariff("Day1", LocalTime.of(8, 0), LocalTime.of(17, 0), 1, 5);
+        Tariff tariff3 = new Tariff("Peak", LocalTime.of(17, 0), LocalTime.of(19, 0), 7, 20);
+        Tariff tariff4 = new Tariff("Day2", LocalTime.of(19, 0), LocalTime.of(23, 0), 3, 3);
+        Tariff tariff5 = new Tariff("Night2", LocalTime.of(23, 0), LocalTime.of(0, 0), 0.5, 0.5);
+        var tariffsFromDb = List.of(tariff1,
+                tariff2,
+                tariff3,
+                tariff4,
+                tariff5);
+        var results = service.constructTariffList(tariffsFromDb);
+        assertThat(results).hasSize(48);
+
+        for (int i = 0; i < 16; i++) {
+            assertThat(results.get(i)).isEqualTo(tariff1);
+        }
+
+        for (int i = 16; i < 34; i++) {
+            assertThat(results.get(i)).isEqualTo(tariff2);
+        }
+
+        for (int i = 34; i < 38; i++) {
+            assertThat(results.get(i)).isEqualTo(tariff3);
+        }
+
+        for (int i = 38; i < 46; i++) {
+            assertThat(results.get(i)).isEqualTo(tariff4);
+        }
+
+        for (int i = 46; i < 48; i++) {
+            assertThat(results.get(i)).isEqualTo(tariff5);
+        }
+    }
+
+    @Test
+    void testGetIndex() {
+        var tariff1 = new Tariff("Night1", LocalTime.of(0, 0), LocalTime.of(8, 30), 0.0, 0.0);
+        Tariff tariff2 = new Tariff("Day1", LocalTime.of(8, 30), LocalTime.of(17, 0), 1, 5);
+        Tariff tariff3 = new Tariff("Peak", LocalTime.of(17, 0), LocalTime.of(19, 0), 7, 20);
+        Tariff tariff4 = new Tariff("Day2", LocalTime.of(19, 0), LocalTime.of(23, 0), 3, 3);
+        Tariff tariff5 = new Tariff("Night2", LocalTime.of(23, 0), LocalTime.of(0, 0), 0.5, 0.5);
+        var tariffs = List.of(tariff1,
+                tariff2,
+                tariff3,
+                tariff4,
+                tariff5);
+
+        var tariffList = service.constructTariffList(tariffs);
+
+        assertThat(service.getTariff(LocalTime.of(0, 0), tariffList)).isEqualTo(tariff1);
+        assertThat(service.getTariff(LocalTime.of(4, 30), tariffList)).isEqualTo(tariff1);
+        assertThat(service.getTariff(LocalTime.of(8, 29), tariffList)).isEqualTo(tariff1);
+        assertThat(service.getTariff(LocalTime.of(8, 30), tariffList)).isEqualTo(tariff2);
+        assertThat(service.getTariff(LocalTime.of(12, 0), tariffList)).isEqualTo(tariff2);
+        assertThat(service.getTariff(LocalTime.of(16, 59), tariffList)).isEqualTo(tariff2);
+        assertThat(service.getTariff(LocalTime.of(17, 0), tariffList)).isEqualTo(tariff3);
+        assertThat(service.getTariff(LocalTime.of(18, 0), tariffList)).isEqualTo(tariff3);
+        assertThat(service.getTariff(LocalTime.of(18, 59), tariffList)).isEqualTo(tariff3);
+        assertThat(service.getTariff(LocalTime.of(19, 0), tariffList)).isEqualTo(tariff4);
+        assertThat(service.getTariff(LocalTime.of(21, 0), tariffList)).isEqualTo(tariff4);
+        assertThat(service.getTariff(LocalTime.of(22, 59), tariffList)).isEqualTo(tariff4);
+        assertThat(service.getTariff(LocalTime.of(23, 0), tariffList)).isEqualTo(tariff5);
+        assertThat(service.getTariff(LocalTime.of(23, 30), tariffList)).isEqualTo(tariff5);
+        assertThat(service.getTariff(LocalTime.of(23, 59), tariffList)).isEqualTo(tariff5);
     }
 
     private ZappiHistory getZappiHistory(int hour) {
@@ -171,8 +240,14 @@ class TariffServiceTest {
 
     }
 
-    private ZappiHistory getZappiHistoryWith1KWH(int hour) {
-        return new ZappiHistory(2023, 1, 1, hour, 0, "Monday", 3600000L, 3600000L,
+    private ZappiHistory getZappiHistory(int hour, int minute) {
+        return new ZappiHistory(2023, 1, 1, hour, minute, "Monday", 10800000L, 3600000L,
+                1800000L, 7200000L, 9000000L);
+
+    }
+
+    private ZappiHistory getZappiHistoryWith1KWH(int hour, int minute) {
+        return new ZappiHistory(2023, 1, 1, hour, minute, "Monday", 3600000L, 3600000L,
                 3600000L, 3600000L, 3600000L);
 
     }

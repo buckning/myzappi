@@ -21,10 +21,10 @@ export class LoggedOutContentComponent {
     };
 
     amazon.Login.setClientId('amzn1.application-oa2-client.d5625b3b0b334a388b07e0f70895ab84');
-      // amazon.Login.authorize(options,
-      //       'https://www.myzappiunofficial.com');
+      amazon.Login.authorize(options,
+            'https://www.myzappiunofficial.com');
 
-        amazon.Login.authorize(options,
-            'http://localhost:4200');
+        // amazon.Login.authorize(options,
+        //     'http://localhost:4200');
   }
 }

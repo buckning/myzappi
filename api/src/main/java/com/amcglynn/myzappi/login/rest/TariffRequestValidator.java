@@ -1,14 +1,19 @@
 package com.amcglynn.myzappi.login.rest;
 
 import com.amcglynn.myzappi.core.model.Tariff;
+import com.amcglynn.myzappi.core.service.TariffService;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Slf4j
 public class TariffRequestValidator {
+
+    private final TariffService tariffService;
+
+    public TariffRequestValidator(TariffService tariffService) {
+        this.tariffService = tariffService;
+    }
 
     private final List<String> SUPPORTED_CURRENCIES = List.of("EUR", "GBP");
     public void validate(String currency, List<Tariff> tariffs) {
@@ -16,25 +21,27 @@ public class TariffRequestValidator {
         validateSize(tariffs);
         validateCurrency(currency);
 
-        var hourlyTariffs = new HashMap<Integer, Tariff>();
-
         // loop over each and make sure there's no overlap
         for (var tariff : tariffs) {
             validateTariffName(tariff);
-            validateTariffTimes(tariff);
             validateKwCost(tariff);
-
-            // get all hours from start to end
-            for (int i = tariff.getStartTime(); i < tariff.getEndTime(); i++) {
-                var existingTariff = hourlyTariffs.get(i);
-                if (existingTariff != null) {
-                    log.info("Overlap found in tariff for time {}", i);
-                    throw new ServerException(400);
-                }
-                hourlyTariffs.put(i, tariff);
-            }
+            validateTariff(tariff);
         }
-        validateOnly24HoursAreCovered(hourlyTariffs);
+        var listIntervals = tariffService.constructTariffList(tariffs);
+
+        validateOnly24HoursAreCovered(listIntervals);
+    }
+
+    private void validateTariff(Tariff tariff) {
+        if (tariff.getStart() == null) {
+            log.info("start is null");
+            throw new ServerException(400);
+        }
+
+        if (tariff.getEnd() == null) {
+            log.info("end is null");
+            throw new ServerException(400);
+        }
     }
 
     private void validateTariffName(Tariff tariff) {
@@ -58,27 +65,8 @@ public class TariffRequestValidator {
         }
     }
 
-    private void validateTariffTimes(Tariff tariff) {
-        validateStartTime(tariff);
-        validateEndTime(tariff);
-    }
-
-    private void validateStartTime(Tariff tariff) {
-        if (tariff.getStartTime() < 0 || tariff.getStartTime() > 23) {
-            log.info("Invalid start time {}", tariff.getStartTime());
-            throw new ServerException(400);
-        }
-    }
-
-    private void validateEndTime(Tariff tariff) {
-        if (tariff.getEndTime() < 1 || tariff.getEndTime() > 24) {
-            log.info("Invalid end time {}", tariff.getEndTime());
-            throw new ServerException(400);
-        }
-    }
-
-    private void validateOnly24HoursAreCovered(Map<Integer, Tariff> hourlyTariffs) {
-        if (hourlyTariffs.size() != 24) {
+    private void validateOnly24HoursAreCovered(List<Tariff> hourlyTariffs) {
+        if (hourlyTariffs.size() != 48) {
             log.info("Specified tariffs do not cover the complete day");
             throw new ServerException(400);
         }
@@ -92,7 +80,7 @@ public class TariffRequestValidator {
     }
 
     private void validateSize(List<Tariff> tariffs) {
-        if (tariffs.size() > 24) {
+        if (tariffs.size() > 48) {
             log.info("Invalid tariff size {}", tariffs.size());
             throw new ServerException(400);
         }

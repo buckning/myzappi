@@ -18,7 +18,7 @@ public class TariffController implements RestController {
 
     public TariffController(TariffService tariffService) {
         this.tariffService = tariffService;
-        this.validator = new TariffRequestValidator();
+        this.validator = new TariffRequestValidator(tariffService);
     }
 
 
