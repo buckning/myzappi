@@ -111,27 +111,6 @@ export class TariffPanelComponent {
       });
   }
 
-//   updateTariffRowsFromForm(): void {
-//     const updatedRows = [];
-//     const rows = this.tariffRows; // Get reference to the existing rows
-
-//     for (const row of rows) {
-//         const updatedRow: Tariff = {
-//             name: row.name,
-//             start: row.startTime,
-//             end: row.endTime,
-//             importCostPerKwh: row.importCostPerKwh,
-//             exportCostPerKwh: row.exportCostPerKwh,
-//         };
-
-//         updatedRows.push(updatedRow);
-//     }
-
-//     this.tariffRows = updatedRows; // Update the tariffRows array
-// }
-
-
-
   isValidTime(time: string): boolean {
     const timePattern = /^(00|01|02|03|04|05|06|07|08|09|1[0-9]|2[0-4]):([03]0)$/;
     return timePattern.test(time);

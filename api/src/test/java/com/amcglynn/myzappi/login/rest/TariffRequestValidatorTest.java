@@ -16,13 +16,13 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
-class TariffRequestValidatorV2Test {
+class TariffRequestValidatorTest {
 
-    private TariffRequestValidatorV2 validator;
+    private TariffRequestValidator validator;
 
     @BeforeEach
     void setUp() {
-        validator = new TariffRequestValidatorV2(new TariffService(null));
+        validator = new TariffRequestValidator(new TariffService(null));
     }
 
     @MethodSource("invalidTariffs")

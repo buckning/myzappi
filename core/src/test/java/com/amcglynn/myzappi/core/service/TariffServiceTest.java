@@ -65,7 +65,7 @@ class TariffServiceTest {
         List<ZappiHistory> hourlyHistory = List.of(getZappiHistory(0),
                 getZappiHistory(1),
                 getZappiHistory(2));
-        var dayCost = service.calculateCostV2(dayTariff, hourlyHistory, localDate, zoneId);
+        var dayCost = service.calculateCost(dayTariff, hourlyHistory, localDate, zoneId);
 
         // import is 7.5kWh (3 x 9000000L = (2.5kWh). Import tariff = 0.5. Cost = 7.5 x 0.5 = 3.75
         assertThat(dayCost.getImportCost()).isEqualTo(3.75);
@@ -87,7 +87,7 @@ class TariffServiceTest {
         List<ZappiHistory> hourlyHistory = List.of(getZappiHistory(10),
                 getZappiHistory(11),
                 getZappiHistory(12));
-        var dayCost = service.calculateCostV2(dayTariff, hourlyHistory, localDate, zoneId);
+        var dayCost = service.calculateCost(dayTariff, hourlyHistory, localDate, zoneId);
 
         // import is 7.5kWh (3 x 9000000L = (2.5kWh). Import tariff = 0.75. Cost = 7.5 x 0.75 = 5.625
         assertThat(dayCost.getImportCost()).isEqualTo(5.625);
@@ -112,7 +112,7 @@ class TariffServiceTest {
                 getZappiHistory(10),
                 getZappiHistory(11),
                 getZappiHistory(12));
-        var dayCost = service.calculateCostV2(dayTariff, hourlyHistory, localDate, zoneId);
+        var dayCost = service.calculateCost(dayTariff, hourlyHistory, localDate, zoneId);
 
         assertThat(dayCost.getImportCost()).isEqualTo(9.375);   // this is a combination of import costs from the previous 2 tests
         assertThat(dayCost.getExportCost()).isEqualTo(2.25);    // this is a combination of export costs from the previous 2 tests
@@ -127,7 +127,7 @@ class TariffServiceTest {
                         new Tariff("Tariff2", LocalTime.of(8, 0), LocalTime.of(0, 0), 0.75, 0.5)));
 
         List<ZappiHistory> hourlyHistory = List.of(getZappiHistory(7));    // 7 UTC is 8 local time so Tariff2 should be used
-        var dayCost = service.calculateCostV2(dayTariff, hourlyHistory, localDateWithDst, zoneId);
+        var dayCost = service.calculateCost(dayTariff, hourlyHistory, localDateWithDst, zoneId);
 
         assertThat(dayCost.getExportCost()).isEqualTo(0.5);
 
@@ -142,7 +142,7 @@ class TariffServiceTest {
                         new Tariff("Tariff2", LocalTime.of(8, 0), LocalTime.of(0, 0), 0.75, 0.5)));
 
         List<ZappiHistory> hourlyHistory = List.of(getZappiHistory(7, 5));    // 7 UTC is 8 local time so Tariff2 should be used
-        var dayCost = service.calculateCostV2(dayTariff, hourlyHistory, localDate, zoneId);
+        var dayCost = service.calculateCost(dayTariff, hourlyHistory, localDate, zoneId);
 
         assertThat(dayCost.getExportCost()).isEqualTo(0.0);
 
@@ -160,7 +160,7 @@ class TariffServiceTest {
 
         var hourlyHistory = new ArrayList<ZappiHistory>();
         IntStream.range(0, 8).forEach(i -> hourlyHistory.add(getZappiHistoryWith1KWH(i, 59)));
-        var dayCost = service.calculateCostV2(dayTariff, hourlyHistory, localDateWithDst, zoneId);
+        var dayCost = service.calculateCost(dayTariff, hourlyHistory, localDateWithDst, zoneId);
         // zappi history hours are from 0 - 8 UTC (1 - 9 local), 7 hours in Night1 and 1 hour in Day1
         assertThat(dayCost.getImportCost()).isEqualTo(1);
         assertThat(dayCost.getExportCost()).isEqualTo(5);

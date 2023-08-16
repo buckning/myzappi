@@ -1,7 +1,6 @@
 # Welcome to MyZappi!
 
 ## Next Features
-* Add 30 minute support to tariffs
 * Add scheduled charging
 ** Set up an SQS queue.
 ** Add a new intent handler

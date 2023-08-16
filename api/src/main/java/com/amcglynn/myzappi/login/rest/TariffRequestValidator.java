@@ -4,16 +4,14 @@ import com.amcglynn.myzappi.core.model.Tariff;
 import com.amcglynn.myzappi.core.service.TariffService;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Slf4j
-public class TariffRequestValidatorV2 {
+public class TariffRequestValidator {
 
     private final TariffService tariffService;
 
-    public TariffRequestValidatorV2(TariffService tariffService) {
+    public TariffRequestValidator(TariffService tariffService) {
         this.tariffService = tariffService;
     }
 

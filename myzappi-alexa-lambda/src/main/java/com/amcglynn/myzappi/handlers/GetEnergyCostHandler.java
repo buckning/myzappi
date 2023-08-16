@@ -69,8 +69,7 @@ public class GetEnergyCostHandler implements RequestHandler {
 
         // Tariffs are local time and history is UTC. This needs to be converted first so date and time zone need to be
         // handled in the cost calculation
-//        var cost = tariffService.calculateCost(dayTariff, history, localDate, userTimeZone);
-        var cost = tariffService.calculateCostV2(dayTariff, history, localDate, userTimeZone);
+        var cost = tariffService.calculateCost(dayTariff, history, localDate, userTimeZone);
 
         return handlerInput.getResponseBuilder()
                 .withSpeech(new ZappiEnergyCostVoiceResponse(cost).toString())

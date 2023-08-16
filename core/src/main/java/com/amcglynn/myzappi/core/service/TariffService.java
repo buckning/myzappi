@@ -36,7 +36,7 @@ public class TariffService {
         tariffRepository.write(userId, dayTariff);
     }
 
-    public DayCost calculateCostV2(DayTariff tariffFromDb, List<ZappiHistory> hourlyEnergyUsage,
+    public DayCost calculateCost(DayTariff tariffFromDb, List<ZappiHistory> hourlyEnergyUsage,
                                  LocalDate localDate, ZoneId zoneId) {
         var dayCost = new DayCost(tariffFromDb.getCurrency());
         var tariffList = constructTariffList(tariffFromDb.getTariffs());

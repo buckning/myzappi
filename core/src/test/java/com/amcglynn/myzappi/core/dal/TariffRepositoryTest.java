@@ -35,7 +35,7 @@ class TariffRepositoryTest {
 
     private TariffRepository repository;
 
-    private final String testTariffV2String = "[\n" +
+    private final String testTariffString = "[\n" +
             "        {\n" +
             "            \"start\": \"00:00\",\n" +
             "            \"end\": \"08:00\",\n" +
@@ -101,7 +101,7 @@ class TariffRepositoryTest {
     @Test
     void testReadForUserWhoHasEntryInDb() {
         when(mockGetResult.getItem()).thenReturn(Map.of("user-id", new AttributeValue("testuser"),
-                "tariffs", new AttributeValue(testTariffV2String),
+                "tariffs", new AttributeValue(testTariffString),
                 "currency", new AttributeValue("EUR")));
         when(mockDb.getItem(any())).thenReturn(mockGetResult);
         var result = repository.read("userid");

@@ -120,7 +120,7 @@ class GetEnergyCostHandlerTest {
                 3600000L, 7200000L, 3600000L, 3600000L, 3600000L)));
 
         when(mockTariffService.get(anyString())).thenReturn(Optional.of(new DayTariff("EUR", List.of(tariff))));
-        when(mockTariffService.calculateCostV2(any(), any(), any(), any())).thenReturn(dayCost);
+        when(mockTariffService.calculateCost(any(), any(), any(), any())).thenReturn(dayCost);
 
         var response = handler.handle(handlerInputBuilder().build());
         verifySpeechInResponse(response.get(), "<speak>Total credit is 1 Euro and 0 cent. You imported 1 Euro " +
@@ -142,7 +142,7 @@ class GetEnergyCostHandlerTest {
                 3600000L, 3600000L, 3600000L, 3600000L, 7200000L)));
 
         when(mockTariffService.get(anyString())).thenReturn(Optional.of(new DayTariff("EUR", List.of(tariff))));
-        when(mockTariffService.calculateCostV2(any(), any(), any(), any())).thenReturn(dayCost);
+        when(mockTariffService.calculateCost(any(), any(), any(), any())).thenReturn(dayCost);
 
         var response = handler.handle(handlerInputBuilder().build());
         verifySpeechInResponse(response.get(), "<speak>Total cost is 1 Euro and 0 cent. You imported 2 Euro " +
@@ -164,7 +164,7 @@ class GetEnergyCostHandlerTest {
                 3600000L, 3600000L, 3600000L, 3600000L, 7200000L)));
 
         when(mockTariffService.get(anyString())).thenReturn(Optional.of(new DayTariff("EUR", List.of(tariff))));
-        when(mockTariffService.calculateCostV2(any(), any(), any(), any())).thenReturn(dayCost);
+        when(mockTariffService.calculateCost(any(), any(), any(), any())).thenReturn(dayCost);
 
         var response = handler.handle(handlerInputBuilder().build());
         verifySpeechInResponse(response.get(), "<speak>Total cost is 1 Pound and 0 pence. You imported 2 Pounds " +
@@ -188,7 +188,7 @@ class GetEnergyCostHandlerTest {
     @Test
     void testHandleUsesCurrentDateIfNoDateIsSpecified() {
         when(mockTariffService.get(anyString())).thenReturn(Optional.of(new DayTariff("EUR", List.of())));
-        when(mockTariffService.calculateCostV2(any(), any(), any(), any())).thenReturn(new DayCost("EUR"));
+        when(mockTariffService.calculateCost(any(), any(), any(), any())).thenReturn(new DayCost("EUR"));
         var result = handler.handle(handlerInputBuilder().build());
         assertThat(result).isPresent();
         verify(mockZappiService).getHistory(LocalDate.now(), ZoneId.of("Europe/Dublin"));
