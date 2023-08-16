@@ -35,6 +35,7 @@ export class TariffPanelComponent {
   submitButtonDisabled:boolean = false;
   messageText = '';
   successMessageText = '';
+  loaded:boolean = false;
 
   constructor(private http: HttpClient) {}
 
@@ -54,6 +55,7 @@ export class TariffPanelComponent {
         console.log("Got tariff details: " + data);
         this.tariffRows = data.tariffs;
         this.tariffCurrency = data.currency;
+        this.loaded = true;
       },
       error => {
         console.log("failed to get tariff details " + error.status);
@@ -61,6 +63,7 @@ export class TariffPanelComponent {
 
           // if not 404, there is something wrong and it should not be editable
         this.editable = true;
+        this.loaded = true;
       });
   }
 

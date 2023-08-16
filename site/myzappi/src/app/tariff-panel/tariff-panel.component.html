@@ -5,9 +5,16 @@
         <br>
         <i>"Alexa, ask my charger for an energy cost for today"</i>
     </div>
+
+    <div *ngIf="!loaded">
+        <p>
+            Loading your tariffs...
+        </p>
+    </div>
+
     <br>
-    <label for="currency">Currency:</label>
-    <select id="currency" name="currency" [(ngModel)]="tariffCurrency" required>
+    <label *ngIf="loaded" for="currency">Currency:</label>
+    <select *ngIf="loaded" id="currency" name="currency" [(ngModel)]="tariffCurrency" required>
         <option value="EUR">EUR</option>
         <option value="GBP">GBP</option>
     </select><br><br>
@@ -49,7 +56,7 @@
         </tbody>
     </table>
 
-    <button type="button" class="addTariffButton" (click)="addTariffRow()" id="addTariffButton">Add Tariff</button>
+    <button type="button" *ngIf="loaded" class="addTariffButton" (click)="addTariffRow()" id="addTariffButton">Add Tariff</button>
     <br><br>
 
     <div id="messageContainer" class="container" *ngIf="messageText !== ''">
@@ -62,5 +69,5 @@
         <br><br>
     </div>
 
-    <button type="submit" [disabled]="submitButtonDisabled || !isFormValid()" (click)="onSubmit()">Save Tariffs</button>
+    <button type="submit" *ngIf="loaded" [disabled]="submitButtonDisabled || !isFormValid()" (click)="onSubmit()">Save Tariffs</button>
 </div>
