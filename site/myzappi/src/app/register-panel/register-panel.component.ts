@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 @Component({
@@ -7,10 +7,10 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
   styleUrls: ['./register-panel.component.css']
 })
 export class RegisterPanelComponent {
+  @Input() public bearerToken: any;
   serialNumberText: string = '';
   apiKeyText: string = '';
   buttonDisabled:boolean = false;
-  bearerToken = '';
   messageText = '';
   registrationComplete = false;
 
