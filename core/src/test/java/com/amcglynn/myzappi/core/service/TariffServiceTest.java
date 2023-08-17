@@ -165,6 +165,23 @@ class TariffServiceTest {
         assertThat(dayCost.getImportCost()).isEqualTo(1);
         assertThat(dayCost.getExportCost()).isEqualTo(5);
     }
+    @Test
+    void testBuildListAndGetTariffsForTariffsThatDoNotStartAtMidnight() {
+        var dayTariff = new Tariff("Day", LocalTime.of(04, 30), LocalTime.of(0, 30), 0.0, 0.0);
+        Tariff nightTariff = new Tariff("Night", LocalTime.of(0, 30), LocalTime.of(4, 30), 1, 5);
+        var tariffsFromDb = List.of(dayTariff,
+                nightTariff);
+        var results = service.constructTariffList(tariffsFromDb);
+        assertThat(results).hasSize(48);
+        assertThat(service.getTariff(LocalTime.of(0, 0), results)).isEqualTo(dayTariff);
+        assertThat(service.getTariff(LocalTime.of(0, 29), results)).isEqualTo(dayTariff);
+        assertThat(service.getTariff(LocalTime.of(0, 30), results)).isEqualTo(nightTariff);
+        assertThat(service.getTariff(LocalTime.of(2, 0), results)).isEqualTo(nightTariff);
+        assertThat(service.getTariff(LocalTime.of(04, 29), results)).isEqualTo(nightTariff);
+        assertThat(service.getTariff(LocalTime.of(04, 30), results)).isEqualTo(dayTariff);
+        assertThat(service.getTariff(LocalTime.of(8, 30), results)).isEqualTo(dayTariff);
+        assertThat(service.getTariff(LocalTime.of(23, 59), results)).isEqualTo(dayTariff);
+    }
 
     @Test
     void testBuildList() {
