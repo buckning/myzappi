@@ -13,6 +13,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -63,11 +64,11 @@ public class TariffService {
     }
 
     public List<Tariff> constructTariffList(List<Tariff> tariffsFromDb) {
-        List<Tariff> results = new ArrayList<>();
 
         // This variable controls what type of resolution is used for tariffs. 1 means there is just 1 tariff per hour, 2 means 2 per hour or one per 30 mins
         int resolution = 2; // should be less than or equal to 6 (10 minutes). It must be a number that evenly divides into 60.
 
+        Tariff[] results = new Tariff[resolution * 24];
         int blockSize = 60 / resolution;
 
         for (var tariff : tariffsFromDb) {
@@ -89,10 +90,11 @@ public class TariffService {
 
             var stepCount = minutes / blockSize;
             for (int i = 0; i < stepCount; i++) {
-                results.add(tariff);
+                var index = (int) Duration.between(LocalTime.of(0, 0), tariff.getStart().plus(blockSize * i, ChronoUnit.MINUTES)).toMinutes() / blockSize;
+                results[index] = tariff;
             }
         }
 
-        return results;
+        return new ArrayList<>(Arrays.asList(results));
     }
 }

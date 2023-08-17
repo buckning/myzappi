@@ -66,7 +66,7 @@ public class TariffRequestValidator {
     }
 
     private void validateOnly24HoursAreCovered(List<Tariff> hourlyTariffs) {
-        if (hourlyTariffs.size() != 48) {
+        if (hourlyTariffs.contains(null)) {
             log.info("Specified tariffs do not cover the complete day");
             throw new ServerException(400);
         }

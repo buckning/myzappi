@@ -50,7 +50,7 @@ class TariffRequestValidatorTest {
                 Arguments.of("EUR", List.of()),  // empty list
                 Arguments.of("EUR", List.of()),  // null list
                 Arguments.of("EUR", generateTariffs(25)),  // list too big
-                Arguments.of("EUR", List.of(new Tariff("Test", LocalTime.of(0, 0), LocalTime.of(0, 0), 1.0, 0.5),
+                Arguments.of("EUR", List.of(new Tariff("Test", LocalTime.of(5, 0), LocalTime.of(1, 0), 1.0, 0.5),
                         new Tariff("Test", LocalTime.of(5, 0), LocalTime.of(0, 0), 1.0, 0.5))), // overlap in tariffs
                 Arguments.of("EUR", List.of(new Tariff("Test", LocalTime.of(0, 0), LocalTime.of(8, 0), 1.0, 0.5))), // incomplete tariffs. Not all times are covered
                 Arguments.of("EUR", List.of(new Tariff("Test", LocalTime.of(8, 0), LocalTime.of(8, 0), 1.0, 0.5))) // both start and end time are the same but not covering all times
