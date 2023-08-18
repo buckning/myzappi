@@ -29,7 +29,7 @@ public class TariffRequestValidator {
         }
         var listIntervals = tariffService.constructTariffList(tariffs);
 
-        validateOnly24HoursAreCovered(listIntervals);
+        validateOnly24HoursAreCovered(tariffs, listIntervals);
     }
 
     private void validateTariff(Tariff tariff) {
@@ -65,9 +65,9 @@ public class TariffRequestValidator {
         }
     }
 
-    private void validateOnly24HoursAreCovered(List<Tariff> hourlyTariffs) {
+    private void validateOnly24HoursAreCovered(List<Tariff> tariffsFromRequest, List<Tariff> hourlyTariffs) {
         if (hourlyTariffs.contains(null)) {
-            log.info("Specified tariffs do not cover the complete day");
+            log.info("Specified tariffs do not cover the complete day {}", tariffsFromRequest);
             throw new ServerException(400);
         }
     }
