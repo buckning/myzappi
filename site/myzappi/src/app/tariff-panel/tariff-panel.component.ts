@@ -110,7 +110,14 @@ export class TariffPanelComponent {
       error => {
         console.log("error saving tariffs " + JSON.stringify(requestBody));
         this.submitButtonDisabled = false;
-        this.messageText = "Tariff Saving Error: Please ensure you've configured tariffs to cover the entire day. Each tariff must be set on at least a minimum 30-minute basis.";
+
+        if (error.status === 400) {
+          this.messageText = "Tariff Saving Error: Please ensure you've configured tariffs to cover the entire day. Each tariff must be set on at least a minimum 30-minute basis.";
+        } else if (error.status === 401) {
+          this.messageText = "Tariff Saving Error: Your session has expired, please refresh this page and try again.";
+        } else {
+          this.messageText = "Tariff Saving Error: An unexpected error occurred, please try again later.";
+        }
       });
   }
 
