@@ -97,6 +97,6 @@ public class GetEnergyUsageHandler implements RequestHandler {
 
     private Optional<String> parseDate(HandlerInput handlerInput) {
         return RequestHelper.forHandlerInput(handlerInput)
-                .getSlotValue( "date");
+                .getSlotValue("date");
     }
 }
