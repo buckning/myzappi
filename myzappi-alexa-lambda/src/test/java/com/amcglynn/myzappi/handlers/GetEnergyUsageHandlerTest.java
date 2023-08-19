@@ -57,6 +57,7 @@ class GetEnergyUsageHandlerTest {
         when(mockUserZoneResolver.getZoneId(any())).thenReturn(ZoneId.of("Europe/Dublin"));
         handler = new GetEnergyUsageHandler(mockZappiServiceBuilder, mockUserIdResolverFactory, mockUserZoneResolver);
         intentRequest = IntentRequest.builder()
+                .withLocale("en-GB")
                 .withIntent(Intent.builder().withName("GetEnergyUsage").build())
                 .build();
     }
@@ -113,7 +114,7 @@ class GetEnergyUsageHandlerTest {
         var result = handler.handle(handlerInputBuilder().build());
         assertThat(result).isPresent();
         verifySpeechInResponse(result.get(), "<speak>Please ask me for energy " +
-                "usage for a specific day.</speak>");
+                "usage for a specific date.</speak>");
         verifySimpleCardInResponse(result.get(), "My Zappi", "Please ask me for energy " +
                 "usage for a specific day.");
     }
@@ -124,7 +125,7 @@ class GetEnergyUsageHandlerTest {
         var result = handler.handle(handlerInputBuilder().build());
         assertThat(result).isPresent();
         verifySpeechInResponse(result.get(), "<speak>Please ask me for energy " +
-                "usage for a specific day.</speak>");
+                "usage for a specific date.</speak>");
         verifySimpleCardInResponse(result.get(), "My Zappi", "Please ask me for energy " +
                 "usage for a specific day.");
     }
@@ -147,6 +148,7 @@ class GetEnergyUsageHandlerTest {
 
     private void initIntentRequest(Object object) {
         intentRequest = IntentRequest.builder()
+                .withLocale("en-GB")
                 .withIntent(Intent.builder()
                         .putSlotsItem("date", Slot.builder().withValue(object.toString()).build())
                         .withName("date").build())

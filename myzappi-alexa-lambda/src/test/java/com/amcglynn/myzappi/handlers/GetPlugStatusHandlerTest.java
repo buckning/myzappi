@@ -49,6 +49,7 @@ class GetPlugStatusHandlerTest {
         when(mockZappiServiceBuilder.build(any())).thenReturn(mockZappiService);
         handler = new GetPlugStatusHandler(mockZappiServiceBuilder, mockUserIdResolverFactory);
         intentRequest = IntentRequest.builder()
+                .withLocale("en-GB")
                 .withIntent(Intent.builder().withName("GetPlugStatus").build())
                 .build();
     }

@@ -15,9 +15,11 @@ import lombok.extern.slf4j.Slf4j;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 import java.util.Optional;
 
 import static com.amazon.ask.request.Predicates.intentName;
+import static com.amcglynn.myzappi.LocalisedResponse.voiceResponse;
 
 @Slf4j
 public class GetEnergyUsageHandler implements RequestHandler {
@@ -40,6 +42,7 @@ public class GetEnergyUsageHandler implements RequestHandler {
 
     @Override
     public Optional<Response> handle(HandlerInput handlerInput) {
+        var locale = Locale.forLanguageTag(handlerInput.getRequestEnvelope().getRequest().getLocale());
         // expected date format is 2023-05-06
         var date = parseSlot(handlerInput, "date");
         if (date.isEmpty() || date.get().length() != 10) {
@@ -56,7 +59,7 @@ public class GetEnergyUsageHandler implements RequestHandler {
         var history = zappiService.getEnergyUsage(localDate, userTimeZone);
 
         return handlerInput.getResponseBuilder()
-                .withSpeech(new ZappiDaySummaryVoiceResponse(history).toString())
+                .withSpeech(new ZappiDaySummaryVoiceResponse(locale, history).toString())
                 .withSimpleCard(Brand.NAME,
                         new ZappiDaySummaryCardResponse(history).toString())
                 .withShouldEndSession(false)
@@ -65,7 +68,7 @@ public class GetEnergyUsageHandler implements RequestHandler {
 
     private Optional<Response> getInvalidRequestedDateResponse(HandlerInput handlerInput) {
         return handlerInput.getResponseBuilder()
-                .withSpeech("I cannot give you usage data for a time in the future.")
+                .withSpeech(voiceResponse(handlerInput, "invalid-future-date"))
                 .withSimpleCard(Brand.NAME,
                         "I cannot give you usage data for a time in the future.")
                 .withShouldEndSession(false)
@@ -74,7 +77,7 @@ public class GetEnergyUsageHandler implements RequestHandler {
 
     private Optional<Response> getInvalidInputResponse(HandlerInput handlerInput) {
         return handlerInput.getResponseBuilder()
-                .withSpeech("Please ask me for energy usage for a specific day.")
+                .withSpeech(voiceResponse(handlerInput, "request-specific-date"))
                 .withSimpleCard(Brand.NAME,
                         "Please ask me for energy usage for a specific day.")
                 .withShouldEndSession(false)

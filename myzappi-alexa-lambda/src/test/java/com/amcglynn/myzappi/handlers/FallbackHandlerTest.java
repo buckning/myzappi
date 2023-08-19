@@ -22,6 +22,7 @@ class FallbackHandlerTest {
     void setUp() {
         handler = new FallbackHandler();
         intentRequest = IntentRequest.builder()
+                .withLocale("en-GB")
                 .withIntent(Intent.builder().withName("AMAZON.FallbackIntent").build())
                 .build();
     }

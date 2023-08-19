@@ -69,6 +69,7 @@ class HelpHandlerTest {
 
     private Request initIntentRequest() {
         return IntentRequest.builder()
+                .withLocale("en-GB")
                 .withIntent(Intent.builder().withName("AMAZON.HelpIntent").build())
                 .build();
     }

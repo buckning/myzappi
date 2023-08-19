@@ -113,6 +113,7 @@ class SetChargeModeHandlerTest {
 
     private void initIntentRequest(String chargeMode) {
         intentRequest = IntentRequest.builder()
+                .withLocale("en-GB")
                 .withIntent(Intent.builder()
                         .putSlotsItem("ChargeMode", Slot.builder().withValue(chargeMode).build())
                         .withName("ChargeMode").build())

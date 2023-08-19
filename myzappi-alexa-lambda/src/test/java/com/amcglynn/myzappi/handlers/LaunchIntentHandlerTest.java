@@ -68,7 +68,7 @@ class LaunchIntentHandlerTest {
     }
 
     private LaunchRequest initIntentRequest() {
-        return LaunchRequest.builder().build();
+        return LaunchRequest.builder().withLocale("en-GB").build();
     }
 
     private HandlerInput.Builder handlerInputBuilder() {

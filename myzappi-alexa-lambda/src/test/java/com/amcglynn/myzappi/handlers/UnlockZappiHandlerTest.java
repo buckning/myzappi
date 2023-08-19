@@ -42,6 +42,7 @@ class UnlockZappiHandlerTest {
         when(mockZappiServiceBuilder.build(any())).thenReturn(mockZappiService);
         handler = new UnlockZappiHandler(mockZappiServiceBuilder, mockUserIdResolverFactory);
         intentRequest = IntentRequest.builder()
+                .withLocale("en-GB")
                 .withIntent(Intent.builder().withName("UnlockZappi").build())
                 .build();
     }

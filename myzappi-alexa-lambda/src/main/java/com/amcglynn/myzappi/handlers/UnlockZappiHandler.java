@@ -7,11 +7,11 @@ import com.amcglynn.myzappi.UserIdResolverFactory;
 import com.amcglynn.myzappi.core.Brand;
 import com.amcglynn.myzappi.core.service.ZappiService;
 import com.amcglynn.myzappi.handlers.responses.CardResponse;
-import com.amcglynn.myzappi.handlers.responses.VoiceResponse;
 
 import java.util.Optional;
 
 import static com.amazon.ask.request.Predicates.intentName;
+import static com.amcglynn.myzappi.LocalisedResponse.voiceResponse;
 
 public class UnlockZappiHandler implements RequestHandler {
 
@@ -33,7 +33,7 @@ public class UnlockZappiHandler implements RequestHandler {
         var zappiService = zappiServiceBuilder.build(userIdResolverFactory.newUserIdResolver(handlerInput));
         zappiService.unlockZappi();
         return handlerInput.getResponseBuilder()
-                .withSpeech(VoiceResponse.get(UnlockZappiHandler.class))
+                .withSpeech(voiceResponse(handlerInput, "unlocking-charger"))
                 .withSimpleCard(Brand.NAME, CardResponse.get(UnlockZappiHandler.class))
                 .withShouldEndSession(false)
                 .build();

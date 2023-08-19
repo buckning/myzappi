@@ -8,12 +8,15 @@ import com.amcglynn.myzappi.UserIdResolverFactory;
 import com.amcglynn.myzappi.core.Brand;
 import com.amcglynn.myzappi.core.service.ZappiService;
 import com.amcglynn.myzappi.handlers.responses.CardResponse;
-import com.amcglynn.myzappi.handlers.responses.VoiceResponse;
+import lombok.extern.slf4j.Slf4j;
 
+import java.util.Map;
 import java.util.Optional;
 
 import static com.amazon.ask.request.Predicates.intentName;
+import static com.amcglynn.myzappi.LocalisedResponse.voiceResponse;
 
+@Slf4j
 public class ChargeMyCarHandler implements RequestHandler {
 
     private final ZappiService.Builder zappiServiceBuilder;
@@ -35,7 +38,7 @@ public class ChargeMyCarHandler implements RequestHandler {
         var chargeMode = ZappiChargeMode.FAST;
         zappiService.setChargeMode(chargeMode);
         return handlerInput.getResponseBuilder()
-                .withSpeech(VoiceResponse.get(ZappiChargeMode.class).replace("{zappiChargeMode}", chargeMode.getDisplayName()))
+                .withSpeech(voiceResponse(handlerInput, "change-charge-mode", Map.of("zappiChargeMode", chargeMode.getDisplayName())))
                 .withSimpleCard(Brand.NAME, CardResponse.get(ZappiChargeMode.class).replace("{zappiChargeMode}", chargeMode.getDisplayName()))
                 .withShouldEndSession(false)
                 .build();

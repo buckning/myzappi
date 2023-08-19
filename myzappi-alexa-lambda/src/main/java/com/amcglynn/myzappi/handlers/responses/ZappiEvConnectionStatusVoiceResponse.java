@@ -2,41 +2,45 @@ package com.amcglynn.myzappi.handlers.responses;
 
 import com.amcglynn.myenergi.EvStatusSummary;
 import com.amcglynn.myenergi.LockStatus;
-import com.amcglynn.myenergi.ZappiStatusSummary;
+
+import java.util.Locale;
+import java.util.Map;
+
+import static com.amcglynn.myzappi.LocalisedResponse.voiceResponse;
 
 public class ZappiEvConnectionStatusVoiceResponse {
     private String response;
 
-    public ZappiEvConnectionStatusVoiceResponse(EvStatusSummary summary) {
+    public ZappiEvConnectionStatusVoiceResponse(Locale locale, EvStatusSummary summary) {
         if (summary.isConnected()) {
-            response = getSummaryForConnected(summary);
+            response = getSummaryForConnected(locale, summary);
 
             if (summary.getChargeRate().getDouble() >= 0.1) {
-                response += "Charge rate is " + summary.getChargeRate() + " kilowatts.";
+                response += voiceResponse(locale, "charge-rate", Map.of("kW", summary.getChargeRate().toString()));
             }
         } else {
-            response = "Your E.V. is not connected. ";
+            response = voiceResponse(locale, "ev-not-connected");
         }
     }
 
-    private String getChargeMode(EvStatusSummary summary) {
-        return "Charge mode is " + summary.getChargeMode().getDisplayName() + ". ";
+    private String getChargeMode(Locale locale, EvStatusSummary summary) {
+        return voiceResponse(locale, "charge-mode", Map.of("chargeMode", summary.getChargeMode().getDisplayName()));
     }
 
-    private String getSummaryForConnected(EvStatusSummary summary) {
+    private String getSummaryForConnected(Locale locale, EvStatusSummary summary) {
         if (summary.isFinishedCharging()) {
-            return "Your E.V. is finished charging. " +
-                    getChargeMode(summary) +
-                    summary.getChargeAddedThisSession() + " kilowatt hours added this session. ";
+            return voiceResponse(locale, "ev-finished-charging") +
+                    getChargeMode(locale, summary) +
+                    voiceResponse(locale, "charge-added-this-session", Map.of("kWh", summary.getChargeAddedThisSession().toString()));
         }
 
         if (summary.getLockStatus() == LockStatus.LOCKED) {
-            return "Your E.V. is connected but your charger is locked. It needs to be unlocked before you can start charging. ";
+            return voiceResponse(locale, "charger-locked");
         }
 
-        return "Your E.V. is connected. " +
-                getChargeMode(summary) +
-                summary.getChargeAddedThisSession() + " kilowatt hours added this session. ";
+        return voiceResponse(locale, "ev-connected") +
+                getChargeMode(locale, summary) +
+                voiceResponse(locale, "charge-added-this-session", Map.of("kWh", summary.getChargeAddedThisSession().toString()));
     }
 
     @Override

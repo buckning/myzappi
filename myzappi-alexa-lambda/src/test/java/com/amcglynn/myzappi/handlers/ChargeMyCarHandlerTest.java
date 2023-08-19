@@ -44,6 +44,7 @@ class ChargeMyCarHandlerTest {
         handler = new ChargeMyCarHandler(mockZappiServiceBuilder, mockUserIdResolverFactory);
         intentRequest = IntentRequest.builder()
                 .withIntent(Intent.builder().withName("ChargeMyCar").build())
+                .withLocale("en-GB")
                 .build();
     }
 

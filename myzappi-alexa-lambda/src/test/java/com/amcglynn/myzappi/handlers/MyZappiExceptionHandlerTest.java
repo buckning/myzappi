@@ -34,6 +34,7 @@ class MyZappiExceptionHandlerTest {
         exception = new Exception("Exception for unit test");
         handler = new MyZappiExceptionHandler();
         launchRequest = LaunchRequest.builder()
+                .withLocale("en-GB")
                 .build();
     }
 

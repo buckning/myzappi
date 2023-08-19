@@ -13,9 +13,11 @@ import com.amcglynn.myzappi.core.service.ZappiService;
 import java.time.Duration;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Map;
 import java.util.Optional;
 
 import static com.amazon.ask.request.Predicates.intentName;
+import static com.amcglynn.myzappi.LocalisedResponse.voiceResponse;
 
 public class StartBoostHandler implements RequestHandler {
 
@@ -78,7 +80,8 @@ public class StartBoostHandler implements RequestHandler {
 
     private Optional<Response> buildResponse(HandlerInput handlerInput, LocalTime endTime) {
         return handlerInput.getResponseBuilder()
-                .withSpeech("Boosting until " + endTime.format(DateTimeFormatter.ofPattern("h:mm a")))
+                .withSpeech(voiceResponse(handlerInput, "boosting-until-time", Map.of("time",
+                        endTime.format(DateTimeFormatter.ofPattern("h:mm a")))))
                 .withSimpleCard(Brand.NAME, "Boosting until "
                         + endTime.format(DateTimeFormatter.ofPattern("h:mm a")) + ".")
                 .withShouldEndSession(false)
@@ -87,7 +90,7 @@ public class StartBoostHandler implements RequestHandler {
 
     private Optional<Response> buildResponse(HandlerInput handlerInput, KiloWattHour kilowattHours) {
         return handlerInput.getResponseBuilder()
-                .withSpeech("Charging " + kilowattHours + " kilowatt hours")
+                .withSpeech(voiceResponse(handlerInput, "boosting-for-kwh", Map.of("kWh", kilowattHours.toString())))
                 .withSimpleCard("My Zappi", "Charging " + kilowattHours + " kilowatt hours")
                 .withShouldEndSession(false)
                 .build();
@@ -95,7 +98,7 @@ public class StartBoostHandler implements RequestHandler {
 
     private Optional<Response> buildNotFoundResponse(HandlerInput handlerInput) {
         return handlerInput.getResponseBuilder()
-                .withSpeech("Sorry, I didn't understand that")
+                .withSpeech(voiceResponse(handlerInput, "didnt-understand"))
                 .withSimpleCard(Brand.NAME, "Sorry, I didn't understand that")
                 .withShouldEndSession(false)
                 .build();

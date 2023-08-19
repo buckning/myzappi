@@ -94,6 +94,7 @@ class StartBoostHandlerTest {
     @Test
     void testHandleWithNoSlotValues() {
         intentRequest = IntentRequest.builder()
+                .withLocale("en-GB")
                 .withIntent(Intent.builder()
                         .withName("StartBoostMode").build())
                 .build();
@@ -117,6 +118,7 @@ class StartBoostHandlerTest {
 
     private void initIntentRequest(String slotName, String slotValue) {
         intentRequest = IntentRequest.builder()
+                .withLocale("en-GB")
                 .withIntent(Intent.builder()
                         .putSlotsItem(slotName, Slot.builder().withValue(slotValue).build())
                         .withName("StartBoostMode").build())

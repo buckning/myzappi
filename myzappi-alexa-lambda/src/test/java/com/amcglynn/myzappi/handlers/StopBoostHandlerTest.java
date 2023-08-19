@@ -42,6 +42,7 @@ class StopBoostHandlerTest {
         when(mockZappiServiceBuilder.build(any())).thenReturn(mockZappiService);
         handler = new StopBoostHandler(mockZappiServiceBuilder, mockUserIdResolverFactory);
         intentRequest = IntentRequest.builder()
+                .withLocale("en-GB")
                 .withIntent(Intent.builder().withName("StopBoostMode").build())
                 .build();
     }

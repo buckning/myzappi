@@ -76,6 +76,7 @@ class GetEnergyCostHandlerTest {
         when(mockUserIdResolverFactory.newUserIdResolver(any())).thenReturn(mockUserIdResolver);
         when(mockUserIdResolver.getUserId()).thenReturn("mockUserId");
         intentRequest = IntentRequest.builder()
+                .withLocale("en-GB")
                 .withIntent(Intent.builder().withName("GetEnergyCost").build())
                 .build();
     }
@@ -200,7 +201,7 @@ class GetEnergyCostHandlerTest {
         var result = handler.handle(handlerInputBuilder().build());
         assertThat(result).isPresent();
         verifySpeechInResponse(result.get(), "<speak>Please ask me for an energy " +
-                "cost for a specific day.</speak>");
+                "cost for a specific date.</speak>");
         verifySimpleCardInResponse(result.get(), "My Zappi", "Please ask me for an energy " +
                 "cost for a specific day.");
     }
@@ -223,6 +224,7 @@ class GetEnergyCostHandlerTest {
 
     private void initIntentRequest(Object object) {
         intentRequest = IntentRequest.builder()
+                .withLocale("en-GB")
                 .withIntent(Intent.builder()
                         .putSlotsItem("date", Slot.builder().withValue(object.toString()).build())
                         .withName("date").build())

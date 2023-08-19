@@ -12,6 +12,7 @@ import com.amcglynn.myzappi.core.service.ZappiService;
 import com.amcglynn.myzappi.handlers.responses.ZappiStatusSummaryCardResponse;
 import com.amcglynn.myzappi.handlers.responses.ZappiStatusSummaryVoiceResponse;
 
+import java.util.Locale;
 import java.util.Optional;
 
 import static com.amazon.ask.request.Predicates.intentName;
@@ -39,12 +40,13 @@ public class StatusSummaryHandler implements RequestHandler {
                         .withDirective(SpeakDirective.builder().withSpeech("Sure").build())
                         .withHeader(Header.builder().withRequestId(handlerInput.getRequestEnvelope().getRequest().getRequestId()).build())
                         .build());
+        var locale = Locale.forLanguageTag(handlerInput.getRequestEnvelope().getRequest().getLocale());
 
         var zappiService = zappiServiceBuilder.build(userIdResolverFactory.newUserIdResolver(handlerInput));
         var summary = zappiService.getStatusSummary().get(0);
 
         return handlerInput.getResponseBuilder()
-                .withSpeech(new ZappiStatusSummaryVoiceResponse(summary).toString())
+                .withSpeech(new ZappiStatusSummaryVoiceResponse(locale, summary).toString())
                 .withSimpleCard(Brand.NAME, new ZappiStatusSummaryCardResponse(summary).toString())
                 .withShouldEndSession(false)
                 .build();
