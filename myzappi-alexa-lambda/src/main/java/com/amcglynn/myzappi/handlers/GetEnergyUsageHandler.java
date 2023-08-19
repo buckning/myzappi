@@ -19,6 +19,7 @@ import java.util.Locale;
 import java.util.Optional;
 
 import static com.amazon.ask.request.Predicates.intentName;
+import static com.amcglynn.myzappi.LocalisedResponse.cardResponse;
 import static com.amcglynn.myzappi.LocalisedResponse.voiceResponse;
 
 @Slf4j
@@ -44,7 +45,7 @@ public class GetEnergyUsageHandler implements RequestHandler {
     public Optional<Response> handle(HandlerInput handlerInput) {
         var locale = Locale.forLanguageTag(handlerInput.getRequestEnvelope().getRequest().getLocale());
         // expected date format is 2023-05-06
-        var date = parseSlot(handlerInput, "date");
+        var date = parseDate(handlerInput);
         if (date.isEmpty() || date.get().length() != 10) {
             return getInvalidInputResponse(handlerInput);
         }
@@ -61,7 +62,7 @@ public class GetEnergyUsageHandler implements RequestHandler {
         return handlerInput.getResponseBuilder()
                 .withSpeech(new ZappiDaySummaryVoiceResponse(locale, history).toString())
                 .withSimpleCard(Brand.NAME,
-                        new ZappiDaySummaryCardResponse(history).toString())
+                        new ZappiDaySummaryCardResponse(locale, history).toString())
                 .withShouldEndSession(false)
                 .build();
     }
@@ -70,7 +71,7 @@ public class GetEnergyUsageHandler implements RequestHandler {
         return handlerInput.getResponseBuilder()
                 .withSpeech(voiceResponse(handlerInput, "invalid-future-date"))
                 .withSimpleCard(Brand.NAME,
-                        "I cannot give you usage data for a time in the future.")
+                        cardResponse(handlerInput, "invalid-future-date"))
                 .withShouldEndSession(false)
                 .build();
     }
@@ -79,7 +80,7 @@ public class GetEnergyUsageHandler implements RequestHandler {
         return handlerInput.getResponseBuilder()
                 .withSpeech(voiceResponse(handlerInput, "request-specific-date"))
                 .withSimpleCard(Brand.NAME,
-                        "Please ask me for energy usage for a specific day.")
+                        cardResponse(handlerInput, "request-specific-date"))
                 .withShouldEndSession(false)
                 .build();
     }
@@ -94,8 +95,8 @@ public class GetEnergyUsageHandler implements RequestHandler {
         return date.isAfter(LocalDate.now(userTimeZone));
     }
 
-    private Optional<String> parseSlot(HandlerInput handlerInput, String slotName) {
+    private Optional<String> parseDate(HandlerInput handlerInput) {
         return RequestHelper.forHandlerInput(handlerInput)
-                .getSlotValue(slotName);
+                .getSlotValue( "date");
     }
 }

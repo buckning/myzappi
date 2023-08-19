@@ -57,7 +57,7 @@ class QuitHandlerTest {
         assertThat(response.get().getOutputSpeech()).isInstanceOf(SsmlOutputSpeech.class);
         assertThat(response.get().getShouldEndSession()).isTrue();
         var outputSpeech = (SsmlOutputSpeech) response.get().getOutputSpeech();
-        assertThat(outputSpeech.getSsml()).isEqualTo("<speak>Thank you for using My Zappi</speak>");
+        assertThat(outputSpeech.getSsml()).isEqualTo("<speak>Thank you for using My Zappi.</speak>");
     }
 
     @Test

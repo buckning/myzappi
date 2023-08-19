@@ -21,6 +21,7 @@ import java.util.Locale;
 import java.util.Optional;
 
 import static com.amazon.ask.request.Predicates.intentName;
+import static com.amcglynn.myzappi.LocalisedResponse.cardResponse;
 import static com.amcglynn.myzappi.LocalisedResponse.voiceResponse;
 
 @Slf4j
@@ -77,7 +78,7 @@ public class GetEnergyCostHandler implements RequestHandler {
         return handlerInput.getResponseBuilder()
                 .withSpeech(new ZappiEnergyCostVoiceResponse(locale, cost).toString())
                 .withSimpleCard(Brand.NAME,
-                        new ZappiEnergyCostCardResponse(cost).toString())
+                        new ZappiEnergyCostCardResponse(locale, cost).toString())
                 .withShouldEndSession(false)
                 .build();
     }
@@ -85,8 +86,7 @@ public class GetEnergyCostHandler implements RequestHandler {
     private Optional<Response> getInvalidRequestedDateResponse(HandlerInput handlerInput) {
         return handlerInput.getResponseBuilder()
                 .withSpeech(voiceResponse(handlerInput, "invalid-future-date-cost"))
-                .withSimpleCard(Brand.NAME,
-                        "I cannot give you a cost for a time in the future.")
+                .withSimpleCard(Brand.NAME, cardResponse(handlerInput, "invalid-future-date-cost"))
                 .withShouldEndSession(false)
                 .build();
     }
@@ -94,8 +94,7 @@ public class GetEnergyCostHandler implements RequestHandler {
     private Optional<Response> getInvalidInputResponse(HandlerInput handlerInput) {
         return handlerInput.getResponseBuilder()
                 .withSpeech(voiceResponse(handlerInput, "request-specific-date-cost"))
-                .withSimpleCard(Brand.NAME,
-                        "Please ask me for an energy cost for a specific day.")
+                .withSimpleCard(Brand.NAME, cardResponse(handlerInput, "request-specific-date-cost"))
                 .withShouldEndSession(false)
                 .build();
     }

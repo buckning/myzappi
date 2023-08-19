@@ -1,19 +1,31 @@
 package com.amcglynn.myzappi.handlers.responses;
 
+import com.amcglynn.myzappi.Cost;
 import com.amcglynn.myzappi.core.model.DayCost;
 
 import java.util.Currency;
+import java.util.Locale;
+import java.util.Map;
+
+import static com.amcglynn.myzappi.LocalisedResponse.cardResponse;
 
 public class ZappiEnergyCostCardResponse {
     private String response;
 
-    public ZappiEnergyCostCardResponse(DayCost dayCost) {
+    public ZappiEnergyCostCardResponse(Locale locale, DayCost dayCost) {
         var currencySymbol = Currency.getInstance(dayCost.getCurrency()).getSymbol();
-        response = "Total cost: " + currencySymbol + String.format("%.2f", dayCost.getImportCost() - dayCost.getExportCost()) + "\n";
-        response += "Import cost: " + currencySymbol + String.format("%.2f", dayCost.getImportCost()) + "\n";
-        response += "Export cost: " + currencySymbol + String.format("%.2f", dayCost.getExportCost()) + "\n";
-        response += "Solar consumed saved: " + currencySymbol + String.format("%.2f", dayCost.getSolarSavings()) + "\n";
-        response += "Total saved: " + currencySymbol + String.format("%.2f", dayCost.getSolarSavings() + dayCost.getExportCost());
+        var totalCost = new Cost(dayCost.getCurrency(), dayCost.getImportCost() - dayCost.getExportCost());
+        response = getCardResponse(locale, "total-cost", currencySymbol, totalCost) + "\n";
+        response += getCardResponse(locale, "import-cost", currencySymbol, new Cost(dayCost.getCurrency(), dayCost.getImportCost())) + "\n";
+        response += getCardResponse(locale, "export-cost", currencySymbol, new Cost(dayCost.getCurrency(), dayCost.getExportCost())) + "\n";
+        response += getCardResponse(locale, "solar-consumed-saved", currencySymbol, new Cost(dayCost.getCurrency(), dayCost.getSolarSavings())) + "\n";
+        response += getCardResponse(locale, "total-saved", currencySymbol, new Cost(dayCost.getCurrency(), dayCost.getSolarSavings() + dayCost.getExportCost()));
+    }
+
+    private String getCardResponse(Locale locale, String key, String currencySymbol, Cost cost) {
+        return cardResponse(locale, key, Map.of("baseCurrency", currencySymbol,
+                "baseCurrencyValue", String.valueOf(cost.getBaseCurrencyValue()),
+                "subUnitValue", String.format("%02d", cost.getSubUnitValue())));
     }
 
     @Override

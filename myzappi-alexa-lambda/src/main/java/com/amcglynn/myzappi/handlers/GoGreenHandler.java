@@ -7,12 +7,12 @@ import com.amcglynn.myenergi.ZappiChargeMode;
 import com.amcglynn.myzappi.UserIdResolverFactory;
 import com.amcglynn.myzappi.core.Brand;
 import com.amcglynn.myzappi.core.service.ZappiService;
-import com.amcglynn.myzappi.handlers.responses.CardResponse;
 
 import java.util.Map;
 import java.util.Optional;
 
 import static com.amazon.ask.request.Predicates.intentName;
+import static com.amcglynn.myzappi.LocalisedResponse.cardResponse;
 import static com.amcglynn.myzappi.LocalisedResponse.voiceResponse;
 
 public class GoGreenHandler implements RequestHandler {
@@ -37,7 +37,7 @@ public class GoGreenHandler implements RequestHandler {
         zappiService.setChargeMode(chargeMode);
         return handlerInput.getResponseBuilder()
                 .withSpeech(voiceResponse(handlerInput, "change-charge-mode", Map.of("zappiChargeMode", chargeMode.getDisplayName())))
-                .withSimpleCard(Brand.NAME, CardResponse.get(ZappiChargeMode.class).replace("{zappiChargeMode}", chargeMode.getDisplayName()))
+                .withSimpleCard(Brand.NAME, cardResponse(handlerInput, "change-charge-mode", Map.of("zappiChargeMode", chargeMode.getDisplayName())))
                 .withShouldEndSession(false)
                 .build();
     }

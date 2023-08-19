@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.Optional;
 
 import static com.amazon.ask.request.Predicates.requestType;
+import static com.amcglynn.myzappi.LocalisedResponse.cardResponse;
 import static com.amcglynn.myzappi.LocalisedResponse.voiceResponse;
 
 @Slf4j
@@ -24,8 +25,7 @@ public class LaunchHandler implements LaunchRequestHandler {
     public Optional<Response> handle(HandlerInput handlerInput, LaunchRequest launchRequest) {
         return handlerInput.getResponseBuilder()
                 .withSpeech(voiceResponse(handlerInput, "help"))
-                .withSimpleCard(Brand.NAME, "I can change your charge type and provide you energy usage. " +
-                        "Ask me to start charging or to switch to solar. You can also ask me for an energy summary.")
+                .withSimpleCard(Brand.NAME, cardResponse(handlerInput, "help"))
                 .withShouldEndSession(false)
                 .build();
     }

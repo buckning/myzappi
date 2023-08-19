@@ -38,7 +38,7 @@ public class GetPlugStatusHandler implements RequestHandler {
         return handlerInput.getResponseBuilder()
                 .withSpeech(new ZappiEvConnectionStatusVoiceResponse(locale, summary).toString())
                 .withSimpleCard(Brand.NAME,
-                        new ZappiEvConnectionStatusCardResponse(summary).toString())
+                        new ZappiEvConnectionStatusCardResponse(locale, summary).toString())
                 .withShouldEndSession(false)
                 .build();
     }

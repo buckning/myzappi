@@ -45,7 +45,7 @@ class HelpHandlerTest {
         assertThat(response.get().getOutputSpeech()).isInstanceOf(SsmlOutputSpeech.class);
 
         var outputSpeech = (SsmlOutputSpeech) response.get().getOutputSpeech();
-        assertThat(outputSpeech.getSsml()).isEqualTo("<speak>Hi, I can change your charge type and provide you energy usage. " +
+        assertThat(outputSpeech.getSsml()).isEqualTo("<speak>I can change your charge type and provide you energy usage. " +
                 "Ask me to start charging or to switch to solar. You can also ask me for an energy summary.</speak>");
     }
 

@@ -92,8 +92,8 @@ class GetPlugStatusHandlerTest {
                 "2.3 kilowatt hours added this session. Charge rate is 1.0 kilowatts.</speak>");
         verifySimpleCardInResponse(result.get(), "My Zappi", "Your E.V. is connected.\n" +
                 "Charge mode: Eco+\n" +
-                "2.3kWh added this session.\n" +
-                "Charge rate is 1.0kW.");
+                "Charge added: 2.3kWh\n" +
+                "Charge rate: 1.0kW");
     }
 
     @Test
@@ -107,7 +107,7 @@ class GetPlugStatusHandlerTest {
         verifySpeechInResponse(result.get(), "<speak>Your E.V. is finished charging. Charge mode is Eco+. 25.0 kilowatt hours added this session.</speak>");
         verifySimpleCardInResponse(result.get(), "My Zappi", "Your E.V. is finished charging.\n" +
                 "Charge mode: Eco+\n" +
-                "25.0kWh added this session.\n");
+                "Charge added: 25.0kWh\n");
     }
 
     @Test

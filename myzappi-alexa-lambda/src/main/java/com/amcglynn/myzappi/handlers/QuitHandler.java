@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import static com.amazon.ask.request.Predicates.intentName;
+import static com.amcglynn.myzappi.LocalisedResponse.cardResponse;
 import static com.amcglynn.myzappi.LocalisedResponse.voiceResponse;
 
 public class QuitHandler implements RequestHandler {
@@ -26,7 +27,7 @@ public class QuitHandler implements RequestHandler {
         return handlerInput.getResponseBuilder()
                 .withShouldEndSession(true)
                 .withSpeech(voiceResponse(handlerInput, "thank-you", Map.of("brand.name", Brand.NAME)))
-                .withSimpleCard(Brand.NAME, "Thank you for using " + Brand.NAME + ".")
+                .withSimpleCard(Brand.NAME, cardResponse(handlerInput, "thank-you", Map.of("brand.name", Brand.NAME)))
                 .build();
     }
 }

@@ -29,4 +29,25 @@ public class LocalisedResponse {
         }
         return str;
     }
+
+    public static String cardResponse(HandlerInput handlerInput, String key) {
+        return cardResponse(handlerInput, key, Map.of());
+    }
+
+    public static String cardResponse(Locale locale, String key) {
+        return cardResponse(locale, key, Map.of());
+    }
+
+    public static String cardResponse(HandlerInput handlerInput, String key, Map<String, String> substitutions) {
+        return cardResponse(Locale.forLanguageTag(handlerInput.getRequestEnvelope().getRequest().getLocale()), key, substitutions);
+    }
+
+    public static String cardResponse(Locale locale, String key, Map<String, String> substitutions) {
+        var resourceBundle = ResourceBundle.getBundle("card-response", locale);
+        var str = resourceBundle.getString(key);
+        for (var entrySet : substitutions.entrySet()) {
+            str = str.replace("{" + entrySet.getKey() + "}", entrySet.getValue());
+        }
+        return str;
+    }
 }

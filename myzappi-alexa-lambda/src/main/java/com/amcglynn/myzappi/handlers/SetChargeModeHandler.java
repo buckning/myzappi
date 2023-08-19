@@ -4,17 +4,16 @@ import com.amazon.ask.dispatcher.request.handler.HandlerInput;
 import com.amazon.ask.dispatcher.request.handler.RequestHandler;
 import com.amazon.ask.model.IntentRequest;
 import com.amazon.ask.model.Response;
-import com.amcglynn.myenergi.ZappiChargeMode;
 import com.amcglynn.myzappi.UserIdResolverFactory;
 import com.amcglynn.myzappi.core.Brand;
 import com.amcglynn.myzappi.core.service.ZappiService;
-import com.amcglynn.myzappi.handlers.responses.CardResponse;
 import com.amcglynn.myzappi.mappers.AlexaZappiChargeModeMapper;
 
 import java.util.Map;
 import java.util.Optional;
 
 import static com.amazon.ask.request.Predicates.intentName;
+import static com.amcglynn.myzappi.LocalisedResponse.cardResponse;
 import static com.amcglynn.myzappi.LocalisedResponse.voiceResponse;
 
 public class SetChargeModeHandler implements RequestHandler {
@@ -59,7 +58,7 @@ public class SetChargeModeHandler implements RequestHandler {
         return handlerInput.getResponseBuilder()
                 .withShouldEndSession(false)
                 .withSpeech(voiceResponse(handlerInput, "change-charge-mode", Map.of("zappiChargeMode", chargeMode.getDisplayName())))
-                .withSimpleCard(Brand.NAME, CardResponse.get(ZappiChargeMode.class).replace("{zappiChargeMode}", chargeMode.getDisplayName()))
+                .withSimpleCard(Brand.NAME, cardResponse(handlerInput, "change-charge-mode", Map.of("zappiChargeMode", chargeMode.getDisplayName())))
                 .build();
     }
 }

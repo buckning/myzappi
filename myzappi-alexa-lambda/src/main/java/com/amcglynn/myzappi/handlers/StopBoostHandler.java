@@ -10,6 +10,7 @@ import com.amcglynn.myzappi.core.service.ZappiService;
 import java.util.Optional;
 
 import static com.amazon.ask.request.Predicates.intentName;
+import static com.amcglynn.myzappi.LocalisedResponse.cardResponse;
 import static com.amcglynn.myzappi.LocalisedResponse.voiceResponse;
 
 public class StopBoostHandler implements RequestHandler {
@@ -38,7 +39,7 @@ public class StopBoostHandler implements RequestHandler {
     private Optional<Response> buildResponse(HandlerInput handlerInput) {
         return handlerInput.getResponseBuilder()
                 .withSpeech(voiceResponse(handlerInput, "stopping-boost-mode"))
-                .withSimpleCard(Brand.NAME, "Stopping boost mode now.")
+                .withSimpleCard(Brand.NAME, cardResponse(handlerInput, "stopping-boost-mode"))
                 .withShouldEndSession(false)
                 .build();
     }

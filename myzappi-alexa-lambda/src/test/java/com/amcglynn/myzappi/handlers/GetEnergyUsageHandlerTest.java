@@ -116,7 +116,7 @@ class GetEnergyUsageHandlerTest {
         verifySpeechInResponse(result.get(), "<speak>Please ask me for energy " +
                 "usage for a specific date.</speak>");
         verifySimpleCardInResponse(result.get(), "My Zappi", "Please ask me for energy " +
-                "usage for a specific day.");
+                "usage for a specific date.");
     }
 
     @Test
@@ -127,7 +127,7 @@ class GetEnergyUsageHandlerTest {
         verifySpeechInResponse(result.get(), "<speak>Please ask me for energy " +
                 "usage for a specific date.</speak>");
         verifySimpleCardInResponse(result.get(), "My Zappi", "Please ask me for energy " +
-                "usage for a specific day.");
+                "usage for a specific date.");
     }
 
     private HandlerInput.Builder handlerInputBuilder() {

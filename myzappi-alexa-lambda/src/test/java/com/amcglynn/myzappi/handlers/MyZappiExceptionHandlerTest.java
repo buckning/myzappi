@@ -70,9 +70,9 @@ class MyZappiExceptionHandlerTest {
 
     private static Stream<Arguments> exceptionCardSource() {
         return Stream.of(
-                Arguments.of(new UserNotLoggedInException("test"), "You are not registered. Please register on https://myzappiunofficial.com with your my energi API key and serial number."),
+                Arguments.of(new UserNotLoggedInException("test"), "You are not registered. Please register on https://myzappiunofficial.com with your myenergi API key and serial number."),
                 Arguments.of(new UserNotLinkedException("test"), "You need to set up account linking first on Alexa for the My Zappi skill."),
-                Arguments.of(new ClientException(404), "Could not authenticate with myenergi APIs. Perhaps you entered the wrong serial number or API key. Ask me to log out and log in again to reset them."),
+                Arguments.of(new ClientException(404), "Could not authenticate with myenergi APIs. Your API key may no longer be valid. Please register again on https://myzappiunofficial.com"),
                 Arguments.of(new ServerCommunicationException(), "I couldn't communicate with myenergi servers."),
                 Arguments.of(new NullPointerException("unexpectedException"), "There was an unexpected error."));
     }
@@ -81,7 +81,7 @@ class MyZappiExceptionHandlerTest {
         return Stream.of(
                 Arguments.of(new UserNotLoggedInException("test"), "<speak>You are not registered. Please register on my zappi unofficial dot com with your my energy API key and serial number.</speak>"),
                 Arguments.of(new UserNotLinkedException("test"), "<speak>You need to set up account linking first on Alexa for the My Zappi skill.</speak>"),
-                Arguments.of(new ClientException(404), "<speak>Could not authenticate with my energy APIs. Perhaps you entered the wrong serial number or API key. Ask me to log out and log in again to reset them.</speak>"),
+                Arguments.of(new ClientException(404), "<speak>Could not authenticate with my energy APIs. Your API key may no longer be valid. Please register again on my zappi unofficial dot com</speak>"),
                 Arguments.of(new ServerCommunicationException(), "<speak>I couldn't communicate with my energy servers.</speak>"),
                 Arguments.of(new NullPointerException("unexpectedException"), "<speak>There was an unexpected error.</speak>"));
     }
