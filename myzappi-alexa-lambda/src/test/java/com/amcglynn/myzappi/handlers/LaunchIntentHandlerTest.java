@@ -50,6 +50,19 @@ class LaunchIntentHandlerTest {
     }
 
     @Test
+    void testHandleSpeechResponseItalian() {
+        var response = handler.handle(HandlerInput.builder().withRequestEnvelope(RequestEnvelope.builder()
+                .withRequest(LaunchRequest.builder().withLocale("it-IT").build()).build()).build());
+        assertThat(response).isPresent();
+        assertThat(response.get().getOutputSpeech()).isInstanceOf(SsmlOutputSpeech.class);
+
+        var outputSpeech = (SsmlOutputSpeech) response.get().getOutputSpeech();
+        assertThat(outputSpeech.getSsml()).isEqualTo("<speak>Posso cambiare la modalità di carica e fornirti " +
+                "informazioni sulla quantità di energia caricata. Chiedimi di cambiare la modalità di carica. Puoi anche " +
+                "chiedermi un riepilogo sull'energia caricata.</speak>");
+    }
+
+    @Test
     void testHandleCardResponse() {
         var response = handler.handle(HandlerInput.builder().withRequestEnvelope(requestEnvelopeBuilder().build()).build());
         assertThat(response).isPresent();
