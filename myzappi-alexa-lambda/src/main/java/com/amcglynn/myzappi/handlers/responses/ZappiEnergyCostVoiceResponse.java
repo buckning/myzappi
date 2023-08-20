@@ -33,10 +33,7 @@ public class ZappiEnergyCostVoiceResponse {
     }
 
     private String getVoiceResponse(Locale locale, String key, Cost cost) {
-        return voiceResponse(locale, key, Map.of("currencyValue", String.valueOf(cost.getBaseCurrencyValue()),
-                "baseCurrency", cost.getBaseCurrency(),
-                "subUnitValue", String.valueOf(cost.getSubUnitValue()),
-                "subUnit", cost.getSubUnit()));
+        return voiceResponse(locale, key, Map.of("cost", cost.toString()));
     }
 
     @Override
