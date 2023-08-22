@@ -14,8 +14,15 @@ public class ZappiEnergyCostCardResponse {
 
     public ZappiEnergyCostCardResponse(Locale locale, DayCost dayCost) {
         var currencySymbol = Currency.getInstance(dayCost.getCurrency()).getSymbol();
-        var totalCost = new Cost(dayCost.getCurrency(), dayCost.getImportCost() - dayCost.getExportCost());
-        response = getCardResponse(locale, "total-cost", currencySymbol, totalCost) + "\n";
+        double cost = dayCost.getImportCost() - dayCost.getExportCost();
+        var totalCost = new Cost(dayCost.getCurrency(), Math.abs(cost));
+
+        if (cost < 0) {
+            response = getCardResponse(locale, "total-credit", currencySymbol, totalCost) + "\n";
+        } else {
+            response = getCardResponse(locale, "total-cost", currencySymbol, totalCost) + "\n";
+        }
+
         response += getCardResponse(locale, "import-cost", currencySymbol, new Cost(dayCost.getCurrency(), dayCost.getImportCost())) + "\n";
         response += getCardResponse(locale, "export-cost", currencySymbol, new Cost(dayCost.getCurrency(), dayCost.getExportCost())) + "\n";
         response += getCardResponse(locale, "solar-consumed-saved", currencySymbol, new Cost(dayCost.getCurrency(), dayCost.getSolarSavings())) + "\n";

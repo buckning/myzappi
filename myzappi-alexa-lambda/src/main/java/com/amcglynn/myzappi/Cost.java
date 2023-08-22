@@ -17,7 +17,7 @@ public class Cost {
 
     public Cost(String currency, double value) {
         BigDecimal bigDecimal = new BigDecimal(String.valueOf(value));
-        var cents = bigDecimal.subtract(bigDecimal.setScale(0, RoundingMode.FLOOR))
+        var cents = new BigDecimal(String.valueOf(Math.abs(value))).subtract(bigDecimal.setScale(0, RoundingMode.FLOOR))
                 .movePointRight(2)
                 .abs()
                 .remainder(BigDecimal.valueOf(100));
