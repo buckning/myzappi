@@ -124,8 +124,8 @@ class GetEnergyCostHandlerTest {
         when(mockTariffService.calculateCost(any(), any(), any(), any())).thenReturn(dayCost);
 
         var response = handler.handle(handlerInputBuilder().build());
-        verifySpeechInResponse(response.get(), "<speak>Total credit is €1.00. You imported €1.00. " +
-                "You exported €2.00. Total saved €1.00.</speak>");
+        verifySpeechInResponse(response.get(), "<speak>Total credit is 1 Euro and 0 cent. You imported 1 Euro " +
+                "and 0 cent. You exported 2 Euro and 0 cent. Total saved 1 Euro and 0 cent.</speak>");
         verifySimpleCardInResponse(response.get(), "My Zappi", "Total cost: €-1.00\n" +
                 "Import cost: €1.00\n" +
                 "Export cost: €2.00\n" +
@@ -146,8 +146,8 @@ class GetEnergyCostHandlerTest {
         when(mockTariffService.calculateCost(any(), any(), any(), any())).thenReturn(dayCost);
 
         var response = handler.handle(handlerInputBuilder().build());
-        verifySpeechInResponse(response.get(), "<speak>Total cost is €1.00. You imported €2.00. " +
-                "You exported €1.00. Total saved €1.00.</speak>");
+        verifySpeechInResponse(response.get(), "<speak>Total cost is 1 Euro and 0 cent. You imported 2 Euro " +
+                "and 0 cent. You exported 1 Euro and 0 cent. Total saved 1 Euro and 0 cent.</speak>");
         verifySimpleCardInResponse(response.get(), "My Zappi", "Total cost: €1.00\n" +
                 "Import cost: €2.00\n" +
                 "Export cost: €1.00\n" +
@@ -168,8 +168,8 @@ class GetEnergyCostHandlerTest {
         when(mockTariffService.calculateCost(any(), any(), any(), any())).thenReturn(dayCost);
 
         var response = handler.handle(handlerInputBuilder().build());
-        verifySpeechInResponse(response.get(), "<speak>Total cost is £1.00. You imported £2.00. " +
-                "You exported £1.00. Total saved £1.00.</speak>");
+        verifySpeechInResponse(response.get(), "<speak>Total cost is 1 Pound and 0 pence. You imported 2 Pounds " +
+                "and 0 pence. You exported 1 Pound and 0 pence. Total saved 1 Pound and 0 pence.</speak>");
         verifySimpleCardInResponse(response.get(), "My Zappi", "Total cost: £1.00\n" +
                 "Import cost: £2.00\n" +
                 "Export cost: £1.00\n" +

@@ -23,7 +23,9 @@ public class ZappiEnergyCostCardResponse {
     }
 
     private String getCardResponse(Locale locale, String key, String currencySymbol, Cost cost) {
-        return cardResponse(locale, key, Map.of("cost", cost.toString()));
+        return cardResponse(locale, key, Map.of("baseCurrency", currencySymbol,
+                "baseCurrencyValue", String.valueOf(cost.getBaseCurrencyValue()),
+                "subUnitValue", String.format("%02d", cost.getSubUnitValue())));
     }
 
     @Override
