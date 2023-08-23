@@ -74,6 +74,7 @@
           "name": "GetPlugStatus",
           "slots": [],
           "samples": [
+            "se l'auto è in carica",
             "l'auto è in carica"
           ]
         },
