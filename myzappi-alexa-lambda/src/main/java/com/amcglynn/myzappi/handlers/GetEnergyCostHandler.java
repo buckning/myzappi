@@ -17,9 +17,12 @@ import lombok.extern.slf4j.Slf4j;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 import java.util.Optional;
 
 import static com.amazon.ask.request.Predicates.intentName;
+import static com.amcglynn.myzappi.LocalisedResponse.cardResponse;
+import static com.amcglynn.myzappi.LocalisedResponse.voiceResponse;
 
 @Slf4j
 public class GetEnergyCostHandler implements RequestHandler {
@@ -43,6 +46,7 @@ public class GetEnergyCostHandler implements RequestHandler {
 
     @Override
     public Optional<Response> handle(HandlerInput handlerInput) {
+        var locale = Locale.forLanguageTag(handlerInput.getRequestEnvelope().getRequest().getLocale());
         // expected date format is 2023-05-06
         var userTimeZone = userZoneResolver.getZoneId(handlerInput);
 
@@ -72,27 +76,25 @@ public class GetEnergyCostHandler implements RequestHandler {
         var cost = tariffService.calculateCost(dayTariff, history, localDate, userTimeZone);
 
         return handlerInput.getResponseBuilder()
-                .withSpeech(new ZappiEnergyCostVoiceResponse(cost).toString())
+                .withSpeech(new ZappiEnergyCostVoiceResponse(locale, cost).toString())
                 .withSimpleCard(Brand.NAME,
-                        new ZappiEnergyCostCardResponse(cost).toString())
+                        new ZappiEnergyCostCardResponse(locale, cost).toString())
                 .withShouldEndSession(false)
                 .build();
     }
 
     private Optional<Response> getInvalidRequestedDateResponse(HandlerInput handlerInput) {
         return handlerInput.getResponseBuilder()
-                .withSpeech("I cannot give you a cost for a time in the future.")
-                .withSimpleCard(Brand.NAME,
-                        "I cannot give you a cost for a time in the future.")
+                .withSpeech(voiceResponse(handlerInput, "invalid-future-date-cost"))
+                .withSimpleCard(Brand.NAME, cardResponse(handlerInput, "invalid-future-date-cost"))
                 .withShouldEndSession(false)
                 .build();
     }
 
     private Optional<Response> getInvalidInputResponse(HandlerInput handlerInput) {
         return handlerInput.getResponseBuilder()
-                .withSpeech("Please ask me for an energy cost for a specific day.")
-                .withSimpleCard(Brand.NAME,
-                        "Please ask me for an energy cost for a specific day.")
+                .withSpeech(voiceResponse(handlerInput, "request-specific-date-cost"))
+                .withSimpleCard(Brand.NAME, cardResponse(handlerInput, "request-specific-date-cost"))
                 .withShouldEndSession(false)
                 .build();
     }

@@ -8,6 +8,8 @@ import com.amcglynn.myzappi.core.Brand;
 import java.util.Optional;
 
 import static com.amazon.ask.request.Predicates.intentName;
+import static com.amcglynn.myzappi.LocalisedResponse.cardResponse;
+import static com.amcglynn.myzappi.LocalisedResponse.voiceResponse;
 
 public class FallbackHandler implements RequestHandler {
 
@@ -19,8 +21,8 @@ public class FallbackHandler implements RequestHandler {
     @Override
     public Optional<Response> handle(HandlerInput handlerInput) {
         return handlerInput.getResponseBuilder()
-                .withSpeech("Sorry, I don't know how to handle that. Please try again.")
-                .withSimpleCard(Brand.NAME, "Sorry, I don't know how to handle that. Please try again.")
+                .withSpeech(voiceResponse(handlerInput, "fallback"))
+                .withSimpleCard(Brand.NAME, cardResponse(handlerInput, "fallback"))
                 .withShouldEndSession(false)
                 .build();
     }

@@ -3,38 +3,47 @@ package com.amcglynn.myzappi.handlers.responses;
 import com.amcglynn.myenergi.EvStatusSummary;
 import com.amcglynn.myenergi.LockStatus;
 
+import java.util.Locale;
+import java.util.Map;
+
+import static com.amcglynn.myzappi.LocalisedResponse.cardResponse;
+
 public class ZappiEvConnectionStatusCardResponse {
     private String response;
 
-    public ZappiEvConnectionStatusCardResponse(EvStatusSummary summary) {
+    public ZappiEvConnectionStatusCardResponse(Locale locale, EvStatusSummary summary) {
         if (summary.isConnected()) {
-            response = getSummaryForConnected(summary);
+            response = getSummaryForConnected(locale, summary);
             if (summary.getChargeRate().getDouble() >= 0.1) {
-                response += "Charge rate is " + summary.getChargeRate() + "kW.";
+                response += cardResponse(locale, "charge-rate", Map.of("kW", summary.getChargeRate().toString()));
             }
         } else {
-            response = "Your E.V. is not connected.\n";
+            response = cardResponse(locale, "ev-not-connected") + "\n";
         }
     }
 
-    private String getSummaryForConnected(EvStatusSummary summary) {
+    private String getSummaryForConnected(Locale locale, EvStatusSummary summary) {
         if (summary.getLockStatus() == LockStatus.LOCKED) {
-            return "Your E.V. is connected but your charger is locked. It needs to be unlocked before you can start charging.\n";
+            return cardResponse(locale, "charger-locked") + "\n";
         }
 
         if (summary.isFinishedCharging()) {
-            return "Your E.V. is finished charging.\n"+
-                    getChargeMode(summary) +
-                    summary.getChargeAddedThisSession() + "kWh added this session.\n";
+            return cardResponse(locale, "ev-finished-charging") + "\n"+
+                    getChargeMode(locale, summary) +
+                    getChargeAddedThisSession(locale, summary);
         }
 
-        return "Your E.V. is connected.\n" +
-                getChargeMode(summary) +
-                summary.getChargeAddedThisSession() + "kWh added this session.\n";
+        return cardResponse(locale, "ev-connected") + "\n" +
+                getChargeMode(locale, summary) +
+                getChargeAddedThisSession(locale, summary);
     }
 
-    private String getChargeMode(EvStatusSummary summary) {
-        return "Charge mode: " + summary.getChargeMode().getDisplayName() + "\n";
+    private String getChargeAddedThisSession(Locale locale, EvStatusSummary summary) {
+        return cardResponse(locale, "charge-added-this-session", Map.of("kWh", summary.getChargeAddedThisSession().toString())) + "\n";
+    }
+
+    private String getChargeMode(Locale locale, EvStatusSummary summary) {
+        return cardResponse(locale, "charge-mode", Map.of("chargeMode", summary.getChargeMode().getDisplayName())) + "\n";
     }
 
     @Override

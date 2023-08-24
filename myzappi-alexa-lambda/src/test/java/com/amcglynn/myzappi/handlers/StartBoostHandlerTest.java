@@ -87,13 +87,14 @@ class StartBoostHandlerTest {
         var result = handler.handle(handlerInputBuilder().build());
         assertThat(result).isPresent();
         verifySpeechInResponse(result.get(), "<speak>Charging 20.0 kilowatt hours</speak>");
-        verifySimpleCardInResponse(result.get(), "My Zappi", "Charging 20.0 kilowatt hours");
+        verifySimpleCardInResponse(result.get(), "My Zappi", "Charging: 20.0kWh");
         verify(mockService).startBoost(new KiloWattHour(20));
     }
 
     @Test
     void testHandleWithNoSlotValues() {
         intentRequest = IntentRequest.builder()
+                .withLocale("en-GB")
                 .withIntent(Intent.builder()
                         .withName("StartBoostMode").build())
                 .build();
@@ -101,7 +102,7 @@ class StartBoostHandlerTest {
         var result = handler.handle(handlerInputBuilder().build());
         assertThat(result).isPresent();
         verifySpeechInResponse(result.get(), "<speak>Sorry, I didn't understand that</speak>");
-        verifySimpleCardInResponse(result.get(), "My Zappi", "Sorry, I didn't understand that");
+        verifySimpleCardInResponse(result.get(), "My Zappi", "Sorry, I didn't understand that.");
     }
 
     private HandlerInput.Builder handlerInputBuilder() {
@@ -117,6 +118,7 @@ class StartBoostHandlerTest {
 
     private void initIntentRequest(String slotName, String slotValue) {
         intentRequest = IntentRequest.builder()
+                .withLocale("en-GB")
                 .withIntent(Intent.builder()
                         .putSlotsItem(slotName, Slot.builder().withValue(slotValue).build())
                         .withName("StartBoostMode").build())

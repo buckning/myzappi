@@ -43,6 +43,7 @@ class GoGreenHandlerTest {
         when(mockZappiServiceBuilder.build(any())).thenReturn(mockZappiService);
         handler = new GoGreenHandler(mockZappiServiceBuilder, mockUserIdResolverFactory);
         intentRequest = IntentRequest.builder()
+                .withLocale("en-GB")
                 .withIntent(Intent.builder().withName("GoGreen").build())
                 .build();
     }

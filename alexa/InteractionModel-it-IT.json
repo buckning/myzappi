@@ -1,0 +1,200 @@
+{
+  "interactionModel": {
+    "languageModel": {
+      "invocationName": "la mia colonnina di ricarica",
+      "intents": [
+        {
+          "name": "AMAZON.CancelIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.HelpIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.StopIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.NavigateHomeIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.FallbackIntent",
+          "samples": []
+        },
+        {
+          "name": "StatusSummary",
+          "slots": [],
+          "samples": [
+            "dimmi quanta energia sto utilizzando"
+          ]
+        },
+        {
+          "name": "GetEnergyUsage",
+          "slots": [
+            {
+              "name": "month",
+              "type": "AMAZON.Month"
+            },
+            {
+              "name": "year",
+              "type": "AMAZON.FOUR_DIGIT_NUMBER"
+            },
+            {
+              "name": "date",
+              "type": "AMAZON.DATE"
+            }
+          ],
+          "samples": [
+            "dimmi quanta energia ho utilizzato {date}"
+          ]
+        },
+        {
+          "name": "GetEnergyCost",
+          "slots": [
+            {
+              "name": "date",
+              "type": "AMAZON.DATE"
+            }
+          ],
+          "samples": [
+            "fammi la stima del costo dell'energia consumata",
+            "fammi la stima del costo dell'energia consumata {date}"
+          ]
+        },
+        {
+          "name": "ChargeMyCar",
+          "slots": [],
+          "samples": [
+            "fai partire la carica della mia auto"
+          ]
+        },
+        {
+          "name": "GetPlugStatus",
+          "slots": [],
+          "samples": [
+            "se l'auto è in carica",
+            "l'auto è in carica"
+          ]
+        },
+        {
+          "name": "StartBoostMode",
+          "slots": [
+            {
+              "name": "Duration",
+              "type": "AMAZON.DURATION"
+            },
+            {
+              "name": "Time",
+              "type": "AMAZON.TIME"
+            },
+            {
+              "name": "KiloWattHours",
+              "type": "AMAZON.NUMBER"
+            }
+          ],
+          "samples": [
+            "fai partire la carica dell'auto in modalità boost a {KiloWattHours} kilowatt per ora",
+            "carica l'auto in modalità boost fino alle {Time}",
+            "fai partire la carica dell'auto in modalità boost per {Duration}"
+          ]
+        },
+        {
+          "name": "StopBoostMode",
+          "slots": [],
+          "samples": [
+            "ferma la carica boost"
+          ]
+        },
+        {
+          "name": "UnlockZappi",
+          "slots": [],
+          "samples": [
+            "sbloccare"
+          ]
+        },
+        {
+          "name": "SetChargeMode",
+          "slots": [
+            {
+              "name": "ChargeMode",
+              "type": "chargeMode",
+              "samples": [
+                "{ChargeMode}",
+                "modalità {ChargeMode}"
+              ]
+            }
+          ],
+          "samples": [
+            "di passare alla modalità {ChargeMode}",
+            "metti in modalità {ChargeMode}"
+          ]
+        }
+      ],
+      "types": [
+        {
+          "name": "chargeMode",
+          "values": [
+            {
+              "id": "2",
+              "name": {
+                "value": "ECO"
+              }
+            },
+            {
+              "id": "4",
+              "name": {
+                "value": "STOP"
+              }
+            },
+            {
+              "id": "3",
+              "name": {
+                "value": "ECO PLUS"
+              }
+            },
+            {
+              "id": "1",
+              "name": {
+                "value": "FAST"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "dialog": {
+      "intents": [
+        {
+          "name": "SetChargeMode",
+          "confirmationRequired": false,
+          "prompts": {},
+          "slots": [
+            {
+              "name": "ChargeMode",
+              "type": "chargeMode",
+              "confirmationRequired": false,
+              "elicitationRequired": true,
+              "prompts": {
+                "elicitation": "Elicit.Slot.1132031317636.1675925811287"
+              }
+            }
+          ]
+        }
+      ],
+      "delegationStrategy": "ALWAYS"
+    },
+    "prompts": [
+      {
+        "id": "Elicit.Slot.1132031317636.1675925811287",
+        "variations": [
+          {
+            "type": "PlainText",
+            "value": "You need to provide a charge mode"
+          }
+        ]
+      }
+    ]
+  }
+}

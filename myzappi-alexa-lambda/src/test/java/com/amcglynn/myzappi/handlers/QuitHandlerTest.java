@@ -4,6 +4,7 @@ import com.amazon.ask.dispatcher.request.handler.HandlerInput;
 import com.amazon.ask.model.Intent;
 import com.amazon.ask.model.IntentRequest;
 import com.amazon.ask.model.LaunchRequest;
+import com.amazon.ask.model.Request;
 import com.amazon.ask.model.RequestEnvelope;
 import com.amazon.ask.model.Session;
 import com.amazon.ask.model.User;
@@ -33,6 +34,7 @@ class QuitHandlerTest {
     @MethodSource("quitIntents")
     void testCanHandleOnlyTriggersForTheIntent(String intentName) {
         var intentRequest = IntentRequest.builder()
+                .withLocale("en-GB")
                 .withIntent(Intent.builder().withName(intentName).build()).build();
         var requestEnvelope = RequestEnvelope.builder().withRequest(intentRequest).build();
         var handlerInput = HandlerInput.builder().withRequestEnvelope(requestEnvelope).build();
@@ -55,7 +57,7 @@ class QuitHandlerTest {
         assertThat(response.get().getOutputSpeech()).isInstanceOf(SsmlOutputSpeech.class);
         assertThat(response.get().getShouldEndSession()).isTrue();
         var outputSpeech = (SsmlOutputSpeech) response.get().getOutputSpeech();
-        assertThat(outputSpeech.getSsml()).isEqualTo("<speak>Thank you for using My Zappi</speak>");
+        assertThat(outputSpeech.getSsml()).isEqualTo("<speak>Thank you for using My Zappi.</speak>");
     }
 
     @Test
@@ -75,8 +77,8 @@ class QuitHandlerTest {
                 .withSession(Session.builder().withUser(User.builder().withUserId("test").build()).build());
     }
 
-    private LaunchRequest initIntentRequest() {
-        return LaunchRequest.builder().build();
+    private Request initIntentRequest() {
+        return IntentRequest.builder().withLocale("en-GB").build();
     }
 
     private static Stream<Arguments> quitIntents() {

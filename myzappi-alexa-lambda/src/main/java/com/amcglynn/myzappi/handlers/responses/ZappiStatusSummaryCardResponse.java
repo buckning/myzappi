@@ -5,77 +5,82 @@ import com.amcglynn.myenergi.EvConnectionStatus;
 import com.amcglynn.myenergi.ZappiStatusSummary;
 import com.amcglynn.myenergi.units.KiloWatt;
 
+import java.util.Locale;
+import java.util.Map;
+
+import static com.amcglynn.myzappi.LocalisedResponse.cardResponse;
+
 public class ZappiStatusSummaryCardResponse {
     private String response;
 
-    public ZappiStatusSummaryCardResponse(ZappiStatusSummary summary) {
+    public ZappiStatusSummaryCardResponse(Locale locale, ZappiStatusSummary summary) {
         response = "";
-        response += getSolarGeneration(summary);
-        response += getGridExport(summary);
-        response += getGridImport(summary);
-        response += getChargingRate(summary);
-        response += getChargeMode(summary);
-        response += getBoostMode(summary);
-        response += getChargeComplete(summary);
-        response += getChargeAdded(summary);
+        response += getSolarGeneration(locale, summary);
+        response += getGridExport(locale, summary);
+        response += getGridImport(locale, summary);
+        response += getChargingRate(locale, summary);
+        response += getChargeMode(locale, summary);
+        response += getBoostMode(locale, summary);
+        response += getChargeComplete(locale, summary);
+        response += getChargeAdded(locale, summary);
     }
 
-    private String getSolarGeneration(ZappiStatusSummary summary) {
+    private String getSolarGeneration(Locale locale, ZappiStatusSummary summary) {
         String str = "";
         if (summary.getGenerated().getLong() >= 100L) {
-            str += "Solar: " + new KiloWatt(summary.getGenerated()) + "kW\n";
+            str += cardResponse(locale, "solar-generation", Map.of("kW", new KiloWatt(summary.getGenerated()).toString())) + "\n";
         }
         return str;
     }
 
-    private String getGridExport(ZappiStatusSummary summary) {
+    private String getGridExport(Locale locale, ZappiStatusSummary summary) {
         String str = "";
         if (summary.getGridExport().getLong() > 0L) {
-            str += "Export: " + new KiloWatt(summary.getGridExport()) + "kW\n";
+            str += cardResponse(locale, "export-rate", Map.of("kW", new KiloWatt(summary.getGridExport()).toString())) + "\n";
         }
         return str;
     }
 
-    private String getGridImport(ZappiStatusSummary summary) {
+    private String getGridImport(Locale locale, ZappiStatusSummary summary) {
         String str = "";
         if (summary.getGridImport().getLong() > 0L) {
-            str += "Import: " + new KiloWatt(summary.getGridImport()) + "kW\n";
+            str += cardResponse(locale, "import-rate", Map.of("kW", new KiloWatt(summary.getGridImport()).toString())) + "\n";
         }
         return str;
     }
 
-    private String getChargingRate(ZappiStatusSummary summary) {
+    private String getChargingRate(Locale locale, ZappiStatusSummary summary) {
         String str = "";
         if (summary.getEvConnectionStatus() == EvConnectionStatus.CHARGING) {
-            str += "Charge rate: " + new KiloWatt(summary.getEvChargeRate()) + "kW\n";
+            str += cardResponse(locale, "charge-rate", Map.of("kW", new KiloWatt(summary.getEvChargeRate()).toString())) + "\n";
         }
         return str;
     }
 
-    private String getBoostMode(ZappiStatusSummary summary) {
+    private String getBoostMode(Locale locale, ZappiStatusSummary summary) {
         String str = "";
         if (summary.getChargeStatus() == ChargeStatus.BOOSTING) {
-            str += "Boost mode: enabled\n";
+            str += cardResponse(locale, "boost-enabled") + "\n";
         }
         return str;
     }
 
-    private String getChargeMode(ZappiStatusSummary summary) {
-        return "Charge mode: " + summary.getChargeMode().getDisplayName() + "\n";
+    private String getChargeMode(Locale locale, ZappiStatusSummary summary) {
+        return cardResponse(locale, "charge-mode", Map.of("chargeMode",summary.getChargeMode().getDisplayName())) + "\n";
     }
 
-    private String getChargeAdded(ZappiStatusSummary summary) {
+    private String getChargeAdded(Locale locale, ZappiStatusSummary summary) {
         String str = "";
         if (summary.getChargeAddedThisSession().getDouble() > 0.01) {
-            str += "Charge added: " + summary.getChargeAddedThisSession() + "kWh\n";
+            str += cardResponse(locale, "charge-added-this-session", Map.of("kWh", summary.getChargeAddedThisSession().toString())) + "\n";
         }
         return str;
     }
 
-    private String getChargeComplete(ZappiStatusSummary summary) {
+    private String getChargeComplete(Locale locale, ZappiStatusSummary summary) {
         String str = "";
         if (summary.getChargeStatus() == ChargeStatus.COMPLETE) {
-            str += "Charge completed\n";
+            str += cardResponse(locale, "charging-session-complete") + "\n";
         }
         return str;
     }

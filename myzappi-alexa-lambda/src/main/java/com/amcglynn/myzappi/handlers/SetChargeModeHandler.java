@@ -4,17 +4,17 @@ import com.amazon.ask.dispatcher.request.handler.HandlerInput;
 import com.amazon.ask.dispatcher.request.handler.RequestHandler;
 import com.amazon.ask.model.IntentRequest;
 import com.amazon.ask.model.Response;
-import com.amcglynn.myenergi.ZappiChargeMode;
 import com.amcglynn.myzappi.UserIdResolverFactory;
 import com.amcglynn.myzappi.core.Brand;
 import com.amcglynn.myzappi.core.service.ZappiService;
-import com.amcglynn.myzappi.handlers.responses.CardResponse;
-import com.amcglynn.myzappi.handlers.responses.VoiceResponse;
 import com.amcglynn.myzappi.mappers.AlexaZappiChargeModeMapper;
 
+import java.util.Map;
 import java.util.Optional;
 
 import static com.amazon.ask.request.Predicates.intentName;
+import static com.amcglynn.myzappi.LocalisedResponse.cardResponse;
+import static com.amcglynn.myzappi.LocalisedResponse.voiceResponse;
 
 public class SetChargeModeHandler implements RequestHandler {
 
@@ -47,7 +47,7 @@ public class SetChargeModeHandler implements RequestHandler {
         if (mappedChargeMode.isEmpty()) {
             // it should not be possible to get to this block since Alexa should only allow requests with valid values in the slot
             return handlerInput.getResponseBuilder()
-                    .withSpeech("Sorry, I don't recognise that charge mode.")
+                    .withSpeech(voiceResponse(handlerInput, "unrecognised-charge-mode"))
                     .withSimpleCard(Brand.NAME, "Sorry, I don't recognise that charge mode.")
                     .withShouldEndSession(false)
                     .build();
@@ -57,8 +57,8 @@ public class SetChargeModeHandler implements RequestHandler {
         zappiService.setChargeMode(chargeMode);
         return handlerInput.getResponseBuilder()
                 .withShouldEndSession(false)
-                .withSpeech(VoiceResponse.get(ZappiChargeMode.class).replace("{zappiChargeMode}", chargeMode.getDisplayName()))
-                .withSimpleCard(Brand.NAME, CardResponse.get(ZappiChargeMode.class).replace("{zappiChargeMode}", chargeMode.getDisplayName()))
+                .withSpeech(voiceResponse(handlerInput, "change-charge-mode", Map.of("zappiChargeMode", chargeMode.getDisplayName())))
+                .withSimpleCard(Brand.NAME, cardResponse(handlerInput, "change-charge-mode", Map.of("zappiChargeMode", chargeMode.getDisplayName())))
                 .build();
     }
 }

@@ -23,6 +23,8 @@ import com.amcglynn.myzappi.core.service.EnergyCostHourSummary;
 import com.amcglynn.myzappi.core.service.TariffService;
 import com.amcglynn.myzappi.core.service.UserIdResolver;
 import com.amcglynn.myzappi.core.service.ZappiService;
+import com.amcglynn.myzappi.handlers.responses.ZappiEnergyCostCardResponse;
+import com.amcglynn.myzappi.handlers.responses.ZappiEnergyCostVoiceResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -36,6 +38,7 @@ import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 import static com.amcglynn.myzappi.handlers.ResponseVerifier.verifySimpleCardInResponse;
@@ -76,6 +79,7 @@ class GetEnergyCostHandlerTest {
         when(mockUserIdResolverFactory.newUserIdResolver(any())).thenReturn(mockUserIdResolver);
         when(mockUserIdResolver.getUserId()).thenReturn("mockUserId");
         intentRequest = IntentRequest.builder()
+                .withLocale("en-GB")
                 .withIntent(Intent.builder().withName("GetEnergyCost").build())
                 .build();
     }
@@ -125,7 +129,7 @@ class GetEnergyCostHandlerTest {
         var response = handler.handle(handlerInputBuilder().build());
         verifySpeechInResponse(response.get(), "<speak>Total credit is 1 Euro and 0 cent. You imported 1 Euro " +
                 "and 0 cent. You exported 2 Euro and 0 cent. Total saved 1 Euro and 0 cent.</speak>");
-        verifySimpleCardInResponse(response.get(), "My Zappi", "Total cost: €-1.00\n" +
+        verifySimpleCardInResponse(response.get(), "My Zappi", "Total credit: €1.00\n" +
                 "Import cost: €1.00\n" +
                 "Export cost: €2.00\n" +
                 "Solar consumed saved: €-1.00\n" +
@@ -152,6 +156,48 @@ class GetEnergyCostHandlerTest {
                 "Export cost: €1.00\n" +
                 "Solar consumed saved: €0.00\n" +
                 "Total saved: €1.00");
+    }
+
+    @Test
+    void testHandleSuccessInItalian() {
+        intentRequest = IntentRequest.builder()
+                .withLocale("it-IT")
+                .withIntent(Intent.builder()
+                        .putSlotsItem("date", Slot.builder().withValue(LocalDate.of(2023, 2, 20).toString()).build())
+                        .withName("date").build())
+                .build();
+
+        var dayCost = new DayCost("EUR");
+        var tariff = new Tariff("MockTariff", LocalTime.of(0, 0), LocalTime.of(0, 0), 1, 1);
+        dayCost.add(new EnergyCostHourSummary(tariff, new ZappiHistory(2023, 1, 6, 0, 0, "Monday",
+                3600000L, 3600000L, 3600000L, 3600000L, 7200000L)));
+
+        when(mockTariffService.get(anyString())).thenReturn(Optional.of(new DayTariff("EUR", List.of(tariff))));
+        when(mockTariffService.calculateCost(any(), any(), any(), any())).thenReturn(dayCost);
+
+        var response = handler.handle(handlerInputBuilder().build());
+        verifySpeechInResponse(response.get(), "<speak>Il costo totale è 1 e 0. Il costo dell'energia importata è 2 e 0. " +
+                "Il costo dell'energia esportata è 1 e 0. Hai risparmiato in totale  1 e 0.</speak>");
+        verifySimpleCardInResponse(response.get(), "My Zappi", "Costo totale: €1,00\n" +
+                "Costo di importazione: €2,00\n" +
+                "Costo di esportazione: €1,00\n" +
+                "Energia solare consumata risparmiata: €0,00\n" +
+                "Totale risparmiato: €1,00");
+    }
+
+    @Test
+    void testVoiceResponseAndCardResponseAreConsistent() {
+        var dayCost = mock(DayCost.class);
+        when(dayCost.getImportCost()).thenReturn(2.706100155000002);
+        when(dayCost.getExportCost()).thenReturn(4.4462180000000115);
+        when(dayCost.getSolarSavings()).thenReturn(2.03);
+        when(dayCost.getCurrency()).thenReturn("EUR");
+        var response = new ZappiEnergyCostVoiceResponse(Locale.ENGLISH, dayCost);
+        assertThat(response.toString()).isEqualTo("Total credit is 1 Euro and 74 cent. You imported 2 Euro and 70 cent. You exported 4 Euro and 44 cent. Total saved 6 Euro and 47 cent. ");
+
+        var cardResponse = new ZappiEnergyCostCardResponse(Locale.ENGLISH, dayCost);
+        assertThat(cardResponse.toString()).isEqualTo("Total credit: €1.74\nImport cost: €2.70\n" +
+                "Export cost: €4.44\nSolar consumed saved: €2.03\nTotal saved: €6.47");
     }
 
     @Test
@@ -200,9 +246,9 @@ class GetEnergyCostHandlerTest {
         var result = handler.handle(handlerInputBuilder().build());
         assertThat(result).isPresent();
         verifySpeechInResponse(result.get(), "<speak>Please ask me for an energy " +
-                "cost for a specific day.</speak>");
+                "cost for a specific date.</speak>");
         verifySimpleCardInResponse(result.get(), "My Zappi", "Please ask me for an energy " +
-                "cost for a specific day.");
+                "cost for a specific date.");
     }
 
     private HandlerInput.Builder handlerInputBuilder() {
@@ -223,6 +269,7 @@ class GetEnergyCostHandlerTest {
 
     private void initIntentRequest(Object object) {
         intentRequest = IntentRequest.builder()
+                .withLocale("en-GB")
                 .withIntent(Intent.builder()
                         .putSlotsItem("date", Slot.builder().withValue(object.toString()).build())
                         .withName("date").build())

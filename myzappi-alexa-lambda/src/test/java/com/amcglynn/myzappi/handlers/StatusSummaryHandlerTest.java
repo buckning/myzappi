@@ -56,6 +56,7 @@ class StatusSummaryHandlerTest {
     void setUp() {
         handler = new StatusSummaryHandler(mockZappiServiceBuilder, mockUserIdResolverFactory);
         intentRequest = IntentRequest.builder()
+                .withLocale("en-GB")
                 .withIntent(Intent.builder().withName("StatusSummary").build())
                 .build();
     }
@@ -86,7 +87,7 @@ class StatusSummaryHandlerTest {
         assertThat(result).isPresent();
         verifySpeechInResponse(result.get(), "<speak>Solar generation is 1.5 kilowatts. " +
                 "Importing 1.0 kilowatts. Boosting 1.4 kilowatts to your E.V. - Charge mode is Eco+. " +
-                "Charge added this session is 24.3 kilowatt hours.</speak>");
+                "24.3 kilowatt hours added this session.</speak>");
         verifySimpleCardInResponse(result.get(), "My Zappi", "Solar: 1.5kW\n" +
                 "Import: 1.0kW\n" +
                 "Charge rate: 1.4kW\n" +
@@ -99,6 +100,26 @@ class StatusSummaryHandlerTest {
         assertThat(directiveRequest.getDirective()).isNotNull().isInstanceOf(SpeakDirective.class);
         var speakDirective = (SpeakDirective) directiveRequest.getDirective();
         assertThat(speakDirective.getSpeech()).isEqualTo("Sure");
+    }
+
+    @Test
+    void testHandleSendsProgressiveResponseAndReturnsSummaryForChargeMode() {
+        when(mockZappiServiceBuilder.build(any())).thenReturn(mockZappiService);
+        when(mockServiceClientFactory.getDirectiveService()).thenReturn(mockDirectiveServiceClient);
+        when(mockZappiService.getStatusSummary()).thenReturn(List.of(new ZappiStatusSummary(
+                new ZappiStatus("12345678", 1500L, 1400L,
+                        24.3, 1000L, ZappiChargeMode.ECO_PLUS.getApiValue(),
+                        ChargeStatus.DIVERTING.ordinal(), EvConnectionStatus.CHARGING.getCode()))));
+        var result = handler.handle(handlerInputBuilder().build());
+        assertThat(result).isPresent();
+        verifySpeechInResponse(result.get(), "<speak>Solar generation is 1.5 kilowatts. " +
+                "Importing 1.0 kilowatts. Charge rate is 1.4 kilowatts. Charge mode is Eco+. " +
+                "24.3 kilowatt hours added this session.</speak>");
+        verifySimpleCardInResponse(result.get(), "My Zappi", "Solar: 1.5kW\n" +
+                "Import: 1.0kW\n" +
+                "Charge rate: 1.4kW\n" +
+                "Charge mode: Eco+\n" +
+                "Charge added: 24.3kWh\n");
     }
 
     @Test

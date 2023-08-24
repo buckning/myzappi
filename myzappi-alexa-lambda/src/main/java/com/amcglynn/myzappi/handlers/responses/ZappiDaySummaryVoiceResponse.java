@@ -2,15 +2,20 @@ package com.amcglynn.myzappi.handlers.responses;
 
 import com.amcglynn.myenergi.ZappiDaySummary;
 
+import java.util.Locale;
+import java.util.Map;
+
+import static com.amcglynn.myzappi.LocalisedResponse.voiceResponse;
+
 public class ZappiDaySummaryVoiceResponse {
     private String response;
 
-    public ZappiDaySummaryVoiceResponse(ZappiDaySummary summary) {
-        response = "Imported " + summary.getImported() + " kilowatt hours. ";
-        response += "Exported " + summary.getExported() + " kilowatt hours. ";
-        response += "Consumed " + summary.getConsumed() + " kilowatt hours. ";
-        response += "Solar generation was " + summary.getSolarGeneration() + " kilowatt hours. ";
-        response += "Charged " + summary.getEvSummary().getTotal() + " kilowatt hours to your E.V. ";
+    public ZappiDaySummaryVoiceResponse(Locale locale, ZappiDaySummary summary) {
+        response = voiceResponse(locale, "imported", Map.of("kWh", summary.getImported().toString()));
+        response += voiceResponse(locale, "exported", Map.of("kWh", summary.getExported().toString()));
+        response += voiceResponse(locale, "consumed", Map.of("kWh", summary.getConsumed().toString()));
+        response += voiceResponse(locale, "solar-generated", Map.of("kWh", summary.getSolarGeneration().toString()));
+        response += voiceResponse(locale, "charged", Map.of("kWh", summary.getEvSummary().getTotal().toString()));
     }
 
     @Override
