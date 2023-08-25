@@ -121,6 +121,30 @@ class LwaClientTest {
     }
 
     @Test
+    void testGetMessagingToken() {
+        var mockWebServer = new MockWebServer();
+
+        var mockResponse = new MockResponse()
+                .setResponseCode(200)
+                .setBody("{\n" +
+                        "    \"access_token\": \"testAccessToken\",\n" +
+                        "    \"scope\": \"alexa:skill_messaging\",\n" +
+                        "    \"token_type\": \"bearer\",\n" +
+                        "    \"expires_in\": 3600\n" +
+                        "}");
+        mockWebServer.enqueue(mockResponse);
+
+        var client = new LwaClient();
+        client.setGetTokenUrl(mockWebServer.url("").toString());
+        var response = client.getMessagingToken( "myClientId", "myClientSecret");
+        assertThat(response).isPresent();
+        assertThat(response.get().getAccessToken()).isEqualTo("testAccessToken");
+        assertThat(response.get().getScope()).isEqualTo("alexa:skill_messaging");
+        assertThat(response.get().getTokenType()).isEqualTo("bearer");
+        assertThat(response.get().getExpiresIn()).isEqualTo(3600L);
+    }
+
+    @Test
     void testGetTokenInfoReturnsEmptyOptionalIfAccessTokenIsInvalid() {
         var mockWebServer = new MockWebServer();
 

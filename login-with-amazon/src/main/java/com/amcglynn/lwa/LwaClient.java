@@ -1,6 +1,7 @@
 package com.amcglynn.lwa;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import lombok.extern.slf4j.Slf4j;
@@ -16,9 +17,12 @@ public class LwaClient {
 
     private String getProfileUrl;
     private String getTokenInfoUrl;
+    private String getTokenUrl;
+
     public LwaClient() {
         getProfileUrl = "https://api.amazon.com/user/profile";
         getTokenInfoUrl = "https://api.amazon.com/auth/o2/tokeninfo?access_token=";
+        getTokenUrl = "https://api.amazon.com/auth/o2/token";
     }
 
     void setGetProfileUrl(String getProfileUrl) {
@@ -27,6 +31,25 @@ public class LwaClient {
 
     void setGetTokenInfoUrl(String getTokenInfoUrl) {
         this.getTokenInfoUrl = getTokenInfoUrl;
+    }
+
+    void setGetTokenUrl(String getTokenUrl) {
+        this.getTokenUrl = getTokenUrl;
+    }
+
+    public Optional<Token> getMessagingToken(String clientId, String clientSecret) {
+        var formBody = new FormBody.Builder()
+                .add("grant_type", "client_credentials")
+                .add("client_id", clientId)
+                .add("client_secret", clientSecret)
+                .add("scope", "alexa:skill_messaging")
+                .build();
+
+        Request request = new Request.Builder()
+                .url(getTokenUrl)
+                .post(formBody)
+                .build();
+        return makeRequest(request, Token.class);
     }
 
     public Optional<String> getUserId(String accessToken) {
