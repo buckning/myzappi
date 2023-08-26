@@ -46,7 +46,7 @@ public class LwaClient {
      * @param clientSecret client secret from Alexa Skill Messaging section from Permission page on Alexa developer Skill
      * @return Token if request is valid
      */
-    public Optional<Token> getMessagingToken(String clientId, String clientSecret) {
+    public Token getMessagingToken(String clientId, String clientSecret) {
         var formBody = new FormBody.Builder()
                 .add("grant_type", "client_credentials")
                 .add("client_id", clientId)
@@ -58,7 +58,8 @@ public class LwaClient {
                 .url(getTokenUrl)
                 .post(formBody)
                 .build();
-        return makeRequest(request, Token.class);
+        return makeRequest(request, Token.class)
+                .orElseThrow(ClientException::new);
     }
 
     public Optional<String> getUserId(String accessToken) {

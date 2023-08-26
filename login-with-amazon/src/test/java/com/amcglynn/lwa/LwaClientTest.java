@@ -137,11 +137,10 @@ class LwaClientTest {
             var client = new LwaClient();
             client.setGetTokenUrl(mockWebServer.url("").toString());
             var response = client.getMessagingToken( "myClientId", "myClientSecret");
-            assertThat(response).isPresent();
-            assertThat(response.get().getAccessToken()).isEqualTo("testAccessToken");
-            assertThat(response.get().getScope()).isEqualTo("alexa:skill_messaging");
-            assertThat(response.get().getTokenType()).isEqualTo("bearer");
-            assertThat(response.get().getExpiresIn()).isEqualTo(3600L);
+            assertThat(response.getAccessToken()).isEqualTo("testAccessToken");
+            assertThat(response.getScope()).isEqualTo("alexa:skill_messaging");
+            assertThat(response.getTokenType()).isEqualTo("bearer");
+            assertThat(response.getExpiresIn()).isEqualTo(3600L);
         }
     }
 
