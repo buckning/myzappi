@@ -16,6 +16,7 @@ import com.amcglynn.myzappi.handlers.LaunchHandler;
 import com.amcglynn.myzappi.handlers.MyZappiExceptionHandler;
 import com.amcglynn.myzappi.handlers.QuitHandler;
 import com.amcglynn.myzappi.handlers.SetChargeModeHandler;
+import com.amcglynn.myzappi.handlers.SetReminderHandler;
 import com.amcglynn.myzappi.handlers.StartBoostHandler;
 import com.amcglynn.myzappi.handlers.StatusSummaryHandler;
 import com.amcglynn.myzappi.handlers.StopBoostHandler;
@@ -44,6 +45,7 @@ public class MyZappiSkillStreamHandler extends SkillStreamHandler {
                 .addRequestHandler(new SetChargeModeHandler(serviceManager.getZappiServiceBuilder(), userIdResolverFactory))
                 .addRequestHandler(new GoGreenHandler(serviceManager.getZappiServiceBuilder(), userIdResolverFactory))
                 .addRequestHandler(new ChargeMyCarHandler(serviceManager.getZappiServiceBuilder(), userIdResolverFactory))
+                .addRequestHandler(new SetReminderHandler())
                 .addRequestHandler(new QuitHandler())
                 .addExceptionHandler(new MyZappiExceptionHandler())
                 .build());

@@ -185,6 +185,13 @@
             "Unlock my charger",
             "Unlock"
           ]
+        },
+        {
+          "name": "SetReminder",
+          "slots": [],
+          "samples": [
+            "set a reminder"
+          ]
         }
       ],
       "types": [
