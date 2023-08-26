@@ -21,15 +21,17 @@ import com.amcglynn.myzappi.handlers.StartBoostHandler;
 import com.amcglynn.myzappi.handlers.StatusSummaryHandler;
 import com.amcglynn.myzappi.handlers.StopBoostHandler;
 import com.amcglynn.myzappi.handlers.UnlockZappiHandler;
+import com.amcglynn.myzappi.service.ReminderServiceFactory;
 
 public class MyZappiSkillStreamHandler extends SkillStreamHandler {
 
     public MyZappiSkillStreamHandler() {
-        this(new ServiceManager(new Properties()), new UserIdResolverFactory(new LwaClient()), new UserZoneResolver(new LwaClient()));
+        this(new ServiceManager(new Properties()), new UserIdResolverFactory(new LwaClient()),
+                new UserZoneResolver(new LwaClient()), new ReminderServiceFactory());
     }
 
     public MyZappiSkillStreamHandler(ServiceManager serviceManager, UserIdResolverFactory userIdResolverFactory,
-                                     UserZoneResolver userZoneResolver) {
+                                     UserZoneResolver userZoneResolver, ReminderServiceFactory reminderServiceFactory) {
         super(Skills.standard()
                 .withSkillId(serviceManager.getSkillId())
                 .addRequestHandler(new LaunchHandler())
@@ -45,7 +47,7 @@ public class MyZappiSkillStreamHandler extends SkillStreamHandler {
                 .addRequestHandler(new SetChargeModeHandler(serviceManager.getZappiServiceBuilder(), userIdResolverFactory))
                 .addRequestHandler(new GoGreenHandler(serviceManager.getZappiServiceBuilder(), userIdResolverFactory))
                 .addRequestHandler(new ChargeMyCarHandler(serviceManager.getZappiServiceBuilder(), userIdResolverFactory))
-                .addRequestHandler(new SetReminderHandler())
+                .addRequestHandler(new SetReminderHandler(reminderServiceFactory, userZoneResolver))
                 .addRequestHandler(new QuitHandler())
                 .addExceptionHandler(new MyZappiExceptionHandler())
                 .build());

@@ -1,6 +1,7 @@
 package com.amcglynn.myzappi;
 
 import com.amcglynn.myzappi.core.config.ServiceManager;
+import com.amcglynn.myzappi.service.ReminderServiceFactory;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -25,7 +26,7 @@ class MyZappiSkillStreamHandlerTest {
     @Test
     void testConstructorDoesNotThrowAnException() {
         new MyZappiSkillStreamHandler(mock(ServiceManager.class), mock(UserIdResolverFactory.class),
-                mock(UserZoneResolver.class));
+                mock(UserZoneResolver.class), mock(ReminderServiceFactory.class));
     }
 
     @Test
