@@ -91,7 +91,7 @@ class SetReminderHandlerTest {
 
         verifySpeechInResponse(result.get(), "<speak>Reminder set.</speak>");
         verifySimpleCardInResponse(result.get(), "My Zappi", "Reminder set.");
-        verify(mockReminderService).createDailyRecurringReminder(LocalTime.of(23, 0), "test content",
+        verify(mockReminderService).createDailyRecurringReminder("testConsentToken", LocalTime.of(23, 0), "test content",
                 Locale.forLanguageTag("en-GB"), ZoneId.of("Europe/Dublin"));
     }
 

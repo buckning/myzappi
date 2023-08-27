@@ -13,6 +13,7 @@ import com.amazon.ask.model.services.reminderManagement.SpokenText;
 import com.amazon.ask.model.services.reminderManagement.Trigger;
 import com.amazon.ask.model.services.reminderManagement.TriggerType;
 import com.amcglynn.lwa.LwaClient;
+import com.amcglynn.lwa.Reminder;
 import com.amcglynn.lwa.Reminders;
 import lombok.extern.slf4j.Slf4j;
 
@@ -36,10 +37,44 @@ public class ReminderService {
         this.lwaClient = lwaClient;
     }
 
-    public void update(String accessToken) {
-        var reminderOpt = lwaClient.getReminders("https://api.eu.amazonalexa.com", accessToken);
+    public String updateExisting(Reminder reminder, LocalTime reminderStartTime,
+                                 String reminderText, Locale locale, ZoneId zoneId) {
+        LocalDate now = LocalDate.now(zoneId);
+        var scheduledStartTime = LocalDateTime.of(now.getYear(), now.getMonth(), now.getDayOfMonth(),
+                reminderStartTime.getHour(), reminderStartTime.getMinute(), reminderStartTime.getSecond());
 
-        reminderOpt.get().getAlerts().forEach(reminder -> {
+        ReminderRequest request = ReminderRequest.builder()
+                .withRequestTime(OffsetDateTime.now())
+                .withTrigger(Trigger.builder()
+                        .withTimeZoneId(reminder.getTrigger().getTimeZoneId())
+                        .withType(TriggerType.SCHEDULED_ABSOLUTE)
+                        .withScheduledTime(scheduledStartTime)
+                        .withRecurrence(Recurrence.builder()
+                                .withStartDateTime(scheduledStartTime)
+                                .withEndDateTime(scheduledStartTime.plus(5, ChronoUnit.DAYS))
+                                .withRecurrenceRules(List.of("FREQ=DAILY;BYHOUR=" + scheduledStartTime.getHour() +
+                                        ";BYMINUTE=" + scheduledStartTime.getMinute() + ";BYSECOND=0"))
+                                .build())
+                        .build())
+                .withAlertInfo(AlertInfo.builder()
+                        .withSpokenInfo(SpokenInfo.builder()
+                                .withContent(List.of(SpokenText.builder()
+                                        .withLocale(locale.toLanguageTag())
+                                        .withText(reminderText)
+                                        .build()))
+                                .build())
+                        .build())
+                .withPushNotification(PushNotification.builder().withStatus(PushNotificationStatus.ENABLED).build())
+                .build();
+
+        return reminderManagementServiceClient.updateReminder(reminder.getAlertToken(), request).getAlertToken();
+    }
+
+    public String update(String accessToken) {
+        StringBuilder alertToken = new StringBuilder();
+        var reminders = lwaClient.getReminders("https://api.eu.amazonalexa.com", accessToken);
+
+        reminders.getAlerts().forEach(reminder -> {
             var scheduledTime = LocalDateTime.parse(reminder.getTrigger().getScheduledTime()).plus(1, ChronoUnit.DAYS);
             log.info("Updating reminder {} by 24 hours to {}", reminder, scheduledTime);
             ReminderRequest request = ReminderRequest.builder()
@@ -66,11 +101,25 @@ public class ReminderService {
                     .withPushNotification(PushNotification.builder().withStatus(PushNotificationStatus.ENABLED).build())
                     .build();
 
-            reminderManagementServiceClient.updateReminder(reminder.getAlertToken(), request);
+            alertToken.insert(0, reminderManagementServiceClient.updateReminder(reminder.getAlertToken(), request).getAlertToken());
         });
+        return alertToken.toString();
     }
 
-    public String createDailyRecurringReminder(LocalTime reminderStartTime, String reminderText, Locale locale, ZoneId zoneId) {
+    public String createDailyRecurringReminder(String accessToken, LocalTime reminderStartTime,
+                                               String reminderText, Locale locale, ZoneId zoneId) {
+        var reminders = lwaClient.getReminders("https://api.eu.amazonalexa.com", accessToken);
+
+        if (reminders.getTotalCount() == 0) {
+            log.info("No reminders exist, creating a new one");
+            return createReminder(reminderStartTime, reminderText, locale, zoneId);
+        } else {
+            return updateExisting(reminders.getAlerts().get(0), reminderStartTime, reminderText, locale, zoneId);
+        }
+    }
+
+    public String createReminder(LocalTime reminderStartTime, String reminderText, Locale locale, ZoneId zoneId) {
+        log.info("Creating new reminder");
         LocalDate now = LocalDate.now(zoneId);
         var scheduledStartTime = LocalDateTime.of(now.getYear(), now.getMonth(), now.getDayOfMonth(),
                 reminderStartTime.getHour(), reminderStartTime.getMinute(), reminderStartTime.getSecond());

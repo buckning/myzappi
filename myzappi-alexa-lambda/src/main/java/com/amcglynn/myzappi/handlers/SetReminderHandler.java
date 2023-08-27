@@ -46,7 +46,8 @@ public class SetReminderHandler implements RequestHandler {
         var locale = Locale.forLanguageTag(handlerInput.getRequestEnvelope().getRequest().getLocale());
         var reminderService = reminderServiceFactory.newReminderService(handlerInput);
 
-        var alertToken = reminderService.createDailyRecurringReminder(LocalTime.of(23, 0), "test content", locale, zoneId);
+        var alertToken = reminderService.createDailyRecurringReminder(handlerInput.getRequestEnvelope().getContext().getSystem().getUser().getPermissions().getConsentToken(),
+                LocalTime.of(23, 0), "test content", locale, zoneId);
 
 
         log.info("Alert token = {}", alertToken);

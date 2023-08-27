@@ -45,12 +45,14 @@ public class MessageReceivedHandler implements RequestHandler {
 
     @Override
     public Optional<Response> handle(HandlerInput handlerInput) {
-//        log.info("data = {}", handlerInput.getRequestEnvelope());
+        log.info("data = {}", handlerInput.getRequestEnvelope());
         var reminderService = reminderServiceFactory.newReminderService(handlerInput);
         try {
 //            var reminders = handlerInput.getServiceClientFactory().getReminderManagementService().getReminder("d8337972-23eb-4036-a83d-4a35bc9a0104");
 
             log.info("Updating reminder by 24 hours");
+            // read the LWA
+
             reminderService.update(handlerInput.getRequestEnvelope().getContext().getSystem().getUser().getPermissions().getConsentToken());
 
 //            var scheduledStartTime = LocalDateTime.of(2023, 8, 27, 0, 0, 0);

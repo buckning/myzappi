@@ -1,6 +1,8 @@
 package com.amcglynn.lwa;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -11,6 +13,8 @@ import java.util.List;
  * ASK SDK does not deserialize the timestamps correctly and throws an exception when getting reminders, so this is done as a workaround
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
+@Builder
+@AllArgsConstructor
 @NoArgsConstructor
 @Getter
 public class Reminder {
@@ -23,6 +27,8 @@ public class Reminder {
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     @NoArgsConstructor
+    @Builder
+    @AllArgsConstructor
     @Getter
     public static class Trigger {
         String type;
@@ -34,6 +40,8 @@ public class Reminder {
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     @NoArgsConstructor
+    @Builder
+    @AllArgsConstructor
     @Getter
     public static class Recurrence {
         String freq;
@@ -52,18 +60,24 @@ public class Reminder {
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     @NoArgsConstructor
+    @Builder
+    @AllArgsConstructor
     @Getter
     public static class AlertInfo {
         SpokenInfo spokenInfo;
 
         @JsonIgnoreProperties(ignoreUnknown = true)
         @NoArgsConstructor
+        @Builder
+        @AllArgsConstructor
         @Getter
         public static class SpokenInfo {
             List<Content> content;
 
             @JsonIgnoreProperties(ignoreUnknown = true)
             @NoArgsConstructor
+            @Builder
+            @AllArgsConstructor
             @Getter
             public static class Content {
                 String locale;

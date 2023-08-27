@@ -90,13 +90,13 @@ public class LwaClient {
         return makeRequest(request, String.class);
     }
 
-    public Optional<Reminders> getReminders(String baseUrl, String accessToken) {
+    public Reminders getReminders(String baseUrl, String accessToken) {
         var url = baseUrl + "/v1/alerts/reminders";
         var request = new Request.Builder()
                 .addHeader("Authorization", "Bearer " + accessToken)
                 .url(url)
                 .build();
-        return makeRequest(request, Reminders.class);
+        return makeRequest(request, Reminders.class).orElseThrow(() -> new ClientException());
     }
 
     public Optional<Reminder> getReminder(String baseUrl, String accessToken, String alertToken) {
