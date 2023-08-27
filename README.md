@@ -74,6 +74,12 @@ aws dynamodb create-table \
   --key-schema AttributeName=user-id,KeyType=HASH \
   --provisioned-throughput ReadCapacityUnits=1,WriteCapacityUnits=1
 
+aws dynamodb create-table \
+  --table-name alexa-to-lwa-users-lookup \
+  --attribute-definitions AttributeName=alexa-user-id,AttributeType=S \
+  --key-schema AttributeName=alexa-user-id,KeyType=HASH \
+  --provisioned-throughput ReadCapacityUnits=1,WriteCapacityUnits=1
+
 ```
 
 ## Manually create role for Lambda

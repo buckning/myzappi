@@ -49,7 +49,7 @@ public class MyZappiSkillStreamHandler extends SkillStreamHandler {
                 .addRequestHandler(new GoGreenHandler(serviceManager.getZappiServiceBuilder(), userIdResolverFactory))
                 .addRequestHandler(new ChargeMyCarHandler(serviceManager.getZappiServiceBuilder(), userIdResolverFactory))
                 .addRequestHandler(new SetReminderHandler(reminderServiceFactory, userZoneResolver))
-                .addRequestHandler(new MessageReceivedHandler(reminderServiceFactory))
+                .addRequestHandler(new MessageReceivedHandler(reminderServiceFactory, serviceManager.getZappiServiceBuilder(), serviceManager.getAmazonDynamoDB()))
                 .addRequestHandler(new QuitHandler())
                 .addExceptionHandler(new MyZappiExceptionHandler())
                 .build());
