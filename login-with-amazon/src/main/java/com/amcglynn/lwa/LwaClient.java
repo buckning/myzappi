@@ -90,6 +90,24 @@ public class LwaClient {
         return makeRequest(request, String.class);
     }
 
+    public Optional<Reminders> getReminders(String baseUrl, String accessToken) {
+        var url = baseUrl + "/v1/alerts/reminders";
+        var request = new Request.Builder()
+                .addHeader("Authorization", "Bearer " + accessToken)
+                .url(url)
+                .build();
+        return makeRequest(request, Reminders.class);
+    }
+
+    public Optional<Reminder> getReminder(String baseUrl, String accessToken, String alertToken) {
+        var url = baseUrl + "/v1/alerts/reminders/" + alertToken;
+        var request = new Request.Builder()
+                .addHeader("Authorization", "Bearer " + accessToken)
+                .url(url)
+                .build();
+        return makeRequest(request, Reminder.class);
+    }
+
     /**
      * Post an asynchronous message for services listening to Messaging.MessageReceived events. This data is routed to
      * the skill associated with the access token, which is identified by the client ID and secret of the skill.
@@ -125,7 +143,7 @@ public class LwaClient {
                 return Optional.ofNullable(responseBody);
             }
         } catch (IOException e) {
-            log.warn("Unexpected error when making request");
+            log.warn("Unexpected error when making request", e);
         }
         return Optional.empty();
     }

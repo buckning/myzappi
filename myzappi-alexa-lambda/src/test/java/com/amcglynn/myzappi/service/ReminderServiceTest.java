@@ -7,6 +7,7 @@ import com.amazon.ask.model.services.reminderManagement.ReminderManagementServic
 import com.amazon.ask.model.services.reminderManagement.ReminderRequest;
 import com.amazon.ask.model.services.reminderManagement.ReminderResponse;
 import com.amazon.ask.model.services.reminderManagement.TriggerType;
+import com.amcglynn.lwa.LwaClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -32,6 +33,8 @@ class ReminderServiceTest {
     private ReminderService reminderService;
     @Mock
     private ReminderManagementServiceClient mockReminderClient;
+    @Mock
+    private LwaClient mockLwaClient;
 
     @Captor
     private ArgumentCaptor<ReminderRequest> reminderRequestCaptor;
@@ -39,7 +42,7 @@ class ReminderServiceTest {
     @BeforeEach
     void setUp() {
         when(mockReminderClient.createReminder(any())).thenReturn(ReminderResponse.builder().withAlertToken("testAlertToken").build());
-        this.reminderService = new ReminderService(mockReminderClient);
+        this.reminderService = new ReminderService(mockReminderClient, mockLwaClient);
     }
 
     @Test

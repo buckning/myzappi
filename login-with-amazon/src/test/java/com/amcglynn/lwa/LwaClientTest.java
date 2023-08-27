@@ -4,6 +4,9 @@ import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
@@ -156,6 +159,115 @@ class LwaClientTest {
             var throwable = catchThrowable(() -> client.postSkillMessage(mockWebServer.url("").toString(),
                     "mockUser", "mockAccessToken", new ReminderUpdate("test", "test", "test")));
             assertThat(throwable).isNull();
+        }
+    }
+
+    @Test
+    void testGetReminders() throws Exception {
+        try (var mockWebServer = new MockWebServer()) {
+
+            var mockResponse = new MockResponse()
+                    .setBody("{\n" +
+                            "    \"totalCount\": \"1\",\n" +
+                            "    \"alerts\": [\n" +
+                            "        {\n" +
+                            "            \"alertToken\": \"d8337972-23eb-4036-a83d-4a35bc9a0104\",\n" +
+                            "            \"createdTime\": \"2023-08-26T21:23:54.205Z\",\n" +
+                            "            \"updatedTime\": \"2023-08-26T21:23:54.472Z\",\n" +
+                            "            \"trigger\": {\n" +
+                            "                \"type\": \"SCHEDULED_ABSOLUTE\",\n" +
+                            "                \"scheduledTime\": \"2023-08-27T18:58:00.000\",\n" +
+                            "                \"timeZoneId\": \"Europe/Dublin\",\n" +
+                            "                \"offsetInSeconds\": 0,\n" +
+                            "                \"recurrence\": {\n" +
+                            "                    \"freq\": null,\n" +
+                            "                    \"byDay\": null,\n" +
+                            "                    \"startDateTime\": \"2023-08-27T00:00:00.000+01:00\",\n" +
+                            "                    \"endDateTime\": \"2023-09-01T00:00:00.000+01:00\",\n" +
+                            "                    \"recurrenceRules\": [\n" +
+                            "                        \"FREQ=DAILY;BYHOUR=18;BYMINUTE=58;BYSECOND=0\"\n" +
+                            "                    ]\n" +
+                            "                },\n" +
+                            "                \"eventTime\": null\n" +
+                            "            },\n" +
+                            "            \"status\": \"ON\",\n" +
+                            "            \"alertInfo\": {\n" +
+                            "                \"spokenInfo\": {\n" +
+                            "                    \"content\": [\n" +
+                            "                        {\n" +
+                            "                            \"locale\": \"en-GB\",\n" +
+                            "                            \"text\": \"Your car is not plugged in\",\n" +
+                            "                            \"ssml\": null\n" +
+                            "                        }\n" +
+                            "                    ]\n" +
+                            "                }\n" +
+                            "            },\n" +
+                            "            \"pushNotification\": {\n" +
+                            "                \"status\": \"ENABLED\"\n" +
+                            "            },\n" +
+                            "            \"version\": \"6\"\n" +
+                            "        }\n" +
+                            "    ],\n" +
+                            "    \"links\": null\n" +
+                            "}")
+                    .setResponseCode(200);
+            mockWebServer.enqueue(mockResponse);
+
+            var client = new LwaClient();
+            var reminders = client.getReminders(mockWebServer.url("").toString(), "mockAccessToken");
+            assertThat(reminders).isNotNull();
+        }
+    }
+
+    @Test
+    void testGetReminder() throws Exception {
+        try (var mockWebServer = new MockWebServer()) {
+
+            var mockResponse = new MockResponse()
+                    .setBody(
+                            "        {\n" +
+                            "            \"alertToken\": \"d8337972-23eb-4036-a83d-4a35bc9a0104\",\n" +
+                            "            \"createdTime\": \"2023-08-26T21:23:54.205Z\",\n" +
+                            "            \"updatedTime\": \"2023-08-26T21:23:54.472Z\",\n" +
+                            "            \"trigger\": {\n" +
+                            "                \"type\": \"SCHEDULED_ABSOLUTE\",\n" +
+                            "                \"scheduledTime\": \"2023-08-27T18:58:00.000\",\n" +
+                            "                \"timeZoneId\": \"Europe/Dublin\",\n" +
+                            "                \"offsetInSeconds\": 0,\n" +
+                            "                \"recurrence\": {\n" +
+                            "                    \"freq\": null,\n" +
+                            "                    \"byDay\": null,\n" +
+                            "                    \"startDateTime\": \"2023-08-27T00:00:00.000+01:00\",\n" +
+                            "                    \"endDateTime\": \"2023-09-01T00:00:00.000+01:00\",\n" +
+                            "                    \"recurrenceRules\": [\n" +
+                            "                        \"FREQ=DAILY;BYHOUR=18;BYMINUTE=58;BYSECOND=0\"\n" +
+                            "                    ]\n" +
+                            "                },\n" +
+                            "                \"eventTime\": null\n" +
+                            "            },\n" +
+                            "            \"status\": \"ON\",\n" +
+                            "            \"alertInfo\": {\n" +
+                            "                \"spokenInfo\": {\n" +
+                            "                    \"content\": [\n" +
+                            "                        {\n" +
+                            "                            \"locale\": \"en-GB\",\n" +
+                            "                            \"text\": \"Your car is not plugged in\",\n" +
+                            "                            \"ssml\": null\n" +
+                            "                        }\n" +
+                            "                    ]\n" +
+                            "                }\n" +
+                            "            },\n" +
+                            "            \"pushNotification\": {\n" +
+                            "                \"status\": \"ENABLED\"\n" +
+                            "            },\n" +
+                            "            \"version\": \"6\"\n" +
+                            "        }\n")
+                    .setResponseCode(200);
+            mockWebServer.enqueue(mockResponse);
+
+            var client = new LwaClient();
+            var reminder = client.getReminder(mockWebServer.url("").toString(), "mockAccessToken", "d8337972-23eb-4036-a83d-4a35bc9a0104");
+            assertThat(reminder).isNotNull();
         }
     }
 

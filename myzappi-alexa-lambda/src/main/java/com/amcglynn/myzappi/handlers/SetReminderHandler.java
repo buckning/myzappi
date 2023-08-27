@@ -46,7 +46,10 @@ public class SetReminderHandler implements RequestHandler {
         var locale = Locale.forLanguageTag(handlerInput.getRequestEnvelope().getRequest().getLocale());
         var reminderService = reminderServiceFactory.newReminderService(handlerInput);
 
-        reminderService.createDailyRecurringReminder(LocalTime.of(23, 0), "test content", locale, zoneId);
+        var alertToken = reminderService.createDailyRecurringReminder(LocalTime.of(23, 0), "test content", locale, zoneId);
+
+
+        log.info("Alert token = {}", alertToken);
         // TODO read the reminders from the DB and from Alexa. If there is already one set, update it in DB and Alexa
 
         // TODO if there is not one, create a recurring reminder, save the alert and schedule the SQS message
