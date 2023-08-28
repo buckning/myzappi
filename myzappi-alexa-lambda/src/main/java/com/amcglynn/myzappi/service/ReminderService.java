@@ -1,7 +1,6 @@
 package com.amcglynn.myzappi.service;
 
 import com.amazon.ask.model.services.reminderManagement.AlertInfo;
-import com.amazon.ask.model.services.reminderManagement.GetRemindersResponse;
 import com.amazon.ask.model.services.reminderManagement.PushNotification;
 import com.amazon.ask.model.services.reminderManagement.PushNotificationStatus;
 import com.amazon.ask.model.services.reminderManagement.Recurrence;
@@ -14,7 +13,6 @@ import com.amazon.ask.model.services.reminderManagement.Trigger;
 import com.amazon.ask.model.services.reminderManagement.TriggerType;
 import com.amcglynn.lwa.LwaClient;
 import com.amcglynn.lwa.Reminder;
-import com.amcglynn.lwa.Reminders;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDate;
@@ -22,6 +20,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Locale;
@@ -70,24 +69,34 @@ public class ReminderService {
         return reminderManagementServiceClient.updateReminder(reminder.getAlertToken(), request).getAlertToken();
     }
 
-    public String update(String accessToken) {
+    public String delayBy24Hours(String accessToken) {
         StringBuilder alertToken = new StringBuilder();
         var reminders = lwaClient.getReminders("https://api.eu.amazonalexa.com", accessToken);
 
         reminders.getAlerts().forEach(reminder -> {
-            var scheduledTime = LocalDateTime.parse(reminder.getTrigger().getScheduledTime()).plus(1, ChronoUnit.DAYS);
+            // there is only a need to change scheduledTime to plus 24 hours
+
+            log.info("Before time (getStartDateTime) = {}", reminder.getTrigger().getRecurrence().getStartDateTime());
+            log.info("Before time (getStartTime) = {}", reminder.getTrigger().getRecurrence().getStartTime());
+            log.info("New time = {}", reminder.getTrigger().getRecurrence().getStartTime().toLocalDateTime()
+                    .plus(1, ChronoUnit.DAYS));
+
+            var scheduledTime = reminder.getTrigger().getRecurrence().getStartTime().toLocalDateTime()
+                    .plus(1, ChronoUnit.DAYS);
             log.info("Updating reminder {} by 24 hours to {}", reminder, scheduledTime);
+
+
+            // need to change start time using something like this: reminder.getTrigger().getRecurrence().getStartTime().toLocalTime();
             ReminderRequest request = ReminderRequest.builder()
                     .withRequestTime(OffsetDateTime.now())
                     .withTrigger(Trigger.builder()
-                            .withTimeZoneId(reminder.getTrigger().getTimeZoneId())
                             .withType(TriggerType.SCHEDULED_ABSOLUTE)
-                            .withScheduledTime(scheduledTime)
+                            .withTimeZoneId(reminder.getTrigger().getTimeZoneId())
                             .withRecurrence(Recurrence.builder()
                                     .withStartDateTime(scheduledTime)
-                                    .withEndDateTime(scheduledTime.plus(5, ChronoUnit.DAYS))
                                     .withRecurrenceRules(List.of("FREQ=DAILY;BYHOUR=" + scheduledTime.getHour() +
                                             ";BYMINUTE=" + scheduledTime.getMinute() + ";BYSECOND=0"))
+
                                     .build())
                             .build())
                     .withAlertInfo(AlertInfo.builder()
@@ -100,7 +109,7 @@ public class ReminderService {
                             .build())
                     .withPushNotification(PushNotification.builder().withStatus(PushNotificationStatus.ENABLED).build())
                     .build();
-
+            log.info("Update reminder = {} request = {}", reminder.getAlertToken(), request);
             alertToken.insert(0, reminderManagementServiceClient.updateReminder(reminder.getAlertToken(), request).getAlertToken());
         });
         return alertToken.toString();

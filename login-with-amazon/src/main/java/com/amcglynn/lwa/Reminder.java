@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -17,6 +18,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
+@ToString
 public class Reminder {
 
     private String alertToken;
@@ -30,6 +32,7 @@ public class Reminder {
     @Builder
     @AllArgsConstructor
     @Getter
+    @ToString
     public static class Trigger {
         String type;
         String scheduledTime;
@@ -43,6 +46,7 @@ public class Reminder {
     @Builder
     @AllArgsConstructor
     @Getter
+    @ToString
     public static class Recurrence {
         String freq;
         String startDateTime;
@@ -63,6 +67,7 @@ public class Reminder {
     @Builder
     @AllArgsConstructor
     @Getter
+    @ToString
     public static class AlertInfo {
         SpokenInfo spokenInfo;
 
@@ -71,6 +76,7 @@ public class Reminder {
         @Builder
         @AllArgsConstructor
         @Getter
+        @ToString
         public static class SpokenInfo {
             List<Content> content;
 
@@ -79,6 +85,7 @@ public class Reminder {
             @Builder
             @AllArgsConstructor
             @Getter
+            @ToString
             public static class Content {
                 String locale;
                 String text;

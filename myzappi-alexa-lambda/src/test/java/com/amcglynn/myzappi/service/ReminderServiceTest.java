@@ -51,6 +51,7 @@ class ReminderServiceTest {
     @BeforeEach
     void setUp() {
         when(mockReminderClient.createReminder(any())).thenReturn(ReminderResponse.builder().withAlertToken("testAlertToken").build());
+        when(mockReminderClient.updateReminder(any(), any())).thenReturn(ReminderResponse.builder().withAlertToken("testAlertToken").build());
         this.reminderService = new ReminderService(mockReminderClient, mockLwaClient);
     }
 
@@ -89,6 +90,12 @@ class ReminderServiceTest {
                 .isEqualTo(PushNotification.builder().withStatus(PushNotificationStatus.ENABLED).build());
     }
 
+    @Test
+    void testDelayBy24Hours() {
+        when(mockLwaClient.getReminders(anyString(), anyString())).thenReturn(getReminders());
+        var response = reminderService.delayBy24Hours("testAccessToken");
+    }
+
     private Reminders getReminders() {
         return new Reminders(1, List.of(Reminder.builder()
                 .alertToken("testAlertToken")
@@ -101,7 +108,7 @@ class ReminderServiceTest {
                         .offsetInSeconds(0)
                         .recurrence(Reminder.Recurrence.builder()
                                 .freq("DAILY")
-                                .startDateTime("")
+                                .startDateTime("2023-08-27T23:00:00.000+01:00")
                                 .endDateTime("")
                                 .recurrenceRules(List.of())
                                 .build())
