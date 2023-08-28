@@ -17,6 +17,9 @@ import com.amcglynn.myzappi.service.ReminderServiceFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
@@ -25,6 +28,8 @@ import org.mockito.quality.Strictness;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.Locale;
+import java.util.Map;
+import java.util.stream.Stream;
 
 import static com.amcglynn.myzappi.handlers.ResponseVerifier.verifySimpleCardInResponse;
 import static com.amcglynn.myzappi.handlers.ResponseVerifier.verifySpeechInResponse;
@@ -71,9 +76,10 @@ class SetReminderHandlerTest {
         assertThat(handler.canHandle(handlerInputBuilder(requestEnvelopeBuilder()).build())).isFalse();
     }
 
-    @Test
-    void testHandleRequestsConsentCardWhenReminderPermissionIsNotGranted() {
-        var result = handler.handle(handlerInputBuilder(requestEnvelopeBuilderWithoutPermissions()).build());
+    @ParameterizedTest
+    @MethodSource("userWithoutPermissions")
+    void testHandleRequestsConsentCardWhenReminderPermissionIsNotGranted(User user) {
+        var result = handler.handle(handlerInputBuilder(requestEnvelopeBuilderWithoutPermissions(user)).build());
         assertThat(result).isPresent();
 
         verifySpeechInResponse(result.get(), "<speak>You have not yet granted permissions for me to set up " +
@@ -113,15 +119,21 @@ class SetReminderHandlerTest {
                 .withSession(Session.builder().withUser(User.builder().withUserId("test").build()).build());
     }
 
-    private RequestEnvelope.Builder requestEnvelopeBuilderWithoutPermissions() {
+    private RequestEnvelope.Builder requestEnvelopeBuilderWithoutPermissions(User user) {
         return RequestEnvelope.builder()
                 .withContext(Context.builder()
                         .withSystem(SystemState.builder()
                                 .withApplication(Application.builder().withApplicationId("mockApplicationId").build())
-                                .withUser(User.builder().withUserId("mockUser").withAccessToken("mockAccessToken").build())
+                                .withUser(user)
                                 .build())
                         .build())
                 .withRequest(intentRequest)
                 .withSession(Session.builder().withUser(User.builder().withUserId("test").build()).build());
+    }
+
+    public static Stream<Arguments> userWithoutPermissions() {
+        return Stream.of(Arguments.of(User.builder().withUserId("mockUser").withAccessToken("mockAccessToken").build()),
+                Arguments.of(User.builder().withUserId("mockUser").withAccessToken("mockAccessToken")
+                        .withPermissions(Permissions.builder().withScopes(Map.of()).build()).build()));
     }
 }

@@ -20,7 +20,6 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Locale;
@@ -69,22 +68,21 @@ public class ReminderService {
         return reminderManagementServiceClient.updateReminder(reminder.getAlertToken(), request).getAlertToken();
     }
 
+    public void handlerReminderMessage() {
+        // 1. check the existing reminder
+        // 2. check if it is going to trigger in 5 mins or less
+        // 3. If it is longer, calculate 5 minutes before the next reminder and schedule a message for that time
+    }
+
     public String delayBy24Hours(String accessToken) {
         StringBuilder alertToken = new StringBuilder();
         var reminders = lwaClient.getReminders("https://api.eu.amazonalexa.com", accessToken);
 
         reminders.getAlerts().forEach(reminder -> {
-            // there is only a need to change scheduledTime to plus 24 hours
+            var oldReminderTime = reminder.getTrigger().getRecurrence().getStartTime().toLocalDateTime();
+            var newReminderTime = oldReminderTime.plusDays(1);
 
-            log.info("Before time (getStartDateTime) = {}", reminder.getTrigger().getRecurrence().getStartDateTime());
-            log.info("Before time (getStartTime) = {}", reminder.getTrigger().getRecurrence().getStartTime());
-            log.info("New time = {}", reminder.getTrigger().getRecurrence().getStartTime().toLocalDateTime()
-                    .plus(1, ChronoUnit.DAYS));
-
-            var scheduledTime = reminder.getTrigger().getRecurrence().getStartTime().toLocalDateTime()
-                    .plus(1, ChronoUnit.DAYS);
-            log.info("Updating reminder {} by 24 hours to {}", reminder, scheduledTime);
-
+            log.info("Updating reminder from {} to {}", oldReminderTime, newReminderTime);
 
             // need to change start time using something like this: reminder.getTrigger().getRecurrence().getStartTime().toLocalTime();
             ReminderRequest request = ReminderRequest.builder()
@@ -93,9 +91,9 @@ public class ReminderService {
                             .withType(TriggerType.SCHEDULED_ABSOLUTE)
                             .withTimeZoneId(reminder.getTrigger().getTimeZoneId())
                             .withRecurrence(Recurrence.builder()
-                                    .withStartDateTime(scheduledTime)
-                                    .withRecurrenceRules(List.of("FREQ=DAILY;BYHOUR=" + scheduledTime.getHour() +
-                                            ";BYMINUTE=" + scheduledTime.getMinute() + ";BYSECOND=0"))
+                                    .withStartDateTime(newReminderTime)
+                                    .withRecurrenceRules(List.of("FREQ=DAILY;BYHOUR=" + newReminderTime.getHour() +
+                                            ";BYMINUTE=" + newReminderTime.getMinute() + ";BYSECOND=0"))
 
                                     .build())
                             .build())
@@ -139,8 +137,10 @@ public class ReminderService {
                         .withType(TriggerType.SCHEDULED_ABSOLUTE)
                         .withScheduledTime(scheduledStartTime)
                         .withRecurrence(Recurrence.builder()
-                                .withFreq(RecurrenceFreq.DAILY)
-                                .withInterval(1)
+                                .withStartDateTime(scheduledStartTime)
+                                .withRecurrenceRules(List.of("FREQ=DAILY;BYHOUR=" + scheduledStartTime.getHour() +
+                                        ";BYMINUTE=" + scheduledStartTime.getMinute() + ";BYSECOND=0"))
+
                                 .build())
                         .build())
                 .withAlertInfo(AlertInfo.builder()

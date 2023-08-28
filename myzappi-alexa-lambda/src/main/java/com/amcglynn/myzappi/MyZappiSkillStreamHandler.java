@@ -5,6 +5,7 @@ import com.amazon.ask.Skills;
 import com.amcglynn.lwa.LwaClient;
 import com.amcglynn.myzappi.core.config.Properties;
 import com.amcglynn.myzappi.core.config.ServiceManager;
+import com.amcglynn.myzappi.core.dal.AlexaToLwaLookUpRepository;
 import com.amcglynn.myzappi.handlers.ChargeMyCarHandler;
 import com.amcglynn.myzappi.handlers.FallbackHandler;
 import com.amcglynn.myzappi.handlers.GetEnergyCostHandler;
@@ -49,7 +50,7 @@ public class MyZappiSkillStreamHandler extends SkillStreamHandler {
                 .addRequestHandler(new GoGreenHandler(serviceManager.getZappiServiceBuilder(), userIdResolverFactory))
                 .addRequestHandler(new ChargeMyCarHandler(serviceManager.getZappiServiceBuilder(), userIdResolverFactory))
                 .addRequestHandler(new SetReminderHandler(reminderServiceFactory, userZoneResolver))
-                .addRequestHandler(new MessageReceivedHandler(reminderServiceFactory, serviceManager.getZappiServiceBuilder(), serviceManager.getAmazonDynamoDB()))
+                .addRequestHandler(new MessageReceivedHandler(reminderServiceFactory, serviceManager.getZappiServiceBuilder(), new AlexaToLwaLookUpRepository(serviceManager.getAmazonDynamoDB())))
                 .addRequestHandler(new QuitHandler())
                 .addExceptionHandler(new MyZappiExceptionHandler())
                 .build());

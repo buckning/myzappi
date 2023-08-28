@@ -2,7 +2,6 @@ package com.amcglynn.myzappi.service;
 
 import com.amazon.ask.model.services.reminderManagement.PushNotification;
 import com.amazon.ask.model.services.reminderManagement.PushNotificationStatus;
-import com.amazon.ask.model.services.reminderManagement.RecurrenceFreq;
 import com.amazon.ask.model.services.reminderManagement.ReminderManagementServiceClient;
 import com.amazon.ask.model.services.reminderManagement.ReminderRequest;
 import com.amazon.ask.model.services.reminderManagement.ReminderResponse;
@@ -10,7 +9,6 @@ import com.amazon.ask.model.services.reminderManagement.TriggerType;
 import com.amcglynn.lwa.LwaClient;
 import com.amcglynn.lwa.Reminder;
 import com.amcglynn.lwa.Reminders;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -93,7 +91,17 @@ class ReminderServiceTest {
     @Test
     void testDelayBy24Hours() {
         when(mockLwaClient.getReminders(anyString(), anyString())).thenReturn(getReminders());
+
         var response = reminderService.delayBy24Hours("testAccessToken");
+
+        assertThat(response).isEqualTo("testAlertToken");
+        verify(mockLwaClient).getReminders("https://api.eu.amazonalexa.com", "testAccessToken");
+        verify(mockReminderClient).updateReminder(eq("testAlertToken"), reminderRequestCaptor.capture());
+        var reminderRequest = reminderRequestCaptor.getValue();
+        assertThat(reminderRequest.getTrigger().getRecurrence().getStartDateTime()).
+                isEqualTo(LocalDateTime.of(2023, 8, 29, 23, 0, 0));
+        assertThat(reminderRequest.getTrigger().getRecurrence().getRecurrenceRules())
+                .containsExactly("FREQ=DAILY;BYHOUR=23;BYMINUTE=0;BYSECOND=0");
     }
 
     private Reminders getReminders() {
@@ -103,12 +111,12 @@ class ReminderServiceTest {
                 .updatedTime("2023-08-27T07:58:31.211Z")
                 .trigger(Reminder.Trigger.builder()
                         .type("SCHEDULED_ABSOLUTE")
-                        .scheduledTime("2023-08-27T23:00:00.000")
+                        .scheduledTime("2023-08-28T23:00:00.000")
                         .timeZoneId("Europe/Dublin")
                         .offsetInSeconds(0)
                         .recurrence(Reminder.Recurrence.builder()
                                 .freq("DAILY")
-                                .startDateTime("2023-08-27T23:00:00.000+01:00")
+                                .startDateTime("2023-08-28T23:00:00.000+01:00")
                                 .endDateTime("")
                                 .recurrenceRules(List.of())
                                 .build())
@@ -143,8 +151,7 @@ class ReminderServiceTest {
         assertThat(trigger.getScheduledTime()).isEqualTo(LocalDateTime.of(localDate, LocalTime.of(23, 0, 0)));
 
         var recurrence = trigger.getRecurrence();
-        assertThat(recurrence.getFreq()).isEqualTo(RecurrenceFreq.DAILY);
-        assertThat(recurrence.getInterval()).isEqualTo(1);
+        assertThat(recurrence.getRecurrenceRules()).containsExactly("FREQ=DAILY;BYHOUR=23;BYMINUTE=0;BYSECOND=0");
     }
 
     private void verifyTriggerUpdate(ReminderRequest reminderRequest) {

@@ -80,9 +80,6 @@
                                         <exclude>com.amcglynn.myzappi.core.service.ZappiService</exclude>
                                         <exclude>com.amcglynn.myzappi.core.exception.MissingConfigurationException</exclude>
                                         <exclude>com.amcglynn.myzappi.MyZappiSkillStreamHandler</exclude>
-                                        <exclude>com.amcglynn.myzappi.handlers.SetReminderHandler</exclude> <!-- only skip during development-->
-                                        <exclude>com.amcglynn.myzappi.handlers.MessageReceivedHandler</exclude> <!-- only skip during development-->
-                                        <exclude>com.amcglynn.myzappi.service.ReminderService</exclude> <!-- only skip during development-->
                                         <exclude>com.amcglynn.sqs.*</exclude> <!-- only skip during development-->
                                         <exclude>com.amcglynn.myzappi.core.dal.AlexaToLwaLookUpRepository</exclude> <!-- only skip during development-->
                                         <exclude>com.amcglynn.myzappi.login.LwaClientFactory</exclude>
