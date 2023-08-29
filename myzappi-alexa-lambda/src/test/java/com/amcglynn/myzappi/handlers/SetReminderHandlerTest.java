@@ -8,6 +8,7 @@ import com.amazon.ask.model.IntentRequest;
 import com.amazon.ask.model.Permissions;
 import com.amazon.ask.model.RequestEnvelope;
 import com.amazon.ask.model.Session;
+import com.amazon.ask.model.Slot;
 import com.amazon.ask.model.User;
 import com.amazon.ask.model.interfaces.system.SystemState;
 import com.amazon.ask.model.ui.AskForPermissionsConsentCard;
@@ -35,6 +36,7 @@ import static com.amcglynn.myzappi.handlers.ResponseVerifier.verifySimpleCardInR
 import static com.amcglynn.myzappi.handlers.ResponseVerifier.verifySpeechInResponse;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -56,10 +58,14 @@ class SetReminderHandlerTest {
     void setUp() {
         when(mockReminderServiceFactory.newReminderService(any())).thenReturn(mockReminderService);
         when(mockUserZoneResolver.getZoneId(any())).thenReturn(ZoneId.of("Europe/Dublin"));
+        when(mockReminderService.createDailyRecurringReminder(anyString(), any(), anyString(), any(), any()))
+                .thenReturn("testAlertToken");
         handler = new SetReminderHandler(mockReminderServiceFactory, mockUserZoneResolver);
         intentRequest = IntentRequest.builder()
                 .withLocale("en-GB")
-                .withIntent(Intent.builder().withName("SetReminder").build())
+                .withIntent(Intent.builder().withName("SetReminder")
+                        .putSlotsItem("time", Slot.builder().withValue("10:30").build())
+                        .build())
                 .build();
     }
 
@@ -95,9 +101,10 @@ class SetReminderHandlerTest {
         var result = handler.handle(handlerInputBuilder(requestEnvelopeBuilder()).build());
         assertThat(result).isPresent();
 
-        verifySpeechInResponse(result.get(), "<speak>Reminder set.</speak>");
+        verifySpeechInResponse(result.get(), "<speak>Okay, I'll remind you every day that you don't have your E.V. plugged in.</speak>");
         verifySimpleCardInResponse(result.get(), "My Zappi", "Reminder set.");
-        verify(mockReminderService).createDailyRecurringReminder("testConsentToken", LocalTime.of(23, 0), "test content",
+        verify(mockReminderService).createDailyRecurringReminder("testConsentToken", LocalTime.of(10, 30),
+                "Your E.V. is not connected. ",
                 Locale.forLanguageTag("en-GB"), ZoneId.of("Europe/Dublin"));
     }
 

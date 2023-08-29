@@ -3,12 +3,14 @@ package com.amcglynn.myzappi.handlers;
 import com.amazon.ask.dispatcher.request.handler.HandlerInput;
 import com.amazon.ask.dispatcher.request.handler.RequestHandler;
 import com.amazon.ask.model.Response;
+import com.amazon.ask.request.RequestHelper;
 import com.amcglynn.myzappi.UserZoneResolver;
 import com.amcglynn.myzappi.core.Brand;
 import com.amcglynn.myzappi.service.ReminderServiceFactory;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -46,14 +48,15 @@ public class SetReminderHandler implements RequestHandler {
         var locale = Locale.forLanguageTag(handlerInput.getRequestEnvelope().getRequest().getLocale());
         var reminderService = reminderServiceFactory.newReminderService(handlerInput);
 
+        var time = parseSlot(handlerInput, "time");
+        var scheduledTime = LocalTime.parse(time.get());    // unsafe to call .get here usually but this has slot validation enabled so it is safe
+
         var alertToken = reminderService.createDailyRecurringReminder(handlerInput.getRequestEnvelope().getContext().getSystem().getUser().getPermissions().getConsentToken(),
-                LocalTime.of(23, 0), "test content", locale, zoneId);
+                scheduledTime, voiceResponse(handlerInput, "ev-not-connected"), locale, zoneId);
 
+        log.info("Created new reminder: {} scheduling at {}", alertToken, scheduledTime);
 
-        log.info("Alert token = {}", alertToken);
-        // TODO read the reminders from the DB and from Alexa. If there is already one set, update it in DB and Alexa
-
-        // TODO if there is not one, create a recurring reminder, save the alert and schedule the SQS message
+        // TODO create a new scheduled job that runs 5 minutes before the reminder time
 
         return handlerInput.getResponseBuilder()
                 .withSimpleCard(Brand.NAME, cardResponse(handlerInput, "reminder-set"))
@@ -64,5 +67,10 @@ public class SetReminderHandler implements RequestHandler {
     private boolean userNotGrantedPermissions(HandlerInput handlerInput) {
         var permissions = handlerInput.getRequestEnvelope().getContext().getSystem().getUser().getPermissions();
         return permissions != null && permissions.getConsentToken() != null;
+    }
+
+    private Optional<String> parseSlot(HandlerInput handlerInput, String slotName) {
+        return RequestHelper.forHandlerInput(handlerInput)
+                .getSlotValue(slotName);
     }
 }

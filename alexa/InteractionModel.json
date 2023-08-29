@@ -188,8 +188,20 @@
         },
         {
           "name": "SetReminder",
-          "slots": [],
+          "slots": [
+            {
+              "name": "time",
+              "type": "AMAZON.TIME",
+              "samples": [
+                "At {time}",
+                "{time}"
+              ]
+            }
+          ],
           "samples": [
+            "set a reminder to plug in my car every day at {time}",
+            "set a reminder to plug in my car every day",
+            "set a recurring reminder at {time} to tell me to plug in my car",
             "set a reminder"
           ]
         }
@@ -243,6 +255,22 @@
               }
             }
           ]
+        },
+        {
+          "name": "SetReminder",
+          "confirmationRequired": false,
+          "prompts": {},
+          "slots": [
+            {
+              "name": "time",
+              "type": "AMAZON.TIME",
+              "confirmationRequired": false,
+              "elicitationRequired": true,
+              "prompts": {
+                "elicitation": "Elicit.Slot.1490061479497.952965288636"
+              }
+            }
+          ]
         }
       ],
       "delegationStrategy": "ALWAYS"
@@ -258,6 +286,19 @@
           {
             "type": "PlainText",
             "value": "You need to provide a charge mode"
+          }
+        ]
+      },
+      {
+        "id": "Elicit.Slot.1490061479497.952965288636",
+        "variations": [
+          {
+            "type": "PlainText",
+            "value": "What time would you like me to remind you?"
+          },
+          {
+            "type": "PlainText",
+            "value": "What time do you want me to set the reminder for?"
           }
         ]
       }
