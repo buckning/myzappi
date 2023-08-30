@@ -58,7 +58,7 @@ class MessageReceivedHandlerTest {
     void setUp() {
         when(mockZappiServiceBuilder.build(any())).thenReturn(mockZappiService);
         when(mockReminderServiceFactory.newReminderService(any())).thenReturn(mockReminderService);
-        when(mockReminderService.delayBy24Hours("mockConsentToken")).thenReturn("mockAlertToken");
+        when(mockReminderService.delayReminderBy24Hours("mockConsentToken")).thenReturn("mockAlertToken");
         when(mockUserLookUpRepository.getLwaUserId("mockAlexaUserId")).thenReturn(Optional.of("mockLwaUserId"));
         handler = new MessageReceivedHandler(mockReminderServiceFactory, mockZappiServiceBuilder, mockUserLookUpRepository);
         when(mockRequest.getType()).thenReturn("Messaging.MessageReceived");
@@ -76,23 +76,13 @@ class MessageReceivedHandlerTest {
     }
 
     @Test
-    void testHandleDelaysTheReminderIfEvIsPluggedIn() {
-        when(mockZappiService.getStatusSummary()).thenReturn(List.of(new ZappiStatusSummary(
-                new ZappiStatus("12345678", 0L, 0L,
-                        25.0, 0L, ZappiChargeMode.ECO_PLUS.getApiValue(),
-                        ChargeStatus.PAUSED.ordinal(), EvConnectionStatus.EV_CONNECTED.getCode(), LockStatus.LOCKED.getCode()))));
-        handler.handle(handlerInputBuilder().build());
-        verify(mockReminderService).delayBy24Hours("mockConsentToken");
-    }
-
-    @Test
     void testHandleDoesNotDelayTheReminderIfEvIsNotPluggedIn() {
         when(mockZappiService.getStatusSummary()).thenReturn(List.of(new ZappiStatusSummary(
                 new ZappiStatus("12345678", 0L, 0L,
                         25.0, 0L, ZappiChargeMode.ECO_PLUS.getApiValue(),
                         ChargeStatus.PAUSED.ordinal(), EvConnectionStatus.EV_DISCONNECTED.getCode(), LockStatus.LOCKED.getCode()))));
         handler.handle(handlerInputBuilder().build());
-        verify(mockReminderService, never()).delayBy24Hours("mockConsentToken");
+        verify(mockReminderService, never()).delayReminderBy24Hours("mockConsentToken");
     }
 
     private HandlerInput.Builder handlerInputBuilder() {

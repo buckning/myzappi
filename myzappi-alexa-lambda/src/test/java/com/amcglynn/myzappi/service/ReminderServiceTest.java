@@ -23,6 +23,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Locale;
 
@@ -30,6 +31,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -89,10 +91,44 @@ class ReminderServiceTest {
     }
 
     @Test
+    void testHandleReminderMessageDoesNotPerformAnyUpdatesWhenThereAreNoRemindersConfigured() {
+        when(mockLwaClient.getReminders(anyString(), anyString())).thenReturn(new Reminders(0, List.of()));
+
+        reminderService.handleReminderMessage("testAccessToken", () -> true);
+
+        verify(mockLwaClient).getReminders("https://api.eu.amazonalexa.com", "testAccessToken");
+        verify(mockReminderClient, never()).updateReminder(any(), any());
+    }
+
+    @Test
+    void testHandleReminderMessageDelaysTheReminderBy24HoursWhenTheTestConditionIsMet() {
+        final var testCondition = true;
+        var currentTime = LocalDateTime.now(ZoneId.of("Europe/Dublin"));
+        when(mockLwaClient.getReminders(anyString(), anyString())).thenReturn(getReminders(currentTime.plusMinutes(3)));
+
+        reminderService.handleReminderMessage("testAccessToken", () -> testCondition);
+
+        verify(mockLwaClient).getReminders("https://api.eu.amazonalexa.com", "testAccessToken");
+        verify(mockReminderClient).updateReminder(any(), any());
+    }
+
+    @Test
+    void testHandleReminderMessageDoesNotDelaysTheReminderWhenTheTestConditionIsNotMet() {
+        final var testCondition = false;
+        var currentTime = LocalDateTime.now(ZoneId.of("Europe/Dublin"));
+        when(mockLwaClient.getReminders(anyString(), anyString())).thenReturn(getReminders(currentTime.plusMinutes(3)));
+
+        reminderService.handleReminderMessage("testAccessToken", () -> testCondition);
+
+        verify(mockLwaClient).getReminders("https://api.eu.amazonalexa.com", "testAccessToken");
+        verify(mockReminderClient, never()).updateReminder(any(), any());
+    }
+
+    @Test
     void testDelayBy24Hours() {
         when(mockLwaClient.getReminders(anyString(), anyString())).thenReturn(getReminders());
 
-        var response = reminderService.delayBy24Hours("testAccessToken");
+        var response = reminderService.delayReminderBy24Hours("testAccessToken");
 
         assertThat(response).isEqualTo("testAlertToken");
         verify(mockLwaClient).getReminders("https://api.eu.amazonalexa.com", "testAccessToken");
@@ -117,6 +153,34 @@ class ReminderServiceTest {
                         .recurrence(Reminder.Recurrence.builder()
                                 .freq("DAILY")
                                 .startDateTime("2023-08-28T23:00:00.000+01:00")
+                                .endDateTime("")
+                                .recurrenceRules(List.of())
+                                .build())
+                        .build())
+                .alertInfo(Reminder.AlertInfo.builder()
+                        .spokenInfo(Reminder.AlertInfo.SpokenInfo.builder()
+                                .content(List.of(Reminder.AlertInfo.SpokenInfo.Content.builder()
+                                        .locale("en-GB")
+                                        .text("test content")
+                                        .build()))
+                                .build())
+                        .build())
+                .build()));
+    }
+
+    private Reminders getReminders(LocalDateTime localDateTime) {
+        return new Reminders(1, List.of(Reminder.builder()
+                .alertToken("testAlertToken")
+                .createdTime("2023-08-27T07:58:30.990Z")
+                .updatedTime("2023-08-27T07:58:31.211Z")
+                .trigger(Reminder.Trigger.builder()
+                        .type("SCHEDULED_ABSOLUTE")
+                        .scheduledTime("2023-08-28T23:00:00.000")
+                        .timeZoneId("Europe/Dublin")
+                        .offsetInSeconds(0)
+                        .recurrence(Reminder.Recurrence.builder()
+                                .freq("DAILY")
+                                .startDateTime(ZonedDateTime.of(localDateTime, ZoneId.of("Europe/Dublin")).toString())
                                 .endDateTime("")
                                 .recurrenceRules(List.of())
                                 .build())

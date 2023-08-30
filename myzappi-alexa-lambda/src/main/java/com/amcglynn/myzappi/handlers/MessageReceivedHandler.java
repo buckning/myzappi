@@ -43,14 +43,17 @@ public class MessageReceivedHandler implements RequestHandler {
         lwaUser.ifPresent(lwaUserId -> {
             var zappiService = zappiServiceBuilder.build(() -> lwaUserId);
             var summary = new EvStatusSummary(zappiService.getStatusSummary().get(0));
-            if (summary.isConnected()) {
-                // TODO schedule SQS job again for reminder start time - 5 minutes
-                log.info("E.V. is connected so updating reminder start time by 24 hours");
-                // TODO update by reminder start time + 24 hours
-                var alertToken = reminderService.delayBy24Hours(handlerInput.getRequestEnvelope().getContext().getSystem().getUser().getPermissions().getConsentToken());
-                log.info("Updated reminder {}", alertToken);
-            }
-            // TODO else calculate 5 minutes before the next reminder and schedule a message for that time
+            reminderService.handleReminderMessage(handlerInput.getRequestEnvelope().getContext().getSystem().getUser().getPermissions().getConsentToken(),
+                    summary::isConnected);
+
+//            if (summary.isConnected()) {
+//                // TODO schedule SQS job again for reminder start time - 5 minutes
+//                log.info("E.V. is connected so updating reminder start time by 24 hours");
+//                // TODO update by reminder start time + 24 hours
+//                var alertToken = reminderService.delayBy24Hours(handlerInput.getRequestEnvelope().getContext().getSystem().getUser().getPermissions().getConsentToken());
+//                log.info("Updated reminder {}", alertToken);
+//            }
+//            // TODO else calculate 5 minutes before the next reminder and schedule a message for that time
         });
 
         return handlerInput.getResponseBuilder()
