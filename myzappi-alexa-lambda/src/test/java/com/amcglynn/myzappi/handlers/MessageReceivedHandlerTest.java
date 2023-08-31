@@ -58,7 +58,6 @@ class MessageReceivedHandlerTest {
     void setUp() {
         when(mockZappiServiceBuilder.build(any())).thenReturn(mockZappiService);
         when(mockReminderServiceFactory.newReminderService(any())).thenReturn(mockReminderService);
-        when(mockReminderService.delayReminderBy24Hours("mockConsentToken")).thenReturn("mockAlertToken");
         when(mockUserLookUpRepository.getLwaUserId("mockAlexaUserId")).thenReturn(Optional.of("mockLwaUserId"));
         handler = new MessageReceivedHandler(mockReminderServiceFactory, mockZappiServiceBuilder, mockUserLookUpRepository);
         when(mockRequest.getType()).thenReturn("Messaging.MessageReceived");
@@ -82,7 +81,6 @@ class MessageReceivedHandlerTest {
                         25.0, 0L, ZappiChargeMode.ECO_PLUS.getApiValue(),
                         ChargeStatus.PAUSED.ordinal(), EvConnectionStatus.EV_DISCONNECTED.getCode(), LockStatus.LOCKED.getCode()))));
         handler.handle(handlerInputBuilder().build());
-        verify(mockReminderService, never()).delayReminderBy24Hours("mockConsentToken");
     }
 
     private HandlerInput.Builder handlerInputBuilder() {

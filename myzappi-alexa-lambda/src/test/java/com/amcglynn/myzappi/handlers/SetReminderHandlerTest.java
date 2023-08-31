@@ -101,7 +101,7 @@ class SetReminderHandlerTest {
         var result = handler.handle(handlerInputBuilder(requestEnvelopeBuilder()).build());
         assertThat(result).isPresent();
 
-        verifySpeechInResponse(result.get(), "<speak>Okay, I'll remind you every day that you don't have your E.V. plugged in.</speak>");
+        verifySpeechInResponse(result.get(), "<speak>Okay, I'll remind you every day when you don't have your E.V. connected.</speak>");
         verifySimpleCardInResponse(result.get(), "My Zappi", "Reminder set.");
         verify(mockReminderService).createDailyRecurringReminder("testConsentToken", LocalTime.of(10, 30),
                 "Your E.V. is not connected. ",

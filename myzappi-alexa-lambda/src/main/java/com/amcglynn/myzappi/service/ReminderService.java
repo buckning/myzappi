@@ -23,7 +23,6 @@ import java.time.ZoneId;
 import java.util.List;
 import java.util.Locale;
 import java.util.function.BooleanSupplier;
-import java.util.function.Supplier;
 
 @Slf4j
 public class ReminderService {
@@ -82,22 +81,31 @@ public class ReminderService {
             return;
         }
 
-        var reminderTime = reminders.get(0).getTrigger().getRecurrence().getStartTime();
+        var reminderTime = LocalDateTime.parse(reminders.get(0).getTrigger().getScheduledTime());
         var timeZone = reminders.get(0).getTrigger().getTimeZoneId();
 
         var currentTime = LocalDateTime.now(ZoneId.of(timeZone));
 
-        var nextCallBackTime = reminderTime.minusMinutes(5).toLocalDateTime();
+        var nextCallBackTime = reminderTime.minusMinutes(5);  // TODO - need to shift this forward to today (or tomorrow if the time is already in the past for today)
 
         long minutesUntilReminder = Duration.between(currentTime, reminderTime).toMinutes();
+
+        log.info("reminderTime = {}", reminderTime);
+        log.info("currentTime = {}", currentTime);
+        log.info("Distance until reminder = {} mins", minutesUntilReminder);
         if (minutesUntilReminder < 5 && minutesUntilReminder >= 0) {
             if (supplier.getAsBoolean()) {
+                log.info("Car is plugged in, delaying for 24 hours");
                 delayReminderBy24Hours(reminders.get(0));
             }
             // delay callback for 24 hours - 5 minutes
-            nextCallBackTime = reminderTime.plusDays(1).minusMinutes(5).toLocalDateTime();
+            nextCallBackTime = reminderTime.plusDays(1).minusMinutes(5);
+            log.info("setting nextCallBackTime = {}", nextCallBackTime);
         }
 
+        // best thing to do here is get the recurrence time and build up the local time. Then get the day for the next occurrence of that time, today or tomorrow.
+        // Can't rely on scheduledTime because our updates don't affect it.
+        // When we update via the app, it updates scheduledTime but not startDateTime
         scheduleCallback(nextCallBackTime);
     }
 
@@ -105,75 +113,16 @@ public class ReminderService {
         log.info("Scheduling a callback for {}", callbackTime);
     }
 
-    public String delayReminderBy24Hours(String accessToken) {
-        log.info("Delay reminder by 24 hours");
-        StringBuilder alertToken = new StringBuilder();
-        var reminders = lwaClient.getReminders("https://api.eu.amazonalexa.com", accessToken);
-
-        reminders.getAlerts().forEach(reminder -> {
-            var oldReminderTime = reminder.getTrigger().getRecurrence().getStartTime().toLocalDateTime();
-            var newReminderTime = oldReminderTime.plusDays(1);
-
-            log.info("Updating reminder from {} to {}", oldReminderTime, newReminderTime);
-
-            // need to change start time using something like this: reminder.getTrigger().getRecurrence().getStartTime().toLocalTime();
-            ReminderRequest request = ReminderRequest.builder()
-                    .withRequestTime(OffsetDateTime.now())
-                    .withTrigger(Trigger.builder()
-                            .withType(TriggerType.SCHEDULED_ABSOLUTE)
-                            .withTimeZoneId(reminder.getTrigger().getTimeZoneId())
-                            .withRecurrence(Recurrence.builder()
-                                    .withStartDateTime(newReminderTime)
-                                    .withRecurrenceRules(List.of("FREQ=DAILY;BYHOUR=" + newReminderTime.getHour() +
-                                            ";BYMINUTE=" + newReminderTime.getMinute() + ";BYSECOND=0"))
-
-                                    .build())
-                            .build())
-                    .withAlertInfo(AlertInfo.builder()
-                            .withSpokenInfo(SpokenInfo.builder()
-                                    .withContent(List.of(SpokenText.builder()
-                                            .withLocale(reminder.getAlertInfo().getSpokenInfo().getContent().get(0).getLocale())
-                                            .withText(reminder.getAlertInfo().getSpokenInfo().getContent().get(0).getText())
-                                            .build()))
-                                    .build())
-                            .build())
-                    .withPushNotification(PushNotification.builder().withStatus(PushNotificationStatus.ENABLED).build())
-                    .build();
-            log.info("Update reminder = {} request = {}", reminder.getAlertToken(), request);
-            alertToken.insert(0, reminderManagementServiceClient.updateReminder(reminder.getAlertToken(), request).getAlertToken());
-        });
-        return alertToken.toString();
-    }
-
     public void delayReminderBy24Hours(Reminder reminder) {
-        var oldReminderTime = reminder.getTrigger().getRecurrence().getStartTime().toLocalDateTime();
+        var oldReminderTime = LocalDateTime.parse(reminder.getTrigger().getScheduledTime());
         var newReminderTime = oldReminderTime.plusDays(1);
+        var locale = Locale.forLanguageTag(reminder.getAlertInfo().getSpokenInfo().getContent().get(0).getLocale());
+        var reminderText = reminder.getAlertInfo().getSpokenInfo().getContent().get(0).getText();
+        var zoneId = ZoneId.of(reminder.getTrigger().getTimeZoneId());
 
         log.info("Updating reminder from {} to {}", oldReminderTime, newReminderTime);
 
-        // need to change start time using something like this: reminder.getTrigger().getRecurrence().getStartTime().toLocalTime();
-        ReminderRequest request = ReminderRequest.builder()
-                .withRequestTime(OffsetDateTime.now())
-                .withTrigger(Trigger.builder()
-                        .withType(TriggerType.SCHEDULED_ABSOLUTE)
-                        .withTimeZoneId(reminder.getTrigger().getTimeZoneId())
-                        .withRecurrence(Recurrence.builder()
-                                .withStartDateTime(newReminderTime)
-                                .withRecurrenceRules(List.of("FREQ=DAILY;BYHOUR=" + newReminderTime.getHour() +
-                                        ";BYMINUTE=" + newReminderTime.getMinute() + ";BYSECOND=0"))
-
-                                .build())
-                        .build())
-                .withAlertInfo(AlertInfo.builder()
-                        .withSpokenInfo(SpokenInfo.builder()
-                                .withContent(List.of(SpokenText.builder()
-                                        .withLocale(reminder.getAlertInfo().getSpokenInfo().getContent().get(0).getLocale())
-                                        .withText(reminder.getAlertInfo().getSpokenInfo().getContent().get(0).getText())
-                                        .build()))
-                                .build())
-                        .build())
-                .withPushNotification(PushNotification.builder().withStatus(PushNotificationStatus.ENABLED).build())
-                .build();
+        var request = createReminderRequest(newReminderTime, zoneId, reminderText, locale);
         log.info("Update reminder = {} request = {}", reminder.getAlertToken(), request);
         reminderManagementServiceClient.updateReminder(reminder.getAlertToken(), request);
     }
@@ -195,16 +144,25 @@ public class ReminderService {
         LocalDate now = LocalDate.now(zoneId);
         var scheduledStartTime = LocalDateTime.of(now.getYear(), now.getMonth(), now.getDayOfMonth(),
                 reminderStartTime.getHour(), reminderStartTime.getMinute(), reminderStartTime.getSecond());
-        var request = ReminderRequest.builder()
+        var request = createReminderRequest(scheduledStartTime, zoneId, reminderText, locale);
+
+        // note that this does not work on the simulator and will only work on a real device
+        var response = reminderManagementServiceClient.createReminder(request);
+        return response.getAlertToken();
+    }
+
+    private ReminderRequest createReminderRequest(LocalDateTime startTime, ZoneId zoneId, String reminderText,
+                                                  Locale locale) {
+        return ReminderRequest.builder()
                 .withRequestTime(OffsetDateTime.now())
                 .withTrigger(Trigger.builder()
                         .withTimeZoneId(zoneId.getId())
                         .withType(TriggerType.SCHEDULED_ABSOLUTE)
-                        .withScheduledTime(scheduledStartTime)
+                        .withScheduledTime(startTime)
                         .withRecurrence(Recurrence.builder()
-                                .withStartDateTime(scheduledStartTime)
-                                .withRecurrenceRules(List.of("FREQ=DAILY;BYHOUR=" + scheduledStartTime.getHour() +
-                                        ";BYMINUTE=" + scheduledStartTime.getMinute() + ";BYSECOND=0"))
+                                .withStartDateTime(startTime)
+                                .withRecurrenceRules(List.of("FREQ=DAILY;BYHOUR=" + startTime.getHour() +
+                                        ";BYMINUTE=" + startTime.getMinute() + ";BYSECOND=0"))
 
                                 .build())
                         .build())
@@ -218,38 +176,5 @@ public class ReminderService {
                         .build())
                 .withPushNotification(PushNotification.builder().withStatus(PushNotificationStatus.ENABLED).build())
                 .build();
-
-        // note that this does not work on the simulator and will only work on a real device
-        var response = reminderManagementServiceClient.createReminder(request);
-        return response.getAlertToken();
     }
-
-//    public void updateReminder(String alertToken) {
-//        var scheduledStartTime = LocalDateTime.of(2023, 8, 27, 0, 0, 0);
-//        ReminderRequest request = ReminderRequest.builder()
-//                .withRequestTime(OffsetDateTime.now())
-//                .withTrigger(Trigger.builder()
-//                        .withTimeZoneId("Europe/Dublin")
-//                        .withType(TriggerType.SCHEDULED_ABSOLUTE)
-//                        .withScheduledTime(scheduledStartTime)
-//                        .withRecurrence(Recurrence.builder()
-//                                .withStartDateTime(scheduledStartTime)
-//                                .withEndDateTime(scheduledStartTime.plus(5, ChronoUnit.DAYS))
-//                                .withRecurrenceRules(List.of("FREQ=DAILY;BYHOUR=18;BYMINUTE=58;BYSECOND=0"))
-//                                .build())
-//                        .build())
-//                .withAlertInfo(AlertInfo.builder()
-//                        .withSpokenInfo(SpokenInfo.builder()
-//                                .withContent(List.of(SpokenText.builder()
-//                                        .withLocale("en-GB")
-//                                        .withText("Your car is not plugged in")
-//                                        .build()))
-//                                .build())
-//                        .build())
-//                .withPushNotification(PushNotification.builder().withStatus(PushNotificationStatus.ENABLED).build())
-//                .build();
-//
-//        log.info("Updating reminder from event");
-//        handlerInput.getServiceClientFactory().getReminderManagementService().updateReminder(alertToken, request);
-//    }
 }

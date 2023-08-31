@@ -125,19 +125,15 @@ class ReminderServiceTest {
     }
 
     @Test
-    void testDelayBy24Hours() {
-        when(mockLwaClient.getReminders(anyString(), anyString())).thenReturn(getReminders());
+    void testHandleReminderMessageDoesNotDelaysTheReminderWhenReminderStartTimeIsInThePast() {
+        final var testCondition = false;
+        var currentTime = LocalDateTime.now(ZoneId.of("Europe/Dublin"));
+        when(mockLwaClient.getReminders(anyString(), anyString())).thenReturn(getReminders(currentTime.minusMinutes(1)));
 
-        var response = reminderService.delayReminderBy24Hours("testAccessToken");
+        reminderService.handleReminderMessage("testAccessToken", () -> testCondition);
 
-        assertThat(response).isEqualTo("testAlertToken");
         verify(mockLwaClient).getReminders("https://api.eu.amazonalexa.com", "testAccessToken");
-        verify(mockReminderClient).updateReminder(eq("testAlertToken"), reminderRequestCaptor.capture());
-        var reminderRequest = reminderRequestCaptor.getValue();
-        assertThat(reminderRequest.getTrigger().getRecurrence().getStartDateTime()).
-                isEqualTo(LocalDateTime.of(2023, 8, 29, 23, 0, 0));
-        assertThat(reminderRequest.getTrigger().getRecurrence().getRecurrenceRules())
-                .containsExactly("FREQ=DAILY;BYHOUR=23;BYMINUTE=0;BYSECOND=0");
+        verify(mockReminderClient, never()).updateReminder(any(), any());
     }
 
     private Reminders getReminders() {
@@ -175,7 +171,7 @@ class ReminderServiceTest {
                 .updatedTime("2023-08-27T07:58:31.211Z")
                 .trigger(Reminder.Trigger.builder()
                         .type("SCHEDULED_ABSOLUTE")
-                        .scheduledTime("2023-08-28T23:00:00.000")
+                        .scheduledTime(localDateTime.toString())
                         .timeZoneId("Europe/Dublin")
                         .offsetInSeconds(0)
                         .recurrence(Reminder.Recurrence.builder()

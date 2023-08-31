@@ -6,7 +6,8 @@
 ** Add a new intent handler
 ** Add new schedule table
 ** Save action into table and schedule in SQS
-** Create consumer that gets notified of the event and performs the action 
+** Create consumer that gets notified of the event and performs the action
+* Reminder saying when your car is fully charged
 * Better metrics
 * Notify if the charger is offline 
 * If the car charge mode is changed or if boost was set, notify if the car is not plugged in
