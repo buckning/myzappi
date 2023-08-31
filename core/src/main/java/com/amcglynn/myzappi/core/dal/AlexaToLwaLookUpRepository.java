@@ -33,4 +33,21 @@ public class AlexaToLwaLookUpRepository {
         }
         return Optional.of(result.getItem().get(LWA_USER_ID_COLUMN).getS());
     }
+
+    public void write(String alexaUserId, String lwaUserId) {
+        var item = new HashMap<String, AttributeValue>();
+        item.put(ALEXA_USER_ID_COLUMN, new AttributeValue(alexaUserId));
+        item.put(LWA_USER_ID_COLUMN, new AttributeValue(lwaUserId));
+
+        var request = new PutItemRequest()
+                .withTableName(TABLE_NAME)
+                .withItem(item);
+        dbClient.putItem(request);
+    }
+
+    public void delete(String userId) {
+        var deleteItem = new HashMap<String, AttributeValue>();
+        deleteItem.put(ALEXA_USER_ID_COLUMN, new AttributeValue(userId));
+        dbClient.deleteItem(new DeleteItemRequest(TABLE_NAME, deleteItem));
+    }
 }

@@ -12,7 +12,10 @@ import com.amazon.ask.model.Slot;
 import com.amazon.ask.model.User;
 import com.amazon.ask.model.interfaces.system.SystemState;
 import com.amazon.ask.model.ui.AskForPermissionsConsentCard;
+import com.amcglynn.myzappi.UserIdResolverFactory;
 import com.amcglynn.myzappi.UserZoneResolver;
+import com.amcglynn.myzappi.core.dal.AlexaToLwaLookUpRepository;
+import com.amcglynn.myzappi.core.service.UserIdResolver;
 import com.amcglynn.myzappi.service.ReminderService;
 import com.amcglynn.myzappi.service.ReminderServiceFactory;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,6 +33,7 @@ import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import static com.amcglynn.myzappi.handlers.ResponseVerifier.verifySimpleCardInResponse;
@@ -37,6 +41,7 @@ import static com.amcglynn.myzappi.handlers.ResponseVerifier.verifySpeechInRespo
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -50,7 +55,13 @@ class SetReminderHandlerTest {
     private ReminderService mockReminderService;
     @Mock
     private UserZoneResolver mockUserZoneResolver;
+    @Mock
+    private UserIdResolverFactory mockUserIdResolverFactory;
+    @Mock
+    private AlexaToLwaLookUpRepository mockAlexaToLwaLookUpRepository;
     private IntentRequest intentRequest;
+    @Mock
+    private UserIdResolver mockUserIdResolver;
 
     private SetReminderHandler handler;
 
@@ -60,7 +71,9 @@ class SetReminderHandlerTest {
         when(mockUserZoneResolver.getZoneId(any())).thenReturn(ZoneId.of("Europe/Dublin"));
         when(mockReminderService.createDailyRecurringReminder(anyString(), any(), anyString(), any(), any()))
                 .thenReturn("testAlertToken");
-        handler = new SetReminderHandler(mockReminderServiceFactory, mockUserZoneResolver);
+        when(mockUserIdResolverFactory.newUserIdResolver(any())).thenReturn(mockUserIdResolver);
+        when(mockUserIdResolver.getUserId()).thenReturn("mockLwaUser");
+        handler = new SetReminderHandler(mockReminderServiceFactory, mockUserZoneResolver, mockUserIdResolverFactory, mockAlexaToLwaLookUpRepository);
         intentRequest = IntentRequest.builder()
                 .withLocale("en-GB")
                 .withIntent(Intent.builder().withName("SetReminder")
@@ -97,7 +110,7 @@ class SetReminderHandlerTest {
     }
 
     @Test
-    void testHandleCreatedReminderWhenUserHasPermissions() {
+    void testHandleCreatedReminderAndSavesUserIdToLookUpTableWhenUserHasPermissions() {
         var result = handler.handle(handlerInputBuilder(requestEnvelopeBuilder()).build());
         assertThat(result).isPresent();
 
@@ -106,6 +119,40 @@ class SetReminderHandlerTest {
         verify(mockReminderService).createDailyRecurringReminder("testConsentToken", LocalTime.of(10, 30),
                 "Your E.V. is not connected. ",
                 Locale.forLanguageTag("en-GB"), ZoneId.of("Europe/Dublin"));
+        verify(mockAlexaToLwaLookUpRepository).getLwaUserId("mockAlexaUser");
+        verify(mockAlexaToLwaLookUpRepository).write("mockAlexaUser", "mockLwaUser");
+    }
+
+    @Test
+    void testHandleCreatedReminderDeletesOldLwaUserIdAndSavesNewLwaUserIdIfTheyHaveChanged() {
+        when(mockAlexaToLwaLookUpRepository.getLwaUserId("mockAlexaUser")).thenReturn(Optional.of("invalidLwaUser"));
+        var result = handler.handle(handlerInputBuilder(requestEnvelopeBuilder()).build());
+        assertThat(result).isPresent();
+
+        verifySpeechInResponse(result.get(), "<speak>Okay, I'll remind you every day when you don't have your E.V. connected.</speak>");
+        verifySimpleCardInResponse(result.get(), "My Zappi", "Reminder set.");
+        verify(mockReminderService).createDailyRecurringReminder("testConsentToken", LocalTime.of(10, 30),
+                "Your E.V. is not connected. ",
+                Locale.forLanguageTag("en-GB"), ZoneId.of("Europe/Dublin"));
+        verify(mockAlexaToLwaLookUpRepository).getLwaUserId("mockAlexaUser");
+        verify(mockAlexaToLwaLookUpRepository).delete("mockAlexaUser");
+        verify(mockAlexaToLwaLookUpRepository).write("mockAlexaUser", "mockLwaUser");
+    }
+
+    @Test
+    void testHandleCreatesReminderWhenUserLookUpAlreadyExists() {
+        when(mockAlexaToLwaLookUpRepository.getLwaUserId("mockAlexaUser")).thenReturn(Optional.of("mockLwaUser"));
+        var result = handler.handle(handlerInputBuilder(requestEnvelopeBuilder()).build());
+        assertThat(result).isPresent();
+
+        verifySpeechInResponse(result.get(), "<speak>Okay, I'll remind you every day when you don't have your E.V. connected.</speak>");
+        verifySimpleCardInResponse(result.get(), "My Zappi", "Reminder set.");
+        verify(mockReminderService).createDailyRecurringReminder("testConsentToken", LocalTime.of(10, 30),
+                "Your E.V. is not connected. ",
+                Locale.forLanguageTag("en-GB"), ZoneId.of("Europe/Dublin"));
+        verify(mockAlexaToLwaLookUpRepository).getLwaUserId("mockAlexaUser");
+        verify(mockAlexaToLwaLookUpRepository, never()).delete("mockAlexaUser");
+        verify(mockAlexaToLwaLookUpRepository, never()).write("mockAlexaUser", "mockLwaUser");
     }
 
     private HandlerInput.Builder handlerInputBuilder(RequestEnvelope.Builder builder) {
@@ -118,7 +165,7 @@ class SetReminderHandlerTest {
                 .withContext(Context.builder()
                         .withSystem(SystemState.builder()
                                 .withApplication(Application.builder().withApplicationId("mockApplicationId").build())
-                                .withUser(User.builder().withUserId("mockUser").withAccessToken("mockAccessToken")
+                                .withUser(User.builder().withUserId("mockAlexaUser").withAccessToken("mockAccessToken")
                                         .withPermissions(Permissions.builder().withConsentToken("testConsentToken").build()).build())
                                 .build())
                         .build())
@@ -139,8 +186,8 @@ class SetReminderHandlerTest {
     }
 
     public static Stream<Arguments> userWithoutPermissions() {
-        return Stream.of(Arguments.of(User.builder().withUserId("mockUser").withAccessToken("mockAccessToken").build()),
-                Arguments.of(User.builder().withUserId("mockUser").withAccessToken("mockAccessToken")
+        return Stream.of(Arguments.of(User.builder().withUserId("mockAlexaUser").withAccessToken("mockAccessToken").build()),
+                Arguments.of(User.builder().withUserId("mockAlexaUser").withAccessToken("mockAccessToken")
                         .withPermissions(Permissions.builder().withScopes(Map.of()).build()).build()));
     }
 }
