@@ -9,12 +9,18 @@ import com.amcglynn.myzappi.UserZoneResolver;
 import com.amcglynn.myzappi.core.Brand;
 import com.amcglynn.myzappi.core.dal.AlexaToLwaLookUpRepository;
 import com.amcglynn.myzappi.service.ReminderServiceFactory;
+import com.amcglynn.myzappi.service.SchedulerService;
+import lombok.AccessLevel;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
+import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 import static com.amazon.ask.request.Predicates.intentName;
 import static com.amcglynn.myzappi.LocalisedResponse.cardResponse;
@@ -23,16 +29,20 @@ import static com.amcglynn.myzappi.LocalisedResponse.voiceResponse;
 @Slf4j
 public class SetReminderHandler implements RequestHandler {
 
-    private ReminderServiceFactory reminderServiceFactory;
-    private UserZoneResolver userZoneResolver;
-    private AlexaToLwaLookUpRepository alexaToLwaLookUpRepository;
-    private UserIdResolverFactory userIdResolverFactory;
+    private final ReminderServiceFactory reminderServiceFactory;
+    private final UserZoneResolver userZoneResolver;
+    private final AlexaToLwaLookUpRepository alexaToLwaLookUpRepository;
+    private final UserIdResolverFactory userIdResolverFactory;
+    private final SchedulerService schedulerService;
+    @Setter(AccessLevel.PACKAGE)
+    private Supplier<LocalDateTime> localDateTimeSupplier;
 
-    public SetReminderHandler(ReminderServiceFactory reminderServiceFactory, UserZoneResolver userZoneResolver, UserIdResolverFactory userIdResolverFactory, AlexaToLwaLookUpRepository alexaToLwaLookUpRepository) {
+    public SetReminderHandler(ReminderServiceFactory reminderServiceFactory, UserZoneResolver userZoneResolver, UserIdResolverFactory userIdResolverFactory, AlexaToLwaLookUpRepository alexaToLwaLookUpRepository, SchedulerService schedulerService) {
         this.reminderServiceFactory = reminderServiceFactory;
         this.userZoneResolver = userZoneResolver;
         this.alexaToLwaLookUpRepository = alexaToLwaLookUpRepository;
         this.userIdResolverFactory = userIdResolverFactory;
+        this.schedulerService = schedulerService;
     }
 
     @Override
@@ -63,18 +73,21 @@ public class SetReminderHandler implements RequestHandler {
         }, () -> alexaToLwaLookUpRepository.write(alexaUserId, lwaUserFromRequest));
 
         var zoneId = userZoneResolver.getZoneId(handlerInput);
+        var currentDateTime = getLocalDateTime(zoneId);
         var locale = Locale.forLanguageTag(handlerInput.getRequestEnvelope().getRequest().getLocale());
         var reminderService = reminderServiceFactory.newReminderService(handlerInput);
 
-        var time = parseSlot(handlerInput, "time");
+        var time = parseTimeSlot(handlerInput);
         var scheduledTime = LocalTime.parse(time.get());    // unsafe to call .get here usually but this has slot validation enabled so it is safe
 
         var alertToken = reminderService.createDailyRecurringReminder(handlerInput.getRequestEnvelope().getContext().getSystem().getUser().getPermissions().getConsentToken(),
                 scheduledTime, voiceResponse(handlerInput, "ev-not-connected"), locale, zoneId);
 
-        log.info("Created new reminder: {} scheduling at {}", alertToken, scheduledTime);
+        var scheduledCallback = getNextOccurrence(LocalDateTime.of(currentDateTime.toLocalDate(), scheduledTime));
 
-        // TODO create a new scheduled job that runs 5 minutes before the reminder time
+        schedulerService.schedule(scheduledCallback);
+
+        log.info("Created new reminder: {} scheduling at {}, scheduling callback at {}", alertToken, scheduledTime, scheduledCallback);
 
         return handlerInput.getResponseBuilder()
                 .withSimpleCard(Brand.NAME, cardResponse(handlerInput, "reminder-set"))
@@ -82,13 +95,34 @@ public class SetReminderHandler implements RequestHandler {
                 .build();
     }
 
+    private LocalDateTime getNextOccurrence(LocalDateTime reminderDateTime) {
+        var alertDateTime = reminderDateTime.minusMinutes(5);
+        var currentDateTime = localDateTimeSupplier.get();
+
+        var reminderTime = alertDateTime.toLocalTime();
+
+        if (alertDateTime.isBefore(currentDateTime)) {
+            return LocalDateTime.of(currentDateTime.toLocalDate().plusDays(1), reminderTime);
+        }
+
+        return alertDateTime;
+    }
+
+    private LocalDateTime getLocalDateTime(ZoneId zoneId) {
+        if (localDateTimeSupplier == null) {
+            localDateTimeSupplier = () -> LocalDateTime.now(zoneId);
+        }
+
+        return localDateTimeSupplier.get();
+    }
+
     private boolean userNotGrantedPermissions(HandlerInput handlerInput) {
         var permissions = handlerInput.getRequestEnvelope().getContext().getSystem().getUser().getPermissions();
         return permissions != null && permissions.getConsentToken() != null;
     }
 
-    private Optional<String> parseSlot(HandlerInput handlerInput, String slotName) {
+    private Optional<String> parseTimeSlot(HandlerInput handlerInput) {
         return RequestHelper.forHandlerInput(handlerInput)
-                .getSlotValue(slotName);
+                .getSlotValue("time");
     }
 }

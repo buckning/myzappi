@@ -24,6 +24,7 @@ import com.amcglynn.myzappi.handlers.StatusSummaryHandler;
 import com.amcglynn.myzappi.handlers.StopBoostHandler;
 import com.amcglynn.myzappi.handlers.UnlockZappiHandler;
 import com.amcglynn.myzappi.service.ReminderServiceFactory;
+import com.amcglynn.myzappi.service.SchedulerService;
 
 public class MyZappiSkillStreamHandler extends SkillStreamHandler {
 
@@ -49,8 +50,10 @@ public class MyZappiSkillStreamHandler extends SkillStreamHandler {
                 .addRequestHandler(new SetChargeModeHandler(serviceManager.getZappiServiceBuilder(), userIdResolverFactory))
                 .addRequestHandler(new GoGreenHandler(serviceManager.getZappiServiceBuilder(), userIdResolverFactory))
                 .addRequestHandler(new ChargeMyCarHandler(serviceManager.getZappiServiceBuilder(), userIdResolverFactory))
-                .addRequestHandler(new SetReminderHandler(reminderServiceFactory, userZoneResolver, userIdResolverFactory, new AlexaToLwaLookUpRepository(serviceManager.getAmazonDynamoDB())))
-                .addRequestHandler(new MessageReceivedHandler(reminderServiceFactory, serviceManager.getZappiServiceBuilder(), new AlexaToLwaLookUpRepository(serviceManager.getAmazonDynamoDB())))
+                .addRequestHandler(new SetReminderHandler(reminderServiceFactory, userZoneResolver, userIdResolverFactory,
+                        new AlexaToLwaLookUpRepository(serviceManager.getAmazonDynamoDB()), new SchedulerService()))
+                .addRequestHandler(new MessageReceivedHandler(reminderServiceFactory, serviceManager.getZappiServiceBuilder(),
+                        new AlexaToLwaLookUpRepository(serviceManager.getAmazonDynamoDB())))
                 .addRequestHandler(new QuitHandler())
                 .addExceptionHandler(new MyZappiExceptionHandler())
                 .build());

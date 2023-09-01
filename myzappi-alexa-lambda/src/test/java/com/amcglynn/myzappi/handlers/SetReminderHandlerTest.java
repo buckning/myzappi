@@ -18,6 +18,7 @@ import com.amcglynn.myzappi.core.dal.AlexaToLwaLookUpRepository;
 import com.amcglynn.myzappi.core.service.UserIdResolver;
 import com.amcglynn.myzappi.service.ReminderService;
 import com.amcglynn.myzappi.service.ReminderServiceFactory;
+import com.amcglynn.myzappi.service.SchedulerService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,6 +30,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.Locale;
@@ -62,6 +64,8 @@ class SetReminderHandlerTest {
     private IntentRequest intentRequest;
     @Mock
     private UserIdResolver mockUserIdResolver;
+    @Mock
+    private SchedulerService mockSchedulerService;
 
     private SetReminderHandler handler;
 
@@ -73,7 +77,9 @@ class SetReminderHandlerTest {
                 .thenReturn("testAlertToken");
         when(mockUserIdResolverFactory.newUserIdResolver(any())).thenReturn(mockUserIdResolver);
         when(mockUserIdResolver.getUserId()).thenReturn("mockLwaUser");
-        handler = new SetReminderHandler(mockReminderServiceFactory, mockUserZoneResolver, mockUserIdResolverFactory, mockAlexaToLwaLookUpRepository);
+        handler = new SetReminderHandler(mockReminderServiceFactory, mockUserZoneResolver, mockUserIdResolverFactory,
+                mockAlexaToLwaLookUpRepository, mockSchedulerService);
+        handler.setLocalDateTimeSupplier(() -> LocalDateTime.of(2023, 9, 1, 0, 0, 0));
         intentRequest = IntentRequest.builder()
                 .withLocale("en-GB")
                 .withIntent(Intent.builder().withName("SetReminder")
@@ -121,6 +127,24 @@ class SetReminderHandlerTest {
                 Locale.forLanguageTag("en-GB"), ZoneId.of("Europe/Dublin"));
         verify(mockAlexaToLwaLookUpRepository).getLwaUserId("mockAlexaUser");
         verify(mockAlexaToLwaLookUpRepository).write("mockAlexaUser", "mockLwaUser");
+        verify(mockSchedulerService).schedule(LocalDateTime.of(2023, 9, 1, 10, 25));
+    }
+
+    @Test
+    void testHandleCreatedReminderAndSchedulesCallbackForNextDayWhenReminderTimeIsAlreadyOverForTheCurrentDay() {
+        // local time is 11AM, reminder time is 10:30 so the scheduled callback is 5 minutes before the next reminder on the next day
+        handler.setLocalDateTimeSupplier(() -> LocalDateTime.of(2023, 9, 1, 11, 0, 0));
+        var result = handler.handle(handlerInputBuilder(requestEnvelopeBuilder()).build());
+        assertThat(result).isPresent();
+
+        verifySpeechInResponse(result.get(), "<speak>Okay, I'll remind you every day when you don't have your E.V. connected.</speak>");
+        verifySimpleCardInResponse(result.get(), "My Zappi", "Reminder set.");
+        verify(mockReminderService).createDailyRecurringReminder("testConsentToken", LocalTime.of(10, 30),
+                "Your E.V. is not connected. ",
+                Locale.forLanguageTag("en-GB"), ZoneId.of("Europe/Dublin"));
+        verify(mockAlexaToLwaLookUpRepository).getLwaUserId("mockAlexaUser");
+        verify(mockAlexaToLwaLookUpRepository).write("mockAlexaUser", "mockLwaUser");
+        verify(mockSchedulerService).schedule(LocalDateTime.of(2023, 9, 2, 10, 25));
     }
 
     @Test

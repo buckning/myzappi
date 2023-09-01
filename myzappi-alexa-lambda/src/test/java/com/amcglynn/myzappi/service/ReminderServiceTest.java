@@ -44,6 +44,8 @@ class ReminderServiceTest {
     private ReminderManagementServiceClient mockReminderClient;
     @Mock
     private LwaClient mockLwaClient;
+    @Mock
+    private SchedulerService mockSchedulerService;
 
     @Captor
     private ArgumentCaptor<ReminderRequest> reminderRequestCaptor;
@@ -52,7 +54,7 @@ class ReminderServiceTest {
     void setUp() {
         when(mockReminderClient.createReminder(any())).thenReturn(ReminderResponse.builder().withAlertToken("testAlertToken").build());
         when(mockReminderClient.updateReminder(any(), any())).thenReturn(ReminderResponse.builder().withAlertToken("testAlertToken").build());
-        this.reminderService = new ReminderService(mockReminderClient, mockLwaClient);
+        this.reminderService = new ReminderService(mockReminderClient, mockLwaClient, mockSchedulerService);
     }
 
     @Test
@@ -104,36 +106,61 @@ class ReminderServiceTest {
     void testHandleReminderMessageDelaysTheReminderBy24HoursWhenTheTestConditionIsMet() {
         final var testCondition = true;
         var currentTime = LocalDateTime.now(ZoneId.of("Europe/Dublin"));
-        when(mockLwaClient.getReminders(anyString(), anyString())).thenReturn(getReminders(currentTime.plusMinutes(3)));
+        var reminderDateTime = currentTime.plusMinutes(3);
+        when(mockLwaClient.getReminders(anyString(), anyString())).thenReturn(getReminders(reminderDateTime));
 
         reminderService.handleReminderMessage("testAccessToken", () -> testCondition);
 
         verify(mockLwaClient).getReminders("https://api.eu.amazonalexa.com", "testAccessToken");
         verify(mockReminderClient).updateReminder(any(), any());
+
+        // schedule new SQS alert for tomorrow 5 minutes before the reminder
+        verify(mockSchedulerService).schedule(reminderDateTime.plusDays(1).minusMinutes(5));
     }
 
     @Test
-    void testHandleReminderMessageDoesNotDelaysTheReminderWhenTheTestConditionIsNotMet() {
+    void testHandleReminderMessageDoesNotDelayTheReminderWhenTheTestConditionIsNotMet() {
         final var testCondition = false;
         var currentTime = LocalDateTime.now(ZoneId.of("Europe/Dublin"));
-        when(mockLwaClient.getReminders(anyString(), anyString())).thenReturn(getReminders(currentTime.plusMinutes(3)));
+        var reminderDateTime = currentTime.plusMinutes(3);
+        when(mockLwaClient.getReminders(anyString(), anyString())).thenReturn(getReminders(reminderDateTime));
 
         reminderService.handleReminderMessage("testAccessToken", () -> testCondition);
 
         verify(mockLwaClient).getReminders("https://api.eu.amazonalexa.com", "testAccessToken");
         verify(mockReminderClient, never()).updateReminder(any(), any());
+        // schedule new SQS alert for tomorrow 5 minutes before the reminder
+        verify(mockSchedulerService).schedule(reminderDateTime.plusDays(1).minusMinutes(5));
     }
 
     @Test
-    void testHandleReminderMessageDoesNotDelaysTheReminderWhenReminderStartTimeIsInThePast() {
+    void testHandleReminderMessageDoesNotDelayTheReminderWhenReminderStartTimeIsInThePast() {
         final var testCondition = false;
         var currentTime = LocalDateTime.now(ZoneId.of("Europe/Dublin"));
-        when(mockLwaClient.getReminders(anyString(), anyString())).thenReturn(getReminders(currentTime.minusMinutes(1)));
+        when(mockLwaClient.getReminders(anyString(), anyString())).thenReturn(getReminders(currentTime.minusDays(10)));
 
         reminderService.handleReminderMessage("testAccessToken", () -> testCondition);
 
         verify(mockLwaClient).getReminders("https://api.eu.amazonalexa.com", "testAccessToken");
         verify(mockReminderClient, never()).updateReminder(any(), any());
+
+        // schedule new SQS alert for tomorrow 5 minutes before the reminder
+        verify(mockSchedulerService).schedule(currentTime.plusDays(1).minusMinutes(5));
+    }
+
+    @Test
+    void testHandleReminderMessageDoesNotDelayTheReminderWhenReminderIsInTheFutureAndSchedulesCallback5MinutesBeforeReminder() {
+        final var testCondition = false;
+        var currentTime = LocalDateTime.now(ZoneId.of("Europe/Dublin"));
+        when(mockLwaClient.getReminders(anyString(), anyString())).thenReturn(getReminders(currentTime.plusHours(7)));
+
+        reminderService.handleReminderMessage("testAccessToken", () -> testCondition);
+
+        verify(mockLwaClient).getReminders("https://api.eu.amazonalexa.com", "testAccessToken");
+        verify(mockReminderClient, never()).updateReminder(any(), any());
+
+        // schedule the reminder today 5 minutes before the reminder
+        verify(mockSchedulerService).schedule(currentTime.plusHours(7).minusMinutes(5));
     }
 
     private Reminders getReminders() {

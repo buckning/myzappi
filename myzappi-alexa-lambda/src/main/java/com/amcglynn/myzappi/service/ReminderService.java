@@ -29,10 +29,13 @@ public class ReminderService {
 
     private final ReminderManagementServiceClient reminderManagementServiceClient;
     private final LwaClient lwaClient;
+    private final SchedulerService schedulerService;
 
-    public ReminderService(ReminderManagementServiceClient reminderManagementServiceClient, LwaClient lwaClient) {
+    public ReminderService(ReminderManagementServiceClient reminderManagementServiceClient, LwaClient lwaClient,
+                           SchedulerService schedulerService) {
         this.reminderManagementServiceClient = reminderManagementServiceClient;
         this.lwaClient = lwaClient;
+        this.schedulerService = schedulerService;
     }
 
     public String updateExisting(Reminder reminder, LocalTime reminderStartTime,
@@ -86,7 +89,7 @@ public class ReminderService {
 
         var currentTime = LocalDateTime.now(ZoneId.of(timeZone));
 
-        var nextCallBackTime = reminderTime.minusMinutes(5);  // TODO - need to shift this forward to today (or tomorrow if the time is already in the past for today)
+        var nextCallBackTime = getNextOccurrence(reminderTime);
 
         long minutesUntilReminder = Duration.between(currentTime, reminderTime).toMinutes();
 
@@ -109,8 +112,22 @@ public class ReminderService {
         scheduleCallback(nextCallBackTime);
     }
 
+    private LocalDateTime getNextOccurrence(LocalDateTime reminderDateTime) {
+        var alertDateTime = reminderDateTime.minusMinutes(5);
+        var currentDateTime = LocalDateTime.now();
+
+        var reminderTime = alertDateTime.toLocalTime();
+
+        if (alertDateTime.isBefore(currentDateTime)) {
+            return LocalDateTime.of(currentDateTime.toLocalDate().plusDays(1), reminderTime);
+        }
+
+        return alertDateTime;
+    }
+
     private void scheduleCallback(LocalDateTime callbackTime) {
         log.info("Scheduling a callback for {}", callbackTime);
+        schedulerService.schedule(callbackTime);
     }
 
     public void delayReminderBy24Hours(Reminder reminder) {

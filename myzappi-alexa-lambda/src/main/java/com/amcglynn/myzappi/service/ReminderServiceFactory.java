@@ -6,6 +6,7 @@ import com.amcglynn.lwa.LwaClient;
 public class ReminderServiceFactory {
 
     public ReminderService newReminderService(HandlerInput handlerInput) {
-        return new ReminderService(handlerInput.getServiceClientFactory().getReminderManagementService(), new LwaClient());
+        return new ReminderService(handlerInput.getServiceClientFactory().getReminderManagementService(), new LwaClient(),
+                new SchedulerService());
     }
 }
