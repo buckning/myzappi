@@ -2,6 +2,7 @@ package com.amcglynn.myzappi.service;
 
 import lombok.extern.slf4j.Slf4j;
 import software.amazon.awssdk.services.scheduler.SchedulerClient;
+import software.amazon.awssdk.services.scheduler.model.ActionAfterCompletion;
 import software.amazon.awssdk.services.scheduler.model.CreateScheduleRequest;
 import software.amazon.awssdk.services.scheduler.model.FlexibleTimeWindow;
 import software.amazon.awssdk.services.scheduler.model.FlexibleTimeWindowMode;
@@ -42,6 +43,7 @@ public class SchedulerService {
                 .name("automated-" + UUID.randomUUID())
                 .scheduleExpression("at(" + normalised + ")")
                 .scheduleExpressionTimezone(zoneId.getId())
+                .actionAfterCompletion(ActionAfterCompletion.DELETE)
                 .target(lambdaTarget)
                 .flexibleTimeWindow(FlexibleTimeWindow.builder()
                         .mode(FlexibleTimeWindowMode.OFF)
