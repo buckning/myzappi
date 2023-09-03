@@ -199,6 +199,9 @@
             }
           ],
           "samples": [
+            "remind me when I haven't plugged in my car",
+            "remind me every day when I haven't plugged in my car",
+            "remind me every day at {time} when I haven't plugged in my car",
             "set a reminder to plug in my car every day at {time}",
             "set a reminder to plug in my car every day",
             "set a recurring reminder at {time} to tell me to plug in my car",
