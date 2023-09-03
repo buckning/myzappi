@@ -235,7 +235,7 @@ class ReminderServiceTest {
         assertThat(trigger.getTimeZoneId()).isEqualTo("Europe/Dublin");
         assertThat(trigger.getType()).isEqualTo(TriggerType.SCHEDULED_ABSOLUTE);
         var localDate = LocalDate.now(ZoneId.of("Europe/Dublin"));
-        assertThat(trigger.getScheduledTime()).isEqualTo(LocalDateTime.of(localDate, LocalTime.of(23, 0, 0)));
+        assertThat(trigger.getScheduledTime()).isNull();
 
         var recurrence = trigger.getRecurrence();
         assertThat(recurrence.getRecurrenceRules()).containsExactly("FREQ=DAILY;BYHOUR=23;BYMINUTE=0;BYSECOND=0");
@@ -247,7 +247,7 @@ class ReminderServiceTest {
         assertThat(trigger.getTimeZoneId()).isEqualTo("Europe/Dublin");
         assertThat(trigger.getType()).isEqualTo(TriggerType.SCHEDULED_ABSOLUTE);
         var localDate = LocalDate.now(ZoneId.of("Europe/Dublin"));
-        assertThat(trigger.getScheduledTime()).isEqualTo(LocalDateTime.of(localDate, LocalTime.of(23, 0, 0)));
+        assertThat(trigger.getScheduledTime()).isNull();
 
         var recurrence = trigger.getRecurrence();
         assertThat(recurrence.getFreq().getValue()).isNull();

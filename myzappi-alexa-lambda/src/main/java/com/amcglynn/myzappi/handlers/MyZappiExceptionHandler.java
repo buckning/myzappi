@@ -20,8 +20,7 @@ public class MyZappiExceptionHandler implements ExceptionHandler {
 
     @Override
     public Optional<Response> handle(HandlerInput handlerInput, Throwable throwable) {
-        var userId = handlerInput.getRequestEnvelope().getSession().getUser().getUserId();
-        log.error("Unexpected error not handled. userId = {}.", userId, throwable);
+        log.error("Unexpected error not handled", throwable);
 
         return handlerInput.getResponseBuilder()
                 .withSpeech(getVoiceResponse(handlerInput, throwable))

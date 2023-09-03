@@ -25,6 +25,18 @@ import java.util.List;
 import java.util.Locale;
 import java.util.function.BooleanSupplier;
 
+/**
+ * Some observations about Alexa reminders API. Don't use startDateTime to schedule the time of recurring reminders.
+ * Use recurrenceRules to set the time only. Don't set the time in startDateTime. I found that sometimes the reminders
+ * get set on the wrong date because of some combination of the two.
+ * Also don't bother setting the scheduledTime because the API will just override what you send into it anyway.
+ * scheduledTime seems like it is the date and time that the reminder will trigger regardless of the startDateTime.
+ * scheduledTime will always show the next occurrence of the reminder.
+ * <br>
+ * Because of all of these points, the strategy is to set the startDateTime to the required date and the time is set to 00:00:00
+ * or 1 minute before the required time.
+ * ScheduledTime is not to be set in any request but it can be used in the response.
+ */
 @Slf4j
 public class ReminderService {
 
@@ -50,9 +62,8 @@ public class ReminderService {
                 .withTrigger(Trigger.builder()
                         .withTimeZoneId(reminder.getTrigger().getTimeZoneId())
                         .withType(TriggerType.SCHEDULED_ABSOLUTE)
-                        .withScheduledTime(scheduledStartTime)
                         .withRecurrence(Recurrence.builder()
-                                .withStartDateTime(scheduledStartTime)
+                                .withStartDateTime(scheduledStartTime.minusMinutes(1))  // minus 1 minute so that the scheduledTime will not be pushed to the next day. See description at top of class for more detail
                                 .withEndDateTime(scheduledStartTime.plusDays(5))
                                 .withRecurrenceRules(List.of("FREQ=DAILY;BYHOUR=" + scheduledStartTime.getHour() +
                                         ";BYMINUTE=" + scheduledStartTime.getMinute() + ";BYSECOND=0"))
@@ -81,7 +92,8 @@ public class ReminderService {
             return;
         }
 
-        var reminderTime = reminders.get(0).getTrigger().getRecurrence().getStartTime().toLocalDateTime();
+        var reminderTime = LocalDateTime.parse(reminders.get(0).getTrigger().getScheduledTime());
+
         var timeZone = reminders.get(0).getTrigger().getTimeZoneId();
 
         var currentTime = LocalDateTime.now(ZoneId.of(timeZone));
@@ -128,15 +140,15 @@ public class ReminderService {
     }
 
     public void delayReminderBy24Hours(Reminder reminder) {
-        var oldReminderTime = ZonedDateTime.parse(reminder.getTrigger().getRecurrence().getStartDateTime());
+        var oldReminderTime = LocalDateTime.parse(reminder.getTrigger().getScheduledTime());
         var newReminderTime = oldReminderTime.plusDays(1);
         var locale = Locale.forLanguageTag(reminder.getAlertInfo().getSpokenInfo().getContent().get(0).getLocale());
         var reminderText = reminder.getAlertInfo().getSpokenInfo().getContent().get(0).getText();
         var zoneId = ZoneId.of(reminder.getTrigger().getTimeZoneId());
 
-        log.info("Updating reminder from {} to {}", oldReminderTime, newReminderTime.toLocalDateTime());
+        log.info("Updating reminder from {} to {}", oldReminderTime, newReminderTime);
 
-        var request = createReminderRequest(newReminderTime.toLocalDateTime(), zoneId, reminderText, locale);
+        var request = createReminderRequest(newReminderTime, zoneId, reminderText, locale);
         log.info("Update reminder = {} request = {}", reminder.getAlertToken(), request);
         reminderManagementServiceClient.updateReminder(reminder.getAlertToken(), request);
     }
@@ -172,9 +184,8 @@ public class ReminderService {
                 .withTrigger(Trigger.builder()
                         .withTimeZoneId(zoneId.getId())
                         .withType(TriggerType.SCHEDULED_ABSOLUTE)
-                        .withScheduledTime(startTime)
                         .withRecurrence(Recurrence.builder()
-                                .withStartDateTime(startTime)
+                                .withStartDateTime(startTime.minusMinutes(1))   // minus 1 minute so that the scheduledTime will not be pushed to the next day. See description at top of class for more detail
                                 .withRecurrenceRules(List.of("FREQ=DAILY;BYHOUR=" + startTime.getHour() +
                                         ";BYMINUTE=" + startTime.getMinute() + ";BYSECOND=0"))
 
