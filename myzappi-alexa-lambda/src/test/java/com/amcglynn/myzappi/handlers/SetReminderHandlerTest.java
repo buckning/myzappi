@@ -126,8 +126,8 @@ class SetReminderHandlerTest {
                 "Your E.V. is not connected. ",
                 Locale.forLanguageTag("en-GB"), ZoneId.of("Europe/Dublin"));
         verify(mockAlexaToLwaLookUpRepository).getLwaUserId("mockAlexaUser");
-        verify(mockAlexaToLwaLookUpRepository).write("mockAlexaUser", "mockLwaUser");
-        verify(mockSchedulerService).schedule(LocalDateTime.of(2023, 9, 1, 10, 25));
+        verify(mockAlexaToLwaLookUpRepository).write("mockAlexaUser", "mockLwaUser", "Europe/Dublin");
+        verify(mockSchedulerService).schedule(LocalDateTime.of(2023, 9, 1, 10, 25), "mockAlexaUser", ZoneId.of("Europe/Dublin"));
     }
 
     @Test
@@ -143,8 +143,8 @@ class SetReminderHandlerTest {
                 "Your E.V. is not connected. ",
                 Locale.forLanguageTag("en-GB"), ZoneId.of("Europe/Dublin"));
         verify(mockAlexaToLwaLookUpRepository).getLwaUserId("mockAlexaUser");
-        verify(mockAlexaToLwaLookUpRepository).write("mockAlexaUser", "mockLwaUser");
-        verify(mockSchedulerService).schedule(LocalDateTime.of(2023, 9, 2, 10, 25));
+        verify(mockAlexaToLwaLookUpRepository).write("mockAlexaUser", "mockLwaUser", "Europe/Dublin");
+        verify(mockSchedulerService).schedule(LocalDateTime.of(2023, 9, 2, 10, 25), "mockAlexaUser", ZoneId.of("Europe/Dublin"));
     }
 
     @Test
@@ -160,7 +160,7 @@ class SetReminderHandlerTest {
                 Locale.forLanguageTag("en-GB"), ZoneId.of("Europe/Dublin"));
         verify(mockAlexaToLwaLookUpRepository).getLwaUserId("mockAlexaUser");
         verify(mockAlexaToLwaLookUpRepository).delete("mockAlexaUser");
-        verify(mockAlexaToLwaLookUpRepository).write("mockAlexaUser", "mockLwaUser");
+        verify(mockAlexaToLwaLookUpRepository).write("mockAlexaUser", "mockLwaUser", "Europe/Dublin");
     }
 
     @Test
@@ -176,7 +176,7 @@ class SetReminderHandlerTest {
                 Locale.forLanguageTag("en-GB"), ZoneId.of("Europe/Dublin"));
         verify(mockAlexaToLwaLookUpRepository).getLwaUserId("mockAlexaUser");
         verify(mockAlexaToLwaLookUpRepository, never()).delete("mockAlexaUser");
-        verify(mockAlexaToLwaLookUpRepository, never()).write("mockAlexaUser", "mockLwaUser");
+        verify(mockAlexaToLwaLookUpRepository, never()).write("mockAlexaUser", "mockLwaUser", "Europe/Dublin");
     }
 
     private HandlerInput.Builder handlerInputBuilder(RequestEnvelope.Builder builder) {

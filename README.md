@@ -13,6 +13,13 @@
 * If the car charge mode is changed or if boost was set, notify if the car is not plugged in
 * Localization
 
+# Create schedule using CLI 
+```
+aws scheduler create-schedule --name test --schedule-expression 'at(2023-09-02T16:28:00)' \
+--target '{"RoleArn": "arn:aws:iam::1234:role/rolehere", "Arn": "arn:aws:lambda:eu-west-1:1234:function:my-func", "Input": "{\n\"hello\": \"world\"}" }' \
+--flexible-time-window '{ "Mode": "OFF"}' --schedule-expression-timezone "Europe/Dublin"
+```
+
 ## Premium features
 * sync history
 * Query history between 2 times 

@@ -96,7 +96,7 @@ class ReminderServiceTest {
     void testHandleReminderMessageDoesNotPerformAnyUpdatesWhenThereAreNoRemindersConfigured() {
         when(mockLwaClient.getReminders(anyString(), anyString())).thenReturn(new Reminders(0, List.of()));
 
-        reminderService.handleReminderMessage("testAccessToken", () -> true);
+        reminderService.handleReminderMessage("testAccessToken", "", "", () -> true);
 
         verify(mockLwaClient).getReminders("https://api.eu.amazonalexa.com", "testAccessToken");
         verify(mockReminderClient, never()).updateReminder(any(), any());
@@ -109,13 +109,13 @@ class ReminderServiceTest {
         var reminderDateTime = currentTime.plusMinutes(3);
         when(mockLwaClient.getReminders(anyString(), anyString())).thenReturn(getReminders(reminderDateTime));
 
-        reminderService.handleReminderMessage("testAccessToken", () -> testCondition);
+        reminderService.handleReminderMessage("testAccessToken", "mockAlexaId", "Europe/Dublin", () -> testCondition);
 
         verify(mockLwaClient).getReminders("https://api.eu.amazonalexa.com", "testAccessToken");
         verify(mockReminderClient).updateReminder(any(), any());
 
         // schedule new SQS alert for tomorrow 5 minutes before the reminder
-        verify(mockSchedulerService).schedule(reminderDateTime.plusDays(1).minusMinutes(5));
+        verify(mockSchedulerService).schedule(reminderDateTime.plusDays(1).minusMinutes(5), "mockAlexaId", ZoneId.of("Europe/Dublin"));
     }
 
     @Test
@@ -125,12 +125,12 @@ class ReminderServiceTest {
         var reminderDateTime = currentTime.plusMinutes(3);
         when(mockLwaClient.getReminders(anyString(), anyString())).thenReturn(getReminders(reminderDateTime));
 
-        reminderService.handleReminderMessage("testAccessToken", () -> testCondition);
+        reminderService.handleReminderMessage("testAccessToken", "mockAlexaId", "Europe/Dublin", () -> testCondition);
 
         verify(mockLwaClient).getReminders("https://api.eu.amazonalexa.com", "testAccessToken");
         verify(mockReminderClient, never()).updateReminder(any(), any());
         // schedule new SQS alert for tomorrow 5 minutes before the reminder
-        verify(mockSchedulerService).schedule(reminderDateTime.plusDays(1).minusMinutes(5));
+        verify(mockSchedulerService).schedule(reminderDateTime.plusDays(1).minusMinutes(5), "mockAlexaId", ZoneId.of("Europe/Dublin"));
     }
 
     @Test
@@ -139,13 +139,13 @@ class ReminderServiceTest {
         var currentTime = LocalDateTime.now(ZoneId.of("Europe/Dublin"));
         when(mockLwaClient.getReminders(anyString(), anyString())).thenReturn(getReminders(currentTime.minusDays(10)));
 
-        reminderService.handleReminderMessage("testAccessToken", () -> testCondition);
+        reminderService.handleReminderMessage("testAccessToken", "mockAlexaId", "Europe/Dublin", () -> testCondition);
 
         verify(mockLwaClient).getReminders("https://api.eu.amazonalexa.com", "testAccessToken");
         verify(mockReminderClient, never()).updateReminder(any(), any());
 
         // schedule new SQS alert for tomorrow 5 minutes before the reminder
-        verify(mockSchedulerService).schedule(currentTime.plusDays(1).minusMinutes(5));
+        verify(mockSchedulerService).schedule(currentTime.plusDays(1).minusMinutes(5), "mockAlexaId", ZoneId.of("Europe/Dublin"));
     }
 
     @Test
@@ -154,13 +154,13 @@ class ReminderServiceTest {
         var currentTime = LocalDateTime.now(ZoneId.of("Europe/Dublin"));
         when(mockLwaClient.getReminders(anyString(), anyString())).thenReturn(getReminders(currentTime.plusHours(7)));
 
-        reminderService.handleReminderMessage("testAccessToken", () -> testCondition);
+        reminderService.handleReminderMessage("testAccessToken", "mockAlexaId", "Europe/Dublin", () -> testCondition);
 
         verify(mockLwaClient).getReminders("https://api.eu.amazonalexa.com", "testAccessToken");
         verify(mockReminderClient, never()).updateReminder(any(), any());
 
         // schedule the reminder today 5 minutes before the reminder
-        verify(mockSchedulerService).schedule(currentTime.plusHours(7).minusMinutes(5));
+        verify(mockSchedulerService).schedule(currentTime.plusHours(7).minusMinutes(5), "mockAlexaId", ZoneId.of("Europe/Dublin"));
     }
 
     private Reminders getReminders() {

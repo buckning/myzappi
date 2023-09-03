@@ -5,8 +5,14 @@ import com.amcglynn.lwa.LwaClient;
 
 public class ReminderServiceFactory {
 
+    private final SchedulerService schedulerService;
+
+    public ReminderServiceFactory(SchedulerService schedulerService) {
+        this.schedulerService = schedulerService;
+    }
+
     public ReminderService newReminderService(HandlerInput handlerInput) {
         return new ReminderService(handlerInput.getServiceClientFactory().getReminderManagementService(), new LwaClient(),
-                new SchedulerService());
+                schedulerService);
     }
 }

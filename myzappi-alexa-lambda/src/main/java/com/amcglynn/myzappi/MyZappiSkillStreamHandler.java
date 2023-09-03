@@ -25,12 +25,16 @@ import com.amcglynn.myzappi.handlers.StopBoostHandler;
 import com.amcglynn.myzappi.handlers.UnlockZappiHandler;
 import com.amcglynn.myzappi.service.ReminderServiceFactory;
 import com.amcglynn.myzappi.service.SchedulerService;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.scheduler.SchedulerClient;
 
 public class MyZappiSkillStreamHandler extends SkillStreamHandler {
 
     public MyZappiSkillStreamHandler() {
         this(new ServiceManager(new Properties()), new UserIdResolverFactory(new LwaClient()),
-                new UserZoneResolver(new LwaClient()), new ReminderServiceFactory());
+                new UserZoneResolver(new LwaClient()),
+                new ReminderServiceFactory(new SchedulerService(SchedulerClient.builder().region(Region.EU_WEST_1).build(),
+                        new Properties().getSchedulerExecutionRoleArn(), new Properties().getSchedulerTargetLambdaArn())));
     }
 
     public MyZappiSkillStreamHandler(ServiceManager serviceManager, UserIdResolverFactory userIdResolverFactory,
@@ -51,7 +55,9 @@ public class MyZappiSkillStreamHandler extends SkillStreamHandler {
                 .addRequestHandler(new GoGreenHandler(serviceManager.getZappiServiceBuilder(), userIdResolverFactory))
                 .addRequestHandler(new ChargeMyCarHandler(serviceManager.getZappiServiceBuilder(), userIdResolverFactory))
                 .addRequestHandler(new SetReminderHandler(reminderServiceFactory, userZoneResolver, userIdResolverFactory,
-                        new AlexaToLwaLookUpRepository(serviceManager.getAmazonDynamoDB()), new SchedulerService()))
+                        new AlexaToLwaLookUpRepository(serviceManager.getAmazonDynamoDB()),
+                        new SchedulerService(SchedulerClient.builder().region(Region.EU_WEST_1).build(),
+                                serviceManager.getSchedulerExecutionRoleArn(), serviceManager.getSchedulerTargetLambdaArn())))
                 .addRequestHandler(new MessageReceivedHandler(reminderServiceFactory, serviceManager.getZappiServiceBuilder(),
                         new AlexaToLwaLookUpRepository(serviceManager.getAmazonDynamoDB())))
                 .addRequestHandler(new QuitHandler())

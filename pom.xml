@@ -88,6 +88,8 @@
                                         <exclude>com.amcglynn.myenergi.units.*</exclude>
                                         <exclude>com.amcglynn.myenergi.*</exclude>
                                         <exclude>com.amcglynn.lwa.*</exclude>
+                                        <exclude>com.amcglynn.myzappi.core.model.AlexaToLwaUserDetails</exclude>
+                                        <exclude>com.amcglynn.myzappi.handlers.MessageReceivedHandler</exclude> <!-- only skip during development -->
                                         <exclude>com.amcglynn.myzappi.handlers.responses.ZappiEnergyCostVoiceResponse</exclude>
                                     </excludes>
                                 </rule>

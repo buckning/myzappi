@@ -20,6 +20,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Locale;
 import java.util.function.BooleanSupplier;
@@ -71,11 +72,7 @@ public class ReminderService {
         return reminderManagementServiceClient.updateReminder(reminder.getAlertToken(), request).getAlertToken();
     }
 
-    public void handleReminderMessage(String accessToken, BooleanSupplier supplier) {
-        // 1. check the existing reminder
-        // 2. check if it is going to trigger in 5 mins or less
-        // 3. If it is longer, calculate 5 minutes before the next reminder and schedule a message for that time
-
+    public void handleReminderMessage(String accessToken, String alexaUserId, String zoneId, BooleanSupplier supplier) {
         var remindersResponse = lwaClient.getReminders("https://api.eu.amazonalexa.com", accessToken);
 
         var reminders = remindersResponse.getAlerts();
@@ -84,7 +81,7 @@ public class ReminderService {
             return;
         }
 
-        var reminderTime = LocalDateTime.parse(reminders.get(0).getTrigger().getScheduledTime());
+        var reminderTime = reminders.get(0).getTrigger().getRecurrence().getStartTime().toLocalDateTime();
         var timeZone = reminders.get(0).getTrigger().getTimeZoneId();
 
         var currentTime = LocalDateTime.now(ZoneId.of(timeZone));
@@ -109,7 +106,7 @@ public class ReminderService {
         // best thing to do here is get the recurrence time and build up the local time. Then get the day for the next occurrence of that time, today or tomorrow.
         // Can't rely on scheduledTime because our updates don't affect it.
         // When we update via the app, it updates scheduledTime but not startDateTime
-        scheduleCallback(nextCallBackTime);
+        scheduleCallback(nextCallBackTime, alexaUserId, zoneId);
     }
 
     private LocalDateTime getNextOccurrence(LocalDateTime reminderDateTime) {
@@ -125,21 +122,21 @@ public class ReminderService {
         return alertDateTime;
     }
 
-    private void scheduleCallback(LocalDateTime callbackTime) {
-        log.info("Scheduling a callback for {}", callbackTime);
-        schedulerService.schedule(callbackTime);
+    private void scheduleCallback(LocalDateTime callbackTime, String alexaUserId, String zoneId) {
+        log.info("Scheduling a callback for {} at {} at zone {}", alexaUserId, callbackTime, zoneId);
+        schedulerService.schedule(callbackTime, alexaUserId, ZoneId.of(zoneId));
     }
 
     public void delayReminderBy24Hours(Reminder reminder) {
-        var oldReminderTime = LocalDateTime.parse(reminder.getTrigger().getScheduledTime());
+        var oldReminderTime = ZonedDateTime.parse(reminder.getTrigger().getRecurrence().getStartDateTime());
         var newReminderTime = oldReminderTime.plusDays(1);
         var locale = Locale.forLanguageTag(reminder.getAlertInfo().getSpokenInfo().getContent().get(0).getLocale());
         var reminderText = reminder.getAlertInfo().getSpokenInfo().getContent().get(0).getText();
         var zoneId = ZoneId.of(reminder.getTrigger().getTimeZoneId());
 
-        log.info("Updating reminder from {} to {}", oldReminderTime, newReminderTime);
+        log.info("Updating reminder from {} to {}", oldReminderTime, newReminderTime.toLocalDateTime());
 
-        var request = createReminderRequest(newReminderTime, zoneId, reminderText, locale);
+        var request = createReminderRequest(newReminderTime.toLocalDateTime(), zoneId, reminderText, locale);
         log.info("Update reminder = {} request = {}", reminder.getAlertToken(), request);
         reminderManagementServiceClient.updateReminder(reminder.getAlertToken(), request);
     }
@@ -157,10 +154,10 @@ public class ReminderService {
     }
 
     public String createReminder(LocalTime reminderStartTime, String reminderText, Locale locale, ZoneId zoneId) {
-        log.info("Creating new reminder");
         LocalDate now = LocalDate.now(zoneId);
         var scheduledStartTime = LocalDateTime.of(now.getYear(), now.getMonth(), now.getDayOfMonth(),
                 reminderStartTime.getHour(), reminderStartTime.getMinute(), reminderStartTime.getSecond());
+        log.info("Creating new reminder with text {} at time {}", reminderText, scheduledStartTime);
         var request = createReminderRequest(scheduledStartTime, zoneId, reminderText, locale);
 
         // note that this does not work on the simulator and will only work on a real device

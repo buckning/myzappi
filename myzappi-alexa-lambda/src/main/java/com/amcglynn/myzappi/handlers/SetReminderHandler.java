@@ -62,17 +62,17 @@ public class SetReminderHandler implements RequestHandler {
         var alexaUserId = handlerInput.getRequestEnvelope().getContext().getSystem().getUser().getUserId();
         var userLookup = alexaToLwaLookUpRepository.getLwaUserId(alexaUserId);
         var lwaUserFromRequest = userIdResolverFactory.newUserIdResolver(handlerInput).getUserId();
+        var zoneId = userZoneResolver.getZoneId(handlerInput);
 
         userLookup.ifPresentOrElse(lwaUser -> {
             if (!lwaUser.equals(lwaUserFromRequest)) {
                 log.info("LWA user from DB is {}, LWA user for token from request is {}, deleting old user from DB",
                         lwaUser, lwaUserFromRequest);
                 alexaToLwaLookUpRepository.delete(alexaUserId);
-                alexaToLwaLookUpRepository.write(alexaUserId, lwaUserFromRequest);
+                alexaToLwaLookUpRepository.write(alexaUserId, lwaUserFromRequest, zoneId.getId());
             }
-        }, () -> alexaToLwaLookUpRepository.write(alexaUserId, lwaUserFromRequest));
+        }, () -> alexaToLwaLookUpRepository.write(alexaUserId, lwaUserFromRequest, zoneId.getId()));
 
-        var zoneId = userZoneResolver.getZoneId(handlerInput);
         var currentDateTime = getLocalDateTime(zoneId);
         var locale = Locale.forLanguageTag(handlerInput.getRequestEnvelope().getRequest().getLocale());
         var reminderService = reminderServiceFactory.newReminderService(handlerInput);
@@ -85,7 +85,7 @@ public class SetReminderHandler implements RequestHandler {
 
         var scheduledCallback = getNextOccurrence(LocalDateTime.of(currentDateTime.toLocalDate(), scheduledTime));
 
-        schedulerService.schedule(scheduledCallback);
+        schedulerService.schedule(scheduledCallback, alexaUserId, zoneId);
 
         log.info("Created new reminder: {} scheduling at {}, scheduling callback at {}", alertToken, scheduledTime, scheduledCallback);
 

@@ -32,6 +32,14 @@ public class Properties {
         return getOrThrow("skillId");
     }
 
+    public String getSchedulerExecutionRoleArn() {
+        return getOrThrow("schedulerExecutionRoleArn");
+    }
+
+    public String getSchedulerTargetLambdaArn() {
+        return getOrThrow("schedulerTargetLambdaArn");
+    }
+
     private String getOrDefault(String propertyName, String defaultValue) {
         var property = System.getenv(propertyName);
         if (property == null) {

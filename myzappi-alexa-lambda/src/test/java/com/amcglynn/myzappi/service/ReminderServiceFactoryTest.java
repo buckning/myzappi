@@ -2,7 +2,6 @@ package com.amcglynn.myzappi.service;
 
 import com.amazon.ask.dispatcher.request.handler.HandlerInput;
 import com.amazon.ask.model.services.ServiceClientFactory;
-import com.amazon.ask.model.services.reminderManagement.ReminderManagementService;
 import com.amazon.ask.model.services.reminderManagement.ReminderManagementServiceClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,6 +20,8 @@ class ReminderServiceFactoryTest {
     private HandlerInput mockHandlerInput;
     @Mock
     private ServiceClientFactory mockServiceClientFactory;
+    @Mock
+    private SchedulerService mockSchedulerService;
 
 
     @BeforeEach
@@ -31,7 +32,7 @@ class ReminderServiceFactoryTest {
 
     @Test
     void testNewReminderService() {
-        var factory = new ReminderServiceFactory();
+        var factory = new ReminderServiceFactory(mockSchedulerService);
         var instance = factory.newReminderService(mockHandlerInput);
         assertThat(instance).isNotNull().isInstanceOf(ReminderService.class);
     }
