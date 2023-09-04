@@ -11,20 +11,11 @@
 * Better metrics
 * Notify if the charger is offline 
 * If the car charge mode is changed or if boost was set, notify if the car is not plugged in
-* Localization
-
-# Create schedule using CLI 
-```
-aws scheduler create-schedule --name test --schedule-expression 'at(2023-09-02T16:28:00)' \
---target '{"RoleArn": "arn:aws:iam::1234:role/rolehere", "Arn": "arn:aws:lambda:eu-west-1:1234:function:my-func", "Input": "{\n\"hello\": \"world\"}" }' \
---flexible-time-window '{ "Mode": "OFF"}' --schedule-expression-timezone "Europe/Dublin"
-```
 
 ## Premium features
 * sync history
 * Query history between 2 times 
 * Add PIN so that only those with a PIN can control the Zappi
-* Unlock charger remotely (maybe a bad idea without a PIN)
 * Add guest mode where the host authorizes guests can use the charger and can get information from it for their sessions.
 ** Guests are issued a guest key. The guests enter it into the website to unlock the charger.
 ** Guests enter key whenever they are charging
