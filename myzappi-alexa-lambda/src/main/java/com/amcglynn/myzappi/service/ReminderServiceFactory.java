@@ -13,6 +13,6 @@ public class ReminderServiceFactory {
 
     public ReminderService newReminderService(HandlerInput handlerInput) {
         return new ReminderService(handlerInput.getServiceClientFactory().getReminderManagementService(), new LwaClient(),
-                schedulerService);
+                schedulerService, new Clock());
     }
 }

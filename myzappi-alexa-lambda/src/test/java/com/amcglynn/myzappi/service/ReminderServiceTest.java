@@ -46,15 +46,21 @@ class ReminderServiceTest {
     private LwaClient mockLwaClient;
     @Mock
     private SchedulerService mockSchedulerService;
+    @Mock
+    private Clock mockClock;
+
+    private LocalDateTime reminderDateTime = LocalDateTime.of(2023, 5, 19, 23, 0, 0);
 
     @Captor
     private ArgumentCaptor<ReminderRequest> reminderRequestCaptor;
 
     @BeforeEach
     void setUp() {
+        when(mockClock.localDateTime(ZoneId.of("Europe/Dublin"))).thenReturn(reminderDateTime);
+        when(mockClock.localDate(ZoneId.of("Europe/Dublin"))).thenReturn(reminderDateTime.toLocalDate());
         when(mockReminderClient.createReminder(any())).thenReturn(ReminderResponse.builder().withAlertToken("testAlertToken").build());
         when(mockReminderClient.updateReminder(any(), any())).thenReturn(ReminderResponse.builder().withAlertToken("testAlertToken").build());
-        this.reminderService = new ReminderService(mockReminderClient, mockLwaClient, mockSchedulerService);
+        this.reminderService = new ReminderService(mockReminderClient, mockLwaClient, mockSchedulerService, mockClock);
     }
 
     @Test
@@ -87,7 +93,7 @@ class ReminderServiceTest {
 
         var reminderRequest = reminderRequestCaptor.getValue();
         verifyContent(reminderRequest);
-        verifyTriggerUpdate(reminderRequest);
+        verifyTrigger(reminderRequest);
         assertThat(reminderRequest.getPushNotification())
                 .isEqualTo(PushNotification.builder().withStatus(PushNotificationStatus.ENABLED).build());
     }
@@ -103,16 +109,34 @@ class ReminderServiceTest {
     }
 
     @Test
-    void testHandleReminderMessageDelaysTheReminderBy24HoursWhenTheTestConditionIsMet() {
+    void testHandleReminderMessageDelaysTheReminderBy24HoursWhenTheTestConditionIsMetAndCreatesScheduledCallback() {
         final var testCondition = true;
-        var currentTime = LocalDateTime.now(ZoneId.of("Europe/Dublin"));
-        var reminderDateTime = currentTime.plusMinutes(3);
         when(mockLwaClient.getReminders(anyString(), anyString())).thenReturn(getReminders(reminderDateTime));
 
         reminderService.handleReminderMessage("testAccessToken", "mockAlexaId", "Europe/Dublin", () -> testCondition);
 
         verify(mockLwaClient).getReminders("https://api.eu.amazonalexa.com", "testAccessToken");
-        verify(mockReminderClient).updateReminder(any(), any());
+        verify(mockReminderClient).updateReminder(any(), reminderRequestCaptor.capture());
+        var reminderUpdateRequest = reminderRequestCaptor.getValue();
+        assertThat(reminderUpdateRequest).isNotNull();
+        verifyTrigger(reminderUpdateRequest, reminderDateTime.plusDays(1));
+
+        // schedule new SQS alert for tomorrow 5 minutes before the reminder
+        verify(mockSchedulerService).schedule(reminderDateTime.plusDays(1).minusMinutes(5), "mockAlexaId", ZoneId.of("Europe/Dublin"));
+    }
+
+    @Test
+    void testHandleReminderMessageDelaysTheReminderBy24HoursWhenScheduledTimeIsInThePast() {
+        final var testCondition = true;
+        when(mockLwaClient.getReminders(anyString(), anyString())).thenReturn(getReminders(reminderDateTime.minusDays(3)));
+
+        reminderService.handleReminderMessage("testAccessToken", "mockAlexaId", "Europe/Dublin", () -> testCondition);
+
+        verify(mockLwaClient).getReminders("https://api.eu.amazonalexa.com", "testAccessToken");
+        verify(mockReminderClient).updateReminder(any(), reminderRequestCaptor.capture());
+        var reminderUpdateRequest = reminderRequestCaptor.getValue();
+        assertThat(reminderUpdateRequest).isNotNull();
+        verifyTrigger(reminderUpdateRequest, reminderDateTime.plusDays(1));
 
         // schedule new SQS alert for tomorrow 5 minutes before the reminder
         verify(mockSchedulerService).schedule(reminderDateTime.plusDays(1).minusMinutes(5), "mockAlexaId", ZoneId.of("Europe/Dublin"));
@@ -121,8 +145,6 @@ class ReminderServiceTest {
     @Test
     void testHandleReminderMessageDoesNotDelayTheReminderWhenTheTestConditionIsNotMet() {
         final var testCondition = false;
-        var currentTime = LocalDateTime.now(ZoneId.of("Europe/Dublin"));
-        var reminderDateTime = currentTime.plusMinutes(3);
         when(mockLwaClient.getReminders(anyString(), anyString())).thenReturn(getReminders(reminderDateTime));
 
         reminderService.handleReminderMessage("testAccessToken", "mockAlexaId", "Europe/Dublin", () -> testCondition);
@@ -134,33 +156,16 @@ class ReminderServiceTest {
     }
 
     @Test
-    void testHandleReminderMessageDoesNotDelayTheReminderWhenReminderStartTimeIsInThePast() {
-        final var testCondition = false;
-        var currentTime = LocalDateTime.now(ZoneId.of("Europe/Dublin"));
-        when(mockLwaClient.getReminders(anyString(), anyString())).thenReturn(getReminders(currentTime.minusDays(10)));
-
-        reminderService.handleReminderMessage("testAccessToken", "mockAlexaId", "Europe/Dublin", () -> testCondition);
-
-        verify(mockLwaClient).getReminders("https://api.eu.amazonalexa.com", "testAccessToken");
-        verify(mockReminderClient, never()).updateReminder(any(), any());
-
-        // schedule new SQS alert for tomorrow 5 minutes before the reminder
-        verify(mockSchedulerService).schedule(currentTime.plusDays(1).minusMinutes(5), "mockAlexaId", ZoneId.of("Europe/Dublin"));
-    }
-
-    @Test
     void testHandleReminderMessageDoesNotDelayTheReminderWhenReminderIsInTheFutureAndSchedulesCallback5MinutesBeforeReminder() {
-        final var testCondition = false;
-        var currentTime = LocalDateTime.now(ZoneId.of("Europe/Dublin"));
-        when(mockLwaClient.getReminders(anyString(), anyString())).thenReturn(getReminders(currentTime.plusHours(7)));
+        when(mockLwaClient.getReminders(anyString(), anyString())).thenReturn(getReminders(reminderDateTime.plusHours(7)));
 
-        reminderService.handleReminderMessage("testAccessToken", "mockAlexaId", "Europe/Dublin", () -> testCondition);
+        reminderService.handleReminderMessage("testAccessToken", "mockAlexaId", "Europe/Dublin", () -> true);
 
         verify(mockLwaClient).getReminders("https://api.eu.amazonalexa.com", "testAccessToken");
         verify(mockReminderClient, never()).updateReminder(any(), any());
 
         // schedule the reminder today 5 minutes before the reminder
-        verify(mockSchedulerService).schedule(currentTime.plusHours(7).minusMinutes(5), "mockAlexaId", ZoneId.of("Europe/Dublin"));
+        verify(mockSchedulerService).schedule(reminderDateTime.plusHours(7).minusMinutes(5), "mockAlexaId", ZoneId.of("Europe/Dublin"));
     }
 
     private Reminders getReminders() {
@@ -230,29 +235,22 @@ class ReminderServiceTest {
     }
 
     private void verifyTrigger(ReminderRequest reminderRequest) {
-        var trigger = reminderRequest.getTrigger();
-        assertThat(trigger).isNotNull();
-        assertThat(trigger.getTimeZoneId()).isEqualTo("Europe/Dublin");
-        assertThat(trigger.getType()).isEqualTo(TriggerType.SCHEDULED_ABSOLUTE);
-        var localDate = LocalDate.now(ZoneId.of("Europe/Dublin"));
-        assertThat(trigger.getScheduledTime()).isNull();
-
-        var recurrence = trigger.getRecurrence();
-        assertThat(recurrence.getRecurrenceRules()).containsExactly("FREQ=DAILY;BYHOUR=23;BYMINUTE=0;BYSECOND=0");
+        verifyTrigger(reminderRequest, LocalDateTime.of(2023, 5, 19, 23, 0, 0));
     }
 
-    private void verifyTriggerUpdate(ReminderRequest reminderRequest) {
+    private void verifyTrigger(ReminderRequest reminderRequest, LocalDateTime reminderStartDateTime) {
         var trigger = reminderRequest.getTrigger();
         assertThat(trigger).isNotNull();
         assertThat(trigger.getTimeZoneId()).isEqualTo("Europe/Dublin");
         assertThat(trigger.getType()).isEqualTo(TriggerType.SCHEDULED_ABSOLUTE);
-        var localDate = LocalDate.now(ZoneId.of("Europe/Dublin"));
+        assertThat(trigger.getRecurrence().getStartDateTime())
+                .isEqualTo(reminderStartDateTime.minusMinutes(1));
         assertThat(trigger.getScheduledTime()).isNull();
 
         var recurrence = trigger.getRecurrence();
-        assertThat(recurrence.getFreq().getValue()).isNull();
-        assertThat(recurrence.getInterval()).isNull();
-        assertThat(recurrence.getRecurrenceRules()).hasSize(1);
-        assertThat(recurrence.getRecurrenceRules().get(0)).isEqualTo("FREQ=DAILY;BYHOUR=23;BYMINUTE=0;BYSECOND=0");
+        assertThat(recurrence.getRecurrenceRules()).containsExactly("FREQ=DAILY;BYHOUR=" +
+                reminderStartDateTime.getHour() + ";BYMINUTE=" +
+                reminderStartDateTime.getMinute() + ";BYSECOND=" +
+                reminderStartDateTime.getSecond());
     }
 }
