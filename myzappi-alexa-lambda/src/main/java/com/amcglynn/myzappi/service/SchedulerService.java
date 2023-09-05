@@ -10,7 +10,6 @@ import software.amazon.awssdk.services.scheduler.model.Target;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.UUID;
 
 @Slf4j
 public class SchedulerService {
@@ -40,7 +39,7 @@ public class SchedulerService {
                 .build();
 
         return CreateScheduleRequest.builder()
-                .name("automated-" + UUID.randomUUID())
+                .name("reminder-" + alexaUserId.substring(alexaUserId.length() - 6))
                 .scheduleExpression("at(" + normalised + ")")
                 .scheduleExpressionTimezone(zoneId.getId())
                 .actionAfterCompletion(ActionAfterCompletion.DELETE)
