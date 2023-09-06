@@ -6,17 +6,16 @@
 ** Add a new intent handler
 ** Add new schedule table
 ** Save action into table and schedule in SQS
-** Create consumer that gets notified of the event and performs the action 
+** Create consumer that gets notified of the event and performs the action
+* Reminder saying when your car is fully charged
 * Better metrics
 * Notify if the charger is offline 
 * If the car charge mode is changed or if boost was set, notify if the car is not plugged in
-* Localization
 
 ## Premium features
 * sync history
 * Query history between 2 times 
 * Add PIN so that only those with a PIN can control the Zappi
-* Unlock charger remotely (maybe a bad idea without a PIN)
 * Add guest mode where the host authorizes guests can use the charger and can get information from it for their sessions.
 ** Guests are issued a guest key. The guests enter it into the website to unlock the charger.
 ** Guests enter key whenever they are charging
@@ -72,6 +71,12 @@ aws dynamodb create-table \
   --table-name tariff \
   --attribute-definitions AttributeName=user-id,AttributeType=S \
   --key-schema AttributeName=user-id,KeyType=HASH \
+  --provisioned-throughput ReadCapacityUnits=1,WriteCapacityUnits=1
+
+aws dynamodb create-table \
+  --table-name alexa-to-lwa-users-lookup \
+  --attribute-definitions AttributeName=alexa-user-id,AttributeType=S \
+  --key-schema AttributeName=alexa-user-id,KeyType=HASH \
   --provisioned-throughput ReadCapacityUnits=1,WriteCapacityUnits=1
 
 ```

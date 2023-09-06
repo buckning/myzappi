@@ -3,6 +3,8 @@ package com.amcglynn.myzappi.handlers;
 import com.amazon.ask.dispatcher.exception.ExceptionHandler;
 import com.amazon.ask.dispatcher.request.handler.HandlerInput;
 import com.amazon.ask.model.Response;
+import com.amazon.ask.response.ResponseBuilder;
+import com.amcglynn.myzappi.UserNotLinkedException;
 import com.amcglynn.myzappi.core.Brand;
 import lombok.extern.slf4j.Slf4j;
 
@@ -20,14 +22,18 @@ public class MyZappiExceptionHandler implements ExceptionHandler {
 
     @Override
     public Optional<Response> handle(HandlerInput handlerInput, Throwable throwable) {
-        var userId = handlerInput.getRequestEnvelope().getSession().getUser().getUserId();
-        log.error("Unexpected error not handled. userId = {}.", userId, throwable);
+        log.error("Unexpected error not handled", throwable);
 
-        return handlerInput.getResponseBuilder()
+        var responseBuilder = handlerInput.getResponseBuilder()
                 .withSpeech(getVoiceResponse(handlerInput, throwable))
                 .withSimpleCard(Brand.NAME, getCardResponse(handlerInput, throwable))
-                .withShouldEndSession(false)
-                .build();
+                .withShouldEndSession(false);
+
+        if (throwable instanceof UserNotLinkedException) {
+            responseBuilder = responseBuilder.withLinkAccountCard();
+        }
+
+        return responseBuilder.build();
     }
 
     private String getVoiceResponse(HandlerInput handlerInput, Throwable throwable) {

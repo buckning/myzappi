@@ -5,6 +5,7 @@ import com.amazon.ask.model.LaunchRequest;
 import com.amazon.ask.model.RequestEnvelope;
 import com.amazon.ask.model.Session;
 import com.amazon.ask.model.User;
+import com.amazon.ask.model.ui.LinkAccountCard;
 import com.amazon.ask.model.ui.SimpleCard;
 import com.amazon.ask.model.ui.SsmlOutputSpeech;
 import com.amcglynn.myenergi.exception.ClientException;
@@ -68,10 +69,18 @@ class MyZappiExceptionHandlerTest {
         assertThat(simpleCard.getContent()).isEqualTo(expectedVoiceResponse);
     }
 
+    @Test
+    void testUserNotLinkedExceptionHasLinkAccountCardInResponse() {
+        var response = handler.handle(HandlerInput.builder()
+                .withRequestEnvelope(requestEnvelopeBuilder().build()).build(), new UserNotLinkedException("userId"));
+        assertThat(response).isPresent();
+
+        assertThat(response.get().getCard()).isInstanceOf(LinkAccountCard.class);
+    }
+
     private static Stream<Arguments> exceptionCardSource() {
         return Stream.of(
                 Arguments.of(new UserNotLoggedInException("test"), "You are not registered. Please register on https://myzappiunofficial.com with your myenergi API key and serial number."),
-                Arguments.of(new UserNotLinkedException("test"), "You need to set up account linking first on Alexa for the My Zappi skill."),
                 Arguments.of(new ClientException(404), "Could not authenticate with myenergi APIs. Your API key may no longer be valid. Please register again on https://myzappiunofficial.com"),
                 Arguments.of(new ServerCommunicationException(), "I couldn't communicate with myenergi servers."),
                 Arguments.of(new NullPointerException("unexpectedException"), "There was an unexpected error."));
@@ -80,7 +89,7 @@ class MyZappiExceptionHandlerTest {
     private static Stream<Arguments> exceptionVoiceSource() {
         return Stream.of(
                 Arguments.of(new UserNotLoggedInException("test"), "<speak>You are not registered. Please register on my zappi unofficial dot com with your my energy API key and serial number.</speak>"),
-                Arguments.of(new UserNotLinkedException("test"), "<speak>You need to set up account linking first on Alexa for the My Zappi skill.</speak>"),
+                Arguments.of(new UserNotLinkedException("test"), "<speak>Welcome to the My Zappi skill. To be able to use the skill, you have to link it to your Amazon account. Please go to the Alexa App and sign in with your Amazon login credentials under settings. A Link Account card was delivered to your Alexa App.</speak>"),
                 Arguments.of(new ClientException(404), "<speak>Could not authenticate with my energy APIs. Your API key may no longer be valid. Please register again on my zappi unofficial dot com</speak>"),
                 Arguments.of(new ServerCommunicationException(), "<speak>I couldn't communicate with my energy servers.</speak>"),
                 Arguments.of(new NullPointerException("unexpectedException"), "<speak>There was an unexpected error.</speak>"));

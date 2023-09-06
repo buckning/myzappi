@@ -42,6 +42,14 @@ public class ServiceManager {
         return properties.getSkillId();
     }
 
+    public String getSchedulerExecutionRoleArn() {
+        return properties.getSchedulerExecutionRoleArn();
+    }
+
+    public String getSchedulerTargetLambdaArn() {
+        return properties.getSchedulerTargetLambdaArn();
+    }
+
     public TariffService getTariffService() {
         return tariffService;
     }
