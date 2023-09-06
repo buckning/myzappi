@@ -24,18 +24,6 @@ public class AlexaToLwaLookUpRepository {
         this.dbClient = dbClient;
     }
 
-    public Optional<String> getLwaUserId(String alexaUserId) {
-        var request = new GetItemRequest()
-                .withTableName(TABLE_NAME)
-                .addKeyEntry(ALEXA_USER_ID_COLUMN, new AttributeValue(alexaUserId));
-
-        var result = dbClient.getItem(request);
-        if (result.getItem() == null) {
-            return Optional.empty();
-        }
-        return Optional.of(result.getItem().get(LWA_USER_ID_COLUMN).getS());
-    }
-
     public Optional<AlexaToLwaUserDetails> read(String alexaUserId) {
         var request = new GetItemRequest()
                 .withTableName(TABLE_NAME)

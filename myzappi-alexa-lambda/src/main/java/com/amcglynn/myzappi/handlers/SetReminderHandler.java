@@ -60,11 +60,12 @@ public class SetReminderHandler implements RequestHandler {
         }
 
         var alexaUserId = handlerInput.getRequestEnvelope().getContext().getSystem().getUser().getUserId();
-        var userLookup = alexaToLwaLookUpRepository.getLwaUserId(alexaUserId);
+        var userDetails = alexaToLwaLookUpRepository.read(alexaUserId);
         var lwaUserFromRequest = userIdResolverFactory.newUserIdResolver(handlerInput).getUserId();
         var zoneId = userZoneResolver.getZoneId(handlerInput);
 
-        userLookup.ifPresentOrElse(lwaUser -> {
+        userDetails.ifPresentOrElse(user -> {
+            var lwaUser = user.getLwaUserId();
             if (!lwaUser.equals(lwaUserFromRequest)) {
                 log.info("LWA user from DB is {}, LWA user for token from request is {}, deleting old user from DB",
                         lwaUser, lwaUserFromRequest);

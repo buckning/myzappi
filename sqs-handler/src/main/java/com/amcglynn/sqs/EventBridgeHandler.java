@@ -3,6 +3,8 @@ package com.amcglynn.sqs;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amcglynn.lwa.LwaClient;
+import lombok.AccessLevel;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.LinkedHashMap;
@@ -26,9 +28,12 @@ import java.util.LinkedHashMap;
 public class EventBridgeHandler implements RequestHandler<Object, Void> {
 
     private final Properties properties;
+    @Setter(AccessLevel.PACKAGE)
+    private LwaClient lwaClient;
 
     public EventBridgeHandler() {
         properties = new Properties();
+        lwaClient = new LwaClient();
     }
 
     public Void handleRequest(Object event, Context context) {
@@ -41,10 +46,8 @@ public class EventBridgeHandler implements RequestHandler<Object, Void> {
             }
 
             // event needs Alexa URL, LWA user ID and Alexa user ID
-
             var body = new MyZappiReminderEvent(map);
             log.info("Received event class {}, body {}", event.getClass(), event);
-            var lwaClient = new LwaClient();
 
             var token = lwaClient.getMessagingToken(properties.getAlexaClientId(), properties.getAlexaClientSecret());
             log.info("Generated token {}", token.getTokenType());

@@ -33,7 +33,7 @@ class SchedulerServiceTest {
 
         var sentRequest = createScheduleRequestArgumentCaptor.getValue();
         assertThat(sentRequest).isNotNull();
-        assertThat(sentRequest.name()).isEqualTo("reminder-567890");
+        assertThat(sentRequest.name()).startsWith("reminder-567890-");
         assertThat(sentRequest.actionAfterCompletion()).isEqualTo(ActionAfterCompletion.DELETE);
         assertThat(sentRequest.scheduleExpression()).isEqualTo("at(2017-12-19T07:05)");
         assertThat(sentRequest.scheduleExpressionTimezone()).isEqualTo("Europe/Dublin");

@@ -15,6 +15,7 @@ import com.amazon.ask.model.ui.AskForPermissionsConsentCard;
 import com.amcglynn.myzappi.UserIdResolverFactory;
 import com.amcglynn.myzappi.UserZoneResolver;
 import com.amcglynn.myzappi.core.dal.AlexaToLwaLookUpRepository;
+import com.amcglynn.myzappi.core.model.AlexaToLwaUserDetails;
 import com.amcglynn.myzappi.core.service.UserIdResolver;
 import com.amcglynn.myzappi.service.ReminderService;
 import com.amcglynn.myzappi.service.ReminderServiceFactory;
@@ -125,7 +126,7 @@ class SetReminderHandlerTest {
         verify(mockReminderService).createDailyRecurringReminder("testConsentToken", LocalTime.of(10, 30),
                 "Your E.V. is not connected. ",
                 Locale.forLanguageTag("en-GB"), ZoneId.of("Europe/Dublin"));
-        verify(mockAlexaToLwaLookUpRepository).getLwaUserId("mockAlexaUser");
+        verify(mockAlexaToLwaLookUpRepository).read("mockAlexaUser");
         verify(mockAlexaToLwaLookUpRepository).write("mockAlexaUser", "mockLwaUser", "Europe/Dublin");
         verify(mockSchedulerService).schedule(LocalDateTime.of(2023, 9, 1, 10, 25), "mockAlexaUser", ZoneId.of("Europe/Dublin"));
     }
@@ -142,14 +143,15 @@ class SetReminderHandlerTest {
         verify(mockReminderService).createDailyRecurringReminder("testConsentToken", LocalTime.of(10, 30),
                 "Your E.V. is not connected. ",
                 Locale.forLanguageTag("en-GB"), ZoneId.of("Europe/Dublin"));
-        verify(mockAlexaToLwaLookUpRepository).getLwaUserId("mockAlexaUser");
+        verify(mockAlexaToLwaLookUpRepository).read("mockAlexaUser");
         verify(mockAlexaToLwaLookUpRepository).write("mockAlexaUser", "mockLwaUser", "Europe/Dublin");
         verify(mockSchedulerService).schedule(LocalDateTime.of(2023, 9, 2, 10, 25), "mockAlexaUser", ZoneId.of("Europe/Dublin"));
     }
 
     @Test
     void testHandleCreatedReminderDeletesOldLwaUserIdAndSavesNewLwaUserIdIfTheyHaveChanged() {
-        when(mockAlexaToLwaLookUpRepository.getLwaUserId("mockAlexaUser")).thenReturn(Optional.of("invalidLwaUser"));
+        when(mockAlexaToLwaLookUpRepository.read("mockAlexaUser"))
+                .thenReturn(Optional.of(new AlexaToLwaUserDetails("mockAlexaUser", "invalidLwaUser", "Europe/London")));
         var result = handler.handle(handlerInputBuilder(requestEnvelopeBuilder()).build());
         assertThat(result).isPresent();
 
@@ -158,14 +160,15 @@ class SetReminderHandlerTest {
         verify(mockReminderService).createDailyRecurringReminder("testConsentToken", LocalTime.of(10, 30),
                 "Your E.V. is not connected. ",
                 Locale.forLanguageTag("en-GB"), ZoneId.of("Europe/Dublin"));
-        verify(mockAlexaToLwaLookUpRepository).getLwaUserId("mockAlexaUser");
+        verify(mockAlexaToLwaLookUpRepository).read("mockAlexaUser");
         verify(mockAlexaToLwaLookUpRepository).delete("mockAlexaUser");
         verify(mockAlexaToLwaLookUpRepository).write("mockAlexaUser", "mockLwaUser", "Europe/Dublin");
     }
 
     @Test
     void testHandleCreatesReminderWhenUserLookUpAlreadyExists() {
-        when(mockAlexaToLwaLookUpRepository.getLwaUserId("mockAlexaUser")).thenReturn(Optional.of("mockLwaUser"));
+        when(mockAlexaToLwaLookUpRepository.read("mockAlexaUser"))
+                .thenReturn(Optional.of(new AlexaToLwaUserDetails("mockAlexaUser", "mockLwaUser", "Europe/Dublin")));
         var result = handler.handle(handlerInputBuilder(requestEnvelopeBuilder()).build());
         assertThat(result).isPresent();
 
@@ -174,7 +177,7 @@ class SetReminderHandlerTest {
         verify(mockReminderService).createDailyRecurringReminder("testConsentToken", LocalTime.of(10, 30),
                 "Your E.V. is not connected. ",
                 Locale.forLanguageTag("en-GB"), ZoneId.of("Europe/Dublin"));
-        verify(mockAlexaToLwaLookUpRepository).getLwaUserId("mockAlexaUser");
+        verify(mockAlexaToLwaLookUpRepository).read("mockAlexaUser");
         verify(mockAlexaToLwaLookUpRepository, never()).delete("mockAlexaUser");
         verify(mockAlexaToLwaLookUpRepository, never()).write("mockAlexaUser", "mockLwaUser", "Europe/Dublin");
     }
