@@ -1,13 +1,7 @@
 # Welcome to MyZappi!
 
 ## Next Features
-* Add scheduled charging
-** Set up an SQS queue.
-** Add a new intent handler
-** Add new schedule table
-** Save action into table and schedule in SQS
-** Create consumer that gets notified of the event and performs the action
-* Reminder saying when your car is fully charged
+* Remind me when my car finishes charging
 * Better metrics
 * Notify if the charger is offline 
 * If the car charge mode is changed or if boost was set, notify if the car is not plugged in
@@ -78,7 +72,14 @@ aws dynamodb create-table \
   --attribute-definitions AttributeName=alexa-user-id,AttributeType=S \
   --key-schema AttributeName=alexa-user-id,KeyType=HASH \
   --provisioned-throughput ReadCapacityUnits=1,WriteCapacityUnits=1
+```
 
+```
+aws dynamodb create-table \
+--table-name schedule \
+--attribute-definitions AttributeName=user-id,AttributeType=S \
+--key-schema AttributeName=user-id,KeyType=HASH \
+--provisioned-throughput ReadCapacityUnits=1,WriteCapacityUnits=1
 ```
 
 ## Manually create role for Lambda

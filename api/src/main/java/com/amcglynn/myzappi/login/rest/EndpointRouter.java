@@ -4,6 +4,7 @@ import com.amcglynn.myzappi.core.config.ServiceManager;
 import com.amcglynn.myzappi.login.LwaClientFactory;
 import com.amcglynn.myzappi.login.SessionManagementService;
 import com.amcglynn.myzappi.login.SessionRepository;
+import com.amcglynn.myzappi.login.rest.controller.ScheduleController;
 import com.amcglynn.myzappi.login.service.RegistrationService;
 import com.amcglynn.myzappi.login.service.TokenService;
 import lombok.extern.slf4j.Slf4j;
@@ -14,8 +15,8 @@ import java.util.Map;
 @Slf4j
 public class EndpointRouter {
 
-    private Map<String, RestController> handlers;
-    private AuthenticateController authenticateController;
+    private final Map<String, RestController> handlers;
+    private final AuthenticateController authenticateController;
 
     public EndpointRouter(ServiceManager serviceManager) {
         this(serviceManager, new HubController(new RegistrationService(serviceManager.getLoginService())),
@@ -33,26 +34,24 @@ public class EndpointRouter {
                           SessionManagementService sessionManagementService, LwaClientFactory lwaClientFactory) {
         this(hubController, tariffController,
                 new AuthenticateController(new TokenService(lwaClientFactory), sessionManagementService),
-                new LogoutController(sessionManagementService));
+                new LogoutController(sessionManagementService),
+                new ScheduleController());
     }
 
     public EndpointRouter(HubController hubController, TariffController tariffController,
-                          AuthenticateController authenticateController, LogoutController logoutController) {
+                          AuthenticateController authenticateController, LogoutController logoutController,
+                          ScheduleController scheduleController) {
         handlers = new HashMap<>();
-        handlers.put("POST /hub", hubController);
-        handlers.put("GET /hub", hubController);
-        handlers.put("DELETE /hub", hubController);
-        handlers.put("GET /tariff", tariffController);
-        handlers.put("POST /tariff", tariffController);
-        handlers.put("POST /authenticate", authenticateController);
-        handlers.put("GET /logout", logoutController);
+        handlers.put("/hub", hubController);
+        handlers.put("/tariff", tariffController);
+        handlers.put("/authenticate", authenticateController);
+        handlers.put("/logout", logoutController);
+        handlers.put("/schedule", scheduleController);
 
         this.authenticateController = authenticateController;
     }
 
     public Response route(Request request) {
-        var routeEndpoint = request.getMethod() + " " + request.getPath();
-
         if (RequestMethod.OPTIONS == request.getMethod()) {
             return new Response(204);
         }
@@ -66,9 +65,9 @@ public class EndpointRouter {
         }
         try {
             log.info("{} {}", request.getMethod(), request.getPath());
-            var controller = handlers.get(routeEndpoint);
+            var controller = handlers.get(request.getPath());
             if (controller == null) {
-                log.info("Controller not found for {} {}", request.getMethod(), request.getPath());
+                log.info("Controller not found for {}", request.getPath());
                 return new Response(404);
             }
             log.info("Found controller {}", controller.getClass());
@@ -89,11 +88,7 @@ public class EndpointRouter {
             return isValidBearerToken(request, request.getHeaders().get("Authorization"));
         }
 
-        if (request.getSession().isPresent()) {
-            return true;
-        }
-
-        return false;
+        return request.getSession().isPresent();
     }
 
     private boolean isValidBearerToken(Request request, String authorization) {

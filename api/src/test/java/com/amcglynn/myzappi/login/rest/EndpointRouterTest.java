@@ -2,6 +2,7 @@ package com.amcglynn.myzappi.login.rest;
 
 import com.amcglynn.myzappi.login.Session;
 import com.amcglynn.myzappi.login.UserId;
+import com.amcglynn.myzappi.login.rest.controller.ScheduleController;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -33,18 +34,22 @@ class EndpointRouterTest {
     @Mock
     private LogoutController mockLogutController;
     @Mock
+    private ScheduleController mockScheduleController;
+    @Mock
     private Session mockSession;
     @Mock
     private Response mockResponse;
 
     @BeforeEach
     void setUp() {
-        router = new EndpointRouter(mockHubController, mockTariffController, mockAuthController, mockLogutController);
+        router = new EndpointRouter(mockHubController, mockTariffController, mockAuthController, mockLogutController,
+                mockScheduleController);
         when(mockResponse.getStatus()).thenReturn(200);
         when(mockTariffController.handle(any())).thenReturn(mockResponse);
         when(mockLogutController.handle(any())).thenReturn(mockResponse);
         when(mockAuthController.handle(any())).thenReturn(mockResponse);
         when(mockHubController.handle(any())).thenReturn(mockResponse);
+        when(mockScheduleController.handle(any())).thenReturn(mockResponse);
     }
 
     @Test
@@ -173,5 +178,14 @@ class EndpointRouterTest {
         var response = router.route(request);
         assertThat(response.getStatus()).isEqualTo(401);
         verify(mockHubController, never()).handle(request);
+    }
+
+    @Test
+    void getScheduleGetsRoutedToScheduleController() {
+        var request = new Request(RequestMethod.GET, "/schedule", null, Map.of("Authorization", "Bearer 1234"));
+        when(mockAuthController.isAuthenticated(any(), eq("1234"))).thenReturn(true);
+        var response = router.route(request);
+        assertThat(response.getStatus()).isEqualTo(200);
+        verify(mockScheduleController).handle(request);
     }
 }
