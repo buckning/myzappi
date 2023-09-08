@@ -2,7 +2,12 @@ package com.amcglynn.myzappi.login.rest;
 
 import com.amcglynn.myzappi.login.Session;
 import com.amcglynn.myzappi.login.UserId;
+import com.amcglynn.myzappi.login.rest.controller.AuthenticateController;
+import com.amcglynn.myzappi.login.rest.controller.EndpointRouter;
+import com.amcglynn.myzappi.login.rest.controller.HubController;
+import com.amcglynn.myzappi.login.rest.controller.LogoutController;
 import com.amcglynn.myzappi.login.rest.controller.ScheduleController;
+import com.amcglynn.myzappi.login.rest.controller.TariffController;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

@@ -1,6 +1,8 @@
-package com.amcglynn.myzappi.login.rest;
+package com.amcglynn.myzappi.login.rest.controller;
 
 import com.amcglynn.myzappi.login.SessionManagementService;
+import com.amcglynn.myzappi.login.rest.Request;
+import com.amcglynn.myzappi.login.rest.Response;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashMap;

@@ -21,7 +21,46 @@ class ScheduleControllerTest {
 
     @Test
     void post() {
-        var response = controller.handle(new Request(new UserId("mockUserId"), RequestMethod.POST, "/schedule", null));
+        String body = "{\n" +
+                "    \"schedules\": [{\n" +
+                "        \"id\": \"1234567890\",\n" +
+                "        \"type\": \"RECURRING\",\n" +
+                "        \"startTime\": \"14:00\",\n" +
+                "        \"zoneId\": \"Europe/Dublin\",\n" +
+                "        \"days\": [1, 3, 5],\n" +
+                "        \"action\": {\n" +
+                "            \"type\": \"chargeMode\",\n" +
+                "            \"value\": \"ECO+\"\n" +
+                "        }\n" +
+                "    }, {\n" +
+                "        \"id\": \"1234567890\",\n" +
+                "        \"type\": \"RECURRING\",\n" +
+                "        \"startTime\": \"14:00\",\n" +
+                "        \"zoneId\": \"Europe/Dublin\",\n" +
+                "        \"days\": [1, 2, 3, 4, 5, 6, 7],\n" +
+                "        \"action\": {\n" +
+                "            \"type\": \"remindCost\"\n" +
+                "        }\n" +
+                "    }, {\n" +
+                "        \"id\": \"1234567890\",\n" +
+                "        \"type\": \"RECURRING\",\n" +
+                "        \"startTime\": \"14:00\",\n" +
+                "        \"zoneId\": \"Europe/Dublin\",\n" +
+                "        \"days\": [1, 5, 7],\n" +
+                "        \"action\": {\n" +
+                "            \"type\": \"remindPlugStatus\"\n" +
+                "        }\n" +
+                "    }, {\n" +
+                "        \"id\": \"0987654321\",\n" +
+                "        \"startTime\": \"15:00\",\n" +
+                "        \"zoneId\": \"Europe/Dublin\",\n" +
+                "        \"action\": {\n" +
+                "            \"type\": \"boostKwh\",\n" +
+                "            \"value\": \"5\"\n" +
+                "        }\n" +
+                "    }]\n" +
+                "}";
+        var response = controller.handle(new Request(new UserId("mockUserId"), RequestMethod.POST, "/schedule", body));
         assertThat(response.getStatus()).isEqualTo(200);
     }
 

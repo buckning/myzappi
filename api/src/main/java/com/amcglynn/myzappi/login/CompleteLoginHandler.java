@@ -7,7 +7,7 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent
 import com.amcglynn.myzappi.core.config.Properties;
 import com.amcglynn.myzappi.core.config.ServiceManager;
 import com.amcglynn.myzappi.core.service.LoginService;
-import com.amcglynn.myzappi.login.rest.EndpointRouter;
+import com.amcglynn.myzappi.login.rest.controller.EndpointRouter;
 import com.amcglynn.myzappi.login.rest.Request;
 import com.amcglynn.myzappi.login.rest.RequestMethod;
 import lombok.extern.slf4j.Slf4j;

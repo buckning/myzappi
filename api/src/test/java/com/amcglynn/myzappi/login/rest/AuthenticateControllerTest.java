@@ -3,6 +3,7 @@ package com.amcglynn.myzappi.login.rest;
 import com.amcglynn.lwa.TokenInfo;
 import com.amcglynn.myzappi.login.Session;
 import com.amcglynn.myzappi.login.SessionManagementService;
+import com.amcglynn.myzappi.login.rest.controller.AuthenticateController;
 import com.amcglynn.myzappi.login.service.TokenService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

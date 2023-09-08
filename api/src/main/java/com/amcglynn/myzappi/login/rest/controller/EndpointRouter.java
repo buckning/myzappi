@@ -1,10 +1,13 @@
-package com.amcglynn.myzappi.login.rest;
+package com.amcglynn.myzappi.login.rest.controller;
 
 import com.amcglynn.myzappi.core.config.ServiceManager;
 import com.amcglynn.myzappi.login.LwaClientFactory;
 import com.amcglynn.myzappi.login.SessionManagementService;
 import com.amcglynn.myzappi.login.SessionRepository;
-import com.amcglynn.myzappi.login.rest.controller.ScheduleController;
+import com.amcglynn.myzappi.login.rest.Request;
+import com.amcglynn.myzappi.login.rest.RequestMethod;
+import com.amcglynn.myzappi.login.rest.Response;
+import com.amcglynn.myzappi.login.rest.ServerException;
 import com.amcglynn.myzappi.login.service.RegistrationService;
 import com.amcglynn.myzappi.login.service.TokenService;
 import lombok.extern.slf4j.Slf4j;
@@ -41,6 +44,7 @@ public class EndpointRouter {
     public EndpointRouter(HubController hubController, TariffController tariffController,
                           AuthenticateController authenticateController, LogoutController logoutController,
                           ScheduleController scheduleController) {
+
         handlers = new HashMap<>();
         handlers.put("/hub", hubController);
         handlers.put("/tariff", tariffController);

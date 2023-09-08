@@ -1,8 +1,12 @@
-package com.amcglynn.myzappi.login.rest;
+package com.amcglynn.myzappi.login.rest.controller;
 
 import com.amcglynn.myzappi.login.AuthenticateRequest;
 import com.amcglynn.myzappi.login.Session;
 import com.amcglynn.myzappi.login.SessionManagementService;
+import com.amcglynn.myzappi.login.rest.Request;
+import com.amcglynn.myzappi.login.rest.RequestMethod;
+import com.amcglynn.myzappi.login.rest.Response;
+import com.amcglynn.myzappi.login.rest.ServerException;
 import com.amcglynn.myzappi.login.service.TokenService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;

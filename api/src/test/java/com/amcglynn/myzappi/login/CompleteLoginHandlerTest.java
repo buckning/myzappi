@@ -4,7 +4,7 @@
 //import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
 //import com.amcglynn.myzappi.core.config.Properties;
 //import com.amcglynn.myzappi.core.service.LoginService;
-//import com.amcglynn.myzappi.login.rest.EndpointRouter;
+//import com.amcglynn.myzappi.login.rest.controller.EndpointRouter;
 //import org.junit.jupiter.api.BeforeEach;
 //import org.junit.jupiter.api.Test;
 //import org.junit.jupiter.api.extension.ExtendWith;

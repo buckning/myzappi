@@ -1,7 +1,11 @@
-package com.amcglynn.myzappi.login.rest;
+package com.amcglynn.myzappi.login.rest.controller;
 
 import com.amcglynn.myzappi.core.model.SerialNumber;
 import com.amcglynn.myzappi.login.CompleteLoginRequest;
+import com.amcglynn.myzappi.login.rest.Request;
+import com.amcglynn.myzappi.login.rest.RequestMethod;
+import com.amcglynn.myzappi.login.rest.Response;
+import com.amcglynn.myzappi.login.rest.ServerException;
 import com.amcglynn.myzappi.login.service.RegistrationService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
