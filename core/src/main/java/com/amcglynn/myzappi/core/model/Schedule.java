@@ -1,12 +1,9 @@
-package com.amcglynn.myzappi.login.rest.request;
+package com.amcglynn.myzappi.core.model;
 
-import com.amcglynn.myzappi.core.model.LocalTimeDeserializer;
-import com.amcglynn.myzappi.core.model.LocalTimeSerializer;
-import com.amcglynn.myzappi.core.model.ZoneIdDeserializer;
-import com.amcglynn.myzappi.login.model.ScheduleType;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -16,6 +13,7 @@ import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 @Getter
 public class Schedule {
     private String id;
@@ -26,6 +24,7 @@ public class Schedule {
     private LocalTime startTime;
 
     @JsonDeserialize(using = ZoneIdDeserializer.class)
+    @JsonSerialize(using = ZoneIdSerializer.class)
     private ZoneId zoneId;
 
     private List<Integer> days;

@@ -1,5 +1,6 @@
 package com.amcglynn.myzappi.login.rest.request;
 
+import com.amcglynn.myzappi.core.model.Schedule;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
