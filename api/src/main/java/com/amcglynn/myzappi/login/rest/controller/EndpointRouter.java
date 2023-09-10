@@ -2,6 +2,7 @@ package com.amcglynn.myzappi.login.rest.controller;
 
 import com.amcglynn.myzappi.core.config.ServiceManager;
 import com.amcglynn.myzappi.core.dal.ScheduleRepository;
+import com.amcglynn.myzappi.core.service.ScheduleService;
 import com.amcglynn.myzappi.login.LwaClientFactory;
 import com.amcglynn.myzappi.login.SessionManagementService;
 import com.amcglynn.myzappi.login.SessionRepository;
@@ -32,7 +33,7 @@ public class EndpointRouter {
                           LwaClientFactory lwaClientFactory) {
         this(hubController, tariffController, new SessionManagementService(new SessionRepository(serviceManager.getAmazonDynamoDB()),
                 serviceManager.getEncryptionService(), lwaClientFactory), lwaClientFactory,
-                new ScheduleController(new ScheduleRepository(serviceManager.getAmazonDynamoDB())));
+                new ScheduleController(new ScheduleService(new ScheduleRepository(serviceManager.getAmazonDynamoDB()))));
     }
 
     public EndpointRouter(HubController hubController, TariffController tariffController,

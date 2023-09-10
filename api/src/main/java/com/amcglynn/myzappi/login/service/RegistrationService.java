@@ -3,13 +3,15 @@ package com.amcglynn.myzappi.login.service;
 import com.amcglynn.myenergi.MyEnergiClient;
 import com.amcglynn.myenergi.exception.ClientException;
 import com.amcglynn.myzappi.core.model.SerialNumber;
+import com.amcglynn.myzappi.core.model.UserId;
 import com.amcglynn.myzappi.core.service.LoginService;
-import com.amcglynn.myzappi.login.UserId;
 import com.amcglynn.myzappi.login.rest.ServerException;
 import com.amcglynn.myzappi.login.rest.response.HubDetailsResponse;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.Optional;
 
+@Slf4j
 public class RegistrationService {
 
     private final LoginService loginService;
@@ -23,7 +25,7 @@ public class RegistrationService {
     }
 
     public void delete(UserId userId) {
-        System.out.println("Deleting hub details for user = " + userId);
+        log.info("Deleting hub details for user = {}", userId);
         loginService.delete(userId.toString());
     }
 
@@ -36,12 +38,12 @@ public class RegistrationService {
         var zappiSerialNumber = discover(serialNumber, apiKey);
 
         if (zappiSerialNumber.isPresent()) {
-            System.out.println("Registering zappi = " + zappiSerialNumber.get() + " hub = " + serialNumber + " for user " + userId);
+            log.info("Registering zappi = {} hub = {} for user {}", zappiSerialNumber.get(), serialNumber, userId);
             loginService.register(userId.toString(),
                     zappiSerialNumber.get(), // zappi serial number may be different to gateway/hub
                     serialNumber, apiKey);
         } else {
-            System.err.println("Could not find Zappi for system");
+            log.warn("Could not find Zappi for system");
             throw new ServerException(409);
         }
     }
@@ -56,9 +58,9 @@ public class RegistrationService {
                 new MyEnergiClient(zappiSerialNumber.toString(), serialNumber.toString(), apiKey).getStatus();
                 return Optional.of(zappiSerialNumber);
             }
-            System.out.println("Zappi device not found");
+            log.warn("Zappi device not found");
         } catch (ClientException e) {
-            System.out.println("Unexpected error " + e.getMessage());
+            log.warn("Unexpected error " + e.getMessage());
         }
         return Optional.empty();
     }

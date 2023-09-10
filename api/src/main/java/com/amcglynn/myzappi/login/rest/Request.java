@@ -1,7 +1,7 @@
 package com.amcglynn.myzappi.login.rest;
 
+import com.amcglynn.myzappi.core.model.UserId;
 import com.amcglynn.myzappi.login.Session;
-import com.amcglynn.myzappi.login.UserId;
 import lombok.Getter;
 
 import java.util.HashMap;
@@ -45,7 +45,7 @@ public class Request {
     }
 
     public UserId getUserId() {
-        return userId == null? new UserId(session.getUserId()) : userId;
+        return userId == null? UserId.from(session.getUserId()) : userId;
     }
 
     public Optional<Session> getSession() {
@@ -61,6 +61,6 @@ public class Request {
     }
 
     public void setUserId(String userId) {
-        this.userId = new UserId(userId);
+        this.userId = UserId.from(userId);
     }
 }

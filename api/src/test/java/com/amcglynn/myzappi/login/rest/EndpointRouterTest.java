@@ -1,7 +1,7 @@
 package com.amcglynn.myzappi.login.rest;
 
+import com.amcglynn.myzappi.core.model.UserId;
 import com.amcglynn.myzappi.login.Session;
-import com.amcglynn.myzappi.login.UserId;
 import com.amcglynn.myzappi.login.rest.controller.AuthenticateController;
 import com.amcglynn.myzappi.login.rest.controller.EndpointRouter;
 import com.amcglynn.myzappi.login.rest.controller.HubController;
@@ -75,7 +75,7 @@ class EndpointRouterTest {
 
     @Test
     void createTariffRoutedToTariffControllerIfSessionIsPresent() {
-        var request = new Request(new UserId("AuthenticatedUser"), RequestMethod.POST, "/tariff", "{}");
+        var request = new Request(UserId.from("AuthenticatedUser"), RequestMethod.POST, "/tariff", "{}");
         request.setSession(mockSession);
         var response = router.route(request);
         assertThat(response.getStatus()).isEqualTo(200);
@@ -92,7 +92,7 @@ class EndpointRouterTest {
 
     @Test
     void getTariffRoutedToTariffControllerIfSessionIsPresent() {
-        var request = new Request(new UserId("AuthenticatedUser"), RequestMethod.GET, "/tariff", "{}");
+        var request = new Request(UserId.from("AuthenticatedUser"), RequestMethod.GET, "/tariff", "{}");
         request.setSession(mockSession);
         var response = router.route(request);
         assertThat(response.getStatus()).isEqualTo(200);
@@ -109,7 +109,7 @@ class EndpointRouterTest {
 
     @Test
     void getLogoutRoutedToLogoutControllerIfSessionIsPresent() {
-        var request = new Request(new UserId("AuthenticatedUser"), RequestMethod.GET, "/logout", "{}");
+        var request = new Request(UserId.from("AuthenticatedUser"), RequestMethod.GET, "/logout", "{}");
         request.setSession(mockSession);
         var response = router.route(request);
         assertThat(response.getStatus()).isEqualTo(200);
@@ -142,7 +142,7 @@ class EndpointRouterTest {
 
     @Test
     void getHubRoutedToHubControllerIfSessionIsPresent() {
-        var request = new Request(new UserId("AuthenticatedUser"), RequestMethod.GET, "/hub", "{}");
+        var request = new Request(UserId.from("AuthenticatedUser"), RequestMethod.GET, "/hub", "{}");
         request.setSession(mockSession);
         var response = router.route(request);
         assertThat(response.getStatus()).isEqualTo(200);
@@ -151,7 +151,7 @@ class EndpointRouterTest {
 
     @Test
     void postHubRoutedToHubControllerIfSessionIsPresent() {
-        var request = new Request(new UserId("AuthenticatedUser"), RequestMethod.POST, "/hub", "{}");
+        var request = new Request(UserId.from("AuthenticatedUser"), RequestMethod.POST, "/hub", "{}");
         request.setSession(mockSession);
         var response = router.route(request);
         assertThat(response.getStatus()).isEqualTo(200);
@@ -160,7 +160,7 @@ class EndpointRouterTest {
 
     @Test
     void deleteHubRoutedToHubControllerIfSessionIsPresent() {
-        var request = new Request(new UserId("AuthenticatedUser"), RequestMethod.DELETE, "/hub", "{}");
+        var request = new Request(UserId.from("AuthenticatedUser"), RequestMethod.DELETE, "/hub", "{}");
         request.setSession(mockSession);
         var response = router.route(request);
         assertThat(response.getStatus()).isEqualTo(200);

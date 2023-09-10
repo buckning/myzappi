@@ -87,6 +87,7 @@
                                         <exclude>com.amcglynn.myenergi.*</exclude>
                                         <exclude>com.amcglynn.lwa.*</exclude>
                                         <exclude>com.amcglynn.sqs.SkillMessage</exclude>
+                                        <exclude>com.amcglynn.myzappi.core.model.UserId</exclude>
                                         <exclude>com.amcglynn.myzappi.core.model.AlexaToLwaUserDetails</exclude>
                                         <exclude>com.amcglynn.myzappi.handlers.responses.ZappiEnergyCostVoiceResponse</exclude>
                                     </excludes>
