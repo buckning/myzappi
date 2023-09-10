@@ -80,9 +80,9 @@
                                         <exclude>com.amcglynn.myzappi.core.service.ZappiService</exclude>
                                         <exclude>com.amcglynn.myzappi.core.exception.MissingConfigurationException</exclude>
                                         <exclude>com.amcglynn.myzappi.MyZappiSkillStreamHandler</exclude>
-                                        <exclude>com.amcglynn.myzappi.login.LwaClientFactory</exclude>
-                                        <exclude>com.amcglynn.myzappi.login.CompleteLoginRequest</exclude>
-                                        <exclude>com.amcglynn.myzappi.login.*</exclude>
+                                        <exclude>com.amcglynn.myzappi.api.LwaClientFactory</exclude>
+                                        <exclude>com.amcglynn.myzappi.api.CompleteLoginRequest</exclude>
+                                        <exclude>com.amcglynn.myzappi.api.*</exclude>
                                         <exclude>com.amcglynn.myenergi.units.*</exclude>
                                         <exclude>com.amcglynn.myenergi.*</exclude>
                                         <exclude>com.amcglynn.lwa.*</exclude>
