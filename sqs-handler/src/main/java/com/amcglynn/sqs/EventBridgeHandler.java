@@ -3,6 +3,8 @@ package com.amcglynn.sqs;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amcglynn.lwa.LwaClient;
+import com.amcglynn.myzappi.core.config.ServiceManager;
+import com.amcglynn.myzappi.core.service.ZappiService;
 import lombok.AccessLevel;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -28,12 +30,22 @@ import java.util.LinkedHashMap;
 public class EventBridgeHandler implements RequestHandler<Object, Void> {
 
     private final Properties properties;
+    private ServiceManager serviceManager;
     @Setter(AccessLevel.PACKAGE)
     private LwaClient lwaClient;
+    private MyZappiScheduleHandler zappiScheduleHandler;
 
     public EventBridgeHandler() {
         properties = new Properties();
+        serviceManager = new ServiceManager(properties);
         lwaClient = new LwaClient();
+//        zappiScheduleHandler = new MyZappiScheduleHandler(new ZappiService.Builder(serviceManager.getLoginService(), serviceManager.getEncryptionService()));
+    }
+
+    EventBridgeHandler(Properties properties, LwaClient lwaClient, MyZappiScheduleHandler myZappiScheduleHandler) {
+        this.properties = properties;
+        this.lwaClient = lwaClient;
+        this.zappiScheduleHandler = myZappiScheduleHandler;
     }
 
     public Void handleRequest(Object event, Context context) {
@@ -46,12 +58,14 @@ public class EventBridgeHandler implements RequestHandler<Object, Void> {
             }
 
             // event needs Alexa URL, LWA user ID and Alexa user ID
-            var body = new MyZappiReminderEvent(map);
+            var body = new MyZappiScheduleEvent(map);
             log.info("Received event class {}, body {}", event.getClass(), event);
 
-            var token = lwaClient.getMessagingToken(properties.getAlexaClientId(), properties.getAlexaClientSecret());
-            log.info("Generated token {}", token.getTokenType());
-            lwaClient.postSkillMessage(body.getAlexaBaseUrl(), body.getAlexaUserId(), token.getAccessToken(), new SkillMessage(3600, new MyZappiReminderEvent()));
+            if (body.isAlexaReminder()) {
+                var token = lwaClient.getMessagingToken(properties.getAlexaClientId(), properties.getAlexaClientSecret());
+                log.info("Generated token {}", token.getTokenType());
+                lwaClient.postSkillMessage(body.getAlexaBaseUrl(), body.getAlexaUserId(), token.getAccessToken(), new SkillMessage(3600, new MyZappiScheduleEvent()));
+            }
         } catch (Exception e) {
             log.error("Unexpected error", e);
         }

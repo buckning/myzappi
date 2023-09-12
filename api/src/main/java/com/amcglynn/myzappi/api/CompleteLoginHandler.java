@@ -67,6 +67,12 @@ public class CompleteLoginHandler implements RequestHandler<APIGatewayProxyReque
         APIGatewayProxyResponseEvent responseEvent = new APIGatewayProxyResponseEvent();
         responseEvent.setHeaders(Map.of());
 
+        if (input.getHttpMethod() == null) {
+            responseEvent.setStatusCode(200);
+            log.info("Ignoring request with no HTTP method");
+            return responseEvent;
+        }
+
         var request = new Request(RequestMethod.valueOf(input.getHttpMethod()), input.getPath(), input.getBody(), input.getHeaders());
         var session = sessionManagementService.handle(input, responseEvent);
         session.ifPresent(request::setSession);

@@ -74,11 +74,21 @@ aws dynamodb create-table \
   --provisioned-throughput ReadCapacityUnits=1,WriteCapacityUnits=1
 ```
 
+Contains all the schedule information for a user as a json blob
 ```
 aws dynamodb create-table \
 --table-name schedule \
 --attribute-definitions AttributeName=user-id,AttributeType=S \
 --key-schema AttributeName=user-id,KeyType=HASH \
+--provisioned-throughput ReadCapacityUnits=1,WriteCapacityUnits=1
+```
+
+Stores the schedule information for a schedule ID
+```
+aws dynamodb create-table \
+--table-name schedule-details \
+--attribute-definitions AttributeName=schedule-id,AttributeType=S \
+--key-schema AttributeName=schedule-id,KeyType=HASH \
 --provisioned-throughput ReadCapacityUnits=1,WriteCapacityUnits=1
 ```
 

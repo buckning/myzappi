@@ -4,11 +4,17 @@ import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 import com.amcglynn.myzappi.core.dal.CredentialsRepository;
+import com.amcglynn.myzappi.core.dal.ScheduleDetailsRepository;
 import com.amcglynn.myzappi.core.dal.TariffRepository;
+import com.amcglynn.myzappi.core.dal.UserScheduleRepository;
 import com.amcglynn.myzappi.core.service.EncryptionService;
 import com.amcglynn.myzappi.core.service.LoginService;
+import com.amcglynn.myzappi.core.service.ScheduleService;
 import com.amcglynn.myzappi.core.service.TariffService;
 import com.amcglynn.myzappi.core.service.ZappiService;
+import lombok.Getter;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.scheduler.SchedulerClient;
 
 public class ServiceManager {
 
@@ -16,9 +22,11 @@ public class ServiceManager {
     private final CredentialsRepository credentialsRepository;
     private ZappiService.Builder zappiServiceBuilder;
     private LoginService loginService;
-    private TariffService tariffService;
+    private final TariffService tariffService;
     private final Properties properties;
     private final AmazonDynamoDB amazonDynamoDB;
+    @Getter
+    private final ScheduleService scheduleService;
 
     public ServiceManager(Properties properties) {
         amazonDynamoDB = AmazonDynamoDBClientBuilder.standard()
@@ -28,6 +36,12 @@ public class ServiceManager {
         credentialsRepository = new CredentialsRepository(amazonDynamoDB);
         tariffService = new TariffService(new TariffRepository(amazonDynamoDB));
         this.properties = properties;
+        var schedulerClient = SchedulerClient.builder().region(Region.EU_WEST_1).build();
+        this.scheduleService = new ScheduleService(new UserScheduleRepository(amazonDynamoDB),
+                new ScheduleDetailsRepository(amazonDynamoDB),
+                schedulerClient,
+                properties.getSchedulerExecutionRoleArn(),
+                properties.getSchedulerTargetLambdaArn());
     }
 
     public EncryptionService getEncryptionService() {

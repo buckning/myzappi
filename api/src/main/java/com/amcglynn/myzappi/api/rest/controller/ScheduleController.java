@@ -32,7 +32,7 @@ public class ScheduleController implements RestController {
         if (request.getMethod() == RequestMethod.DELETE) {
             return new Response(204);
         }
-        log.info("Unsupported method for schedule - " + request.getMethod());
+        log.info("Unsupported method for schedule - {}", request.getMethod());
         throw new ServerException(404);
     }
 

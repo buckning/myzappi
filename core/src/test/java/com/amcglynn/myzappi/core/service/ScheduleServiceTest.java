@@ -1,6 +1,7 @@
 package com.amcglynn.myzappi.core.service;
 
-import com.amcglynn.myzappi.core.dal.ScheduleRepository;
+import com.amcglynn.myzappi.core.dal.ScheduleDetailsRepository;
+import com.amcglynn.myzappi.core.dal.UserScheduleRepository;
 import com.amcglynn.myzappi.core.model.Schedule;
 import com.amcglynn.myzappi.core.model.ScheduleAction;
 import com.amcglynn.myzappi.core.model.UserId;
@@ -9,24 +10,36 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import software.amazon.awssdk.services.scheduler.SchedulerClient;
+import software.amazon.awssdk.services.scheduler.model.CreateScheduleRequest;
+import software.amazon.awssdk.services.scheduler.model.CreateScheduleResponse;
 
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class ScheduleServiceTest {
 
     @Mock
-    private ScheduleRepository mockRepository;
+    private UserScheduleRepository mockRepository;
+    @Mock
+    private ScheduleDetailsRepository mockScheduleDetailsRepository;
     private ScheduleService service;
+    @Mock
+    private SchedulerClient mockSchedulerClient;
+    private CreateScheduleResponse createScheduleResponse = CreateScheduleResponse.builder().scheduleArn("mockScheduleArn").build();
 
     @BeforeEach
     void setUp() {
-        service = new ScheduleService(mockRepository);
+        when(mockSchedulerClient.createSchedule(any(CreateScheduleRequest.class))).thenReturn(createScheduleResponse);
+        service = new ScheduleService(mockRepository, mockScheduleDetailsRepository, mockSchedulerClient,
+                "mockExecutionArn", "mockLambdaArn");
     }
 
     @Test
@@ -42,7 +55,8 @@ class ScheduleServiceTest {
                         .build())
                 .build();
         var response = service.createSchedule(UserId.from("mockUserId"), schedule);
-        verify(mockRepository).write("mockUserId", List.of(response));
+        verify(mockRepository).write(UserId.from("mockUserId"), List.of(response));
+        verify(mockScheduleDetailsRepository).write(response.getId(), UserId.from("mockUserId"));
         assertThat(response.getId()).isNotNull();
         assertThat(response.getType()).isEqualTo(schedule.getType());
     }
