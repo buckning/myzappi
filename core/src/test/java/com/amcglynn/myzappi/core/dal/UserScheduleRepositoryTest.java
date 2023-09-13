@@ -15,6 +15,7 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.List;
@@ -41,7 +42,7 @@ class UserScheduleRepositoryTest {
             "        {\n" +
             "            \"id\": \"1234567890\",\n" +
             "            \"type\": \"RECURRING\",\n" +
-            "            \"startTime\": \"14:00\",\n" +
+            "            \"startDateTime\": \"2023-09-08T14:00\",\n" +
             "            \"zoneId\": \"Europe/Dublin\",\n" +
             "            \"days\": [\n" +
             "                1,\n" +
@@ -85,7 +86,7 @@ class UserScheduleRepositoryTest {
         var result = repository.read("userid");
         assertThat(result).hasSize(1);
         verifySchedulesAreEqual(result.get(0), Schedule.builder().id("1234567890").type("RECURRING")
-                .startTime(LocalTime.of(14, 0))
+                .startDateTime(LocalDateTime.of(2023, 9, 8, 14, 0))
                 .zoneId(ZoneId.of("Europe/Dublin"))
                 .days(List.of(1, 3, 5))
                 .action(ScheduleAction.builder()
@@ -97,7 +98,7 @@ class UserScheduleRepositoryTest {
     private void verifySchedulesAreEqual(Schedule scheduleFromDb, Schedule expected) {
         assertThat(scheduleFromDb.getId()).isEqualTo(expected.getId());
         assertThat(scheduleFromDb.getType()).isEqualTo(expected.getType());
-        assertThat(scheduleFromDb.getStartTime()).isEqualTo(expected.getStartTime());
+        assertThat(scheduleFromDb.getStartDateTime()).isEqualTo(expected.getStartDateTime());
         assertThat(scheduleFromDb.getZoneId()).isEqualTo(expected.getZoneId());
         assertThat(scheduleFromDb.getDays()).isEqualTo(expected.getDays());
         var action = scheduleFromDb.getAction();
@@ -108,7 +109,7 @@ class UserScheduleRepositoryTest {
     @Test
     void testWrite() {
         var schedules = List.of(Schedule.builder().id("1234567890").type("RECURRING")
-                .startTime(LocalTime.of(14, 0))
+                .startDateTime(LocalDateTime.of(2023, 9, 8, 14, 0))
                 .zoneId(ZoneId.of("Europe/Dublin"))
                 .days(List.of(1, 3, 5))
                 .action(ScheduleAction.builder()

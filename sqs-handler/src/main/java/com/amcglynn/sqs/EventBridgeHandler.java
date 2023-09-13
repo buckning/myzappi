@@ -39,7 +39,8 @@ public class EventBridgeHandler implements RequestHandler<Object, Void> {
         properties = new Properties();
         serviceManager = new ServiceManager(properties);
         lwaClient = new LwaClient();
-//        zappiScheduleHandler = new MyZappiScheduleHandler(new ZappiService.Builder(serviceManager.getLoginService(), serviceManager.getEncryptionService()));
+        zappiScheduleHandler = new MyZappiScheduleHandler(serviceManager.getScheduleService(),
+                new ZappiService.Builder(serviceManager.getLoginService(), serviceManager.getEncryptionService()));
     }
 
     EventBridgeHandler(Properties properties, LwaClient lwaClient, MyZappiScheduleHandler myZappiScheduleHandler) {
@@ -65,6 +66,8 @@ public class EventBridgeHandler implements RequestHandler<Object, Void> {
                 var token = lwaClient.getMessagingToken(properties.getAlexaClientId(), properties.getAlexaClientSecret());
                 log.info("Generated token {}", token.getTokenType());
                 lwaClient.postSkillMessage(body.getAlexaBaseUrl(), body.getAlexaUserId(), token.getAccessToken(), new SkillMessage(3600, new MyZappiScheduleEvent()));
+            } else {
+                zappiScheduleHandler.handle(body);
             }
         } catch (Exception e) {
             log.error("Unexpected error", e);

@@ -23,6 +23,16 @@ public class Properties extends com.amcglynn.myzappi.core.config.Properties {
         throw new IllegalStateException("Skill ID not required for schedule service");
     }
 
+    @Override
+    public String getSchedulerExecutionRoleArn() {
+        return null;
+    }
+
+    @Override
+    public String getSchedulerTargetLambdaArn() {
+        return null;
+    }
+
     public Properties() {
     }
 }

@@ -13,8 +13,9 @@ import software.amazon.awssdk.services.scheduler.model.FlexibleTimeWindowMode;
 import software.amazon.awssdk.services.scheduler.model.Target;
 
 import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Slf4j
@@ -39,12 +40,27 @@ public class ScheduleService {
                 .arn(schedulerTargetLambdaArn);
     }
 
+    public Optional<Schedule> getSchedule(String scheduleId) {
+        var result = scheduleDetailsRepository.read(scheduleId);
+
+        if (result.isEmpty()) {
+            return Optional.empty();
+        }
+
+        var schedules = listSchedules(result.get().getLwaUserId());
+
+        return schedules.stream()
+                .filter(schedule -> schedule.getId().equals(scheduleId))
+                .findFirst();
+    }
+
     public List<Schedule> listSchedules(UserId userId) {
         return repository.read(userId.toString());
     }
 
     public Schedule createSchedule(UserId userId, Schedule schedule) {
-        var schedules = repository.read(userId.toString());
+        var schedulesFromDb = repository.read(userId.toString());
+        var schedules = new ArrayList<>(schedulesFromDb);
         var scheduleWithId = newSchedule(schedule);
         schedules.add(scheduleWithId);
         repository.write(userId, schedules);
@@ -60,8 +76,7 @@ public class ScheduleService {
     }
 
     private CreateScheduleRequest createRequest(Schedule schedule, UserId userId) {
-//        var normalised = normalise(localDateTime);  // if there is a millisecond component to the LocalDateTime, aws APIs reject with error
-        var normalised = LocalDateTime.of(2023, 9, 14, 10, 0, 0);
+        var normalised = normalise(schedule.getStartDateTime());  // if there is a millisecond component to the LocalDateTime, aws APIs reject with error
 
         Target lambdaTarget = targetBuilder
                 .input("{\n\"type\": \"setChargeMode\",\n\"scheduleId\": \"" + schedule.getId() + "\",\n\"lwaUserId\": \"" + userId  + "\"\n}")
@@ -79,10 +94,19 @@ public class ScheduleService {
                 .build();
     }
 
+    private LocalDateTime normalise(LocalDateTime callbackTime) {
+        return LocalDateTime.of(callbackTime.getYear(),
+                callbackTime.getMonth(),
+                callbackTime.getDayOfMonth(),
+                callbackTime.getHour(),
+                callbackTime.getMinute(),
+                0);
+    }
+
     public Schedule newSchedule(Schedule schedule) {
         return Schedule.builder()
                 .id(UUID.randomUUID().toString())
-                .startTime(schedule.getStartTime())
+                .startDateTime(schedule.getStartDateTime())
                 .days(schedule.getDays())
                 .type(schedule.getType())
                 .zoneId(schedule.getZoneId())

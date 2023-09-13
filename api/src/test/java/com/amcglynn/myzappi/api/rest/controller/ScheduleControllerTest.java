@@ -13,6 +13,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.List;
@@ -42,7 +43,7 @@ class ScheduleControllerTest {
     void post() {
         String body = "{\n" +
                 "    \"type\": \"RECURRING\",\n" +
-                "    \"startTime\": \"14:00\",\n" +
+                "    \"startDateTime\": \"2023-09-13T14:00\",\n" +
                 "    \"zoneId\": \"Europe/Dublin\",\n" +
                 "    \"days\": [1, 3, 5],\n" +
                 "    \"action\": {\n" +
@@ -54,7 +55,7 @@ class ScheduleControllerTest {
         when(mockService.createSchedule(eq(UserId.from("mockUserId")), any())).thenReturn(Schedule.builder()
                 .id(id)
                 .type("RECURRING")
-                .startTime(LocalTime.of(14, 0))
+                .startDateTime(LocalDateTime.of(2023, 9, 13, 14, 0))
                 .zoneId(ZoneId.of("Europe/Dublin"))
                 .days(List.of(1, 3, 5))
                 .action(ScheduleAction.builder()
@@ -66,8 +67,8 @@ class ScheduleControllerTest {
         assertThat(response.getStatus()).isEqualTo(200);
         var responseBody = response.getBody();
         assertThat(responseBody).isPresent();
-        assertThat(responseBody.get()).isEqualTo("{\"id\":\"" + id + "\"," +
-                "\"type\":\"RECURRING\",\"startTime\":\"14:00\",\"zoneId\":\"Europe/Dublin\",\"days\":[1,3,5]," +
+        assertThat(responseBody).contains("{\"id\":\"" + id + "\"," +
+                "\"type\":\"RECURRING\",\"startDateTime\":\"2023-09-13T14:00\",\"zoneId\":\"Europe/Dublin\",\"days\":[1,3,5]," +
                 "\"action\":{\"type\":\"chargeMode\",\"value\":\"ECO+\"}}");
         verify(mockService).createSchedule(eq(UserId.from("mockUserId")), any());
     }
@@ -75,7 +76,7 @@ class ScheduleControllerTest {
     @Test
     void get() {
         when(mockService.listSchedules(com.amcglynn.myzappi.core.model.UserId.from("mockUserId"))).thenReturn(List.of(Schedule.builder().id("1234567890").type("RECURRING")
-                .startTime(LocalTime.of(14, 0))
+                .startDateTime(LocalDateTime.of(2023, 9, 13, 14, 0))
                 .zoneId(ZoneId.of("Europe/Dublin"))
                 .days(List.of(1, 3, 5))
                 .action(ScheduleAction.builder()
@@ -85,7 +86,7 @@ class ScheduleControllerTest {
         var response = controller.handle(new Request(UserId.from("mockUserId"), RequestMethod.GET, "/schedule", null));
         assertThat(response.getStatus()).isEqualTo(200);
         assertThat(response.getBody()).isEqualTo(Optional.of("{\"schedules\":[{\"id\":\"1234567890\",\"type\":\"RECURRING\"," +
-                "\"startTime\":\"14:00\",\"zoneId\":\"Europe/Dublin\",\"days\":[1,3,5],\"action\":{\"type\":\"chargeMode\",\"value\":\"ECO+\"}}]}"));
+                "\"startDateTime\":\"2023-09-13T14:00\",\"zoneId\":\"Europe/Dublin\",\"days\":[1,3,5],\"action\":{\"type\":\"chargeMode\",\"value\":\"ECO+\"}}]}"));
     }
 
     @Test

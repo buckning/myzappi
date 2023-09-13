@@ -94,8 +94,7 @@ public class CompleteLoginHandler implements RequestHandler<APIGatewayProxyReque
         responseHeaders.put("Access-Control-Allow-Headers", "content-type");
         responseEvent.setHeaders(responseHeaders);
 
-        response.getBody().ifPresent(body ->
-            responseEvent.setBody(body)
+        response.getBody().ifPresent(responseEvent::setBody
         );
 
         return responseEvent;
