@@ -1,4 +1,4 @@
-package com.amcglynn.myzappi.core;
+package com.amcglynn.myzappi.core.dal;
 
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;

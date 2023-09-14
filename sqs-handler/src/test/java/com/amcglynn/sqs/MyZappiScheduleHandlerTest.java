@@ -54,6 +54,7 @@ class MyZappiScheduleHandlerTest {
                 ZoneId.of("Europe/Dublin"), List.of(), new ScheduleAction("setChargeMode", "ECO"))));
         handler.handle(new MyZappiScheduleEvent(input));
         verify(mockZappiService).setChargeMode(ZappiChargeMode.ECO);
+        verify(mockScheduleService).deleteLocalSchedule(scheduleId);
     }
 
     @Test

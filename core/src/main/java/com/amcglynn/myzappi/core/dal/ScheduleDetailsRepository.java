@@ -2,6 +2,7 @@ package com.amcglynn.myzappi.core.dal;
 
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
+import com.amazonaws.services.dynamodbv2.model.DeleteItemRequest;
 import com.amazonaws.services.dynamodbv2.model.GetItemRequest;
 import com.amazonaws.services.dynamodbv2.model.PutItemRequest;
 import com.amcglynn.myzappi.core.model.ScheduleDetails;
@@ -47,5 +48,11 @@ public class ScheduleDetailsRepository {
                 .withTableName(TABLE_NAME)
                 .withItem(item);
         dbClient.putItem(request);
+    }
+
+    public void delete(String scheduleId) {
+        var deleteItem = new HashMap<String, AttributeValue>();
+        deleteItem.put(SCHEDULE_ID_COLUMN, new AttributeValue(scheduleId));
+        dbClient.deleteItem(new DeleteItemRequest(TABLE_NAME, deleteItem));
     }
 }

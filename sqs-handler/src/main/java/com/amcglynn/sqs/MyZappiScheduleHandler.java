@@ -54,6 +54,8 @@ public class MyZappiScheduleHandler {
             log.info("No handler found for schedule action type {}", schedule.get().getAction().getType());
             return;
         }
+
+        scheduleService.deleteLocalSchedule(scheduleId);
         handler.accept(zappiService, schedule.get().getAction().getValue());
     }
 }

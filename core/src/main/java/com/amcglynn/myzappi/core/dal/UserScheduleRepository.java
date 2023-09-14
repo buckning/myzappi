@@ -2,8 +2,10 @@ package com.amcglynn.myzappi.core.dal;
 
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
+import com.amazonaws.services.dynamodbv2.model.AttributeValueUpdate;
 import com.amazonaws.services.dynamodbv2.model.GetItemRequest;
 import com.amazonaws.services.dynamodbv2.model.PutItemRequest;
+import com.amazonaws.services.dynamodbv2.model.UpdateItemRequest;
 import com.amcglynn.myzappi.core.model.Schedule;
 import com.amcglynn.myzappi.core.model.UserId;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -25,10 +27,10 @@ public class UserScheduleRepository {
     }
 
     @SneakyThrows
-    public List<Schedule> read(String userId) {
+    public List<Schedule> read(UserId userId) {
         var request = new GetItemRequest()
                 .withTableName(TABLE_NAME)
-                .addKeyEntry(USER_ID_COLUMN, new AttributeValue(userId));
+                .addKeyEntry(USER_ID_COLUMN, new AttributeValue(userId.toString()));
 
         var result = dbClient.getItem(request);
         if (result.getItem() == null) {
@@ -51,5 +53,13 @@ public class UserScheduleRepository {
                 .withTableName(TABLE_NAME)
                 .withItem(item);
         dbClient.putItem(request);
+    }
+
+    @SneakyThrows
+    public void update(UserId userId, List<Schedule> schedules) {
+        dbClient.updateItem(new UpdateItemRequest().withTableName(TABLE_NAME)
+                .addKeyEntry(USER_ID_COLUMN, new AttributeValue(userId.toString()))
+                .addAttributeUpdatesEntry(SCHEDULES_COLUMN,
+                        new AttributeValueUpdate().withValue(new AttributeValue(new ObjectMapper().writeValueAsString(schedules)))));
     }
 }

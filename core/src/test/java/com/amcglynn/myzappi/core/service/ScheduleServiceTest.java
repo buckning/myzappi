@@ -9,6 +9,8 @@ import com.amcglynn.myzappi.core.model.UserId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
@@ -18,13 +20,14 @@ import software.amazon.awssdk.services.scheduler.model.CreateScheduleRequest;
 import software.amazon.awssdk.services.scheduler.model.CreateScheduleResponse;
 
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -39,6 +42,9 @@ class ScheduleServiceTest {
     private ScheduleService service;
     @Mock
     private SchedulerClient mockSchedulerClient;
+    @Captor
+    private ArgumentCaptor<CreateScheduleRequest> createScheduleRequestArgumentCaptor;
+    private UserId userId = UserId.from("mockUserId");
     private final CreateScheduleResponse createScheduleResponse = CreateScheduleResponse.builder().scheduleArn("mockScheduleArn").build();
 
     @BeforeEach
@@ -56,15 +62,21 @@ class ScheduleServiceTest {
                 .zoneId(ZoneId.of("Europe/Dublin"))
                 .days(List.of(1, 3, 5))
                 .action(ScheduleAction.builder()
-                        .type("chargeMode")
+                        .type("setChargeMode")
                         .value("ECO+")
                         .build())
                 .build();
         var response = service.createSchedule(UserId.from("mockUserId"), schedule);
         verify(mockRepository).write(UserId.from("mockUserId"), List.of(response));
         verify(mockScheduleDetailsRepository).write(response.getId(), UserId.from("mockUserId"));
+        verify(mockSchedulerClient).createSchedule(createScheduleRequestArgumentCaptor.capture());
         assertThat(response.getId()).isNotNull();
         assertThat(response.getType()).isEqualTo(schedule.getType());
+        assertThat(createScheduleRequestArgumentCaptor.getValue().name()).isEqualTo(response.getId());
+        assertThat(createScheduleRequestArgumentCaptor.getValue().target().input()).isEqualTo("{\n" +
+                "\"scheduleId\": \"" + response.getId() + "\",\n" +
+                "\"lwaUserId\": \"mockUserId\"\n" +
+                "}");
     }
 
     @Test
@@ -78,7 +90,7 @@ class ScheduleServiceTest {
     void getScheduleReturnsEmptyOptionalWhenScheduleIsFoundInScheduleDetailsTableButNoSchedulesFoundInUserScheduleTable() {
         when(mockScheduleDetailsRepository.read("mockScheduleId"))
                 .thenReturn(Optional.of(new ScheduleDetails("mockScheduleId", UserId.from("mockUserId"))));
-        when(mockRepository.read("mockUserId")).thenReturn(List.of());
+        when(mockRepository.read(UserId.from("mockUserId"))).thenReturn(List.of());
         var result = service.getSchedule("mockScheduleId");
         assertThat(result).isEmpty();
     }
@@ -87,7 +99,7 @@ class ScheduleServiceTest {
     void getScheduleReturnsEmptyOptionalWhenScheduleIsFoundInScheduleDetailsTableButNoCorrespondingScheduleFoundInUserScheduleTable() {
         when(mockScheduleDetailsRepository.read("mockScheduleId"))
                 .thenReturn(Optional.of(new ScheduleDetails("mockScheduleId", UserId.from("mockUserId"))));
-        when(mockRepository.read("mockUserId")).thenReturn(List.of(Schedule.builder().id("unknown").build()));
+        when(mockRepository.read(UserId.from("mockUserId"))).thenReturn(List.of(Schedule.builder().id("unknown").build()));
         var result = service.getSchedule("mockScheduleId");
         assertThat(result).isEmpty();
     }
@@ -97,8 +109,43 @@ class ScheduleServiceTest {
         var schedule = Schedule.builder().id("mockScheduleId").build();
         when(mockScheduleDetailsRepository.read("mockScheduleId"))
                 .thenReturn(Optional.of(new ScheduleDetails("mockScheduleId", UserId.from("mockUserId"))));
-        when(mockRepository.read("mockUserId")).thenReturn(List.of(schedule));
+        when(mockRepository.read(UserId.from("mockUserId"))).thenReturn(List.of(schedule));
         var result = service.getSchedule("mockScheduleId");
         assertThat(result).contains(schedule);
+    }
+
+    @Test
+    void deleteLocalScheduleWhenNoSchedulesExistInUserScheduleRepository() {
+        when(mockScheduleDetailsRepository.read("mockScheduleId"))
+                .thenReturn(Optional.of(new ScheduleDetails("mockScheduleId", userId)));
+
+        service.deleteLocalSchedule("mockScheduleId");
+        verify(mockRepository).update(userId, List.of());
+        verify(mockScheduleDetailsRepository).delete("mockScheduleId");
+    }
+
+    @Test
+    void deleteLocalSchedule() {
+        when(mockScheduleDetailsRepository.read("mockScheduleId"))
+                .thenReturn(Optional.of(new ScheduleDetails("mockScheduleId", userId)));
+        var schedule1 = Schedule.builder().id("mockScheduleId").build();
+        var schedule2 = Schedule.builder().id("mockScheduleId2").build();
+        when(mockRepository.read(userId)).thenReturn(List.of(
+                schedule1,
+                schedule2));
+
+        service.deleteLocalSchedule("mockScheduleId");
+        verify(mockRepository).update(userId, List.of(schedule2));
+        verify(mockScheduleDetailsRepository).delete("mockScheduleId");
+    }
+
+    @Test
+    void deleteLocalScheduleWhenScheduleDoesNotExist() {
+        when(mockScheduleDetailsRepository.read("mockScheduleId"))
+                .thenReturn(Optional.empty());
+
+        service.deleteLocalSchedule("mockScheduleId");
+        verify(mockRepository, never()).write(any(), any());
+        verify(mockScheduleDetailsRepository, never()).delete(anyString());
     }
 }

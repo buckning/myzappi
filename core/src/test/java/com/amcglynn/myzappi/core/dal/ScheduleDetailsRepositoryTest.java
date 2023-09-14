@@ -2,6 +2,7 @@ package com.amcglynn.myzappi.core.dal;
 
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
+import com.amazonaws.services.dynamodbv2.model.DeleteItemRequest;
 import com.amazonaws.services.dynamodbv2.model.GetItemResult;
 import com.amazonaws.services.dynamodbv2.model.PutItemRequest;
 import com.amcglynn.myzappi.core.model.Schedule;
@@ -34,6 +35,8 @@ class ScheduleDetailsRepositoryTest {
 
     @Captor
     private ArgumentCaptor<PutItemRequest> putItemCaptor;
+    @Captor
+    private ArgumentCaptor<DeleteItemRequest> deleteItemCaptor;
 
     private ScheduleDetailsRepository repository;
 
@@ -70,5 +73,14 @@ class ScheduleDetailsRepositoryTest {
         assertThat(putItemCaptor.getValue().getTableName()).isEqualTo("schedule-details");
         assertThat(putItemCaptor.getValue().getItem().get("schedule-id").getS()).isEqualTo("scheduleId");
         assertThat(putItemCaptor.getValue().getItem().get("lwa-user-id").getS()).isEqualTo("lwaUserId");
+    }
+
+    @Test
+    void testDeleteSchedule() {
+        repository.delete("scheduleId");
+        verify(mockDb).deleteItem(deleteItemCaptor.capture());
+        assertThat(deleteItemCaptor.getValue()).isNotNull();
+        assertThat(deleteItemCaptor.getValue().getTableName()).isEqualTo("schedule-details");
+        assertThat(deleteItemCaptor.getValue().getKey().get("schedule-id").getS()).isEqualTo("scheduleId");
     }
 }

@@ -55,11 +55,11 @@ public class ScheduleService {
     }
 
     public List<Schedule> listSchedules(UserId userId) {
-        return repository.read(userId.toString());
+        return repository.read(userId);
     }
 
     public Schedule createSchedule(UserId userId, Schedule schedule) {
-        var schedulesFromDb = repository.read(userId.toString());
+        var schedulesFromDb = repository.read(userId);
         var schedules = new ArrayList<>(schedulesFromDb);
         var scheduleWithId = newSchedule(schedule);
         schedules.add(scheduleWithId);
@@ -79,7 +79,7 @@ public class ScheduleService {
         var normalised = normalise(schedule.getStartDateTime());  // if there is a millisecond component to the LocalDateTime, aws APIs reject with error
 
         Target lambdaTarget = targetBuilder
-                .input("{\n\"type\": \"setChargeMode\",\n\"scheduleId\": \"" + schedule.getId() + "\",\n\"lwaUserId\": \"" + userId  + "\"\n}")
+                .input("{\n\"scheduleId\": \"" + schedule.getId() + "\",\n\"lwaUserId\": \"" + userId  + "\"\n}")
                 .build();
 
         return CreateScheduleRequest.builder()
@@ -112,5 +112,25 @@ public class ScheduleService {
                 .zoneId(schedule.getZoneId())
                 .action(schedule.getAction())
                 .build();
+    }
+
+    /**
+     * Deletes a schedule from the database but not from AWS. It deletes the schedule from two tables in the database,
+     * the user_schedules table and the schedule_details table.
+     * This is for schedules with Action after completion set to DELETE.
+     * @param scheduleId The id of the schedule to delete
+     */
+    public void deleteLocalSchedule(String scheduleId) {
+        var schedules = scheduleDetailsRepository.read(scheduleId);
+        if (schedules.isEmpty()) {
+            log.warn("Schedule with id {} not found", scheduleId);
+            return;
+        }
+        var userId = schedules.get().getLwaUserId();
+        var schedulesFromDb = repository.read(userId);
+        var remainingSchedules = new ArrayList<>(schedulesFromDb);
+        remainingSchedules.removeIf(schedule -> schedule.getId().equals(scheduleId));
+        repository.update(userId, remainingSchedules);
+        scheduleDetailsRepository.delete(scheduleId);
     }
 }

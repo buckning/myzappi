@@ -1,7 +1,5 @@
 package com.amcglynn.sqs;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -10,14 +8,12 @@ import java.util.Map;
 @Getter
 @NoArgsConstructor
 public class MyZappiScheduleEvent {
-    private String type;
     private String alexaBaseUrl;
     private String alexaUserId;
     private String scheduleId;
     private String lwaUserId;
 
     public MyZappiScheduleEvent(Map<String, String> input) {
-        type = getOrThrow(input, "type");
         alexaUserId = input.get("alexaUserId");
         lwaUserId = input.get("lwaUserId");
 

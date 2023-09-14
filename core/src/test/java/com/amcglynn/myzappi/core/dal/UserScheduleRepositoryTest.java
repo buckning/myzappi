@@ -4,6 +4,7 @@ import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.amazonaws.services.dynamodbv2.model.GetItemResult;
 import com.amazonaws.services.dynamodbv2.model.PutItemRequest;
+import com.amazonaws.services.dynamodbv2.model.UpdateItemRequest;
 import com.amcglynn.myzappi.core.model.Schedule;
 import com.amcglynn.myzappi.core.model.ScheduleAction;
 import com.amcglynn.myzappi.core.model.UserId;
@@ -16,7 +17,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.Map;
@@ -35,6 +35,8 @@ class UserScheduleRepositoryTest {
 
     @Captor
     private ArgumentCaptor<PutItemRequest> putItemCaptor;
+    @Captor
+    private ArgumentCaptor<UpdateItemRequest> updateItemCaptor;
 
     private UserScheduleRepository repository;
 
@@ -65,7 +67,7 @@ class UserScheduleRepositoryTest {
     void testReadForUserWhoDoesNotExistReturnsEmptyList() {
         when(mockGetResult.getItem()).thenReturn(null);
         when(mockDb.getItem(any())).thenReturn(mockGetResult);
-        var result = repository.read("unknownuserid");
+        var result = repository.read(UserId.from("unknownuserid"));
         assertThat(result).isEmpty();
     }
 
@@ -74,7 +76,7 @@ class UserScheduleRepositoryTest {
         when(mockGetResult.getItem()).thenReturn(Map.of("user-id", new AttributeValue("testuser"),
                 "schedules", new AttributeValue("[]")));
         when(mockDb.getItem(any())).thenReturn(mockGetResult);
-        var result = repository.read("userid");
+        var result = repository.read(UserId.from("userid"));
         assertThat(result).isEmpty();
     }
 
@@ -83,7 +85,7 @@ class UserScheduleRepositoryTest {
         when(mockGetResult.getItem()).thenReturn(Map.of("user-id", new AttributeValue("testuser"),
                 "schedules", new AttributeValue(testScheduleString)));
         when(mockDb.getItem(any())).thenReturn(mockGetResult);
-        var result = repository.read("userid");
+        var result = repository.read(UserId.from("userid"));
         assertThat(result).hasSize(1);
         verifySchedulesAreEqual(result.get(0), Schedule.builder().id("1234567890").type("RECURRING")
                 .startDateTime(LocalDateTime.of(2023, 9, 8, 14, 0))
@@ -124,5 +126,25 @@ class UserScheduleRepositoryTest {
         assertThat(putItemCaptor.getValue().getItem().get("user-id").getS()).isEqualTo("testUser");
         assertThat(putItemCaptor.getValue().getItem().get("schedules").getS())
                 .isEqualTo(testScheduleString.replaceAll("\\s", ""));
+    }
+
+    @Test
+    void testUpdate() {
+        var schedules = List.of(Schedule.builder().id("1234567890").type("RECURRING")
+                .startDateTime(LocalDateTime.of(2023, 9, 8, 14, 0))
+                .zoneId(ZoneId.of("Europe/Dublin"))
+                .days(List.of(1, 3, 5))
+                .action(ScheduleAction.builder()
+                        .type("chargeMode")
+                        .value("ECO+").build())
+                .build());
+        repository.update(UserId.from("testUser"), schedules);
+        verify(mockDb).updateItem(updateItemCaptor.capture());
+        assertThat(updateItemCaptor.getValue()).isNotNull();
+        assertThat(updateItemCaptor.getValue().getTableName()).isEqualTo("schedule");
+        assertThat(updateItemCaptor.getValue().getAttributeUpdates().get("schedules").getValue().getS())
+                .isEqualTo("[{\"id\":\"1234567890\",\"type\":\"RECURRING\",\"startDateTime\":\"2023-09-08T14:00\"," +
+                        "\"zoneId\":\"Europe/Dublin\",\"days\":[1,3,5],\"action\":{\"type\":\"chargeMode\",\"value\":\"ECO+\"}}]");
+        assertThat(updateItemCaptor.getValue().getKey().get("user-id").getS()).isEqualTo("testUser");
     }
 }
