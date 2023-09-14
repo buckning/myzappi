@@ -107,8 +107,6 @@ public class ScheduleService {
         return Schedule.builder()
                 .id(UUID.randomUUID().toString())
                 .startDateTime(schedule.getStartDateTime())
-                .days(schedule.getDays())
-                .type(schedule.getType())
                 .zoneId(schedule.getZoneId())
                 .action(schedule.getAction())
                 .build();

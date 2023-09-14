@@ -1,5 +1,6 @@
-package com.amcglynn.myzappi.api.rest;
+package com.amcglynn.myzappi.api.rest.validator;
 
+import com.amcglynn.myzappi.api.rest.ServerException;
 import com.amcglynn.myzappi.core.model.Tariff;
 import com.amcglynn.myzappi.core.service.TariffService;
 import lombok.extern.slf4j.Slf4j;

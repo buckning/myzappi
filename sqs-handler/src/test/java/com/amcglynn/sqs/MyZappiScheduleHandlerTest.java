@@ -50,8 +50,8 @@ class MyZappiScheduleHandlerTest {
         var scheduleId = UUID.randomUUID().toString();
         input.put("scheduleId", scheduleId);
         input.put("lwaUserId", "mockLwaUserId");
-        when(mockScheduleService.getSchedule(scheduleId)).thenReturn(Optional.of(new Schedule(scheduleId, "setChargeMode", LocalDateTime.of(2023, 9, 13, 14, 0),
-                ZoneId.of("Europe/Dublin"), List.of(), new ScheduleAction("setChargeMode", "ECO"))));
+        when(mockScheduleService.getSchedule(scheduleId)).thenReturn(Optional.of(new Schedule(scheduleId, LocalDateTime.of(2023, 9, 13, 14, 0),
+                ZoneId.of("Europe/Dublin"), new ScheduleAction("setChargeMode", "ECO"))));
         handler.handle(new MyZappiScheduleEvent(input));
         verify(mockZappiService).setChargeMode(ZappiChargeMode.ECO);
         verify(mockScheduleService).deleteLocalSchedule(scheduleId);
@@ -64,8 +64,8 @@ class MyZappiScheduleHandlerTest {
         var scheduleId = UUID.randomUUID().toString();
         input.put("scheduleId", scheduleId);
         input.put("lwaUserId", "mockLwaUserId");
-        when(mockScheduleService.getSchedule(scheduleId)).thenReturn(Optional.of(new Schedule(scheduleId, "setBoostKwh", LocalDateTime.of(2023, 9, 13, 14, 0),
-                ZoneId.of("Europe/Dublin"), List.of(), new ScheduleAction("setBoostKwh", "5"))));
+        when(mockScheduleService.getSchedule(scheduleId)).thenReturn(Optional.of(new Schedule(scheduleId, LocalDateTime.of(2023, 9, 13, 14, 0),
+                ZoneId.of("Europe/Dublin"), new ScheduleAction("setBoostKwh", "5"))));
         handler.handle(new MyZappiScheduleEvent(input));
         verify(mockZappiService).startBoost(new KiloWattHour(5));
     }
@@ -77,8 +77,8 @@ class MyZappiScheduleHandlerTest {
         var scheduleId = UUID.randomUUID().toString();
         input.put("scheduleId", scheduleId);
         input.put("lwaUserId", "mockLwaUserId");
-        when(mockScheduleService.getSchedule(scheduleId)).thenReturn(Optional.of(new Schedule(scheduleId, "setBoostUntil", LocalDateTime.of(2023, 9, 13, 14, 0),
-                ZoneId.of("Europe/Dublin"), List.of(), new ScheduleAction("setBoostUntil", "18:00"))));
+        when(mockScheduleService.getSchedule(scheduleId)).thenReturn(Optional.of(new Schedule(scheduleId, LocalDateTime.of(2023, 9, 13, 14, 0),
+                ZoneId.of("Europe/Dublin"), new ScheduleAction("setBoostUntil", "18:00"))));
         handler.handle(new MyZappiScheduleEvent(input));
         verify(mockZappiService).startSmartBoost(LocalTime.of(18, 0));
     }
@@ -95,8 +95,8 @@ class MyZappiScheduleHandlerTest {
         // "T" separates the date part (which is empty) from the time part.
         // "1H" represents 1 hour.
 
-        when(mockScheduleService.getSchedule(scheduleId)).thenReturn(Optional.of(new Schedule(scheduleId, "setBoostFor", LocalDateTime.of(2023, 9, 13, 14, 0),
-                ZoneId.of("Europe/Dublin"), List.of(), new ScheduleAction("setBoostFor", "PT1H"))));
+        when(mockScheduleService.getSchedule(scheduleId)).thenReturn(Optional.of(new Schedule(scheduleId, LocalDateTime.of(2023, 9, 13, 14, 0),
+                ZoneId.of("Europe/Dublin"), new ScheduleAction("setBoostFor", "PT1H"))));
         handler.handle(new MyZappiScheduleEvent(input));
         verify(mockZappiService).startSmartBoost(Duration.ofHours(1));
     }
@@ -108,8 +108,8 @@ class MyZappiScheduleHandlerTest {
         var scheduleId = UUID.randomUUID().toString();
         input.put("scheduleId", scheduleId);
         input.put("lwaUserId", "mockLwaUserId");
-        when(mockScheduleService.getSchedule(scheduleId)).thenReturn(Optional.of(new Schedule(scheduleId, "unknownType", LocalDateTime.of(2023, 9, 13, 14, 0),
-                ZoneId.of("Europe/Dublin"), List.of(), new ScheduleAction("unknownType", "unknown"))));
+        when(mockScheduleService.getSchedule(scheduleId)).thenReturn(Optional.of(new Schedule(scheduleId, LocalDateTime.of(2023, 9, 13, 14, 0),
+                ZoneId.of("Europe/Dublin"), new ScheduleAction("unknownType", "unknown"))));
         handler.handle(new MyZappiScheduleEvent(input));
         verify(mockZappiService, never()).setChargeMode(any());
     }

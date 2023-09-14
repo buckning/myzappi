@@ -1,5 +1,6 @@
 package com.amcglynn.myzappi.api.rest.controller;
 
+import com.amcglynn.myzappi.api.rest.validator.ScheduleValidator;
 import com.amcglynn.myzappi.core.model.Schedule;
 import com.amcglynn.myzappi.core.model.UserId;
 import com.amcglynn.myzappi.core.service.ScheduleService;
@@ -8,18 +9,29 @@ import com.amcglynn.myzappi.api.rest.RequestMethod;
 import com.amcglynn.myzappi.api.rest.Response;
 import com.amcglynn.myzappi.api.rest.ServerException;
 import com.amcglynn.myzappi.api.rest.response.ScheduleResponse;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.AllArgsConstructor;
+import lombok.AccessLevel;
+import lombok.Setter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
-@AllArgsConstructor
 @Slf4j
 public class ScheduleController implements RestController {
 
-    private ScheduleService service;
+    private final ScheduleService service;
+    private final ObjectMapper objectMapper;
+    @Setter(AccessLevel.PACKAGE)
+    private ScheduleValidator validator;
+
+    public ScheduleController(ScheduleService service) {
+        this.service = service;
+        this.validator = new ScheduleValidator();
+        objectMapper = new ObjectMapper();
+        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+    }
 
     @Override
     public Response handle(Request request) {
@@ -38,11 +50,12 @@ public class ScheduleController implements RestController {
 
     private String postSchedule(Request request) {
         try {
-            var schedulerRequest = new ObjectMapper().readValue(request.getBody(), new TypeReference<Schedule>() {
+            var schedulerRequest = objectMapper.readValue(request.getBody(), new TypeReference<Schedule>() {
             });
             log.info("Got scheduler request {}", schedulerRequest);
+            validator.validate(schedulerRequest);
             var newSchedule = service.createSchedule(request.getUserId(), schedulerRequest);
-            return new ObjectMapper().writeValueAsString(newSchedule);
+            return objectMapper.writeValueAsString(newSchedule);
         } catch (JsonProcessingException e) {
             log.info("Failed to deserialise object", e);
             throw new ServerException(400);
@@ -52,7 +65,7 @@ public class ScheduleController implements RestController {
     @SneakyThrows
     private Response getSchedules(Request request) {
         var schedules = service.listSchedules(UserId.from(request.getUserId().toString()));
-        var body = new ObjectMapper().writeValueAsString(new ScheduleResponse(schedules));
+        var body = objectMapper.writeValueAsString(new ScheduleResponse(schedules));
         return new Response(200, body);
     }
 }

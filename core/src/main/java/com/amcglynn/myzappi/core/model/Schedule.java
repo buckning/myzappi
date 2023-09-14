@@ -9,7 +9,6 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -17,7 +16,6 @@ import java.util.List;
 @Getter
 public class Schedule {
     private String id;
-    private String type;
 
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     @JsonSerialize(using = LocalDateTimeSerializer.class)
@@ -26,8 +24,6 @@ public class Schedule {
     @JsonDeserialize(using = ZoneIdDeserializer.class)
     @JsonSerialize(using = ZoneIdSerializer.class)
     private ZoneId zoneId;
-
-    private List<Integer> days;
 
     private ScheduleAction action;
 }

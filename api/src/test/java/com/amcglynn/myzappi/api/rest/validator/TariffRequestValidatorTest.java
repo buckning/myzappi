@@ -1,5 +1,7 @@
-package com.amcglynn.myzappi.api.rest;
+package com.amcglynn.myzappi.api.rest.validator;
 
+import com.amcglynn.myzappi.api.rest.ServerException;
+import com.amcglynn.myzappi.api.rest.validator.TariffRequestValidator;
 import com.amcglynn.myzappi.core.model.Tariff;
 import com.amcglynn.myzappi.core.service.TariffService;
 import org.junit.jupiter.api.BeforeEach;

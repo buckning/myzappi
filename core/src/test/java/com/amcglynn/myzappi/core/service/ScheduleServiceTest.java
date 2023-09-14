@@ -57,10 +57,8 @@ class ScheduleServiceTest {
     @Test
     void create() {
         var schedule = Schedule.builder()
-                .type("RECURRING")
                 .startDateTime(LocalDateTime.of(2023, 9, 10, 14, 0))
                 .zoneId(ZoneId.of("Europe/Dublin"))
-                .days(List.of(1, 3, 5))
                 .action(ScheduleAction.builder()
                         .type("setChargeMode")
                         .value("ECO+")
@@ -71,7 +69,6 @@ class ScheduleServiceTest {
         verify(mockScheduleDetailsRepository).write(response.getId(), UserId.from("mockUserId"));
         verify(mockSchedulerClient).createSchedule(createScheduleRequestArgumentCaptor.capture());
         assertThat(response.getId()).isNotNull();
-        assertThat(response.getType()).isEqualTo(schedule.getType());
         assertThat(createScheduleRequestArgumentCaptor.getValue().name()).isEqualTo(response.getId());
         assertThat(createScheduleRequestArgumentCaptor.getValue().target().input()).isEqualTo("{\n" +
                 "\"scheduleId\": \"" + response.getId() + "\",\n" +
@@ -147,5 +144,12 @@ class ScheduleServiceTest {
         service.deleteLocalSchedule("mockScheduleId");
         verify(mockRepository, never()).write(any(), any());
         verify(mockScheduleDetailsRepository, never()).delete(anyString());
+    }
+
+    @Test
+    void testClock() {
+        var clock = new Clock();
+        clock.localDateTime(ZoneId.of("Europe/Dublin"));
+        clock.localDate(ZoneId.of("Europe/Dublin"));
     }
 }

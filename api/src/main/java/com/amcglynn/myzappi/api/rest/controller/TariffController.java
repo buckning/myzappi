@@ -6,7 +6,7 @@ import com.amcglynn.myzappi.api.rest.Request;
 import com.amcglynn.myzappi.api.rest.RequestMethod;
 import com.amcglynn.myzappi.api.rest.Response;
 import com.amcglynn.myzappi.api.rest.ServerException;
-import com.amcglynn.myzappi.api.rest.TariffRequestValidator;
+import com.amcglynn.myzappi.api.rest.validator.TariffRequestValidator;
 import com.amcglynn.myzappi.api.rest.response.TariffRequest;
 import com.amcglynn.myzappi.api.rest.response.TariffResponse;
 import com.fasterxml.jackson.core.JsonProcessingException;

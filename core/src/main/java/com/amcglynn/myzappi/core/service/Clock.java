@@ -1,4 +1,4 @@
-package com.amcglynn.myzappi.service;
+package com.amcglynn.myzappi.core.service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
