@@ -3,6 +3,7 @@ package com.amcglynn.myzappi.api.rest.validator;
 import com.amcglynn.myenergi.ZappiChargeMode;
 import com.amcglynn.myzappi.api.rest.ServerException;
 import com.amcglynn.myzappi.core.model.Schedule;
+import com.amcglynn.myzappi.core.model.ScheduleAction;
 import com.amcglynn.myzappi.core.service.Clock;
 import lombok.AccessLevel;
 import lombok.Setter;
@@ -62,6 +63,11 @@ public class ScheduleValidator {
         rejectIfTrue(() -> schedule.getStartDateTime().isBefore(clock.localDateTime(schedule.getZoneId())));
         rejectIfTrue(() -> !SUPPORTED_TYPES.containsKey(schedule.getAction().getType()));
         rejectIfTrue(() -> !SUPPORTED_TYPES.get(schedule.getAction().getType()).test(schedule.getAction().getValue()));
+    }
+
+    public void validate(ScheduleAction scheduleAction) {
+        rejectIfTrue(() -> !SUPPORTED_TYPES.containsKey(scheduleAction.getType()));
+        rejectIfTrue(() -> !SUPPORTED_TYPES.get(scheduleAction.getType()).test(scheduleAction.getValue()));
     }
 
     private void rejectIfNull(Object object) {

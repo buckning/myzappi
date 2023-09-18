@@ -207,6 +207,49 @@
             "set a recurring reminder at {time} to tell me to plug in my car",
             "set a reminder"
           ]
+        },
+        {
+          "name": "ScheduleJob",
+          "slots": [
+            {
+              "name": "boostKwh",
+              "type": "AMAZON.NUMBER"
+            },
+            {
+              "name": "scheduleTime",
+              "type": "AMAZON.TIME",
+              "samples": [
+                "Start at {scheduleTime} ",
+                "{scheduleTime}",
+                "Please start at {scheduleTime}",
+                "At {scheduleTime}"
+              ]
+            },
+            {
+              "name": "chargeMode",
+              "type": "chargeMode"
+            },
+            {
+              "name": "boostDuration",
+              "type": "AMAZON.DURATION"
+            },
+            {
+              "name": "boostEndTime",
+              "type": "AMAZON.TIME"
+            }
+          ],
+          "samples": [
+            "Schedule a boost for {boostDuration}",
+            "Schedule a boost until {boostEndTime}",
+            "Schedule a boost for {boostKwh} kilowatts",
+            "Schedule a boost for {boostKwh} kilowatt hours",
+            "Schedule a boost for {boostKwh} kilowatt hours starting at {scheduleTime}",
+            "charge my car in {chargeMode} mode starting at {scheduleTime} for {boostDuration}",
+            "Boost until {boostEndTime} starting at {scheduleTime}",
+            "Schedule a boost for {boostDuration} starting at {scheduleTime}",
+            "Switch to {chargeMode} at {scheduleTime}",
+            "Schedule a boost for {boostKwh} kilowatts starting at {scheduleTime}"
+          ]
         }
       ],
       "types": [
@@ -274,6 +317,50 @@
               }
             }
           ]
+        },
+        {
+          "name": "ScheduleJob",
+          "confirmationRequired": false,
+          "prompts": {},
+          "slots": [
+            {
+              "name": "boostKwh",
+              "type": "AMAZON.NUMBER",
+              "confirmationRequired": false,
+              "elicitationRequired": false,
+              "prompts": {}
+            },
+            {
+              "name": "scheduleTime",
+              "type": "AMAZON.TIME",
+              "confirmationRequired": false,
+              "elicitationRequired": true,
+              "prompts": {
+                "elicitation": "Elicit.Slot.1055538031924.1193274732893"
+              }
+            },
+            {
+              "name": "chargeMode",
+              "type": "chargeMode",
+              "confirmationRequired": false,
+              "elicitationRequired": false,
+              "prompts": {}
+            },
+            {
+              "name": "boostDuration",
+              "type": "AMAZON.DURATION",
+              "confirmationRequired": false,
+              "elicitationRequired": false,
+              "prompts": {}
+            },
+            {
+              "name": "boostEndTime",
+              "type": "AMAZON.TIME",
+              "confirmationRequired": false,
+              "elicitationRequired": false,
+              "prompts": {}
+            }
+          ]
         }
       ],
       "delegationStrategy": "ALWAYS"
@@ -302,6 +389,23 @@
           {
             "type": "PlainText",
             "value": "What time do you want me to set the reminder for?"
+          }
+        ]
+      },
+      {
+        "id": "Elicit.Slot.1055538031924.1193274732893",
+        "variations": [
+          {
+            "type": "PlainText",
+            "value": "Please tell what time you want me to start this at"
+          },
+          {
+            "type": "PlainText",
+            "value": "For what time?"
+          },
+          {
+            "type": "PlainText",
+            "value": "What time do you want me to schedule this at?"
           }
         ]
       }

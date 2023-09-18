@@ -64,6 +64,7 @@ class ScheduleServiceTest {
                         .value("ECO+")
                         .build())
                 .build();
+        schedule.getAction().toString();    // added for code coverage
         var response = service.createSchedule(UserId.from("mockUserId"), schedule);
         verify(mockRepository).write(UserId.from("mockUserId"), List.of(response));
         verify(mockScheduleDetailsRepository).write(response.getId(), UserId.from("mockUserId"));

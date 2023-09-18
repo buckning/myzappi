@@ -64,7 +64,7 @@ class ScheduleControllerTest {
                         .build())
                 .build());
         var response = controller.handle(new Request(UserId.from("mockUserId"), RequestMethod.POST, "/schedule", body));
-        verify(mockValidator).validate(any());
+        verify(mockValidator).validate(any(Schedule.class));
         assertThat(response.getStatus()).isEqualTo(200);
         var responseBody = response.getBody();
         assertThat(responseBody).isPresent();

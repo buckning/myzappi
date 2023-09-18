@@ -6,6 +6,7 @@ import com.amcglynn.lwa.LwaClient;
 import com.amcglynn.myzappi.core.config.Properties;
 import com.amcglynn.myzappi.core.config.ServiceManager;
 import com.amcglynn.myzappi.core.dal.AlexaToLwaLookUpRepository;
+import com.amcglynn.myzappi.core.service.Clock;
 import com.amcglynn.myzappi.handlers.ChargeMyCarHandler;
 import com.amcglynn.myzappi.handlers.FallbackHandler;
 import com.amcglynn.myzappi.handlers.GetEnergyCostHandler;
@@ -17,6 +18,7 @@ import com.amcglynn.myzappi.handlers.LaunchHandler;
 import com.amcglynn.myzappi.handlers.MessageReceivedHandler;
 import com.amcglynn.myzappi.handlers.MyZappiExceptionHandler;
 import com.amcglynn.myzappi.handlers.QuitHandler;
+import com.amcglynn.myzappi.handlers.ScheduleJobHandler;
 import com.amcglynn.myzappi.handlers.SetChargeModeHandler;
 import com.amcglynn.myzappi.handlers.SetReminderHandler;
 import com.amcglynn.myzappi.handlers.StartBoostHandler;
@@ -61,6 +63,7 @@ public class MyZappiSkillStreamHandler extends SkillStreamHandler {
                 .addRequestHandler(new MessageReceivedHandler(reminderServiceFactory, serviceManager.getZappiServiceBuilder(),
                         new AlexaToLwaLookUpRepository(serviceManager.getAmazonDynamoDB())))
                 .addRequestHandler(new QuitHandler())
+                .addRequestHandler(new ScheduleJobHandler(serviceManager.getScheduleService(), userIdResolverFactory, userZoneResolver, new Clock()))
                 .addExceptionHandler(new MyZappiExceptionHandler())
                 .build());
     }
