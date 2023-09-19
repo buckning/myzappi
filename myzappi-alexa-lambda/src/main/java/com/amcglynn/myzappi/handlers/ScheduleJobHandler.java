@@ -19,10 +19,8 @@ import com.amcglynn.myzappi.mappers.AlexaZappiChargeModeMapper;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.Duration;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.ZoneId;
 import java.util.Optional;
 
 import static com.amazon.ask.request.Predicates.intentName;
@@ -63,7 +61,7 @@ public class ScheduleJobHandler implements RequestHandler {
 
         scheduleService.createSchedule(UserId.from(userIdResolver.getUserId()), Schedule.builder()
                 .zoneId(zoneId)
-                .startDateTime(getNextOccurence(startDateTime, clock.localDateTime(zoneId)))
+                .startDateTime(getNextOccurrence(startDateTime, clock.localDateTime(zoneId)))
                 .action(scheduleAction)
                 .build());
 
@@ -107,7 +105,7 @@ public class ScheduleJobHandler implements RequestHandler {
         throw new InvalidScheduleException("No valid value provided");
     }
 
-    private LocalDateTime getNextOccurence(LocalDateTime scheduleStartTime, LocalDateTime currentDateTime) {
+    private LocalDateTime getNextOccurrence(LocalDateTime scheduleStartTime, LocalDateTime currentDateTime) {
         if (scheduleStartTime.isBefore(currentDateTime)) {
             return LocalDateTime.of(currentDateTime.toLocalDate().plusDays(1), scheduleStartTime.toLocalTime());
         }
@@ -124,6 +122,7 @@ public class ScheduleJobHandler implements RequestHandler {
     }
 
     private Optional<ZappiChargeMode> parseChargeMode(HandlerInput handlerInput) {
+        // alexa will do the validation, so it is safe to parse the charge mode
         return parseSlot(handlerInput, "chargeMode")
                 .map(chargeMode -> mapper.getZappiChargeMode(chargeMode.toLowerCase()).get());
     }
@@ -134,6 +133,7 @@ public class ScheduleJobHandler implements RequestHandler {
     }
 
     private LocalTime parseDateTime(HandlerInput handlerInput) {
+        // alexa will do the validation, so it is safe to parse the time
         return LocalTime.parse(parseSlot(handlerInput, "scheduleTime").get());
     }
 }

@@ -3,6 +3,7 @@ package com.amcglynn.myzappi.core.service;
 import com.amcglynn.myzappi.core.dal.ScheduleDetailsRepository;
 import com.amcglynn.myzappi.core.dal.UserScheduleRepository;
 import com.amcglynn.myzappi.core.model.Schedule;
+import com.amcglynn.myzappi.core.model.ScheduleRecurrence;
 import com.amcglynn.myzappi.core.model.UserId;
 import lombok.extern.slf4j.Slf4j;
 import software.amazon.awssdk.services.scheduler.SchedulerClient;
@@ -14,9 +15,11 @@ import software.amazon.awssdk.services.scheduler.model.Target;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Slf4j
 public class ScheduleService {
@@ -70,7 +73,13 @@ public class ScheduleService {
     }
 
     private void createAwsSchedule(UserId userId, Schedule schedule) {
-        var request = createRequest(schedule, userId);
+        CreateScheduleRequest request;
+        if (schedule.getRecurrence() == null) {
+            request = createRequest(schedule, userId);
+        } else {
+            request = createRecurringRequest(schedule, userId);
+        }
+
         var response = schedulerClient.createSchedule(request);
         log.info("Created schedule with id: {}", response.scheduleArn());
     }
@@ -94,6 +103,31 @@ public class ScheduleService {
                 .build();
     }
 
+    private CreateScheduleRequest createRecurringRequest(Schedule schedule, UserId userId) {
+        Target lambdaTarget = targetBuilder
+                .input("{\n\"scheduleId\": \"" + schedule.getId() + "\",\n\"lwaUserId\": \"" + userId  + "\"\n}")
+                .build();
+
+        return CreateScheduleRequest.builder()
+                .name(schedule.getId())
+                .scheduleExpression("cron(" + buildCronString(schedule.getRecurrence()) + ")")
+                .scheduleExpressionTimezone(schedule.getZoneId().getId())
+                .actionAfterCompletion(ActionAfterCompletion.NONE)
+                .target(lambdaTarget)
+                .flexibleTimeWindow(FlexibleTimeWindow.builder()
+                        .mode(FlexibleTimeWindowMode.OFF)
+                        .build())
+                .build();
+    }
+
+    private String buildCronString(ScheduleRecurrence recurrence) {
+        return recurrence.getTimeOfDay().getMinute() + " " +
+                recurrence.getTimeOfDay().getHour() + " ? * " +
+                recurrence.getDaysOfWeek().stream()
+                        .sorted()
+                        .collect(Collectors.toList()).toString().replaceAll("[\\[\\]\\s]", "") + " *";
+    }
+
     private LocalDateTime normalise(LocalDateTime callbackTime) {
         return LocalDateTime.of(callbackTime.getYear(),
                 callbackTime.getMonth(),
@@ -109,6 +143,7 @@ public class ScheduleService {
                 .startDateTime(schedule.getStartDateTime())
                 .zoneId(schedule.getZoneId())
                 .action(schedule.getAction())
+                .recurrence(schedule.getRecurrence())
                 .build();
     }
 

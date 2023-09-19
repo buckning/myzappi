@@ -4,6 +4,7 @@ import com.amcglynn.myenergi.ZappiChargeMode;
 import com.amcglynn.myenergi.units.KiloWattHour;
 import com.amcglynn.myzappi.core.model.Schedule;
 import com.amcglynn.myzappi.core.model.ScheduleAction;
+import com.amcglynn.myzappi.core.model.ScheduleRecurrence;
 import com.amcglynn.myzappi.core.service.ScheduleService;
 import com.amcglynn.myzappi.core.service.ZappiService;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,11 +18,12 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -50,11 +52,36 @@ class MyZappiScheduleHandlerTest {
         var scheduleId = UUID.randomUUID().toString();
         input.put("scheduleId", scheduleId);
         input.put("lwaUserId", "mockLwaUserId");
-        when(mockScheduleService.getSchedule(scheduleId)).thenReturn(Optional.of(new Schedule(scheduleId, LocalDateTime.of(2023, 9, 13, 14, 0),
-                ZoneId.of("Europe/Dublin"), new ScheduleAction("setChargeMode", "ECO"))));
+        when(mockScheduleService.getSchedule(scheduleId)).thenReturn(Optional.of(Schedule.builder()
+                .id(scheduleId)
+                .startDateTime(LocalDateTime.of(2023, 9, 13, 14, 0))
+                .zoneId(ZoneId.of("Europe/Dublin"))
+                .action(new ScheduleAction("setChargeMode", "ECO"))
+                .build()));
         handler.handle(new MyZappiScheduleEvent(input));
         verify(mockZappiService).setChargeMode(ZappiChargeMode.ECO);
         verify(mockScheduleService).deleteLocalSchedule(scheduleId);
+    }
+
+    @Test
+    void testRecurringSchedulesAreNotDeleted() {
+        var input = new LinkedHashMap<String, String>();
+        input.put("type", "setChargeMode");
+        var scheduleId = UUID.randomUUID().toString();
+        input.put("scheduleId", scheduleId);
+        input.put("lwaUserId", "mockLwaUserId");
+        when(mockScheduleService.getSchedule(scheduleId)).thenReturn(Optional.of(Schedule.builder()
+                .id(scheduleId)
+                .zoneId(ZoneId.of("Europe/Dublin"))
+                .action(new ScheduleAction("setChargeMode", "ECO"))
+                        .recurrence(ScheduleRecurrence.builder()
+                                .daysOfWeek(Set.of(4))
+                                .timeOfDay(LocalTime.of(14, 0))
+                                .build())
+                .build()));
+        handler.handle(new MyZappiScheduleEvent(input));
+        verify(mockZappiService).setChargeMode(ZappiChargeMode.ECO);
+        verify(mockScheduleService, never()).deleteLocalSchedule(anyString());
     }
 
     @Test
@@ -64,8 +91,12 @@ class MyZappiScheduleHandlerTest {
         var scheduleId = UUID.randomUUID().toString();
         input.put("scheduleId", scheduleId);
         input.put("lwaUserId", "mockLwaUserId");
-        when(mockScheduleService.getSchedule(scheduleId)).thenReturn(Optional.of(new Schedule(scheduleId, LocalDateTime.of(2023, 9, 13, 14, 0),
-                ZoneId.of("Europe/Dublin"), new ScheduleAction("setBoostKwh", "5"))));
+        when(mockScheduleService.getSchedule(scheduleId)).thenReturn(Optional.of(Schedule.builder()
+                .id(scheduleId)
+                .startDateTime(LocalDateTime.of(2023, 9, 13, 14, 0))
+                .zoneId(ZoneId.of("Europe/Dublin"))
+                .action(new ScheduleAction("setBoostKwh", "5"))
+                .build()));
         handler.handle(new MyZappiScheduleEvent(input));
         verify(mockZappiService).startBoost(new KiloWattHour(5));
     }
@@ -77,8 +108,11 @@ class MyZappiScheduleHandlerTest {
         var scheduleId = UUID.randomUUID().toString();
         input.put("scheduleId", scheduleId);
         input.put("lwaUserId", "mockLwaUserId");
-        when(mockScheduleService.getSchedule(scheduleId)).thenReturn(Optional.of(new Schedule(scheduleId, LocalDateTime.of(2023, 9, 13, 14, 0),
-                ZoneId.of("Europe/Dublin"), new ScheduleAction("setBoostUntil", "18:00"))));
+        when(mockScheduleService.getSchedule(scheduleId)).thenReturn(Optional.of(Schedule.builder()
+                .id(scheduleId)
+                .startDateTime(LocalDateTime.of(2023, 9, 13, 14, 0))
+                .zoneId(ZoneId.of("Europe/Dublin"))
+                .action(new ScheduleAction("setBoostUntil", "18:00")).build()));
         handler.handle(new MyZappiScheduleEvent(input));
         verify(mockZappiService).startSmartBoost(LocalTime.of(18, 0));
     }
@@ -95,8 +129,12 @@ class MyZappiScheduleHandlerTest {
         // "T" separates the date part (which is empty) from the time part.
         // "1H" represents 1 hour.
 
-        when(mockScheduleService.getSchedule(scheduleId)).thenReturn(Optional.of(new Schedule(scheduleId, LocalDateTime.of(2023, 9, 13, 14, 0),
-                ZoneId.of("Europe/Dublin"), new ScheduleAction("setBoostFor", "PT1H"))));
+        when(mockScheduleService.getSchedule(scheduleId)).thenReturn(Optional.of(Schedule.builder()
+                .id(scheduleId)
+                .startDateTime(LocalDateTime.of(2023, 9, 13, 14, 0))
+                .zoneId(ZoneId.of("Europe/Dublin"))
+                .action(new ScheduleAction("setBoostFor", "PT1H"))
+                .build()));
         handler.handle(new MyZappiScheduleEvent(input));
         verify(mockZappiService).startSmartBoost(Duration.ofHours(1));
     }
@@ -108,8 +146,12 @@ class MyZappiScheduleHandlerTest {
         var scheduleId = UUID.randomUUID().toString();
         input.put("scheduleId", scheduleId);
         input.put("lwaUserId", "mockLwaUserId");
-        when(mockScheduleService.getSchedule(scheduleId)).thenReturn(Optional.of(new Schedule(scheduleId, LocalDateTime.of(2023, 9, 13, 14, 0),
-                ZoneId.of("Europe/Dublin"), new ScheduleAction("unknownType", "unknown"))));
+        when(mockScheduleService.getSchedule(scheduleId)).thenReturn(Optional.of(Schedule.builder()
+                .id(scheduleId)
+                .startDateTime(LocalDateTime.of(2023, 9, 13, 14, 0))
+                .zoneId(ZoneId.of("Europe/Dublin"))
+                .action(new ScheduleAction("unknownType", "unknown"))
+                .build()));
         handler.handle(new MyZappiScheduleEvent(input));
         verify(mockZappiService, never()).setChargeMode(any());
     }

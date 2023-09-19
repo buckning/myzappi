@@ -7,7 +7,10 @@ import com.amazonaws.services.dynamodbv2.model.PutItemRequest;
 import com.amazonaws.services.dynamodbv2.model.UpdateItemRequest;
 import com.amcglynn.myzappi.core.model.Schedule;
 import com.amcglynn.myzappi.core.model.ScheduleAction;
+import com.amcglynn.myzappi.core.model.ScheduleRecurrence;
 import com.amcglynn.myzappi.core.model.UserId;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,9 +20,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -116,6 +121,35 @@ class UserScheduleRepositoryTest {
         assertThat(putItemCaptor.getValue().getItem().get("user-id").getS()).isEqualTo("testUser");
         assertThat(putItemCaptor.getValue().getItem().get("schedules").getS())
                 .isEqualTo(testScheduleString.replaceAll("\\s", ""));
+    }
+
+    @Test
+    void testWriteRecurringSchedule() throws Exception {
+        var schedules = List.of(Schedule.builder().id("1234567890")
+                .zoneId(ZoneId.of("Europe/Dublin"))
+                .action(ScheduleAction.builder()
+                        .type("chargeMode")
+                        .value("ECO+").build())
+                        .recurrence(ScheduleRecurrence.builder()
+                                .daysOfWeek(Set.of(1, 3, 5, 7))
+                                .timeOfDay(LocalTime.of(22, 6))
+                                .build())
+                .build());
+        repository.write(UserId.from("testUser"), schedules);
+        verify(mockDb).putItem(putItemCaptor.capture());
+        assertThat(putItemCaptor.getValue()).isNotNull();
+        assertThat(putItemCaptor.getValue().getItem()).hasSize(2);
+        assertThat(putItemCaptor.getValue().getTableName()).isEqualTo("schedule");
+        assertThat(putItemCaptor.getValue().getItem().get("user-id").getS()).isEqualTo("testUser");
+        var schedulesFromDb = new ObjectMapper().readValue(putItemCaptor.getValue().getItem().get("schedules").getS(), new TypeReference<List<Schedule>>() {
+        });
+
+        assertThat(schedulesFromDb).isNotNull().hasSize(1);
+        var schedule = schedulesFromDb.get(0);
+        assertThat(schedule.getStartDateTime()).isNull();
+        assertThat(schedule.getRecurrence()).isNotNull();
+        assertThat(schedule.getRecurrence().getDaysOfWeek()).containsExactlyInAnyOrder(1, 3, 5, 7);
+        assertThat(schedule.getRecurrence().getTimeOfDay()).isEqualTo(LocalTime.of(22, 6));
     }
 
     @Test

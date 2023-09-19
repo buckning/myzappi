@@ -50,7 +50,9 @@ public class MyZappiScheduleHandler {
             return;
         }
 
-        scheduleService.deleteLocalSchedule(scheduleId);
+        if (schedule.get().getRecurrence() == null) {
+            scheduleService.deleteLocalSchedule(scheduleId);
+        }
         handler.accept(zappiService, schedule.get().getAction().getValue());
     }
 }

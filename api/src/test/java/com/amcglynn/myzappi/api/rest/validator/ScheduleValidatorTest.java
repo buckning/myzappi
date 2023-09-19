@@ -3,6 +3,7 @@ package com.amcglynn.myzappi.api.rest.validator;
 import com.amcglynn.myzappi.api.rest.ServerException;
 import com.amcglynn.myzappi.core.model.Schedule;
 import com.amcglynn.myzappi.core.model.ScheduleAction;
+import com.amcglynn.myzappi.core.model.ScheduleRecurrence;
 import com.amcglynn.myzappi.core.service.Clock;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,7 +17,10 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.ZoneId;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -122,6 +126,48 @@ class ScheduleValidatorTest {
         assertThat(serverException.getStatus()).isEqualTo(400);
     }
 
+    @Test
+    void validateRecurringSchedule() {
+        var schedule = getRecurringScheduleBuilder().build();
+        var serverException = catchThrowableOfType(() -> scheduleValidator.validate(schedule), ServerException.class);
+        assertThat(serverException).isNull();
+    }
+
+    @Test
+    void validateRecurringScheduleThrows400WhenTimeOfDayIsNull() {
+        var schedule = getRecurringScheduleBuilder((LocalTime) null).build();
+        var serverException = catchThrowableOfType(() -> scheduleValidator.validate(schedule), ServerException.class);
+        assertThat(serverException.getStatus()).isEqualTo(400);
+    }
+
+    @Test
+    void validateRecurringScheduleThrows400WhenDaysOfWeekIsNull() {
+        var schedule = getRecurringScheduleBuilder((Set<Integer>) null).build();
+        var serverException = catchThrowableOfType(() -> scheduleValidator.validate(schedule), ServerException.class);
+        assertThat(serverException.getStatus()).isEqualTo(400);
+    }
+
+    @Test
+    void validateRecurringScheduleThrows400WhenDaysOfWeekIsEmpty() {
+        var schedule = getRecurringScheduleBuilder(Set.of()).build();
+        var serverException = catchThrowableOfType(() -> scheduleValidator.validate(schedule), ServerException.class);
+        assertThat(serverException.getStatus()).isEqualTo(400);
+    }
+
+    @Test
+    void validateRecurringScheduleThrows400WhenDaysOfWeekIsNotBetween0And6() {
+        var schedule = getRecurringScheduleBuilder(Set.of(-1, 0, 5, 9)).build();
+        var serverException = catchThrowableOfType(() -> scheduleValidator.validate(schedule), ServerException.class);
+        assertThat(serverException.getStatus()).isEqualTo(400);
+    }
+
+    @Test
+    void validateRecurringScheduleThrows400WhenDaysOfWeekIsTooLong() {
+        var schedule = getRecurringScheduleBuilder(Set.of(0, 1, 2, 3, 4, 5, 6, 7, 8)).build();
+        var serverException = catchThrowableOfType(() -> scheduleValidator.validate(schedule), ServerException.class);
+        assertThat(serverException.getStatus()).isEqualTo(400);
+    }
+
     private static Stream<Arguments> validScheduleActionTypes() {
         return Stream.of(
                 Arguments.of("setChargeMode", "ECO_PLUS"),
@@ -156,6 +202,31 @@ class ScheduleValidatorTest {
                 .action(ScheduleAction.builder()
                         .type("setChargeMode")
                         .value("ECO_PLUS")
+                        .build());
+    }
+
+    private Schedule.ScheduleBuilder getRecurringScheduleBuilder() {
+        return getRecurringScheduleBuilder(LocalTime.of(22, 37), Set.of(1, 2, 3, 4, 5, 6, 7));
+    }
+
+    private Schedule.ScheduleBuilder getRecurringScheduleBuilder(LocalTime timeOfDay) {
+        return getRecurringScheduleBuilder(timeOfDay, Set.of(0, 2, 5, 7));
+    }
+
+    private Schedule.ScheduleBuilder getRecurringScheduleBuilder(Set<Integer> daysOfWeek) {
+        return getRecurringScheduleBuilder(LocalTime.of(22, 57), daysOfWeek);
+    }
+
+    private Schedule.ScheduleBuilder getRecurringScheduleBuilder(LocalTime timeOfDay, Set<Integer> daysOfWeek) {
+        return getScheduleBuilder()
+                .startDateTime(null)
+                .action(ScheduleAction.builder()
+                        .type("setChargeMode")
+                        .value("ECO_PLUS")
+                        .build())
+                .recurrence(ScheduleRecurrence.builder()
+                        .daysOfWeek(daysOfWeek)
+                        .timeOfDay(timeOfDay)
                         .build());
     }
 }

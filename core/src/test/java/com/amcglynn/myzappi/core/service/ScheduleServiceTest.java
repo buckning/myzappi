@@ -5,6 +5,7 @@ import com.amcglynn.myzappi.core.dal.UserScheduleRepository;
 import com.amcglynn.myzappi.core.model.Schedule;
 import com.amcglynn.myzappi.core.model.ScheduleAction;
 import com.amcglynn.myzappi.core.model.ScheduleDetails;
+import com.amcglynn.myzappi.core.model.ScheduleRecurrence;
 import com.amcglynn.myzappi.core.model.UserId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,9 +21,11 @@ import software.amazon.awssdk.services.scheduler.model.CreateScheduleRequest;
 import software.amazon.awssdk.services.scheduler.model.CreateScheduleResponse;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -71,6 +74,34 @@ class ScheduleServiceTest {
         verify(mockSchedulerClient).createSchedule(createScheduleRequestArgumentCaptor.capture());
         assertThat(response.getId()).isNotNull();
         assertThat(createScheduleRequestArgumentCaptor.getValue().name()).isEqualTo(response.getId());
+        assertThat(createScheduleRequestArgumentCaptor.getValue().scheduleExpression()).isEqualTo("at(2023-09-10T14:00)");
+        assertThat(createScheduleRequestArgumentCaptor.getValue().target().input()).isEqualTo("{\n" +
+                "\"scheduleId\": \"" + response.getId() + "\",\n" +
+                "\"lwaUserId\": \"mockUserId\"\n" +
+                "}");
+    }
+
+    @Test
+    void createRecurringSchedule() {
+        var schedule = Schedule.builder()
+                .zoneId(ZoneId.of("Europe/Dublin"))
+                .action(ScheduleAction.builder()
+                        .type("setChargeMode")
+                        .value("ECO+")
+                        .build())
+                .recurrence(ScheduleRecurrence.builder()
+                        .timeOfDay(LocalTime.of(14, 0))
+                        .daysOfWeek(Set.of(1, 4, 6))
+                        .build())
+                .build();
+        var response = service.createSchedule(UserId.from("mockUserId"), schedule);
+        verify(mockRepository).write(UserId.from("mockUserId"), List.of(response));
+        verify(mockScheduleDetailsRepository).write(response.getId(), UserId.from("mockUserId"));
+        verify(mockSchedulerClient).createSchedule(createScheduleRequestArgumentCaptor.capture());
+        assertThat(response.getId()).isNotNull();
+        assertThat(createScheduleRequestArgumentCaptor.getValue().name()).isEqualTo(response.getId());
+        assertThat(createScheduleRequestArgumentCaptor.getValue().scheduleExpression()).startsWith("cron(0 14 ? * 1,4,6 *)");
+
         assertThat(createScheduleRequestArgumentCaptor.getValue().target().input()).isEqualTo("{\n" +
                 "\"scheduleId\": \"" + response.getId() + "\",\n" +
                 "\"lwaUserId\": \"mockUserId\"\n" +

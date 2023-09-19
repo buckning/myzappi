@@ -3,7 +3,6 @@ package com.amcglynn.myzappi.api.rest.validator;
 import com.amcglynn.myenergi.ZappiChargeMode;
 import com.amcglynn.myzappi.api.rest.ServerException;
 import com.amcglynn.myzappi.core.model.Schedule;
-import com.amcglynn.myzappi.core.model.ScheduleAction;
 import com.amcglynn.myzappi.core.service.Clock;
 import lombok.AccessLevel;
 import lombok.Setter;
@@ -58,16 +57,28 @@ public class ScheduleValidator {
 
     public void validate(Schedule schedule) {
         rejectIfTrue(() -> schedule.getId() != null);
-        rejectIfNull(schedule.getStartDateTime());
+        rejectIfTrue(() -> schedule.getStartDateTime() == null && schedule.getRecurrence() == null);
         rejectIfNull(schedule.getZoneId());
-        rejectIfTrue(() -> schedule.getStartDateTime().isBefore(clock.localDateTime(schedule.getZoneId())));
+        validateNonRecurringSchedule(schedule);
+        validateRecurringSchedule(schedule);
         rejectIfTrue(() -> !SUPPORTED_TYPES.containsKey(schedule.getAction().getType()));
         rejectIfTrue(() -> !SUPPORTED_TYPES.get(schedule.getAction().getType()).test(schedule.getAction().getValue()));
     }
 
-    public void validate(ScheduleAction scheduleAction) {
-        rejectIfTrue(() -> !SUPPORTED_TYPES.containsKey(scheduleAction.getType()));
-        rejectIfTrue(() -> !SUPPORTED_TYPES.get(scheduleAction.getType()).test(scheduleAction.getValue()));
+    private void validateRecurringSchedule(Schedule schedule) {
+        var recurrence = schedule.getRecurrence();
+        if (recurrence != null) {
+            rejectIfNull(recurrence.getTimeOfDay());
+            rejectIfTrue(() -> recurrence.getDaysOfWeek() == null || recurrence.getDaysOfWeek().isEmpty());
+            rejectIfTrue(() -> recurrence.getDaysOfWeek().size() > 7);
+            rejectIfTrue(() -> recurrence.getDaysOfWeek().stream().anyMatch(day -> day < 1 || day > 7));
+        }
+    }
+
+    private void validateNonRecurringSchedule(Schedule schedule) {
+        if (schedule.getStartDateTime() != null) {
+            rejectIfTrue(() -> schedule.getStartDateTime().isBefore(clock.localDateTime(schedule.getZoneId())));
+        }
     }
 
     private void rejectIfNull(Object object) {

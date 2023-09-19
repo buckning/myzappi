@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Optional;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -24,6 +25,8 @@ public class Schedule {
     @JsonDeserialize(using = ZoneIdDeserializer.class)
     @JsonSerialize(using = ZoneIdSerializer.class)
     private ZoneId zoneId;
+
+    private ScheduleRecurrence recurrence;
 
     private ScheduleAction action;
 }
