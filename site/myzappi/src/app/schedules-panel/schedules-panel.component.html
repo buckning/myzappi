@@ -1,0 +1,50 @@
+<div class="schedulePanel">
+    <h1>Schedules</h1>
+
+    <div *ngIf="selectedOption === 'none' && !loaded">
+        <p>
+            Loading your schedules...
+        </p>
+    </div>
+
+    <div *ngIf="selectedOption === 'none' && loaded">
+        <p *ngIf="scheduleRows.length === 0">
+            You have no schedules. Create a new schedule below.
+        </p>
+
+
+        <table id="scheduleTable" *ngIf="scheduleRows.length > 0" class="scheduleTable">
+            <thead>
+            <tr>
+                <th>Time</th>
+                <th>Repeat</th>
+                <th>Charge Mode</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let row of scheduleRows; let i = index">
+                  <td>
+                    <input type="text" name="time" class="scheduleTime" [(ngModel)]="row.recurrence.timeOfDay">
+                  </td>
+                  <td>
+                    <input type="string" name="repeat" placeholder="HH:mm" [ngModel]="calculateDisplayString(row)">
+                  </td>
+                  <td>
+                    <input type="string" name="repeat" placeholder="HH:mm" [(ngModel)]="row.action.value">
+                  </td>
+                </tr>
+              </tbody>
+              
+        </table>
+        
+    </div>
+    <div>
+        <button *ngIf="selectedOption === 'none'" type="submit" class="saveScheduleButton" (click)="createRecurringSchedule()">New Schedule</button>
+    </div>
+    <!-- Content for Recurring -->
+    <div *ngIf="selectedOption === 'recurring'">
+        <app-create-recurring-schedule-panel [bearerToken]="bearerToken" (viewListSchedulesScreen)="viewListSchedulesScreen()"></app-create-recurring-schedule-panel>
+    </div>
+
+</div>

@@ -1,0 +1,51 @@
+.days-of-week {
+    display: flex;
+    /* justify-content: space-around; Adjust spacing as needed */
+}
+
+.days-of-week button {
+    background-color: transparent;
+    border: 1px solid #ccc;
+    /* Add an outline */
+    cursor: pointer;
+    font-size: 16px;
+    padding: 5px;
+    width: 30px;
+    /* Adjust the width as needed */
+    text-align: center;
+}
+
+.days-of-week button.selected {
+    font-weight: bold;
+    background-color: #64a0ff;
+    /* Change to your desired darker color */
+    color: white;
+    /* Change to your desired text color */
+    border-color: #333;
+    /* Change to match the darker color */
+}
+.cancelButton {
+    background-color: #ff6f6f;
+    color: #fff;
+    margin-top: 10px;
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.saveScheduleButton {
+    background-color: #4CAF50;
+    color: #fff;
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.saveScheduleButton:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
