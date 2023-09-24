@@ -12,6 +12,7 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
 import java.util.LinkedHashMap;
+import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -30,12 +31,15 @@ class EventBridgeHandlerTest {
     @Mock
     private LwaClient mockLwaClient;
     @Mock
+    private Properties mockProperties;
+    @Mock
+    private MyZappiScheduleHandler mockZappiScheduleHandler;
+    @Mock
     private Token mockToken;
 
     @BeforeEach
     void setUp() {
-        handler = new EventBridgeHandler();
-        handler.setLwaClient(mockLwaClient);
+        handler = new EventBridgeHandler(mockProperties, mockLwaClient, mockZappiScheduleHandler);
         when(mockToken.getAccessToken()).thenReturn("mockToken");
         when(mockLwaClient.getMessagingToken(any(), any())).thenReturn(mockToken);
     }
@@ -64,5 +68,25 @@ class EventBridgeHandlerTest {
         handler.handleRequest(input, mockContext);
         verify(mockLwaClient).getMessagingToken(any(), any());
         verify(mockLwaClient).postSkillMessage(eq("https://api.eu.amazonalexa.com"), eq("mockAlexaUserId"), eq("mockToken"), any());
+    }
+
+    @Test
+    void handleMyZappiSchedule() {
+        var input = new LinkedHashMap<String, String>();
+        input.put("type", "setChargeMode");
+        input.put("scheduleId", UUID.randomUUID().toString());
+        input.put("lwaUserId", "mockLwaUserId");
+        handler.handleRequest(input, mockContext);
+        verify(mockLwaClient, never()).getMessagingToken(any(), any());
+        verify(mockLwaClient, never()).postSkillMessage(eq("https://api.eu.amazonalexa.com"), eq("mockAlexaUserId"), eq("mockToken"), any());
+    }
+
+    @Test
+    void unknownSchedulesAreIgnored() {
+        var input = new LinkedHashMap<String, String>();
+        input.put("type", "setChargeMode");
+        handler.handleRequest(input, mockContext);
+        verify(mockLwaClient, never()).getMessagingToken(any(), any());
+        verify(mockLwaClient, never()).postSkillMessage(eq("https://api.eu.amazonalexa.com"), eq("mockAlexaUserId"), eq("mockToken"), any());
     }
 }

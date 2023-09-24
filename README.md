@@ -1,13 +1,7 @@
 # Welcome to MyZappi!
 
 ## Next Features
-* Add scheduled charging
-** Set up an SQS queue.
-** Add a new intent handler
-** Add new schedule table
-** Save action into table and schedule in SQS
-** Create consumer that gets notified of the event and performs the action
-* Reminder saying when your car is fully charged
+* Remind me when my car finishes charging
 * Better metrics
 * Notify if the charger is offline 
 * If the car charge mode is changed or if boost was set, notify if the car is not plugged in
@@ -78,7 +72,24 @@ aws dynamodb create-table \
   --attribute-definitions AttributeName=alexa-user-id,AttributeType=S \
   --key-schema AttributeName=alexa-user-id,KeyType=HASH \
   --provisioned-throughput ReadCapacityUnits=1,WriteCapacityUnits=1
+```
 
+Contains all the schedule information for a user as a json blob
+```
+aws dynamodb create-table \
+--table-name schedule \
+--attribute-definitions AttributeName=user-id,AttributeType=S \
+--key-schema AttributeName=user-id,KeyType=HASH \
+--provisioned-throughput ReadCapacityUnits=1,WriteCapacityUnits=1
+```
+
+Stores the schedule information for a schedule ID
+```
+aws dynamodb create-table \
+--table-name schedule-details \
+--attribute-definitions AttributeName=schedule-id,AttributeType=S \
+--key-schema AttributeName=schedule-id,KeyType=HASH \
+--provisioned-throughput ReadCapacityUnits=1,WriteCapacityUnits=1
 ```
 
 ## Manually create role for Lambda
@@ -103,7 +114,7 @@ aws lambda create-function --function-name myzappi --runtime java11 --handler co
 ```
 ### Create Lambda for MyZappi Login page
 ```
-aws lambda create-function --function-name myzappi-login --runtime java11 --handler com.amcglynn.myzappi.login.CompleteLoginHandler::handleRequest --role {arnFromRoleCreatedAbove}  --code S3Bucket={myzappiBuilds},S3Key={pathToJarFile} --memory-size 512 --timeout 30
+aws lambda create-function --function-name myzappi-login --runtime java11 --handler com.amcglynn.myzappi.api.CompleteLoginHandler::handleRequest --role {arnFromRoleCreatedAbove}  --code S3Bucket={myzappiBuilds},S3Key={pathToJarFile} --memory-size 512 --timeout 30
 ```
 
 # Configure environment variables

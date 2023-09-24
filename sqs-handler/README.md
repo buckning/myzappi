@@ -5,8 +5,9 @@ of delay times.
 Andrew was too lazy to rename this module, lambda name and associated roles, so it is still
 called sqs-handler.
 
-This module contains a handler which receives the event, pulls out the user from the request
-and then pushes an Alexa skill message for the user.
+This module contains a handler which receives the event and handles one of 2 different cases.
+1. Alexa reminders: pulls out the Alexa user from the request and then pushes an Alexa skill message for the user.
+2. General MyZappi schedules: pulls out the LWA user ID and performs the requested actions on it 
 
 The flow is:
 1. User asks Alexa to remind them to plug in their car 

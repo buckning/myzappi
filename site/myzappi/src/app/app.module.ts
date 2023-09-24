@@ -8,6 +8,8 @@ import { LoggedInContentComponent } from './logged-in-content/logged-in-content.
 import { HttpClientModule } from '@angular/common/http';
 import { RegisterPanelComponent } from './register-panel/register-panel.component';
 import { TariffPanelComponent } from './tariff-panel/tariff-panel.component';
+import { SchedulesPanelComponent } from './schedules-panel/schedules-panel.component';
+import { CreateRecurringSchedulePanelComponent } from './create-recurring-schedule-panel/create-recurring-schedule-panel.component';
 
 @NgModule({
   declarations: [
@@ -15,7 +17,9 @@ import { TariffPanelComponent } from './tariff-panel/tariff-panel.component';
     LoggedOutContentComponent,
     LoggedInContentComponent,
     RegisterPanelComponent,
-    TariffPanelComponent
+    TariffPanelComponent,
+    SchedulesPanelComponent,
+    CreateRecurringSchedulePanelComponent
   ],
   imports: [
     BrowserModule,

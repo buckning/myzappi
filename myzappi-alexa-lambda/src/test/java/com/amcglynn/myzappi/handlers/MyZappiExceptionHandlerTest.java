@@ -13,6 +13,7 @@ import com.amcglynn.myenergi.exception.ServerCommunicationException;
 import com.amcglynn.myzappi.UserNotLinkedException;
 import com.amcglynn.myzappi.core.Brand;
 import com.amcglynn.myzappi.core.exception.UserNotLoggedInException;
+import com.amcglynn.myzappi.exception.InvalidScheduleException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -83,7 +84,8 @@ class MyZappiExceptionHandlerTest {
                 Arguments.of(new UserNotLoggedInException("test"), "You are not registered. Please register on https://myzappiunofficial.com with your myenergi API key and serial number."),
                 Arguments.of(new ClientException(404), "Could not authenticate with myenergi APIs. Your API key may no longer be valid. Please register again on https://myzappiunofficial.com"),
                 Arguments.of(new ServerCommunicationException(), "I couldn't communicate with myenergi servers."),
-                Arguments.of(new NullPointerException("unexpectedException"), "There was an unexpected error."));
+                Arguments.of(new NullPointerException("unexpectedException"), "There was an unexpected error."),
+                Arguments.of(new InvalidScheduleException("unexpectedException"), "I didn't understand that, please try again."));
     }
 
     private static Stream<Arguments> exceptionVoiceSource() {
@@ -92,7 +94,8 @@ class MyZappiExceptionHandlerTest {
                 Arguments.of(new UserNotLinkedException("test"), "<speak>Welcome to the My Zappi skill. To be able to use the skill, you have to link it to your Amazon account. Please go to the Alexa App and sign in with your Amazon login credentials under settings. A Link Account card was delivered to your Alexa App.</speak>"),
                 Arguments.of(new ClientException(404), "<speak>Could not authenticate with my energy APIs. Your API key may no longer be valid. Please register again on my zappi unofficial dot com</speak>"),
                 Arguments.of(new ServerCommunicationException(), "<speak>I couldn't communicate with my energy servers.</speak>"),
-                Arguments.of(new NullPointerException("unexpectedException"), "<speak>There was an unexpected error.</speak>"));
+                Arguments.of(new NullPointerException("unexpectedException"), "<speak>There was an unexpected error.</speak>"),
+                Arguments.of(new InvalidScheduleException("unexpectedException"), "<speak>I didn't understand that, please try again.</speak>"));
     }
 
     private HandlerInput.Builder handlerInputBuilder() {

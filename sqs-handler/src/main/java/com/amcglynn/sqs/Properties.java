@@ -1,6 +1,6 @@
 package com.amcglynn.sqs;
 
-public class Properties {
+public class Properties extends com.amcglynn.myzappi.core.config.Properties {
 
     /**
      * Client from Alexa permissions page under Alexa Skill Messaging
@@ -16,6 +16,21 @@ public class Properties {
      */
     public String getAlexaClientSecret() {
         return System.getenv("alexaClientSecret");
+    }
+
+    @Override
+    public String getSkillId() {
+        throw new IllegalStateException("Skill ID not required for schedule service");
+    }
+
+    @Override
+    public String getSchedulerExecutionRoleArn() {
+        return null;
+    }
+
+    @Override
+    public String getSchedulerTargetLambdaArn() {
+        return null;
     }
 
     public Properties() {

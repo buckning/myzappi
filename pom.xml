@@ -80,13 +80,16 @@
                                         <exclude>com.amcglynn.myzappi.core.service.ZappiService</exclude>
                                         <exclude>com.amcglynn.myzappi.core.exception.MissingConfigurationException</exclude>
                                         <exclude>com.amcglynn.myzappi.MyZappiSkillStreamHandler</exclude>
-                                        <exclude>com.amcglynn.myzappi.login.LwaClientFactory</exclude>
-                                        <exclude>com.amcglynn.myzappi.login.CompleteLoginRequest</exclude>
-                                        <exclude>com.amcglynn.myzappi.login.*</exclude>
+                                        <exclude>com.amcglynn.myzappi.api.LwaClientFactory</exclude>
+                                        <exclude>com.amcglynn.myzappi.api.CompleteLoginRequest</exclude>
+                                        <exclude>com.amcglynn.myzappi.api.*</exclude>
                                         <exclude>com.amcglynn.myenergi.units.*</exclude>
                                         <exclude>com.amcglynn.myenergi.*</exclude>
                                         <exclude>com.amcglynn.lwa.*</exclude>
                                         <exclude>com.amcglynn.sqs.SkillMessage</exclude>
+                                        <exclude>com.amcglynn.sqs.*</exclude>
+                                        <exclude>com.amcglynn.myzappi.core.model.UserId</exclude>
+                                        <exclude>com.amcglynn.myzappi.core.model.AlexaUserId</exclude>
                                         <exclude>com.amcglynn.myzappi.core.model.AlexaToLwaUserDetails</exclude>
                                         <exclude>com.amcglynn.myzappi.handlers.responses.ZappiEnergyCostVoiceResponse</exclude>
                                     </excludes>
