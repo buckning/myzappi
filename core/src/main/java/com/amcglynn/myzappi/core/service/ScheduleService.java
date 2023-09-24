@@ -9,8 +9,10 @@ import lombok.extern.slf4j.Slf4j;
 import software.amazon.awssdk.services.scheduler.SchedulerClient;
 import software.amazon.awssdk.services.scheduler.model.ActionAfterCompletion;
 import software.amazon.awssdk.services.scheduler.model.CreateScheduleRequest;
+import software.amazon.awssdk.services.scheduler.model.DeleteScheduleRequest;
 import software.amazon.awssdk.services.scheduler.model.FlexibleTimeWindow;
 import software.amazon.awssdk.services.scheduler.model.FlexibleTimeWindowMode;
+import software.amazon.awssdk.services.scheduler.model.SchedulerException;
 import software.amazon.awssdk.services.scheduler.model.Target;
 
 import java.time.LocalDateTime;
@@ -165,5 +167,38 @@ public class ScheduleService {
         remainingSchedules.removeIf(schedule -> schedule.getId().equals(scheduleId));
         repository.update(userId, remainingSchedules);
         scheduleDetailsRepository.delete(scheduleId);
+    }
+
+    /**
+     * Deletes a schedule from the database and from AWS. It deletes the schedule from two tables in the database,
+     * the user_schedules table and the schedule_details table.
+     * This is intended to be invoked by the API only when the user wants to delete the schedule. It should not be
+     * invoked automatically when the schedule is completed since would unintentionally remove recurring schedules.
+     * @param userId The id of the user who owns the schedule
+     * @param scheduleId The id of the schedule to delete
+     */
+    public void deleteSchedule(UserId userId, String scheduleId) {
+        var schedules = scheduleDetailsRepository.read(scheduleId);
+        if (schedules.isEmpty()) {
+            log.warn("Schedule with id {} not found", scheduleId);
+            return;
+        }
+        if (userId.equals(schedules.get().getLwaUserId())) {
+            deleteAwsSchedule(scheduleId);
+            var schedulesFromDb = repository.read(userId);
+            var remainingSchedules = new ArrayList<>(schedulesFromDb);
+            remainingSchedules.removeIf(schedule -> schedule.getId().equals(scheduleId));
+            repository.update(userId, remainingSchedules);
+            scheduleDetailsRepository.delete(scheduleId);
+        }
+    }
+
+    private void deleteAwsSchedule(String scheduleId) {
+        try {
+            schedulerClient.deleteSchedule(DeleteScheduleRequest.builder()
+                    .name(scheduleId).build());
+        } catch (SchedulerException e) {
+            log.info("Failed to delete schedule with id: {}", scheduleId);
+        }
     }
 }

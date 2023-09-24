@@ -53,6 +53,7 @@ public class EndpointRouter {
         handlers.put("/authenticate", authenticateController);
         handlers.put("/logout", logoutController);
         handlers.put("/schedule", scheduleController);
+        handlers.put("/schedules", scheduleController);
 
         this.authenticateController = authenticateController;
     }
@@ -72,6 +73,10 @@ public class EndpointRouter {
         try {
             log.info("{} {}", request.getMethod(), request.getPath());
             var controller = handlers.get(request.getPath());
+
+            if (controller == null && request.getPath().startsWith("/schedules/")) {
+                controller = handlers.get("/schedules");
+            }
             if (controller == null) {
                 log.info("Controller not found for {}", request.getPath());
                 return new Response(404);

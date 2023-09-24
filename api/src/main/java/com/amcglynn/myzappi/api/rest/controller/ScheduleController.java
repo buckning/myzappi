@@ -42,10 +42,17 @@ public class ScheduleController implements RestController {
             return getSchedules(request);
         }
         if (request.getMethod() == RequestMethod.DELETE) {
+            log.info("Request path = {}", request.getPath());
+            deleteSchedule(request);
             return new Response(204);
         }
         log.info("Unsupported method for schedule - {}", request.getMethod());
         throw new ServerException(404);
+    }
+
+    private void deleteSchedule(Request request) {
+        var resourceId = request.getPath().split("/schedules/")[1];
+        service.deleteSchedule(request.getUserId(), resourceId);
     }
 
     private String postSchedule(Request request) {

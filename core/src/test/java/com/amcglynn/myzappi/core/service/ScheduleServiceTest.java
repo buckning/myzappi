@@ -19,7 +19,10 @@ import org.mockito.quality.Strictness;
 import software.amazon.awssdk.services.scheduler.SchedulerClient;
 import software.amazon.awssdk.services.scheduler.model.CreateScheduleRequest;
 import software.amazon.awssdk.services.scheduler.model.CreateScheduleResponse;
+import software.amazon.awssdk.services.scheduler.model.DeleteScheduleRequest;
+import software.amazon.awssdk.services.scheduler.model.SchedulerException;
 
+import javax.lang.model.util.Types;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
@@ -30,6 +33,8 @@ import java.util.Set;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -49,6 +54,8 @@ class ScheduleServiceTest {
     private ArgumentCaptor<CreateScheduleRequest> createScheduleRequestArgumentCaptor;
     private UserId userId = UserId.from("mockUserId");
     private final CreateScheduleResponse createScheduleResponse = CreateScheduleResponse.builder().scheduleArn("mockScheduleArn").build();
+    @Captor
+    private ArgumentCaptor<DeleteScheduleRequest> deleteScheduleRequestCapture;
 
     @BeforeEach
     void setUp() {
@@ -176,6 +183,65 @@ class ScheduleServiceTest {
         service.deleteLocalSchedule("mockScheduleId");
         verify(mockRepository, never()).write(any(), any());
         verify(mockScheduleDetailsRepository, never()).delete(anyString());
+    }
+
+    @Test
+    void deleteSchedule() {
+        when(mockScheduleDetailsRepository.read("mockScheduleId"))
+                .thenReturn(Optional.of(new ScheduleDetails("mockScheduleId", userId)));
+        var schedule1 = Schedule.builder().id("mockScheduleId").build();
+        var schedule2 = Schedule.builder().id("mockScheduleId2").build();
+        when(mockRepository.read(userId)).thenReturn(List.of(
+                schedule1,
+                schedule2));
+
+        service.deleteSchedule(userId, "mockScheduleId");
+        verify(mockRepository).update(userId, List.of(schedule2));
+        verify(mockScheduleDetailsRepository).delete("mockScheduleId");
+        verify(mockSchedulerClient).deleteSchedule(deleteScheduleRequestCapture.capture());
+        assertThat(deleteScheduleRequestCapture.getValue().name()).isEqualTo("mockScheduleId");
+    }
+
+    @Test
+    void deleteScheduleDeletesFromDbWhenAwsThrowsException() {
+        when(mockScheduleDetailsRepository.read("mockScheduleId"))
+                .thenReturn(Optional.of(new ScheduleDetails("mockScheduleId", userId)));
+        var schedule1 = Schedule.builder().id("mockScheduleId").build();
+        var schedule2 = Schedule.builder().id("mockScheduleId2").build();
+        when(mockRepository.read(userId)).thenReturn(List.of(
+                schedule1,
+                schedule2));
+
+        when(mockSchedulerClient.deleteSchedule(any(DeleteScheduleRequest.class)))
+                .thenThrow(mock(SchedulerException.class));
+
+        service.deleteSchedule(userId, "mockScheduleId");
+        verify(mockRepository).update(userId, List.of(schedule2));
+        verify(mockScheduleDetailsRepository).delete("mockScheduleId");
+        verify(mockSchedulerClient).deleteSchedule(deleteScheduleRequestCapture.capture());
+        assertThat(deleteScheduleRequestCapture.getValue().name()).isEqualTo("mockScheduleId");
+    }
+
+    @Test
+    void scheduleIsNotDeletedWhenUserDoesNotOwnTheSchedule() {
+        when(mockScheduleDetailsRepository.read("mockScheduleId"))
+                .thenReturn(Optional.of(new ScheduleDetails("mockScheduleId", UserId.from("unknownUserId"))));
+
+        service.deleteSchedule(userId, "mockScheduleId");
+        verify(mockRepository, never()).update(eq(userId), any());
+        verify(mockScheduleDetailsRepository, never()).delete(anyString());
+        verify(mockSchedulerClient, never()).deleteSchedule(any(DeleteScheduleRequest.class));
+    }
+
+    @Test
+    void deleteScheduleWhenScheduleDoesNotExist() {
+        when(mockScheduleDetailsRepository.read("mockScheduleId"))
+                .thenReturn(Optional.empty());
+
+        service.deleteSchedule(userId, "mockScheduleId");
+        verify(mockRepository, never()).write(any(), any());
+        verify(mockScheduleDetailsRepository, never()).delete(anyString());
+        verify(mockSchedulerClient, never()).deleteSchedule(any(DeleteScheduleRequest.class));
     }
 
     @Test

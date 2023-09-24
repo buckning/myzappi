@@ -168,7 +168,9 @@ class ScheduleControllerTest {
 
     @Test
     void delete() {
-        var response = controller.handle(new Request(UserId.from("mockUserId"), RequestMethod.DELETE, "/schedule", null));
+        var scheduleId = UUID.randomUUID();
+        var response = controller.handle(new Request(UserId.from("mockUserId"), RequestMethod.DELETE, "/schedules/" + scheduleId, null));
+        verify(mockService).deleteSchedule(UserId.from("mockUserId"), scheduleId.toString());
         assertThat(response.getStatus()).isEqualTo(204);
     }
 
