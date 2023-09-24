@@ -30,6 +30,13 @@ export class SchedulesPanelComponent {
   scheduleRows: any[] = [];
   daysOfWeek: string[] = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
+  chargeModeMapping: { [key: string]: string } = {
+    'ECO_PLUS': 'Eco+',
+    'ECO': 'Eco',
+    'FAST': 'Fast',
+    'STOP': 'Stop'
+  };
+
   constructor(private http: HttpClient) { }
 
   ngOnInit(): void {
@@ -48,7 +55,7 @@ export class SchedulesPanelComponent {
   }
 
   calculateDisplayString(row: any): string {
-    return row.recurrence.daysOfWeek.map((day: number) => this.daysOfWeek[day - 1]).join(', ');
+    return row.recurrence.daysOfWeek.map((day: number) => this.daysOfWeek[day - 1].slice(0, 3)).join(', ');
   }
 
   deleteSchedule(row: any) {
@@ -63,12 +70,19 @@ export class SchedulesPanelComponent {
     this.http.delete('https://api.myzappiunofficial.com/schedules/' + id, options)
       .subscribe(data => {
         console.log("Deleted schedule with id: " + id);
-        
         this.readSchedules();
       },
         error => {
           console.log("failed to delete schedule " + error.status);
         });
+  }
+
+  convertChargeMode(input: string): string {
+    if (input in this.chargeModeMapping) {
+      return this.chargeModeMapping[input];
+    }
+    
+    return input;
   }
 
   readSchedules() {

@@ -17,21 +17,22 @@
             <thead>
             <tr>
                 <th>Time</th>
-                <th>Repeat</th>
                 <th>Charge Mode</th>
+                <th>Repeat</th>
                 <th></th>
             </tr>
             </thead>
             <tbody>
                 <tr *ngFor="let row of scheduleRows; let i = index">
                   <td>
-                    <input type="text" name="time" class="scheduleTime" [(ngModel)]="row.recurrence.timeOfDay">
+                    <input type="string" name="time" class="scheduleTime" [(ngModel)]="row.recurrence.timeOfDay" readonly>
+                  </td>
+                  
+                  <td>
+                    <input type="text" name="repeat" class="chargeMode" placeholder="Charge Mode" [ngModel]="convertChargeMode(row.action.value)" readonly>
                   </td>
                   <td>
-                    <input type="string" name="repeat" placeholder="HH:mm" [ngModel]="calculateDisplayString(row)">
-                  </td>
-                  <td>
-                    <input type="string" name="repeat" placeholder="HH:mm" [(ngModel)]="row.action.value">
+                    <input type="text" name="repeat" class="repeatDays" [ngModel]="calculateDisplayString(row)" readonly>
                   </td>
                   <td>
                     <button type="button" class="deleteButton" (click)="deleteSchedule(row)">Delete</button>
