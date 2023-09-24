@@ -33,6 +33,9 @@
                   <td>
                     <input type="string" name="repeat" placeholder="HH:mm" [(ngModel)]="row.action.value">
                   </td>
+                  <td>
+                    <button type="button" class="deleteButton" (click)="deleteSchedule(row)">Delete</button>
+                  </td>
                 </tr>
               </tbody>
               
@@ -46,5 +49,4 @@
     <div *ngIf="selectedOption === 'recurring'">
         <app-create-recurring-schedule-panel [bearerToken]="bearerToken" (viewListSchedulesScreen)="viewListSchedulesScreen()"></app-create-recurring-schedule-panel>
     </div>
-
 </div>

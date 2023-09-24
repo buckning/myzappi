@@ -29,6 +29,7 @@ export class CreateRecurringSchedulePanelComponent {
   recurringValue: string = 'ECO_PLUS';
   daysOfWeek: string[] = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   saveButtonDisabled = false;
+  cancelButtonVisible = true;
 
   constructor(private http: HttpClient) { }
 
@@ -38,6 +39,7 @@ export class CreateRecurringSchedulePanelComponent {
 
   saveSchedule() {
     this.saveButtonDisabled = true;
+    this.cancelButtonVisible = false;
     let newSchedule: Schedule = {
       zoneId: this.getZoneId(),
       recurrence: {
@@ -58,14 +60,16 @@ export class CreateRecurringSchedulePanelComponent {
       'Authorization': this.bearerToken
     });
     let options = { headers: headers };
-    this.http.post('https://api.myzappiunofficial.com/schedule', requestBody, options)
+    this.http.post('https://api.myzappiunofficial.com/schedules', requestBody, options)
       .subscribe(data => {
         // TODO set logged-in-content registered = true
         console.log("Success saving schedule");
         this.viewListSchedulesScreen.emit('');
+        this.cancelButtonVisible = true;
       },
         error => {
           console.log("error saving schedule " + JSON.stringify(requestBody));
+          this.cancelButtonVisible = true;
         });
 
   }

@@ -48,7 +48,27 @@ export class SchedulesPanelComponent {
   }
 
   calculateDisplayString(row: any): string {
-    return row.recurrence.daysOfWeek.map((day: number) => this.daysOfWeek[day]).join(', ');
+    return row.recurrence.daysOfWeek.map((day: number) => this.daysOfWeek[day - 1]).join(', ');
+  }
+
+  deleteSchedule(row: any) {
+    let id = row.id;
+    this.loaded = false;
+    console.log("Deleting schedule with id: " + id);
+    let headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': this.bearerToken
+    });
+    let options = { headers: headers };
+    this.http.delete('https://api.myzappiunofficial.com/schedules/' + id, options)
+      .subscribe(data => {
+        console.log("Deleted schedule with id: " + id);
+        
+        this.readSchedules();
+      },
+        error => {
+          console.log("failed to delete schedule " + error.status);
+        });
   }
 
   readSchedules() {
@@ -57,7 +77,7 @@ export class SchedulesPanelComponent {
       'Authorization': this.bearerToken
     });
     let options = { headers: headers };
-    this.http.get<Schedules>('https://api.myzappiunofficial.com/schedule', options)
+    this.http.get<Schedules>('https://api.myzappiunofficial.com/schedules', options)
       .subscribe(data => {
         this.scheduleRows = data.schedules.filter(schedule => 
           schedule.recurrence !== undefined && schedule.recurrence !== null
