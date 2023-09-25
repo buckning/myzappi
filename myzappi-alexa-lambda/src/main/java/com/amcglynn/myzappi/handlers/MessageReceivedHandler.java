@@ -37,16 +37,18 @@ public class MessageReceivedHandler implements RequestHandler {
         var reminderService = reminderServiceFactory.newReminderService(handlerInput);
 
         var alexaUserId = handlerInput.getRequestEnvelope().getContext().getSystem().getUser().getUserId();
+        log.info("Message received event for Alexa user {}", alexaUserId);
         var lwaUser = userLookupRepository.read(alexaUserId);
 
-        lwaUser.ifPresent(userDetails -> {
+        lwaUser.ifPresentOrElse(userDetails -> {
+            log.info("User found for Alexa user {} - lwaUserId = {}", alexaUserId, userDetails.getLwaUserId());
             var zappiService = zappiServiceBuilder.build(userDetails::getLwaUserId);
             var summary = new EvStatusSummary(zappiService.getStatusSummary().get(0));
             reminderService.handleReminderMessage(handlerInput.getRequestEnvelope().getContext().getSystem().getUser().getPermissions().getConsentToken(),
                     alexaUserId,
                     userDetails.getZoneId(),
                     summary::isConnected);
-        });
+        }, () -> log.info("No user found for Alexa user {}", alexaUserId));
 
         return handlerInput.getResponseBuilder()
                 .build();

@@ -93,8 +93,11 @@ public class ReminderService {
         var reminders = remindersResponse.getAlerts();
 
         if (reminders.isEmpty()) {
+            log.info("No reminders found for user {}", alexaUserId);
             return;
         }
+
+        log.info("Found {} reminders for user {}", reminders.size(), alexaUserId);
 
         var reminderScheduledTime = LocalDateTime.parse(reminders.get(0).getTrigger().getScheduledTime());
         var currentDateTime = clock.localDateTime(ZoneId.of(reminders.get(0).getTrigger().getTimeZoneId()));
