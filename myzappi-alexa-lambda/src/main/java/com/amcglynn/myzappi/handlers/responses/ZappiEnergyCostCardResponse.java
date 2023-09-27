@@ -1,6 +1,6 @@
 package com.amcglynn.myzappi.handlers.responses;
 
-import com.amcglynn.myzappi.Cost;
+import com.amcglynn.myzappi.core.model.Cost;
 import com.amcglynn.myzappi.core.model.DayCost;
 
 import java.util.Currency;

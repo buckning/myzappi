@@ -60,7 +60,7 @@ public class RegistrationService {
             }
             log.warn("Zappi device not found");
         } catch (ClientException e) {
-            log.warn("Unexpected error " + e.getMessage());
+            log.warn("Unexpected error " + e.getMessage(), e);
         }
         return Optional.empty();
     }

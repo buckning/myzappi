@@ -31,21 +31,22 @@ public class EndpointRouter {
                           LwaClientFactory lwaClientFactory) {
         this(hubController, tariffController, new SessionManagementService(new SessionRepository(serviceManager.getAmazonDynamoDB()),
                 serviceManager.getEncryptionService(), lwaClientFactory), lwaClientFactory,
-                new ScheduleController(serviceManager.getScheduleService()));
+                new ScheduleController(serviceManager.getScheduleService()), serviceManager);
     }
 
     public EndpointRouter(HubController hubController, TariffController tariffController,
                           SessionManagementService sessionManagementService, LwaClientFactory lwaClientFactory,
-                          ScheduleController scheduleController) {
+                          ScheduleController scheduleController, ServiceManager serviceManager) {
         this(hubController, tariffController,
                 new AuthenticateController(new TokenService(lwaClientFactory), sessionManagementService),
                 new LogoutController(sessionManagementService),
-                scheduleController);
+                scheduleController,
+                new EnergyCostController(serviceManager.getZappiServiceBuilder(), serviceManager.getTariffService()));
     }
 
     public EndpointRouter(HubController hubController, TariffController tariffController,
                           AuthenticateController authenticateController, LogoutController logoutController,
-                          ScheduleController scheduleController) {
+                          ScheduleController scheduleController, EnergyCostController energyCostController) {
 
         handlers = new HashMap<>();
         handlers.put("/hub", hubController);
@@ -54,6 +55,7 @@ public class EndpointRouter {
         handlers.put("/logout", logoutController);
         handlers.put("/schedule", scheduleController);
         handlers.put("/schedules", scheduleController);
+        handlers.put("/energy-cost", energyCostController);
 
         this.authenticateController = authenticateController;
     }

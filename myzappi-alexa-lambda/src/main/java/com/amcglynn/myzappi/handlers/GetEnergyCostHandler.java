@@ -68,7 +68,7 @@ public class GetEnergyCostHandler implements RequestHandler {
 
         var zappiService = zappyServiceBuilder.build(userIdResolver);
 
-        // call getHistory instead of getHourlyHistory so that requests for "today" are always up to date
+        // call getHistory instead of getHourlyHistory so that requests for "today" are always up-to-date
         var history = zappiService.getHistory(localDate, userTimeZone);
 
         // Tariffs are local time and history is UTC. This needs to be converted first so date and time zone need to be

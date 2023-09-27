@@ -1,5 +1,6 @@
 package com.amcglynn.myzappi.api.rest;
 
+import com.amcglynn.myzappi.api.rest.controller.EnergyCostController;
 import com.amcglynn.myzappi.core.model.UserId;
 import com.amcglynn.myzappi.api.Session;
 import com.amcglynn.myzappi.api.rest.controller.AuthenticateController;
@@ -41,6 +42,8 @@ class EndpointRouterTest {
     @Mock
     private ScheduleController mockScheduleController;
     @Mock
+    private EnergyCostController mockEnergyCostController;
+    @Mock
     private Session mockSession;
     @Mock
     private Response mockResponse;
@@ -48,13 +51,14 @@ class EndpointRouterTest {
     @BeforeEach
     void setUp() {
         router = new EndpointRouter(mockHubController, mockTariffController, mockAuthController, mockLogutController,
-                mockScheduleController);
+                mockScheduleController, mockEnergyCostController);
         when(mockResponse.getStatus()).thenReturn(200);
         when(mockTariffController.handle(any())).thenReturn(mockResponse);
         when(mockLogutController.handle(any())).thenReturn(mockResponse);
         when(mockAuthController.handle(any())).thenReturn(mockResponse);
         when(mockHubController.handle(any())).thenReturn(mockResponse);
         when(mockScheduleController.handle(any())).thenReturn(mockResponse);
+        when(mockEnergyCostController.handle(any())).thenReturn(mockResponse);
     }
 
     @Test
@@ -169,7 +173,7 @@ class EndpointRouterTest {
 
     @Test
     void deleteHubRoutedToHubControllerIfLwaAccessTokenIsPresent() {
-        var request = new Request(RequestMethod.DELETE, "/hub", "{}", Map.of("Authorization", "Bearer 1234"));
+        var request = new Request(RequestMethod.DELETE, "/hub", "{}", Map.of("Authorization", "Bearer 1234"), Map.of());
         when(mockAuthController.isAuthenticated(any(), eq("1234"))).thenReturn(true);
         var response = router.route(request);
         assertThat(response.getStatus()).isEqualTo(200);
@@ -178,7 +182,7 @@ class EndpointRouterTest {
 
     @Test
     void deleteHubDoesNotGetRoutedToHubControllerIfLwaAccessTokenIsInvalid() {
-        var request = new Request(RequestMethod.DELETE, "/hub", "{}", Map.of("Authorization", "Bearer 1234"));
+        var request = new Request(RequestMethod.DELETE, "/hub", "{}", Map.of("Authorization", "Bearer 1234"), Map.of());
         when(mockAuthController.isAuthenticated(any(), eq("1234"))).thenReturn(false);
         var response = router.route(request);
         assertThat(response.getStatus()).isEqualTo(401);
@@ -187,10 +191,19 @@ class EndpointRouterTest {
 
     @Test
     void getScheduleGetsRoutedToScheduleController() {
-        var request = new Request(RequestMethod.GET, "/schedule", null, Map.of("Authorization", "Bearer 1234"));
+        var request = new Request(RequestMethod.GET, "/schedule", null, Map.of("Authorization", "Bearer 1234"), Map.of());
         when(mockAuthController.isAuthenticated(any(), eq("1234"))).thenReturn(true);
         var response = router.route(request);
         assertThat(response.getStatus()).isEqualTo(200);
         verify(mockScheduleController).handle(request);
+    }
+
+    @Test
+    void getEnergyCostGetsRoutedToEnergyCostController() {
+        var request = new Request(RequestMethod.GET, "/energy-cost", null, Map.of("Authorization", "Bearer 1234"), Map.of());
+        when(mockAuthController.isAuthenticated(any(), eq("1234"))).thenReturn(true);
+        var response = router.route(request);
+        assertThat(response.getStatus()).isEqualTo(200);
+        verify(mockEnergyCostController).handle(request);
     }
 }
