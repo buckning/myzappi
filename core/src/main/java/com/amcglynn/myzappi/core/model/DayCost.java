@@ -36,4 +36,8 @@ public class DayCost {
     public String getCurrency() {
         return currency;
     }
+
+    public double getTotalCost() {
+        return getImportCost() - getExportCost();
+    }
 }

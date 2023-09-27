@@ -1,4 +1,4 @@
-package com.amcglynn.myzappi;
+package com.amcglynn.myzappi.core.model;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -53,5 +53,12 @@ public class Cost {
 
     public int getSubUnitValue() {
         return subUnitValue;
+    }
+
+    public double to2DecimalPlaces() {
+        var doubleStr = String.valueOf(getBaseCurrencyValue());
+        doubleStr += "." + String.format("%02d", getSubUnitValue());
+
+        return Double.parseDouble(doubleStr);
     }
 }

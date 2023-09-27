@@ -78,6 +78,7 @@
                                         <exclude>com.amcglynn.myzappi.core.config.ServiceManager</exclude>
                                         <exclude>com.amcglynn.myzappi.core.config.Properties</exclude>
                                         <exclude>com.amcglynn.myzappi.core.service.ZappiService</exclude>
+                                        <exclude>com.amcglynn.myzappi.core.model.*</exclude>
                                         <exclude>com.amcglynn.myzappi.core.exception.MissingConfigurationException</exclude>
                                         <exclude>com.amcglynn.myzappi.MyZappiSkillStreamHandler</exclude>
                                         <exclude>com.amcglynn.myzappi.api.LwaClientFactory</exclude>

@@ -16,6 +16,8 @@ public class Request {
     private Session session;
     @Getter
     private Map<String, String> headers;
+    @Getter
+    private Map<String, String> queryStringParameters;
 
     public Request(UserId userId, RequestMethod method, String path, String body) {
         this(method, path, body);
@@ -27,13 +29,19 @@ public class Request {
         this.path = path;
         this.body = body;
         this.headers = new HashMap<>();
+        this.queryStringParameters = new HashMap<>();
     }
 
-    public Request(RequestMethod method, String path, String body, Map<String, String> headers) {
+    public Request(RequestMethod method, String path, String body, Map<String, String> headers, Map<String, String> queryStringParameters) {
         this.method = method;
         this.path = path;
         this.body = body;
         this.headers = headers;
+        if (queryStringParameters != null) {
+            this.queryStringParameters = queryStringParameters;
+        } else {
+            this.queryStringParameters = new HashMap<>();
+        }
     }
 
     public RequestMethod getMethod() {
