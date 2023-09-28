@@ -13,6 +13,14 @@ interface TariffData {
   }[];
 }
 
+interface EnergyCost {
+  currency: string;
+  importCost: number,
+  exportCost: number,
+  solarConsumed: number,
+  totalCost: number
+}
+
 interface Tariff {
   start: string;
   end: string;
@@ -36,6 +44,9 @@ export class TariffPanelComponent {
   messageText = '';
   successMessageText = '';
   loaded:boolean = false;
+  tariffsSaved:boolean = false;
+  energyCost: string = "loading...";
+  costOrCredit: string = "cost";
 
   constructor(private http: HttpClient) {}
 
@@ -56,6 +67,12 @@ export class TariffPanelComponent {
         this.tariffRows = data.tariffs;
         this.tariffCurrency = data.currency;
         this.loaded = true;
+        // set tariffsSaved to true if there is at least one tariff
+        
+        if (data.tariffs.length > 0) {
+          this.tariffsSaved = true;
+          this.readEnergyCost();
+        }
       },
       error => {
         console.log("failed to get tariff details " + error.status);
@@ -64,6 +81,32 @@ export class TariffPanelComponent {
           // if not 404, there is something wrong and it should not be editable
         this.editable = true;
         this.loaded = true;
+      });
+  }
+
+  readEnergyCost() {
+    let headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': this.bearerToken });
+    let options = { headers: headers };
+    this.http.get<EnergyCost>('https://api.myzappiunofficial.com/energy-cost', options)
+      .subscribe(data => {
+        console.log("Got energyCost details: " + data);
+        // convert currency code to symbol
+        const currencySymbol = new Intl.NumberFormat('en-US', {
+          style: 'currency',
+          currency: data.currency,
+        }).formatToParts(1)[0].value;
+        console.log("Got energyCost details: " + currencySymbol + data.totalCost);
+        this.energyCost = currencySymbol + Math.abs(data.totalCost).toFixed(2);
+        if (data.totalCost < 0) {
+          this.costOrCredit = "credit";
+        } else {
+          this.costOrCredit = "cost";
+        }
+      },
+      error => {
+        this.tariffsSaved = false;
       });
   }
 
