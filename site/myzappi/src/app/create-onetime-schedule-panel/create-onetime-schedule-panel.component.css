@@ -1,0 +1,75 @@
+input[type="datetime-local"] {
+    width: 200px; /* Set the width of the input */
+    padding: 10px; /* Add padding for better readability */
+    font-size: 16px; /* Set the font size */
+    border: 1px solid #ccc; /* Add a border */
+    border-radius: 4px; /* Add rounded corners */
+    background-color: #fff; /* Set the background color */
+    color: #333; /* Set the text color */
+}
+
+input[type="time"] {
+    width: 80px; /* Set the width of the input */
+    padding: 10px; /* Add padding for better readability */
+    font-size: 16px; /* Set the font size */
+    border: 1px solid #ccc; /* Add a border */
+    border-radius: 4px; /* Add rounded corners */
+    background-color: #fff; /* Set the background color */
+    color: #333; /* Set the text color */
+}
+
+.cancelButton {
+    background-color: #ff6f6f;
+    color: #fff;
+    margin-top: 10px;
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.saveScheduleButton {
+    background-color: #4CAF50;
+    color: #fff;
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.saveScheduleButton:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+input[type="number"] {
+    width: 60px;
+    padding: 10px;
+    padding-right: 10px;
+    font-size: 14px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    margin-bottom: 10px;
+}
+
+select {
+    width: 300px;
+    padding: 10px; /* Add padding for better readability */
+    font-size: 16px; /* Set the font size */
+    border: 1px solid #ccc; /* Add a border */
+    border-radius: 4px; /* Add rounded corners */
+    background-color: #fff; /* Set the background color */
+    color: #333; /* Set the text color */
+}
+
+.chargeModeSelect {
+    width: 80px;
+    padding: 10px; /* Add padding for better readability */
+    font-size: 16px; /* Set the font size */
+    border: 1px solid #ccc; /* Add a border */
+    border-radius: 4px; /* Add rounded corners */
+    background-color: #fff; /* Set the background color */
+    color: #333; /* Set the text color */
+}

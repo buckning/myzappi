@@ -10,6 +10,7 @@ import { RegisterPanelComponent } from './register-panel/register-panel.componen
 import { TariffPanelComponent } from './tariff-panel/tariff-panel.component';
 import { SchedulesPanelComponent } from './schedules-panel/schedules-panel.component';
 import { CreateRecurringSchedulePanelComponent } from './create-recurring-schedule-panel/create-recurring-schedule-panel.component';
+import { CreateOnetimeSchedulePanelComponent } from './create-onetime-schedule-panel/create-onetime-schedule-panel.component';
 
 @NgModule({
   declarations: [
@@ -19,7 +20,8 @@ import { CreateRecurringSchedulePanelComponent } from './create-recurring-schedu
     RegisterPanelComponent,
     TariffPanelComponent,
     SchedulesPanelComponent,
-    CreateRecurringSchedulePanelComponent
+    CreateRecurringSchedulePanelComponent,
+    CreateOnetimeSchedulePanelComponent
   ],
   imports: [
     BrowserModule,

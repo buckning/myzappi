@@ -1,53 +1,112 @@
 <div class="schedulePanel">
-    <h1>Schedules</h1>
+  <h1>Schedules</h1>
 
-    <div *ngIf="selectedOption === 'none' && !loaded">
-        <p>
-            Loading your schedules...
-        </p>
-    </div>
+  <div *ngIf="!loaded">
+    <p>
+      Loading your schedules...
+    </p>
+  </div>
 
-    <div *ngIf="selectedOption === 'none' && loaded">
-        <p *ngIf="scheduleRows.length === 0">
-            You have no schedules. Create a new schedule below.
-        </p>
-
-
-        <table id="scheduleTable" *ngIf="scheduleRows.length > 0" class="scheduleTable">
-            <thead>
-            <tr>
-                <th>Time</th>
-                <th>Charge Mode</th>
-                <th>Repeat</th>
-                <th></th>
-            </tr>
-            </thead>
-            <tbody>
-                <tr *ngFor="let row of scheduleRows; let i = index">
-                  <td>
-                    <input type="string" name="time" class="scheduleTime" [(ngModel)]="row.recurrence.timeOfDay" readonly>
-                  </td>
-                  
-                  <td>
-                    <input type="text" name="repeat" class="chargeMode" placeholder="Charge Mode" [ngModel]="convertChargeMode(row.action.value)" readonly>
-                  </td>
-                  <td>
-                    <input type="text" name="repeat" class="repeatDays" [ngModel]="calculateDisplayString(row)" readonly>
-                  </td>
-                  <td>
-                    <button type="button" class="deleteButton" (click)="deleteSchedule(row)">Delete</button>
-                  </td>
-                </tr>
-              </tbody>
-              
-        </table>
-        
-    </div>
+  <div *ngIf="loaded && createRecurringScheduleVisible === false && createOneTimeScheduleVisible === false">
     <div>
-        <button *ngIf="selectedOption === 'none'" type="submit" class="saveScheduleButton" (click)="createRecurringSchedule()">New Schedule</button>
+      <label>
+        <input type="radio" name="radioGroup" value="recurring" [(ngModel)]="selectedOption" checked>Recurring
+      </label>
+
+      <label>
+        <input type="radio" name="radioGroup" value="one-time" [(ngModel)]="selectedOption">One-time
+      </label>
     </div>
-    <!-- Content for Recurring -->
-    <div *ngIf="selectedOption === 'recurring'">
-        <app-create-recurring-schedule-panel [bearerToken]="bearerToken" (viewListSchedulesScreen)="viewListSchedulesScreen()"></app-create-recurring-schedule-panel>
-    </div>
+  </div>
+
+  <div *ngIf="loaded && listSchedulesVisible && selectedOption === 'recurring'">
+    <p *ngIf="recurringScheduleRows.length === 0">
+      You have no schedules. Create a new schedule below.
+    </p>
+
+
+    <table id="scheduleTable" *ngIf="recurringScheduleRows.length > 0" class="scheduleTable">
+      <thead>
+        <tr>
+          <th>Time</th>
+          <th>Charge Mode</th>
+          <th>Repeat</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let row of recurringScheduleRows; let i = index">
+          <td>
+            <input type="string" name="time" class="scheduleTime" [(ngModel)]="row.recurrence.timeOfDay" readonly>
+          </td>
+
+          <td>
+            <input type="text" name="repeat" class="chargeMode" placeholder="Charge Mode"
+              [ngModel]="convertChargeMode(row.action.value)" readonly>
+          </td>
+          <td>
+            <input type="text" name="repeat" class="repeatDays" [ngModel]="calculateDisplayString(row)" readonly>
+          </td>
+          <td>
+            <button type="button" class="deleteButton" (click)="deleteSchedule(row)">Delete</button>
+          </td>
+        </tr>
+      </tbody>
+
+    </table>
+
+  </div>
+
+  <div *ngIf="loaded && listSchedulesVisible && selectedOption === 'one-time'">
+    <p *ngIf="oneTimeScheduleRows.length === 0">
+      You have no schedules. Create a new schedule below.
+    </p>
+
+    <table id="scheduleTable" *ngIf="oneTimeScheduleRows.length > 0" class="scheduleTable">
+      <thead>
+        <tr>
+          <th>Start Date & Time</th>
+          <th>Type</th>
+          <th>Value</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let row of oneTimeScheduleRows; let i = index">
+          <td>
+            <input type="text" name="time" class="scheduleDateTime" [ngModel]="convertDateTime(row.startDateTime)" readonly>
+          </td>
+          <td>
+            <input type="text" name="time" class="scheduleType" [ngModel]="convertScheduleType(row.action.type)" readonly>
+          </td>
+          <td>
+            <input type="text" name="repeat" class="chargeMode" placeholder="Charge Mode"
+              [ngModel]="convertOneTimeScheduleValue(row)" readonly>
+          </td>
+          <td>
+            <button type="button" class="deleteButton" (click)="deleteSchedule(row)">Delete</button>
+          </td>
+        </tr>
+      </tbody>
+
+    </table>
+
+  </div>
+
+
+
+  <div>
+    <button type="submit" *ngIf="listSchedulesVisible" class="saveScheduleButton"
+      (click)="createSchedule()">New Schedule</button>
+  </div>
+  <!-- Content for Recurring -->
+  <div *ngIf="createRecurringScheduleVisible">
+    <app-create-recurring-schedule-panel [bearerToken]="bearerToken"
+      (viewListSchedulesScreen)="viewListSchedulesScreen()"></app-create-recurring-schedule-panel>
+  </div>
+
+  <div *ngIf="createOneTimeScheduleVisible">
+    <app-create-onetime-schedule-panel [bearerToken]="bearerToken"
+      (viewListSchedulesScreen)="viewListSchedulesScreen()"></app-create-onetime-schedule-panel>
+  </div>
 </div>
