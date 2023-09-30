@@ -59,11 +59,12 @@ public class EnergyCostController implements RestController {
         var cost = tariffService.calculateCost(dayTariff.get(), history, localDate, zoneId);
 
         var responseBody = new ObjectMapper().writeValueAsString(EnergyCostResponse.builder()
-                        .currency(cost.getCurrency())
+                .currency(cost.getCurrency())
                 .totalCost(cost.getTotalCost())
                 .importCost(cost.getImportCost())
                 .exportCost(cost.getExportCost())
                 .solarConsumed(cost.getSolarSavings())
+
                 .build());
 
         return new Response(200, responseBody);
