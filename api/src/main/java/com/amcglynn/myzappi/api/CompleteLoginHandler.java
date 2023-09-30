@@ -73,8 +73,6 @@ public class CompleteLoginHandler implements RequestHandler<APIGatewayProxyReque
             return responseEvent;
         }
 
-        input.getQueryStringParameters();
-
         var request = new Request(RequestMethod.valueOf(input.getHttpMethod()),
                 input.getPath(),
                 input.getBody(),

@@ -1,4 +1,8 @@
 <div id="tariffForm" class="tariffForm" (submit)="onSubmit()">
+  <div *ngIf="loaded && tariffsSaved">
+    <h1>Energy {{costOrCredit}} for today: {{ energyCost }}</h1>
+</div>
+
     <h1>Enter your tariffs</h1>
     <div>
         Submit your tariff details here for Alexa to tell you your energy costs.

@@ -59,6 +59,7 @@ export class LoggedInContentComponent implements OnInit {
       .subscribe(data => {
         console.log("Deleted Zappi");
         this.hubDetails = null;
+        this.registered = false;
       });
   }
 }
