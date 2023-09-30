@@ -5,6 +5,7 @@ interface Schedules {
   schedules: {
 
     id?: string;
+    startDateTime: string;
     zoneId: string;
     recurrence?: {
       timeOfDay: string;
@@ -25,9 +26,13 @@ interface Schedules {
 export class SchedulesPanelComponent {
   @Input() public bearerToken: any;
   // selectedOption: 'one-time' | 'recurring' = 'one-time';
-  selectedOption: 'one-time' | 'recurring' | 'none' = 'none';
+  selectedOption: 'one-time' | 'recurring' = 'recurring';
+  createRecurringScheduleVisible = false;
+  createOneTimeScheduleVisible = false;
+  listSchedulesVisible = false;
   loaded: boolean = false;
-  scheduleRows: any[] = [];
+  recurringScheduleRows: any[] = [];
+  oneTimeScheduleRows: any[] = [];
   daysOfWeek: string[] = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
   chargeModeMapping: { [key: string]: string } = {
@@ -37,6 +42,13 @@ export class SchedulesPanelComponent {
     'STOP': 'Stop'
   };
 
+  scheduleTypeMapping: { [key: string]: string } = {
+    'setBoostKwh': 'Boosting kilowatt hours',
+    'setBoostFor': 'Boost for duration',
+    'setBoostUntil': 'Boosting until time',
+    'setChargeMode': 'Set charge mode'
+  };
+
   constructor(private http: HttpClient) { }
 
   ngOnInit(): void {
@@ -44,13 +56,20 @@ export class SchedulesPanelComponent {
     this.readSchedules();
   }
 
-  createRecurringSchedule() {
-    this.selectedOption = 'recurring';
+  createSchedule() {
+    if (this.selectedOption === 'recurring') {
+      this.createRecurringScheduleVisible = true;
+      this.listSchedulesVisible = false;
+    } else {
+      this.createOneTimeScheduleVisible = true;
+      this.listSchedulesVisible = false;
+    }
   }
 
   viewListSchedulesScreen() {
-    this.selectedOption = 'none';
     this.loaded = false;
+    this.createRecurringScheduleVisible = false;
+    this.createOneTimeScheduleVisible = false;
     this.readSchedules();
   }
 
@@ -85,6 +104,62 @@ export class SchedulesPanelComponent {
     return input;
   }
 
+  convertScheduleType(input: string): string {
+    if (input in this.scheduleTypeMapping) {
+      return this.scheduleTypeMapping[input];
+    }
+    
+    return input;
+  }
+
+  convertOneTimeScheduleValue(input: any) {
+    if (input.action.type === 'setBoostKwh') {
+      return input.action.value + " kWh";
+    }
+    if (input.action.type === 'setBoostFor') {
+      return this.convertDuration(input.action.value);
+    }
+    if (input.action.type === 'setChargeMode') {
+      return this.convertChargeMode(input.action.value);
+    }
+    return input.action.value;
+  }
+
+  convertDuration(isoDuration: string) {
+    function formatDuration(isoDuration: string): string {
+      const durationRegex = /^PT(?:(\d+)H)?(?:(\d+)M)?$/;
+      const match = isoDuration.match(durationRegex);
+    
+      if (!match) {
+        return 'Invalid duration';
+      }
+    
+      const [, hours, minutes] = match;
+      const parts = [];
+    
+      if (hours) {
+        parts.push(`${hours} hours`);
+      }
+    
+      if (minutes) {
+        parts.push(`${minutes} minutes`);
+      }
+    
+      return parts.join(' ');
+    }
+    
+    
+    return formatDuration(isoDuration);
+  }
+
+  convertDateTime(input: string): string {
+    return input.replace("T", ' ');
+  }
+
+  buildOneTimeScheduleString(input: any) {
+    return this.convertScheduleType(input.action.type);
+  }
+
   readSchedules() {
     let headers = new HttpHeaders({
       'Content-Type': 'application/json',
@@ -93,11 +168,16 @@ export class SchedulesPanelComponent {
     let options = { headers: headers };
     this.http.get<Schedules>('https://api.myzappiunofficial.com/schedules', options)
       .subscribe(data => {
-        this.scheduleRows = data.schedules.filter(schedule => 
+        this.recurringScheduleRows = data.schedules.filter(schedule => 
           schedule.recurrence !== undefined && schedule.recurrence !== null
+        );
+
+        this.oneTimeScheduleRows = data.schedules.filter(schedule => 
+          schedule.startDateTime !== undefined && schedule.startDateTime !== null
         );
         
         this.loaded = true;
+        this.listSchedulesVisible = true;
       },
         error => {
           console.log("failed to get schedules " + error.status);

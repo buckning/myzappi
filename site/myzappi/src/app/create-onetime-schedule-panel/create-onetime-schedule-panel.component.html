@@ -1,0 +1,42 @@
+<div>
+    <div>
+        Schedule time: <input type="datetime-local" [(ngModel)]="startDateTime" />
+        <br>
+        Schedule type: <select [(ngModel)]="scheduleType" (change)="onScheduleTypeChange()">
+            <option value="setBoostKwh">Boost until kilowatt hours reached</option>
+            <option value="setBoostFor">Boost for duration</option>
+            <option value="setBoostUntil">Boost until time</option>
+            <option value="setChargeMode">Set charge mode</option>
+        </select>
+        <br>
+        <div *ngIf="scheduleType === 'setBoostKwh'">
+            Value: <input [(ngModel)]="scheduleActionValue" type="number" min="1" max="99" />
+        </div>
+
+        <div *ngIf="scheduleType === 'setBoostFor'">
+            Value: <input [(ngModel)]="scheduleActionValue" type="number" min="1" max="10" />
+        </div>
+
+        <div *ngIf="scheduleType === 'setBoostUntil'">
+            Value: <input [(ngModel)]="scheduleActionValue" type="time" />
+        </div>
+
+        <div *ngIf="scheduleType === 'setChargeMode'">
+            Value:
+            <select [(ngModel)]="scheduleActionValue" class="chargeModeSelect">
+                <option value="ECO">Eco</option>
+                <option value="ECO_PLUS">Eco+</option>
+                <option value="STOP">Stop</option>
+                <option value="FAST">Fast</option>
+            </select>
+        </div>
+    </div>
+
+    <br>
+    <div>
+        <button type="submit" class="saveScheduleButton" [disabled]="saveButtonDisabled  || !isScheduleValid()" (click)="saveSchedule()">Create Schedule</button>
+    </div>
+    <div>
+        <button type="cancel" class="cancelButton" [style.display]="cancelButtonVisible ? 'block' : 'none'" (click)="cancel()">Cancel</button>
+    </div>
+</div>
