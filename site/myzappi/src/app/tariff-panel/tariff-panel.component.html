@@ -5,9 +5,20 @@
 
     <h1>Enter your tariffs</h1>
     <div>
-        Submit your tariff details here for Alexa to tell you your energy costs.
-        <br>
-        <i>"Alexa, ask my charger for an energy cost for today"</i>
+      <div *ngIf="tariffCurrency === 'EUR'">
+        Submit your tariff details here for Alexa to tell you your energy costs. 
+        Please enter tariff rates in both Euro and cent. 
+        If your tariff rate is 44 cent, please enter <b>0.44</b>
+      </div>
+      <div *ngIf="tariffCurrency === 'GBP'">
+        Submit your tariff details here for Alexa to tell you your energy costs. 
+        Please enter tariff rates in both pounds and pence. 
+        If your tariff rate is 44 pence, please enter <b>0.44</b>
+      </div>
+        
+      <br>
+      <br>
+      <i>"Alexa, ask my charger for an energy cost for today"</i>
     </div>
 
     <div *ngIf="!loaded">
@@ -31,8 +42,16 @@
             <th>Name</th>
             <th>Start Time</th>
             <th>End Time</th>
-            <th>Import Cost per kWh</th>
-            <th>Export Cost per kWh</th>
+            <th>Import Cost per kWh
+              <br>
+              <div *ngIf="tariffCurrency === 'GBP'">in £</div>
+              <div *ngIf="tariffCurrency === 'EUR'">in €</div>
+            </th>
+            <th>Export Cost per kWh
+              <br>
+              <div *ngIf="tariffCurrency === 'GBP'">in £</div>
+              <div *ngIf="tariffCurrency === 'EUR'">in €</div>
+            </th>
             <th></th>
         </tr>
         </thead>
@@ -48,10 +67,10 @@
                     <input type="string" name="end" placeholder="HH:mm" [(ngModel)]="row.end" [style.background-color]="isValidTime(row.end) ? '' : '#f8d7da'">
                   </td>
                   <td>
-                    <input type="number" step="0.0001" name="importCostPerKwh" min="0" [(ngModel)]="row.importCostPerKwh" [style.background-color]="isValidTariff(row.importCostPerKwh) ? '' : '#f8d7da'">
+                    <input type="number" step="0.0001" placeholder="e.g. 0.44" name="importCostPerKwh" min="0" [(ngModel)]="row.importCostPerKwh" [style.background-color]="isValidTariff(row.importCostPerKwh) ? '' : '#f8d7da'">
                   </td>
                   <td>
-                    <input type="number" step="0.0001" name="exportCostPerKwh" min="0" [(ngModel)]="row.exportCostPerKwh" [style.background-color]="isValidTariff(row.exportCostPerKwh) ? '' : '#f8d7da'">
+                    <input type="number" step="0.0001" placeholder="e.g. 0.21" name="exportCostPerKwh" min="0" value='' [(ngModel)]="row.exportCostPerKwh" [style.background-color]="isValidTariff(row.exportCostPerKwh) ? '' : '#f8d7da'">
                   </td>
                   <td>
                     <button type="button" class="deleteButton" (click)="deleteTariffRow(i)">X</button>
