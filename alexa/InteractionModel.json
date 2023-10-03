@@ -239,6 +239,14 @@
             }
           ],
           "samples": [
+            "Boost {boostKwh} kilowatt hours starting at {scheduleTime}",
+            "Boost {boostKwh} kilowatts starting at {scheduleTime}",
+            "Boost for {boostDuration} starting at {scheduleTime}",
+            "Switch to {chargeMode} mode starting at {scheduleTime}",
+            "Switch to {chargeMode} mode at {scheduleTime}",
+            "At {scheduleTime} switch to {chargeMode} mode",
+            "At {scheduleTime} switch to {chargeMode}",
+            "Switch to {chargeMode} starting at {scheduleTime}",
             "Schedule a boost for {boostDuration}",
             "Schedule a boost until {boostEndTime}",
             "Schedule a boost for {boostKwh} kilowatts",

@@ -1,5 +1,6 @@
 form {
-    max-width: 400px;
+    max-width: 600px;
+    min-width: 600px;
     margin: 0 auto;
     color: #333333;
     background-color: #fff;

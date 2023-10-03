@@ -10,6 +10,7 @@
 
 .tariffForm {
     max-width: 600px;
+    min-width: 600px;
     margin: 0 auto;
     color: #333333;
     background-color: #fff;
@@ -19,7 +20,7 @@
 }
 
 input[type="number"] {
-    width: 60px;
+    width: 95px;
     padding: 10px;
     padding-right: 10px;
     font-size: 14px;

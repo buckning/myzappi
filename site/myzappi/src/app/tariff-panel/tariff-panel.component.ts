@@ -115,8 +115,8 @@ export class TariffPanelComponent {
       start: "",
       end: "",
       name: '',
-      importCostPerKwh: 0,
-      exportCostPerKwh: 0
+      importCostPerKwh: undefined,
+      exportCostPerKwh: undefined
     });
   }
 
