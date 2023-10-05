@@ -2,7 +2,7 @@ package com.amcglynn.myzappi.core.service;
 
 import com.amcglynn.myzappi.core.dal.CredentialsRepository;
 import com.amcglynn.myzappi.core.model.SerialNumber;
-import com.amcglynn.myzappi.core.model.ZappiCredentials;
+import com.amcglynn.myzappi.core.model.MyEnergiDeployment;
 
 import java.util.Optional;
 
@@ -22,18 +22,19 @@ public class LoginService {
         creds.ifPresent(credentials -> credentialsRepository.delete(credentials.getUserId()));
     }
 
-    public void register(String userId, SerialNumber zappiSerialNumber, SerialNumber serialNumber, String apiKey) {
+    public void register(String userId, SerialNumber zappiSerialNumber, SerialNumber serialNumber, SerialNumber eddiSerialNumber, String apiKey) {
         var encryptedKey = encryptionService.encrypt(apiKey);
-        var newCreds = new ZappiCredentials(userId,
+        var newCreds = new MyEnergiDeployment(userId,
                 zappiSerialNumber,
                 serialNumber,
+                eddiSerialNumber,
                 encryptedKey);
 
         credentialsRepository.delete(userId);
         credentialsRepository.write(newCreds);
     }
 
-    public Optional<ZappiCredentials> readCredentials(String userId) {
+    public Optional<MyEnergiDeployment> readCredentials(String userId) {
         return credentialsRepository.read(userId);
     }
 

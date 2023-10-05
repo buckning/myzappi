@@ -51,10 +51,10 @@ public class MyEnergiClient {
      * @param apiKey api key of the hub/gateway
      */
     public MyEnergiClient(String serialNumber, String apiKey) {
-        this(serialNumber, serialNumber, apiKey);
+        this(serialNumber, serialNumber, null, apiKey);
     }
 
-    public MyEnergiClient(String zappiSerialNumber, String hubSerialNumber, String apiKey) {
+    public MyEnergiClient(String zappiSerialNumber, String hubSerialNumber, String eddiSerialNumber, String apiKey) {
         this.zappiSerialNumber = zappiSerialNumber;
 
         var authenticator = new DigestAuthenticator(new Credentials(hubSerialNumber, apiKey));
@@ -84,7 +84,7 @@ public class MyEnergiClient {
      * @param baseUrl base URL of the myenergi API
      */
     protected MyEnergiClient(String zappiSerialNumber, String serialNumber, String apiKey, URI baseUrl) {
-        this(zappiSerialNumber, serialNumber, apiKey);
+        this(zappiSerialNumber, serialNumber, null, apiKey);
         this.baseUrl = baseUrl;
     }
 

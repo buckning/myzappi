@@ -1,5 +1,6 @@
 package com.amcglynn.myzappi.api.rest.controller;
 
+import com.amcglynn.myenergi.MyEnergiClientFactory;
 import com.amcglynn.myzappi.core.config.ServiceManager;
 import com.amcglynn.myzappi.api.LwaClientFactory;
 import com.amcglynn.myzappi.api.SessionManagementService;
@@ -22,7 +23,7 @@ public class EndpointRouter {
     private final AuthenticateController authenticateController;
 
     public EndpointRouter(ServiceManager serviceManager) {
-        this(serviceManager, new HubController(new RegistrationService(serviceManager.getLoginService())),
+        this(serviceManager, new HubController(new RegistrationService(serviceManager.getLoginService(), new MyEnergiClientFactory())),
                 new TariffController(serviceManager.getTariffService()),
                 new LwaClientFactory());
     }
