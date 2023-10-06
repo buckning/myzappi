@@ -40,6 +40,7 @@ public class MyEnergiClient {
     private URI baseUrl = DIRECTOR_BASE_URL;
 
     private final String zappiSerialNumber;
+    private final String eddiSerialNumber;
 
     private final LocalTime localTimeMidnight = LocalTime.now().withMinute(0).withHour(0);
     private final KiloWattHour zeroKwh = new KiloWattHour(0.0);
@@ -56,6 +57,7 @@ public class MyEnergiClient {
 
     public MyEnergiClient(String zappiSerialNumber, String hubSerialNumber, String eddiSerialNumber, String apiKey) {
         this.zappiSerialNumber = zappiSerialNumber;
+        this.eddiSerialNumber = eddiSerialNumber;
 
         var authenticator = new DigestAuthenticator(new Credentials(hubSerialNumber, apiKey));
         Map<String, CachingAuthenticator> authCache = new ConcurrentHashMap<>();
