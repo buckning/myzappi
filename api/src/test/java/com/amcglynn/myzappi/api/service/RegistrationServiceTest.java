@@ -56,9 +56,9 @@ class RegistrationServiceTest {
         when(mockZappiDeviceStatus.getSerialNumber()).thenReturn(zappiSerialNumber.toString());
         when(mockEddiDeviceStatus.getSerialNumber()).thenReturn(eddiSerialNumber.toString());
         when(mockZappiStatusResponse.getZappi()).thenReturn(List.of(mockZappiDeviceStatus));
-        when(mockZappiStatusResponse.getEddi()).thenReturn(List.of());
+        when(mockZappiStatusResponse.getEddi()).thenReturn(null);
         when(mockEddiStatusResponse.getEddi()).thenReturn(List.of(mockEddiDeviceStatus));
-        when(mockEddiStatusResponse.getZappi()).thenReturn(List.of());
+        when(mockEddiStatusResponse.getZappi()).thenReturn(null);
         when(mockMyEnergiClient.getStatus()).thenReturn(List.of(mockZappiStatusResponse, mockEddiStatusResponse));
         service = new RegistrationService(mockLoginService, mockMyEnergiClientFactory);
     }
@@ -73,30 +73,29 @@ class RegistrationServiceTest {
 
     @Test
     void registerWithZappiAndEddi() {
-        when(mockMyEnergiClientFactory.newMyEnergiClient(zappiSerialNumber.toString(), hubSerialNumber.toString(), eddiSerialNumber.toString(), apiKey))
+        when(mockMyEnergiClientFactory.newMyEnergiClient(hubSerialNumber.toString(), zappiSerialNumber.toString(), eddiSerialNumber.toString(), apiKey))
                 .thenReturn(mockMyEnergiClient);
         service.register(userId, hubSerialNumber, apiKey);
         verify(mockMyEnergiClientFactory).newMyEnergiClient(hubSerialNumber.toString(), apiKey);
-        verify(mockMyEnergiClientFactory).newMyEnergiClient(zappiSerialNumber.toString(),
-                hubSerialNumber.toString(), eddiSerialNumber.toString(), apiKey);
+        verify(mockMyEnergiClientFactory).newMyEnergiClient(hubSerialNumber.toString(), zappiSerialNumber.toString(),
+                eddiSerialNumber.toString(), apiKey);
         verify(mockLoginService).register(userId.toString(), zappiSerialNumber, hubSerialNumber, eddiSerialNumber, apiKey);
     }
 
     @Test
     void registerWithZappi() {
-        when(mockMyEnergiClientFactory.newMyEnergiClient(zappiSerialNumber.toString(), hubSerialNumber.toString(), null, apiKey))
+        when(mockMyEnergiClientFactory.newMyEnergiClient(hubSerialNumber.toString(), zappiSerialNumber.toString(), null, apiKey))
                 .thenReturn(mockMyEnergiClient);
 
-        when(mockEddiStatusResponse.getEddi()).thenReturn(List.of());
-        when(mockEddiStatusResponse.getZappi()).thenReturn(List.of());
+        when(mockEddiStatusResponse.getEddi()).thenReturn(null);
         when(mockMyEnergiClient.getStatus()).thenReturn(List.of(mockZappiStatusResponse, mockEddiStatusResponse));
 
         service.register(userId, hubSerialNumber, apiKey);
 
         verify(mockLoginService).register(userId.toString(), zappiSerialNumber, hubSerialNumber, null, apiKey);
         verify(mockMyEnergiClientFactory).newMyEnergiClient(hubSerialNumber.toString(), apiKey);
-        verify(mockMyEnergiClientFactory).newMyEnergiClient(zappiSerialNumber.toString(),
-                hubSerialNumber.toString(), null, apiKey);
+        verify(mockMyEnergiClientFactory).newMyEnergiClient(hubSerialNumber.toString(), zappiSerialNumber.toString(),
+                null, apiKey);
     }
 
     @Test

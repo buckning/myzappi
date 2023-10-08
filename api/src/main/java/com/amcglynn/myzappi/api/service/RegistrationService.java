@@ -73,8 +73,8 @@ public class RegistrationService {
             if (zappis.isPresent() && !zappis.get().getZappi().isEmpty()) {
                 var zappiSerialNumber = SerialNumber.from(zappis.get().getZappi().get(0).getSerialNumber());
                 var eddi = getEddi(myEnergiDevices);
-                myEnergiClientFactory.newMyEnergiClient(zappiSerialNumber.toString(), hubSerialNumber.toString(),
-                        eddi.map(SerialNumber::toString).orElse(null), apiKey).getStatus();
+                myEnergiClientFactory.newMyEnergiClient(hubSerialNumber.toString(), zappiSerialNumber.toString(),
+                        eddi.map(SerialNumber::toString).orElse(null), apiKey).getZappiStatus();
                 return Optional.of(zappiSerialNumber);
             }
             log.warn("Zappi device not found");
@@ -90,7 +90,7 @@ public class RegistrationService {
 
     private Optional<SerialNumber> getEddi(List<StatusResponse> statusResponses) {
         var eddis = statusResponses.stream()
-                .filter(statusResponse -> statusResponse.getEddi() != null && !statusResponse.getEddi().isEmpty()).findFirst();
+                .filter(statusResponse -> statusResponse.getEddi() != null).findFirst();
         if (eddis.isPresent() && !eddis.get().getEddi().isEmpty()) {
             return Optional.of(SerialNumber.from(eddis.get().getEddi().get(0).getSerialNumber()));
         }
