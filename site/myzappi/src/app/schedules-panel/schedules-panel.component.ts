@@ -53,7 +53,8 @@ export class SchedulesPanelComponent {
     'setBoostKwh': 'Boosting kilowatt hours',
     'setBoostFor': 'Boost for duration',
     'setBoostUntil': 'Boosting until time',
-    'setChargeMode': 'Set charge mode'
+    'setChargeMode': 'Set charge mode',
+    'setEddiMode': 'Set Eddi mode'
   };
 
   constructor(private http: HttpClient) { }
