@@ -191,6 +191,10 @@ public class MyEnergiClient {
         getRequest("/cgi-jlock-" + zappiSerialNumber + "-01000000");
     }
 
+    public void setEddiMode(EddiMode mode) {
+        getRequest("/cgi-eddi-mode-E" + eddiSerialNumber + "-" + mode.getApiValue());
+    }
+
     public ZappiHourlyDayHistory getZappiHourlyHistory(LocalDate localDate, int offset) {
         String endPointUrl = "/cgi-jdayhour-Z" + zappiSerialNumber + "-" + localDate.getYear() +
                 "-" + localDate.getMonthValue() + "-" + localDate.getDayOfMonth() + "-" + offset;
@@ -232,6 +236,7 @@ public class MyEnergiClient {
                     .url(baseUrl + endPointUrl)
                     .get()
                     .build();
+            System.out.println("Making request to " + baseUrl + endPointUrl);
             var response = client.newCall(request).execute();
 
             handleServerRedirect(response);

@@ -175,7 +175,9 @@ class ScheduleValidatorTest {
                 Arguments.of("setBoostKwh", "5"),
                 Arguments.of("setBoostKwh", "99"),
                 Arguments.of("setBoostUntil", "22:37"),
-                Arguments.of("setBoostFor", "PT1H")
+                Arguments.of("setBoostFor", "PT1H"),
+                Arguments.of("setEddiMode", "STOPPED"),
+                Arguments.of("setEddiMode", "NORMAL")
         );
     }
 
@@ -191,7 +193,8 @@ class ScheduleValidatorTest {
                 Arguments.of("setBoostKwh", null),
                 Arguments.of("setBoostUntil", "-2023-09-15T22:37"),
                 Arguments.of("setBoostUntil", "-22:37"),
-                Arguments.of("setBoostFor", "T1H")
+                Arguments.of("setBoostFor", "T1H"),
+                Arguments.of("setEddiMode", "Unknown")
         );
     }
 

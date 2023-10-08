@@ -22,6 +22,7 @@ interface Schedule {
 })
 export class CreateRecurringSchedulePanelComponent {
   @Input() public bearerToken: any;
+  @Input() public eddiEnabled: any;
   @Output() public viewListSchedulesScreen = new EventEmitter();
   recurringTime: string = '';
   selectedDays: { [key: string]: boolean } = {};
@@ -30,11 +31,20 @@ export class CreateRecurringSchedulePanelComponent {
   daysOfWeek: string[] = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   saveButtonDisabled = false;
   cancelButtonVisible = true;
+  target: 'zappi' | 'eddi' = 'zappi';
 
   constructor(private http: HttpClient) { }
 
   toggleDay(day: string) {
     this.selectedDays[day] = !this.selectedDays[day];
+  }
+
+  eddiSelected() {
+    this.recurringValue = "NORMAL";
+  }
+
+  zappiSelected() {
+    this.recurringValue = "ECO_PLUS";
   }
 
   saveSchedule() {
@@ -47,7 +57,7 @@ export class CreateRecurringSchedulePanelComponent {
         daysOfWeek: this.convertDaysOfWeekToNumbers()
       },
       action: {
-        type: this.recurringAction,
+        type: this.getRecurringAction(),
         value: this.recurringValue
       }
     };
@@ -72,6 +82,10 @@ export class CreateRecurringSchedulePanelComponent {
           this.cancelButtonVisible = true;
         });
 
+  }
+
+  getRecurringAction(): string {
+    return this.target === 'zappi' ? this.recurringAction : 'setEddiMode';
   }
 
   cancel() {

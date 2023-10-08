@@ -1,5 +1,6 @@
 package com.amcglynn.sqs;
 
+import com.amcglynn.myenergi.EddiMode;
 import com.amcglynn.myenergi.ZappiChargeMode;
 import com.amcglynn.myenergi.units.KiloWattHour;
 import com.amcglynn.myzappi.core.service.ScheduleService;
@@ -27,7 +28,8 @@ public class MyZappiScheduleHandler {
                 "setChargeMode",    (zappiService, value) -> zappiService.setChargeMode(ZappiChargeMode.valueOf(value)),
                 "setBoostKwh",      (zappiService, value) -> zappiService.startBoost(new KiloWattHour(Double.parseDouble(value))),
                 "setBoostUntil",    (zappiService, value) -> zappiService.startSmartBoost(LocalTime.parse(value)),
-                "setBoostFor",      (zappiService, value) -> zappiService.startSmartBoost(Duration.parse(value))
+                "setBoostFor",      (zappiService, value) -> zappiService.startSmartBoost(Duration.parse(value)),
+                "setEddiMode",      (zappiService, value) -> zappiService.setEddiMode(EddiMode.valueOf(value))
         );
     }
 
