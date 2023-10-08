@@ -262,7 +262,7 @@ public class MyEnergiClient {
     private void handleServerRedirect(final Response response) {
         var asnValues = response.headers().values(ASN_HEADER);
         if (asnValues.size() == 1) {
-            baseUrl = URI.create(asnValues.get(0));
+            baseUrl = URI.create("https://" + asnValues.get(0));
         }
     }
 }
