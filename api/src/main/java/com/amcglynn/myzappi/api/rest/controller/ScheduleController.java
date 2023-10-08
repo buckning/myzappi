@@ -1,6 +1,7 @@
 package com.amcglynn.myzappi.api.rest.controller;
 
 import com.amcglynn.myzappi.api.rest.validator.ScheduleValidator;
+import com.amcglynn.myzappi.core.exception.MissingDeviceException;
 import com.amcglynn.myzappi.core.model.Schedule;
 import com.amcglynn.myzappi.core.model.UserId;
 import com.amcglynn.myzappi.core.service.ScheduleService;
@@ -63,6 +64,9 @@ public class ScheduleController implements RestController {
             validator.validate(schedulerRequest);
             var newSchedule = service.createSchedule(request.getUserId(), schedulerRequest);
             return objectMapper.writeValueAsString(newSchedule);
+        } catch (MissingDeviceException e) {
+            log.info("User {} requested eddi schedule but does not have an eddi", request.getUserId());
+            throw new ServerException(409);
         } catch (JsonProcessingException e) {
             log.info("Failed to deserialise object", e);
             throw new ServerException(400);

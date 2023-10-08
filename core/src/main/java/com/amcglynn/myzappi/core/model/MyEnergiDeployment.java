@@ -16,16 +16,9 @@ public class MyEnergiDeployment {
      * @param userId Amazon user ID
      * @param zappiSerialNumber serial number of the Zappi device
      * @param serialNumber serial number of the hub/gateway. This may or may not be the same as the zappi serial number
+     * @param eddiSerialNumber serial number of the Eddi device. This may be null if the user does not have an Eddi
      * @param encryptedApiKey API key of the hub/gateway.
      */
-    public MyEnergiDeployment(String userId, SerialNumber zappiSerialNumber, SerialNumber serialNumber, ByteBuffer encryptedApiKey) {
-        this.userId = userId;
-        this.zappiSerialNumber = zappiSerialNumber;
-        this.serialNumber = serialNumber;
-        this.encryptedApiKey = encryptedApiKey;
-        this.eddiSerialNumber = null;
-    }
-
     public MyEnergiDeployment(String userId, SerialNumber zappiSerialNumber, SerialNumber serialNumber, SerialNumber eddiSerialNumber, ByteBuffer encryptedApiKey) {
         this.userId = userId;
         this.zappiSerialNumber = zappiSerialNumber;

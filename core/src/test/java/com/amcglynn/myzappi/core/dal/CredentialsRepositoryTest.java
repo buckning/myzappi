@@ -86,7 +86,7 @@ class CredentialsRepositoryTest {
 
     @Test
     void testWriteCredentialsWithNoEddi() {
-        var creds = new MyEnergiDeployment("userid", SerialNumber.from("56781234"), SerialNumber.from("12345678"), encryptedApiKey);
+        var creds = new MyEnergiDeployment("userid", SerialNumber.from("56781234"), SerialNumber.from("12345678"), null, encryptedApiKey);
         credentialsRepository.write(creds);
         verify(mockDb).putItem(putItemCaptor.capture());
         assertThat(putItemCaptor.getValue()).isNotNull();
