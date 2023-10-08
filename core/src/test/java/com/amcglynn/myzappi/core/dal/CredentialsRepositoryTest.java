@@ -5,9 +5,8 @@ import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.amazonaws.services.dynamodbv2.model.DeleteItemRequest;
 import com.amazonaws.services.dynamodbv2.model.GetItemResult;
 import com.amazonaws.services.dynamodbv2.model.PutItemRequest;
-import com.amcglynn.myzappi.core.dal.CredentialsRepository;
 import com.amcglynn.myzappi.core.model.SerialNumber;
-import com.amcglynn.myzappi.core.model.ZappiCredentials;
+import com.amcglynn.myzappi.core.model.MyEnergiDeployment;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -65,12 +64,29 @@ class CredentialsRepositoryTest {
         assertThat(result.get().getUserId()).isEqualTo("userid");
         assertThat(result.get().getSerialNumber()).isEqualTo(SerialNumber.from("12345678"));
         assertThat(result.get().getSerialNumber()).hasSameHashCodeAs(SerialNumber.from("12345678"));
+        assertThat(result.get().getEddiSerialNumber()).isEmpty();
         assertThat(result.get().getEncryptedApiKey()).isEqualTo(encryptedApiKey);
     }
 
     @Test
-    void testWriteCredentials() {
-        var creds = new ZappiCredentials("userid", SerialNumber.from("56781234"), SerialNumber.from("12345678"), encryptedApiKey);
+    void testReadCredentialsForUserWhoHasSuccessfullyLoggedInAndWhoHasAnEddi() {
+        when(mockGetResult.getItem()).thenReturn(Map.of("serial-number", new AttributeValue("12345678"),
+                "zappi-serial-number", new AttributeValue("56781234"),
+                "eddi-serial-number", new AttributeValue("87654321"),
+                "encrypted-api-key", new AttributeValue().withB(encryptedApiKey)));
+        when(mockDb.getItem(any())).thenReturn(mockGetResult);
+        var result = credentialsRepository.read("userid");
+        assertThat(result).isPresent();
+        assertThat(result.get().getUserId()).isEqualTo("userid");
+        assertThat(result.get().getSerialNumber()).isEqualTo(SerialNumber.from("12345678"));
+        assertThat(result.get().getSerialNumber()).hasSameHashCodeAs(SerialNumber.from("12345678"));
+        assertThat(result.get().getEddiSerialNumber()).contains(SerialNumber.from("87654321"));
+        assertThat(result.get().getEncryptedApiKey()).isEqualTo(encryptedApiKey);
+    }
+
+    @Test
+    void testWriteCredentialsWithNoEddi() {
+        var creds = new MyEnergiDeployment("userid", SerialNumber.from("56781234"), SerialNumber.from("12345678"), encryptedApiKey);
         credentialsRepository.write(creds);
         verify(mockDb).putItem(putItemCaptor.capture());
         assertThat(putItemCaptor.getValue()).isNotNull();
@@ -80,6 +96,23 @@ class CredentialsRepositoryTest {
         assertThat(putItemCaptor.getValue().getItem().get("serial-number").getS()).isEqualTo("12345678");
         assertThat(putItemCaptor.getValue().getItem().get("zappi-serial-number").getS()).isEqualTo("56781234");
         assertThat(putItemCaptor.getValue().getItem().get("encrypted-api-key").getB()).isEqualTo(encryptedApiKey);
+        assertThat(putItemCaptor.getValue().getItem().get("eddi-serial-number")).isNull();
+    }
+
+    @Test
+    void testWriteCredentialsWithEddi() {
+        var creds = new MyEnergiDeployment("userid", SerialNumber.from("56781234"), SerialNumber.from("12345678"),
+                SerialNumber.from("01928384"), encryptedApiKey);
+        credentialsRepository.write(creds);
+        verify(mockDb).putItem(putItemCaptor.capture());
+        assertThat(putItemCaptor.getValue()).isNotNull();
+        assertThat(putItemCaptor.getValue().getItem()).hasSize(5);
+        assertThat(putItemCaptor.getValue().getTableName()).isEqualTo("zappi-login-creds");
+        assertThat(putItemCaptor.getValue().getItem().get("amazon-user-id").getS()).isEqualTo("userid");
+        assertThat(putItemCaptor.getValue().getItem().get("serial-number").getS()).isEqualTo("12345678");
+        assertThat(putItemCaptor.getValue().getItem().get("zappi-serial-number").getS()).isEqualTo("56781234");
+        assertThat(putItemCaptor.getValue().getItem().get("encrypted-api-key").getB()).isEqualTo(encryptedApiKey);
+        assertThat(putItemCaptor.getValue().getItem().get("eddi-serial-number").getS()).isEqualTo("01928384");
     }
 
     @Test

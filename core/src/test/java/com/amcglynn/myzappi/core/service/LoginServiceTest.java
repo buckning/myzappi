@@ -2,7 +2,7 @@ package com.amcglynn.myzappi.core.service;
 
 import com.amcglynn.myzappi.core.dal.CredentialsRepository;
 import com.amcglynn.myzappi.core.model.SerialNumber;
-import com.amcglynn.myzappi.core.model.ZappiCredentials;
+import com.amcglynn.myzappi.core.model.MyEnergiDeployment;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -33,13 +33,13 @@ class LoginServiceTest {
     private final SerialNumber zappiSerialNumber = SerialNumber.from("56781234");
     private final SerialNumber serialNumber = SerialNumber.from("12345678");
     private final String userId = "userid";
-    private ZappiCredentials zappiCredentials;
+    private MyEnergiDeployment zappiCredentials;
     @Captor
-    private ArgumentCaptor<ZappiCredentials> credsCaptor;
+    private ArgumentCaptor<MyEnergiDeployment> credsCaptor;
 
     @BeforeEach
     void setUp() {
-        zappiCredentials = new ZappiCredentials(userId, zappiSerialNumber, serialNumber, encryptedApiKey);
+        zappiCredentials = new MyEnergiDeployment(userId, zappiSerialNumber, serialNumber, encryptedApiKey);
         loginService = new LoginService(mockCredentialsRepository, mockEncryptionService);
     }
 
@@ -67,7 +67,7 @@ class LoginServiceTest {
     void testRegisterSavesDetailsToDb() {
         when(mockEncryptionService.encrypt(anyString())).thenReturn(encryptedApiKey);
 
-        loginService.register(userId, zappiSerialNumber, serialNumber, "apiKey");
+        loginService.register(userId, zappiSerialNumber, serialNumber, null, "apiKey");
 
         verify(mockEncryptionService).encrypt("apiKey");
         verify(mockCredentialsRepository).write(credsCaptor.capture());

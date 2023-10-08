@@ -4,11 +4,10 @@ import com.amcglynn.myenergi.MyEnergiClient;
 import com.amcglynn.myenergi.ZappiChargeMode;
 import com.amcglynn.myenergi.apiresponse.ZappiDayHistory;
 import com.amcglynn.myenergi.apiresponse.ZappiHistory;
-import com.amcglynn.myenergi.apiresponse.ZappiHourlyDayHistory;
 import com.amcglynn.myenergi.units.KiloWattHour;
 import com.amcglynn.myzappi.core.exception.UserNotLoggedInException;
 import com.amcglynn.myzappi.core.model.SerialNumber;
-import com.amcglynn.myzappi.core.model.ZappiCredentials;
+import com.amcglynn.myzappi.core.model.MyEnergiDeployment;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -56,7 +55,7 @@ class ZappiServiceTest {
 
     @BeforeEach
     void setUp() {
-        var zappiCreds = new ZappiCredentials(userId, zappiSerialNumber, serialNumber, encryptedApiKey);
+        var zappiCreds = new MyEnergiDeployment(userId, zappiSerialNumber, serialNumber, encryptedApiKey);
         when(mockLoginService.readCredentials(userId)).thenReturn(Optional.of(zappiCreds));
         when(mockEncryptionService.decrypt(encryptedApiKey)).thenReturn("myApiKey");
         when(mockUserIdResolver.getUserId()).thenReturn(userId);

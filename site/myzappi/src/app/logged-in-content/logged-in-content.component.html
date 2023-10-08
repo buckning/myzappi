@@ -18,6 +18,9 @@
             <br>
             zappi serial number: {{hubDetails.zappiSerialNumber}}
         </p>
+        <div *ngIf="hubDetails.eddiSerialNumber !== null">
+            eddi serial number: {{hubDetails.eddiSerialNumber}}
+        </div>
         <button (click)="deleteZappi()" id="forgetMyDetailsButton" class="forgetMyDetailsButton">Delete Zappi</button>
     </div>
 </div>

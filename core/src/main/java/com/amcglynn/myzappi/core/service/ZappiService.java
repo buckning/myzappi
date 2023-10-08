@@ -8,6 +8,8 @@ import com.amcglynn.myenergi.ZappiStatusSummary;
 import com.amcglynn.myenergi.apiresponse.ZappiHistory;
 import com.amcglynn.myenergi.units.KiloWattHour;
 import com.amcglynn.myzappi.core.exception.UserNotLoggedInException;
+import com.amcglynn.myzappi.core.model.SerialNumber;
+import lombok.extern.slf4j.Slf4j;
 
 import java.time.Duration;
 import java.time.LocalDate;
@@ -18,6 +20,7 @@ import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+@Slf4j
 public class ZappiService {
 
     private MyEnergiClient client;
@@ -29,6 +32,7 @@ public class ZappiService {
             throw new UserNotLoggedInException(user);
         }
 
+        log.info("Found eddi {}", creds.get().getEddiSerialNumber());
         var decryptedApiKey = encryptionService.decrypt(creds.get().getEncryptedApiKey());
         var serialNumber = creds.get().getSerialNumber().toString();
         var zappiSerialNumber = creds.get().getZappiSerialNumber().toString();
@@ -36,7 +40,8 @@ public class ZappiService {
         if ("12345678".equals(serialNumber) && "myDemoApiKey".equals(decryptedApiKey)) {
             client = new MockMyEnergiClient();
         } else{
-            client = new MyEnergiClient(zappiSerialNumber, serialNumber, decryptedApiKey);
+            client = new MyEnergiClient(zappiSerialNumber, serialNumber,
+                    creds.get().getEddiSerialNumber().map(SerialNumber::toString).orElse(null), decryptedApiKey);
         }
 
         // Zappi control APIs work off of local time and not UTC. Times in the retrieve Zappi information API is in UTC.

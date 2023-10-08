@@ -1,13 +1,15 @@
 package com.amcglynn.myzappi.core.model;
 
 import java.nio.ByteBuffer;
+import java.util.Optional;
 
-public class ZappiCredentials {
+public class MyEnergiDeployment {
 
     private final String userId;
     private final SerialNumber zappiSerialNumber;
     private final SerialNumber serialNumber;
     private final ByteBuffer encryptedApiKey;
+    private final SerialNumber eddiSerialNumber;
 
     /**
      *
@@ -16,11 +18,20 @@ public class ZappiCredentials {
      * @param serialNumber serial number of the hub/gateway. This may or may not be the same as the zappi serial number
      * @param encryptedApiKey API key of the hub/gateway.
      */
-    public ZappiCredentials(String userId, SerialNumber zappiSerialNumber, SerialNumber serialNumber, ByteBuffer encryptedApiKey) {
+    public MyEnergiDeployment(String userId, SerialNumber zappiSerialNumber, SerialNumber serialNumber, ByteBuffer encryptedApiKey) {
         this.userId = userId;
         this.zappiSerialNumber = zappiSerialNumber;
         this.serialNumber = serialNumber;
         this.encryptedApiKey = encryptedApiKey;
+        this.eddiSerialNumber = null;
+    }
+
+    public MyEnergiDeployment(String userId, SerialNumber zappiSerialNumber, SerialNumber serialNumber, SerialNumber eddiSerialNumber, ByteBuffer encryptedApiKey) {
+        this.userId = userId;
+        this.zappiSerialNumber = zappiSerialNumber;
+        this.serialNumber = serialNumber;
+        this.encryptedApiKey = encryptedApiKey;
+        this.eddiSerialNumber = eddiSerialNumber;
     }
 
     public String getUserId() {
@@ -51,5 +62,9 @@ public class ZappiCredentials {
      */
     public SerialNumber getZappiSerialNumber() {
         return zappiSerialNumber;
+    }
+
+    public Optional<SerialNumber> getEddiSerialNumber() {
+        return Optional.ofNullable(eddiSerialNumber);
     }
 }
