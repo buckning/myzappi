@@ -13,6 +13,7 @@ export class LoggedInContentComponent implements OnInit {
   @Input() public bearerToken: any;
   hubDetails: any;
   registered: any;
+  public eddiEnabled = false;
   @Output() public logoutEvent = new EventEmitter();
 
   constructor(private http: HttpClient, private cookieService: CookieService) { }
@@ -36,6 +37,9 @@ export class LoggedInContentComponent implements OnInit {
       .subscribe(data => {
         console.log("Got zappi details: " + data);
         this.hubDetails = data;
+        if (this.hubDetails.eddiSerialNumber !== null && this.hubDetails.eddiSerialNumber !== undefined) {
+          this.eddiEnabled = true;
+        }
       },
       error => {
         if (error.status === 404) {

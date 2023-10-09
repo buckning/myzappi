@@ -25,6 +25,7 @@ interface Schedules {
 })
 export class SchedulesPanelComponent {
   @Input() public bearerToken: any;
+  @Input() public eddiEnabled: any;
   // selectedOption: 'one-time' | 'recurring' = 'one-time';
   selectedOption: 'one-time' | 'recurring' = 'recurring';
   createRecurringScheduleVisible = false;
@@ -32,6 +33,7 @@ export class SchedulesPanelComponent {
   listSchedulesVisible = false;
   loaded: boolean = false;
   recurringScheduleRows: any[] = [];
+  recurringScheduleEddiRows: any[] = [];
   oneTimeScheduleRows: any[] = [];
   daysOfWeek: string[] = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
@@ -42,11 +44,17 @@ export class SchedulesPanelComponent {
     'STOP': 'Stop'
   };
 
+  eddiModeMapping: { [key: string]: string } = {
+    'STOPPED': 'Stopped',
+    'NORMAL': 'Normal'
+  };
+
   scheduleTypeMapping: { [key: string]: string } = {
     'setBoostKwh': 'Boosting kilowatt hours',
     'setBoostFor': 'Boost for duration',
     'setBoostUntil': 'Boosting until time',
-    'setChargeMode': 'Set charge mode'
+    'setChargeMode': 'Set charge mode',
+    'setEddiMode': 'Set Eddi mode'
   };
 
   constructor(private http: HttpClient) { }
@@ -104,6 +112,14 @@ export class SchedulesPanelComponent {
     return input;
   }
 
+  convertEddiMode(input: string): string {
+    if (input in this.eddiModeMapping) {
+      return this.eddiModeMapping[input];
+    }
+    
+    return input;
+  }
+
   convertScheduleType(input: string): string {
     if (input in this.scheduleTypeMapping) {
       return this.scheduleTypeMapping[input];
@@ -121,6 +137,9 @@ export class SchedulesPanelComponent {
     }
     if (input.action.type === 'setChargeMode') {
       return this.convertChargeMode(input.action.value);
+    }
+    if (input.action.type === 'setEddiMode') {
+      return this.convertEddiMode(input.action.value);
     }
     return input.action.value;
   }
@@ -169,7 +188,11 @@ export class SchedulesPanelComponent {
     this.http.get<Schedules>('https://api.myzappiunofficial.com/schedules', options)
       .subscribe(data => {
         this.recurringScheduleRows = data.schedules.filter(schedule => 
-          schedule.recurrence !== undefined && schedule.recurrence !== null
+          schedule.recurrence !== undefined && schedule.recurrence !== null && schedule.action.type !== 'setEddiMode'
+        );
+
+        this.recurringScheduleEddiRows = data.schedules.filter(schedule => 
+          schedule.recurrence !== undefined && schedule.recurrence !== null && schedule.action.type === 'setEddiMode'
         );
 
         this.oneTimeScheduleRows = data.schedules.filter(schedule => 

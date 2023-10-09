@@ -1,6 +1,7 @@
 package com.amcglynn.myzappi.api.rest.controller;
 
 import com.amcglynn.myzappi.api.rest.validator.ScheduleValidator;
+import com.amcglynn.myzappi.core.exception.MissingDeviceException;
 import com.amcglynn.myzappi.core.model.Schedule;
 import com.amcglynn.myzappi.core.model.ScheduleAction;
 import com.amcglynn.myzappi.core.model.ScheduleRecurrence;
@@ -27,6 +28,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.assertj.core.api.Assertions.catchThrowableOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
@@ -149,6 +151,26 @@ class ScheduleControllerTest {
         assertThat(scheduleCaptor.getValue().getRecurrence()).isNotNull();
         assertThat(scheduleCaptor.getValue().getRecurrence().getDaysOfWeek()).containsExactlyInAnyOrder(1, 2, 4, 7);
         assertThat(scheduleCaptor.getValue().getRecurrence().getTimeOfDay()).isEqualTo(LocalTime.of(9, 30));
+    }
+
+    @Test
+    void postReturns409WhenSetEddiModeScheduleRequestedButEddiNotFound() {
+        String body = "{\n" +
+                "    \"zoneId\": \"Europe/Dublin\",\n" +
+                "    \"action\": {\n" +
+                "        \"type\": \"setEddiMode\",\n" +
+                "        \"value\": \"NORMAL\"\n" +
+                "    },\n" +
+                "    \"recurrence\": {\n" +
+                "        \"daysOfWeek\": [1, 2, 4, 7],\n" +
+                "        \"timeOfDay\": \"09:30\"\n" +
+                "    }\n" +
+                "}";
+        var id = UUID.randomUUID().toString();
+        when(mockService.createSchedule(eq(UserId.from("mockUserId")), any())).thenThrow(new MissingDeviceException("Eddi not found"));
+        var serverException = catchThrowableOfType(() -> controller.handle(new Request(UserId.from("mockUserId"), RequestMethod.POST, "/schedule", body)), ServerException.class);
+        assertThat(serverException).isNotNull();
+        assertThat(serverException.getStatus()).isEqualTo(409);
     }
 
     @Test

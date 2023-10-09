@@ -40,6 +40,7 @@ public class ServiceManager {
         this.scheduleService = new ScheduleService(new UserScheduleRepository(amazonDynamoDB),
                 new ScheduleDetailsRepository(amazonDynamoDB),
                 schedulerClient,
+                getLoginService(),
                 properties.getSchedulerExecutionRoleArn(),
                 properties.getSchedulerTargetLambdaArn());
     }

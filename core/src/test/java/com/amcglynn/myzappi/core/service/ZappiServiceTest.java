@@ -55,7 +55,7 @@ class ZappiServiceTest {
 
     @BeforeEach
     void setUp() {
-        var zappiCreds = new MyEnergiDeployment(userId, zappiSerialNumber, serialNumber, encryptedApiKey);
+        var zappiCreds = new MyEnergiDeployment(userId, zappiSerialNumber, serialNumber, null, encryptedApiKey);
         when(mockLoginService.readCredentials(userId)).thenReturn(Optional.of(zappiCreds));
         when(mockEncryptionService.decrypt(encryptedApiKey)).thenReturn("myApiKey");
         when(mockUserIdResolver.getUserId()).thenReturn(userId);

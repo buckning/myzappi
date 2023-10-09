@@ -1,5 +1,6 @@
 package com.amcglynn.myzappi.api.rest.validator;
 
+import com.amcglynn.myenergi.EddiMode;
 import com.amcglynn.myenergi.ZappiChargeMode;
 import com.amcglynn.myzappi.api.rest.ServerException;
 import com.amcglynn.myzappi.core.model.Schedule;
@@ -22,7 +23,8 @@ public class ScheduleValidator {
     private static final Map<String, Predicate<String>> SUPPORTED_TYPES = Map.of("setChargeMode", ScheduleValidator::isValidChargeMode,
             "setBoostKwh", ScheduleValidator::isValidChargeInteger,
             "setBoostUntil", ScheduleValidator::isValidChargeLocalTime,
-            "setBoostFor", ScheduleValidator::isValidChargeDuration);
+            "setBoostFor", ScheduleValidator::isValidChargeDuration,
+            "setEddiMode", ScheduleValidator::isValidEddiMode);
 
     private static boolean isValidChargeDuration(String s) {
         try {
@@ -94,6 +96,15 @@ public class ScheduleValidator {
     private static boolean isValidChargeMode(String value) {
         try {
             ZappiChargeMode.valueOf(value);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private static boolean isValidEddiMode(String value) {
+        try {
+            EddiMode.valueOf(value);
             return true;
         } catch (Exception e) {
             return false;

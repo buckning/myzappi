@@ -2,10 +2,13 @@ package com.amcglynn.myzappi.core.service;
 
 import com.amcglynn.myzappi.core.dal.ScheduleDetailsRepository;
 import com.amcglynn.myzappi.core.dal.UserScheduleRepository;
+import com.amcglynn.myzappi.core.exception.MissingDeviceException;
+import com.amcglynn.myzappi.core.model.MyEnergiDeployment;
 import com.amcglynn.myzappi.core.model.Schedule;
 import com.amcglynn.myzappi.core.model.ScheduleAction;
 import com.amcglynn.myzappi.core.model.ScheduleDetails;
 import com.amcglynn.myzappi.core.model.ScheduleRecurrence;
+import com.amcglynn.myzappi.core.model.SerialNumber;
 import com.amcglynn.myzappi.core.model.UserId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,7 +25,6 @@ import software.amazon.awssdk.services.scheduler.model.CreateScheduleResponse;
 import software.amazon.awssdk.services.scheduler.model.DeleteScheduleRequest;
 import software.amazon.awssdk.services.scheduler.model.SchedulerException;
 
-import javax.lang.model.util.Types;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
@@ -31,6 +33,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowableOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -50,6 +53,8 @@ class ScheduleServiceTest {
     private ScheduleService service;
     @Mock
     private SchedulerClient mockSchedulerClient;
+    @Mock
+    private LoginService mockLoginService;
     @Captor
     private ArgumentCaptor<CreateScheduleRequest> createScheduleRequestArgumentCaptor;
     private UserId userId = UserId.from("mockUserId");
@@ -60,8 +65,11 @@ class ScheduleServiceTest {
     @BeforeEach
     void setUp() {
         when(mockSchedulerClient.createSchedule(any(CreateScheduleRequest.class))).thenReturn(createScheduleResponse);
+        when(mockLoginService.readCredentials("mockUserId"))
+                .thenReturn(Optional.of(new MyEnergiDeployment("mockUserId", SerialNumber.from("12345678"),
+                        SerialNumber.from("09876543"), null, null)));
         service = new ScheduleService(mockRepository, mockScheduleDetailsRepository, mockSchedulerClient,
-                "mockExecutionArn", "mockLambdaArn");
+                mockLoginService, "mockExecutionArn", "mockLambdaArn");
     }
 
     @Test
@@ -86,6 +94,20 @@ class ScheduleServiceTest {
                 "\"scheduleId\": \"" + response.getId() + "\",\n" +
                 "\"lwaUserId\": \"mockUserId\"\n" +
                 "}");
+    }
+
+    @Test
+    void createThrows409WhenCreatingEddiScheduleButEddiDoesNotExistForUser() {
+        var schedule = Schedule.builder()
+                .startDateTime(LocalDateTime.of(2023, 9, 10, 14, 0))
+                .zoneId(ZoneId.of("Europe/Dublin"))
+                .action(ScheduleAction.builder()
+                        .type("setEddiMode")
+                        .value("STOPPED")
+                        .build())
+                .build();
+        var serverException = catchThrowableOfType(() -> service.createSchedule(UserId.from("mockUserId"), schedule), MissingDeviceException.class);
+        assertThat(serverException).isNotNull();
     }
 
     @Test

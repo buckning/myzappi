@@ -1,5 +1,6 @@
 package com.amcglynn.myzappi.core.service;
 
+import com.amcglynn.myenergi.EddiMode;
 import com.amcglynn.myenergi.MockMyEnergiClient;
 import com.amcglynn.myenergi.MyEnergiClient;
 import com.amcglynn.myenergi.ZappiChargeMode;
@@ -92,6 +93,11 @@ public class ZappiService {
 
     public void stopBoost() {
         client.stopBoost();
+    }
+
+    public void setEddiMode(EddiMode mode) {
+        log.info("Setting eddi mode to {}", mode);
+        client.setEddiMode(mode);
     }
 
     /**

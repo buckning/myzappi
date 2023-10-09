@@ -2,6 +2,7 @@ package com.amcglynn.myzappi.core.service;
 
 import com.amcglynn.myzappi.core.dal.ScheduleDetailsRepository;
 import com.amcglynn.myzappi.core.dal.UserScheduleRepository;
+import com.amcglynn.myzappi.core.exception.MissingDeviceException;
 import com.amcglynn.myzappi.core.model.Schedule;
 import com.amcglynn.myzappi.core.model.ScheduleRecurrence;
 import com.amcglynn.myzappi.core.model.UserId;
@@ -28,17 +29,20 @@ public class ScheduleService {
 
     private final UserScheduleRepository repository;
     private final ScheduleDetailsRepository scheduleDetailsRepository;
+    private final LoginService loginService;
     private final SchedulerClient schedulerClient;
     private final Target.Builder targetBuilder;
 
     public ScheduleService(UserScheduleRepository repository,
                            ScheduleDetailsRepository scheduleDetailsRepository,
                            SchedulerClient schedulerClient,
+                           LoginService loginService,
                            String schedulerExecutionRoleArn,
                            String schedulerTargetLambdaArn) {
         this.repository = repository;
         this.scheduleDetailsRepository = scheduleDetailsRepository;
         this.schedulerClient = schedulerClient;
+        this.loginService = loginService;
 
         this.targetBuilder = Target.builder()
                 .roleArn(schedulerExecutionRoleArn)
@@ -64,6 +68,7 @@ public class ScheduleService {
     }
 
     public Schedule createSchedule(UserId userId, Schedule schedule) {
+        validate(userId, schedule);
         var schedulesFromDb = repository.read(userId);
         var schedules = new ArrayList<>(schedulesFromDb);
         var scheduleWithId = newSchedule(schedule);
@@ -72,6 +77,14 @@ public class ScheduleService {
         scheduleDetailsRepository.write(scheduleWithId.getId(), userId);
         createAwsSchedule(userId, scheduleWithId);
         return scheduleWithId;
+    }
+
+    private void validate(UserId userId, Schedule schedule) {
+        if ("setEddiMode".equals(schedule.getAction().getType())) {
+            if (loginService.readCredentials(userId.toString()).get().getEddiSerialNumber().isEmpty()) {
+                throw new MissingDeviceException("Eddi not available");
+            }
+        }
     }
 
     private void createAwsSchedule(UserId userId, Schedule schedule) {

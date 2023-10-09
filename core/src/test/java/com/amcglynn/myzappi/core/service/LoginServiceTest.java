@@ -39,7 +39,7 @@ class LoginServiceTest {
 
     @BeforeEach
     void setUp() {
-        zappiCredentials = new MyEnergiDeployment(userId, zappiSerialNumber, serialNumber, encryptedApiKey);
+        zappiCredentials = new MyEnergiDeployment(userId, zappiSerialNumber, serialNumber, null, encryptedApiKey);
         loginService = new LoginService(mockCredentialsRepository, mockEncryptionService);
     }
 
