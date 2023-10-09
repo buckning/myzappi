@@ -47,6 +47,7 @@ export class TariffPanelComponent {
   tariffsSaved:boolean = false;
   energyCost: string = "loading...";
   costOrCredit: string = "cost";
+  isReadingEnergyCost = false;
 
   constructor(private http: HttpClient) {}
 
@@ -85,6 +86,7 @@ export class TariffPanelComponent {
   }
 
   readEnergyCost() {
+    this.isReadingEnergyCost = true;
     let headers = new HttpHeaders({
       'Content-Type': 'application/json',
       'Authorization': this.bearerToken });
@@ -104,9 +106,11 @@ export class TariffPanelComponent {
         } else {
           this.costOrCredit = "cost";
         }
+        this.isReadingEnergyCost = false;
       },
       error => {
         this.tariffsSaved = false;
+        this.isReadingEnergyCost = false;
       });
   }
 

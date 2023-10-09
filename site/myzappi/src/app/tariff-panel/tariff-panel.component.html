@@ -1,6 +1,9 @@
 <div id="tariffForm" class="tariffForm" (submit)="onSubmit()">
   <div *ngIf="loaded && tariffsSaved">
     <h1>Energy {{costOrCredit}} for today: {{ energyCost }}</h1>
+    <button type="button" [disabled]="isReadingEnergyCost" class="addTariffButton" (click)="readEnergyCost()" id="refreshCostButton">
+      Refresh Energy Cost
+    </button>
 </div>
 
     <h1>Enter your tariffs</h1>
