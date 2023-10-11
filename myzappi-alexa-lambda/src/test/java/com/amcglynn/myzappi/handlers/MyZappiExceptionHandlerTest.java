@@ -12,6 +12,7 @@ import com.amcglynn.myenergi.exception.ClientException;
 import com.amcglynn.myenergi.exception.ServerCommunicationException;
 import com.amcglynn.myzappi.UserNotLinkedException;
 import com.amcglynn.myzappi.core.Brand;
+import com.amcglynn.myzappi.core.exception.MissingDeviceException;
 import com.amcglynn.myzappi.core.exception.UserNotLoggedInException;
 import com.amcglynn.myzappi.exception.InvalidScheduleException;
 import org.junit.jupiter.api.BeforeEach;
@@ -85,6 +86,7 @@ class MyZappiExceptionHandlerTest {
                 Arguments.of(new ClientException(404), "Could not authenticate with myenergi APIs. Your API key may no longer be valid. Please register again on https://myzappiunofficial.com"),
                 Arguments.of(new ServerCommunicationException(), "I couldn't communicate with myenergi servers."),
                 Arguments.of(new NullPointerException("unexpectedException"), "There was an unexpected error."),
+                Arguments.of(new MissingDeviceException("unexpectedException"), "I could not find an Eddi to control. Please register again on https://myzappiunofficial.com once your Eddi has been configured."),
                 Arguments.of(new InvalidScheduleException("unexpectedException"), "I didn't understand that, please try again."));
     }
 
@@ -95,6 +97,7 @@ class MyZappiExceptionHandlerTest {
                 Arguments.of(new ClientException(404), "<speak>Could not authenticate with my energy APIs. Your API key may no longer be valid. Please register again on my zappi unofficial dot com</speak>"),
                 Arguments.of(new ServerCommunicationException(), "<speak>I couldn't communicate with my energy servers.</speak>"),
                 Arguments.of(new NullPointerException("unexpectedException"), "<speak>There was an unexpected error.</speak>"),
+                Arguments.of(new MissingDeviceException("unexpectedException"), "<speak>I could not find an Eddi to control. Please register again on my zappi unofficial dot com once your Eddi has been configured.</speak>"),
                 Arguments.of(new InvalidScheduleException("unexpectedException"), "<speak>I didn't understand that, please try again.</speak>"));
     }
 

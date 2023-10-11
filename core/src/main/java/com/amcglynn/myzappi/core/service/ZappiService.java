@@ -8,8 +8,11 @@ import com.amcglynn.myenergi.ZappiDaySummary;
 import com.amcglynn.myenergi.ZappiStatusSummary;
 import com.amcglynn.myenergi.apiresponse.ZappiHistory;
 import com.amcglynn.myenergi.units.KiloWattHour;
+import com.amcglynn.myzappi.core.exception.MissingDeviceException;
 import com.amcglynn.myzappi.core.exception.UserNotLoggedInException;
+import com.amcglynn.myzappi.core.model.Schedule;
 import com.amcglynn.myzappi.core.model.SerialNumber;
+import com.amcglynn.myzappi.core.model.UserId;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.Duration;
@@ -26,12 +29,14 @@ public class ZappiService {
 
     private MyEnergiClient client;
     private Supplier<LocalTime> localTimeSupplier;
+    private final boolean hasEddi;
 
     private ZappiService(LoginService loginService, EncryptionService encryptionService, String user) {
         var creds = loginService.readCredentials(user);
         if (creds.isEmpty()) {
             throw new UserNotLoggedInException(user);
         }
+        hasEddi = creds.get().getEddiSerialNumber().isPresent();
 
         log.info("Found eddi {}", creds.get().getEddiSerialNumber());
         var decryptedApiKey = encryptionService.decrypt(creds.get().getEncryptedApiKey());
@@ -96,6 +101,10 @@ public class ZappiService {
     }
 
     public void setEddiMode(EddiMode mode) {
+        if (!hasEddi) {
+            log.info("Eddi not configured");
+            throw new MissingDeviceException("Eddi not available");
+        }
         log.info("Setting eddi mode to {}", mode);
         client.setEddiMode(mode);
     }

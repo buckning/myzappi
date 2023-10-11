@@ -258,6 +258,40 @@
             "Switch to {chargeMode} at {scheduleTime}",
             "Schedule a boost for {boostKwh} kilowatts starting at {scheduleTime}"
           ]
+        },
+        {
+          "name": "SetEddiModeToNormal",
+          "slots": [],
+          "samples": [
+            "Enable Eddi",
+            "Turn on Eddi",
+            "change Eddi to normal mode",
+            "change Eddi to normal",
+            "set Eddi to normal mode",
+            "change Eddi mode to normal mode",
+            "change Eddi mode to normal",
+            "set Eddi mode to normal"
+          ]
+        },
+        {
+          "name": "SetEddiModeToStopped",
+          "slots": [],
+          "samples": [
+            "Disable Eddi",
+            "change Eddi to stopped mode",
+            "change Eddi to stop mode",
+            "Disable my Eddi",
+            "Stop Eddi",
+            "Stop my Eddi",
+            "Turn off Eddi",
+            "Turn off my Eddi",
+            "change Eddi mode to stop",
+            "change Eddi mode to stopped",
+            "set Eddi mode to stop",
+            "set Eddi mode to stopped",
+            "set my Eddi mode to stop",
+            "set my Eddi mode to stopped"
+          ]
         }
       ],
       "types": [
@@ -286,6 +320,29 @@
               "id": "1",
               "name": {
                 "value": "FAST"
+              }
+            }
+          ]
+        },
+        {
+          "name": "eddiMode",
+          "values": [
+            {
+              "id": "2",
+              "name": {
+                "value": "STOP"
+              }
+            },
+            {
+              "id": "0",
+              "name": {
+                "value": "STOPPED"
+              }
+            },
+            {
+              "id": "1",
+              "name": {
+                "value": "NORMAL"
               }
             }
           ]
@@ -369,6 +426,12 @@
               "prompts": {}
             }
           ]
+        },
+        {
+          "name": "SetEddiModeToNormal",
+          "confirmationRequired": false,
+          "prompts": {},
+          "slots": []
         }
       ],
       "delegationStrategy": "ALWAYS"

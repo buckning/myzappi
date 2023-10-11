@@ -82,6 +82,7 @@ public class ScheduleService {
     private void validate(UserId userId, Schedule schedule) {
         if ("setEddiMode".equals(schedule.getAction().getType())) {
             if (loginService.readCredentials(userId.toString()).get().getEddiSerialNumber().isEmpty()) {
+                log.info("Eddi not found for user {}", userId);
                 throw new MissingDeviceException("Eddi not available");
             }
         }
