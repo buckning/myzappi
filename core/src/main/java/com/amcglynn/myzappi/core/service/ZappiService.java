@@ -171,6 +171,14 @@ public class ZappiService {
         client.boostEddi(duration);
     }
 
+    public void stopEddiBoost() {
+        if (!hasEddi) {
+            log.info("Eddi not configured");
+            throw new MissingDeviceException("Eddi not available");
+        }
+        client.stopEddiBoost();
+    }
+
     public static class Builder {
         private final LoginService loginService;
         private final EncryptionService encryptionService;

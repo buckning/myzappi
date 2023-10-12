@@ -211,6 +211,13 @@ class ZappiServiceTest {
         verify(mockClient, never()).boostEddi(any());
     }
 
+    @Test
+    void testStopEddiBoostThrowsMissingDeviceExceptionWhenEddiIsNotConfigured() {
+        var exception = catchThrowableOfType(() -> zappiService.stopEddiBoost(), MissingDeviceException.class);
+        assertThat(exception).isNotNull();
+        verify(mockClient, never()).stopEddiBoost();
+    }
+
     private static Stream<Arguments> boostWithDurationSource() {
         return Stream.of(
                 Arguments.of("11:32:30", Duration.of(1, ChronoUnit.HOURS), "1230"),
