@@ -29,7 +29,8 @@ public class MyZappiScheduleHandler {
                 "setBoostKwh",      (zappiService, value) -> zappiService.startBoost(new KiloWattHour(Double.parseDouble(value))),
                 "setBoostUntil",    (zappiService, value) -> zappiService.startSmartBoost(LocalTime.parse(value)),
                 "setBoostFor",      (zappiService, value) -> zappiService.startSmartBoost(Duration.parse(value)),
-                "setEddiMode",      (zappiService, value) -> zappiService.setEddiMode(EddiMode.valueOf(value))
+                "setEddiMode",      (zappiService, value) -> zappiService.setEddiMode(EddiMode.valueOf(value)),
+                "setEddiBoostFor",  (zappiService, value) -> zappiService.boostEddi(Duration.parse(value))
         );
     }
 

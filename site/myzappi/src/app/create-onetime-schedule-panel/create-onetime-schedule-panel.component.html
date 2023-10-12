@@ -4,10 +4,11 @@
         <br>
         Schedule type: <select [(ngModel)]="scheduleType" (change)="onScheduleTypeChange()">
             <option value="setBoostKwh">Boost until kilowatt hours reached</option>
-            <option value="setBoostFor">Boost for duration</option>
+            <option value="setBoostFor">Boost for duration (hours)</option>
             <option value="setBoostUntil">Boost until time</option>
             <option value="setChargeMode">Set charge mode</option>
             <option value="setEddiMode">Set Eddi mode</option>
+            <option value="setEddiBoostFor">Boost Eddi for duration (minutes)</option>
         </select>
         <br>
         <div *ngIf="scheduleType === 'setBoostKwh'">
@@ -38,6 +39,10 @@
                 <option value="STOPPED">Stopped</option>
                 <option value="NORMAL">Normal</option>
             </select>
+        </div>
+
+        <div *ngIf="scheduleType === 'setEddiBoostFor'">
+            Value: <input [(ngModel)]="scheduleActionValue" type="number" min="1" max="99" />
         </div>
     </div>
 

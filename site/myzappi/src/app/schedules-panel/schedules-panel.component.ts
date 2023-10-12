@@ -51,10 +51,11 @@ export class SchedulesPanelComponent {
 
   scheduleTypeMapping: { [key: string]: string } = {
     'setBoostKwh': 'Boosting kilowatt hours',
-    'setBoostFor': 'Boost for duration',
+    'setBoostFor': 'Boost for duration (hours)',
     'setBoostUntil': 'Boosting until time',
     'setChargeMode': 'Set charge mode',
-    'setEddiMode': 'Set Eddi mode'
+    'setEddiMode': 'Set Eddi mode',
+    'setEddiBoostFor': 'Boost Eddi for minutes'
   };
 
   constructor(private http: HttpClient) { }
@@ -140,6 +141,9 @@ export class SchedulesPanelComponent {
     }
     if (input.action.type === 'setEddiMode') {
       return this.convertEddiMode(input.action.value);
+    }
+    if (input.action.type === 'setEddiBoostFor') {
+      return this.convertDuration(input.action.value);
     }
     return input.action.value;
   }
