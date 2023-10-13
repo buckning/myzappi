@@ -72,6 +72,9 @@ export class CreateOnetimeSchedulePanelComponent {
     if (this.scheduleType === 'setBoostFor') {
       return "PT" + this.scheduleActionValue + "H";
     }
+    if (this.scheduleType === 'setEddiBoostFor') {
+      return "PT" + this.scheduleActionValue + "M";
+    }
     return this.scheduleActionValue;
   }
 

@@ -24,7 +24,17 @@ public class ScheduleValidator {
             "setBoostKwh", ScheduleValidator::isValidChargeInteger,
             "setBoostUntil", ScheduleValidator::isValidChargeLocalTime,
             "setBoostFor", ScheduleValidator::isValidChargeDuration,
-            "setEddiMode", ScheduleValidator::isValidEddiMode);
+            "setEddiMode", ScheduleValidator::isValidEddiMode,
+            "setEddiBoostFor", ScheduleValidator::isValidEddiBoostDuration);
+
+    private static boolean isValidEddiBoostDuration(String s) {
+        try {
+            var duration = Duration.parse(s);
+            return duration.toMinutes() < 100 && duration.toMinutes() > 0;
+        } catch (DateTimeParseException e) {
+            return false;
+        }
+    }
 
     private static boolean isValidChargeDuration(String s) {
         try {

@@ -7,6 +7,7 @@ import com.amcglynn.myzappi.core.config.Properties;
 import com.amcglynn.myzappi.core.config.ServiceManager;
 import com.amcglynn.myzappi.core.dal.AlexaToLwaLookUpRepository;
 import com.amcglynn.myzappi.core.service.Clock;
+import com.amcglynn.myzappi.handlers.BoostEddiHandler;
 import com.amcglynn.myzappi.handlers.ChargeMyCarHandler;
 import com.amcglynn.myzappi.handlers.FallbackHandler;
 import com.amcglynn.myzappi.handlers.GetEnergyCostHandler;
@@ -26,6 +27,7 @@ import com.amcglynn.myzappi.handlers.SetReminderHandler;
 import com.amcglynn.myzappi.handlers.StartBoostHandler;
 import com.amcglynn.myzappi.handlers.StatusSummaryHandler;
 import com.amcglynn.myzappi.handlers.StopBoostHandler;
+import com.amcglynn.myzappi.handlers.StopEddiBoostHandler;
 import com.amcglynn.myzappi.handlers.UnlockZappiHandler;
 import com.amcglynn.myzappi.service.ReminderServiceFactory;
 import com.amcglynn.myzappi.service.SchedulerService;
@@ -58,6 +60,8 @@ public class MyZappiSkillStreamHandler extends SkillStreamHandler {
                 .addRequestHandler(new SetChargeModeHandler(serviceManager.getZappiServiceBuilder(), userIdResolverFactory))
                 .addRequestHandler(new SetEddiModeToNormalHandler(serviceManager.getZappiServiceBuilder(), userIdResolverFactory))
                 .addRequestHandler(new SetEddiModeToStoppedHandler(serviceManager.getZappiServiceBuilder(), userIdResolverFactory))
+                .addRequestHandler(new BoostEddiHandler(serviceManager.getZappiServiceBuilder(), userIdResolverFactory))
+                .addRequestHandler(new StopEddiBoostHandler(serviceManager.getZappiServiceBuilder(), userIdResolverFactory))
                 .addRequestHandler(new GoGreenHandler(serviceManager.getZappiServiceBuilder(), userIdResolverFactory))
                 .addRequestHandler(new ChargeMyCarHandler(serviceManager.getZappiServiceBuilder(), userIdResolverFactory))
                 .addRequestHandler(new SetReminderHandler(reminderServiceFactory, userZoneResolver, userIdResolverFactory,

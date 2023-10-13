@@ -5,6 +5,7 @@ import com.amcglynn.myenergi.ZappiChargeMode;
 import com.amcglynn.myenergi.apiresponse.ZappiDayHistory;
 import com.amcglynn.myenergi.apiresponse.ZappiHistory;
 import com.amcglynn.myenergi.units.KiloWattHour;
+import com.amcglynn.myzappi.core.exception.MissingDeviceException;
 import com.amcglynn.myzappi.core.exception.UserNotLoggedInException;
 import com.amcglynn.myzappi.core.model.SerialNumber;
 import com.amcglynn.myzappi.core.model.MyEnergiDeployment;
@@ -31,7 +32,10 @@ import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.assertj.core.api.Assertions.catchThrowableOfType;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -187,6 +191,31 @@ class ZappiServiceTest {
     void testStartBoostGetsProxiedToClient() {
         zappiService.startBoost(new KiloWattHour(100));
         verify(mockClient).boost(new KiloWattHour(100));
+    }
+
+    @Test
+    void testBoostEddi() {
+        var zappiCreds = new MyEnergiDeployment(userId, zappiSerialNumber, serialNumber, SerialNumber.from("09876543"), encryptedApiKey);
+        when(mockLoginService.readCredentials(userId)).thenReturn(Optional.of(zappiCreds));
+        this.zappiService = new ZappiService.Builder(mockLoginService, mockEncryptionService).build(mockUserIdResolver);
+        zappiService.setClient(mockClient);
+
+        zappiService.boostEddi(Duration.of(1, ChronoUnit.HOURS));
+        verify(mockClient).boostEddi(Duration.of(1, ChronoUnit.HOURS));
+    }
+
+    @Test
+    void testBoostEddiThrowsMissingDeviceExceptionWhenEddiIsNotConfigured() {
+        var exception = catchThrowableOfType(() -> zappiService.boostEddi(Duration.of(1, ChronoUnit.HOURS)), MissingDeviceException.class);
+        assertThat(exception).isNotNull();
+        verify(mockClient, never()).boostEddi(any());
+    }
+
+    @Test
+    void testStopEddiBoostThrowsMissingDeviceExceptionWhenEddiIsNotConfigured() {
+        var exception = catchThrowableOfType(() -> zappiService.stopEddiBoost(), MissingDeviceException.class);
+        assertThat(exception).isNotNull();
+        verify(mockClient, never()).stopEddiBoost();
     }
 
     private static Stream<Arguments> boostWithDurationSource() {

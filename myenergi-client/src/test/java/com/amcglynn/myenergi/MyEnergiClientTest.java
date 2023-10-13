@@ -15,6 +15,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.Month;
@@ -33,7 +34,7 @@ class MyEnergiClientTest {
     @BeforeEach
     public void setUp() {
         mockWebServer = new MockWebServer();
-        client = new MyEnergiClient("56781234", "12345678", "apiKey", mockWebServer.url("").uri());
+        client = new MyEnergiClient("56781234", "12345678", "09876543", "apiKey", mockWebServer.url("").uri());
     }
 
     @Test
@@ -312,6 +313,28 @@ class MyEnergiClientTest {
         mockWebServer.enqueue(mockResponse);
         var throwable = catchThrowable(() -> client.getZappiHistory(LocalDate.of(2023, Month.JANUARY, 20)));
         assertThat(throwable).isInstanceOf(InvalidResponseFormatException.class);
+    }
+
+    @Test
+    void testBoostEddi() throws Exception {
+        var mockResponse = new MockResponse()
+                .setResponseCode(200)
+                .setBody(ZappiResponse.getGenericResponse());
+        mockWebServer.enqueue(mockResponse);
+        client.boostEddi(Duration.ofMinutes(35));
+        var request = mockWebServer.takeRequest();
+        assertThat(request.getRequestUrl().url().getPath()).contains("/cgi-eddi-boost-E09876543-10-1-35");
+    }
+
+    @Test
+    void testStopBoostEddi() throws Exception {
+        var mockResponse = new MockResponse()
+                .setResponseCode(200)
+                .setBody(ZappiResponse.getGenericResponse());
+        mockWebServer.enqueue(mockResponse);
+        client.stopEddiBoost();
+        var request = mockWebServer.takeRequest();
+        assertThat(request.getRequestUrl().url().getPath()).contains("/cgi-eddi-boost-E09876543-1-1-0");
     }
 
     private static Stream<Arguments> chargeModesAndExpectedUrls() {

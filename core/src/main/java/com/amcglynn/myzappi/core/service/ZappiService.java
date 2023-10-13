@@ -163,6 +163,22 @@ public class ZappiService {
         return endTime.minus(overflow15Minutes, ChronoUnit.MINUTES);
     }
 
+    public void boostEddi(Duration duration) {
+        if (!hasEddi) {
+            log.info("Eddi not configured");
+            throw new MissingDeviceException("Eddi not available");
+        }
+        client.boostEddi(duration);
+    }
+
+    public void stopEddiBoost() {
+        if (!hasEddi) {
+            log.info("Eddi not configured");
+            throw new MissingDeviceException("Eddi not available");
+        }
+        client.stopEddiBoost();
+    }
+
     public static class Builder {
         private final LoginService loginService;
         private final EncryptionService encryptionService;

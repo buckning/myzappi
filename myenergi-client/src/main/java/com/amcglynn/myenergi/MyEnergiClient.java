@@ -2,6 +2,7 @@ package com.amcglynn.myenergi;
 
 import java.io.IOException;
 import java.net.URI;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -74,7 +75,7 @@ public class MyEnergiClient {
      * @param baseUrl base URL of the myenergi API
      */
     protected MyEnergiClient(String serialNumber, String apiKey, URI baseUrl) {
-        this(serialNumber, serialNumber, apiKey, baseUrl);
+        this(serialNumber, serialNumber, null, apiKey, baseUrl);
         this.baseUrl = baseUrl;
     }
 
@@ -85,8 +86,8 @@ public class MyEnergiClient {
      * @param apiKey myenergi API key
      * @param baseUrl base URL of the myenergi API
      */
-    protected MyEnergiClient(String zappiSerialNumber, String serialNumber, String apiKey, URI baseUrl) {
-        this(zappiSerialNumber, serialNumber, null, apiKey);
+    protected MyEnergiClient(String zappiSerialNumber, String serialNumber, String eddiSerialNumber, String apiKey, URI baseUrl) {
+        this(zappiSerialNumber, serialNumber, eddiSerialNumber, apiKey);
         this.baseUrl = baseUrl;
     }
 
@@ -141,8 +142,19 @@ public class MyEnergiClient {
         invokeCgiZappiModeApi(ZappiChargeMode.BOOST, ZappiBoostMode.SMART_BOOST, kiloWattHour, endTime);
     }
 
+    public void boostEddi(Duration duration) {
+        if (duration.toMinutes() > 99) {
+            throw new IllegalArgumentException("Duration must be less than 99 minutes");
+        }
+        getRequest("/cgi-eddi-boost-E" + eddiSerialNumber + "-10-1-" + duration.toMinutes());
+    }
+
     public void stopBoost() {
         invokeCgiZappiModeApi(ZappiChargeMode.BOOST, ZappiBoostMode.STOP, zeroKwh, localTimeMidnight);
+    }
+
+    public void stopEddiBoost() {
+        getRequest("/cgi-eddi-boost-E" + eddiSerialNumber + "-1-1-0");
     }
 
     private void invokeCgiZappiModeApi(ZappiChargeMode zappiChargeMode, ZappiBoostMode zappiBoostMode,

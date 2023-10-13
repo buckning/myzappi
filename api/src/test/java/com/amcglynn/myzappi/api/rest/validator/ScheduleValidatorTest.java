@@ -177,7 +177,8 @@ class ScheduleValidatorTest {
                 Arguments.of("setBoostUntil", "22:37"),
                 Arguments.of("setBoostFor", "PT1H"),
                 Arguments.of("setEddiMode", "STOPPED"),
-                Arguments.of("setEddiMode", "NORMAL")
+                Arguments.of("setEddiMode", "NORMAL"),
+                Arguments.of("setEddiBoostFor", "PT1H")
         );
     }
 
@@ -194,6 +195,7 @@ class ScheduleValidatorTest {
                 Arguments.of("setBoostUntil", "-2023-09-15T22:37"),
                 Arguments.of("setBoostUntil", "-22:37"),
                 Arguments.of("setBoostFor", "T1H"),
+                Arguments.of("setEddiBoostFor", "PT2H"),    // only allow up to 99 minutes
                 Arguments.of("setEddiMode", "Unknown")
         );
     }
