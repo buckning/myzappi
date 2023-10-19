@@ -1,29 +1,32 @@
-<div class="container" *ngIf="registrationComplete === false">
-    <p>
-        Set up My Zappi by entering your myenergi details.
-    </p>
-</div>
-
-<form id="loginCodeForm" *ngIf="registrationComplete === false">
-    <div>
-        <label for="serialNumber">myenergi Zappi Serial Number:</label>
-        <input type="text" [(ngModel)]="serialNumberText" name="serialNumber" autocomplete="off" required>
+<div class="tile">
+    <div *ngIf="registrationComplete === false">
+        <p>
+            Set up My Zappi by entering your myenergi details.
+        </p>
     </div>
-    <div>
-        <label for="apiKey">myenergi Zappi API Key:</label>
-        <input type="password" [(ngModel)]="apiKeyText" name="apiKey" autocomplete="off" required>
-    </div>
-    <div>
-        <button class="confirmButton" (click)="registerZappi()" [disabled]="buttonDisabled" type="button" id="submitBtn">Submit</button>
-    </div>
-</form>
+    <form id="loginCodeForm" *ngIf="registrationComplete === false">
+        <div>
+            <label for="serialNumber">myenergi Zappi Serial Number:</label>
+            <input type="text" [(ngModel)]="serialNumberText" name="serialNumber" autocomplete="off" required>
+        </div>
+        <div>
+            <label for="apiKey">myenergi Zappi API Key:</label>
+            <input type="password" [(ngModel)]="apiKeyText" name="apiKey" autocomplete="off" required>
+        </div>
+        <div>
+            <button class="confirmButton" (click)="registerZappi()" [disabled]="buttonDisabled" type="button"
+                id="submitBtn">Submit</button>
+        </div>
+    </form>
 
-<div class="container" *ngIf="registrationComplete === true">
-    <p>
-        My Zappi is now configured. You can start using it on your Alexa device.
-    </p>
-</div>
+    <div *ngIf="registrationComplete === true">
+        <p>
+            My Zappi is now configured. You can start using it on your Alexa device.
+        </p>
+    </div>
 
-<div id="messageContainer" *ngIf="messageText !== ''">
-    <div class="errorMessage">{{messageText}}</div>
+    <div id="messageContainer" *ngIf="messageText !== ''">
+        <div class="errorMessage">{{messageText}}</div>
+    </div>
+
 </div>

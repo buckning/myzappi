@@ -1,8 +1,10 @@
 <div *ngIf="tariffsRegistered === true">
-    <h1>Energy Cost</h1>
-    <h2>{{costOrCredit}} for today: {{ energyCost }}</h2>
-    <button type="button" [disabled]="isReadingEnergyCost" class="confirmButton" (click)="readEnergyCost()"
-        id="refreshCostButton">
-        Refresh Energy Cost
-    </button>
+    <div class="tile">
+        <h1>Energy Cost</h1>
+        <h2>{{costOrCredit}} for today: {{ energyCost }}</h2>
+        <button type="button" [disabled]="isReadingEnergyCost" class="confirmButton" (click)="readEnergyCost()"
+            id="refreshCostButton">
+            Refresh Energy Cost
+        </button>
+    </div>
 </div>

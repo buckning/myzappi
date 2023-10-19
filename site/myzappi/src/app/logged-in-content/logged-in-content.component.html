@@ -3,20 +3,21 @@
 </div>
 
 
-<div *ngIf="hubDetails == null && registered !== false">
+<div class="tile" *ngIf="hubDetails == null && registered !== false">
     <p>
         Loading your details...
     </p>
 </div>
 
-<div *ngIf="registered === true">
+<div *ngIf="registered === true && hubDetails !== null">
     <app-energy-cost-panel [bearerToken]="bearerToken"></app-energy-cost-panel>
+    <br>
     <app-tariff-panel [bearerToken]="bearerToken"></app-tariff-panel>
     <br>
     <app-schedules-panel [bearerToken]="bearerToken"></app-schedules-panel>
     <br>
     <div *ngIf="hubDetails != null">
-        <div class="container">
+        <div class="tile">
             <div>
                 <h1>Devices</h1>
             </div>
@@ -39,5 +40,5 @@
 </div>
 
 <div class="logoutButtonContainer">
-    <button (click)="logOut()" class="logOutButton" id="logoutButton">Logout</button>
+    <button (click)="logOut()" class="confirmButton" id="logoutButton">Logout</button>
 </div>

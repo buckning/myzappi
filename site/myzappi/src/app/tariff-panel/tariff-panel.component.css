@@ -8,17 +8,6 @@
     margin-bottom: 10px;
 }
 
-.tariffForm {
-    max-width: 600px;
-    min-width: 600px;
-    margin: 0 auto;
-    color: #333333;
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 4px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
-
 input[type="number"] {
     width: 95px;
     padding: 10px;
@@ -60,16 +49,6 @@ input[type="string"] {
 }
 
 @media (max-width: 768px) {
-    .tariffForm {
-        max-width: 450px;
-        min-width: 450px;
-        margin: 0 auto;
-        color: #333333;
-        background-color: #fff;
-        padding: 20px;
-        border-radius: 4px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    }
 
     input[type="number"] {
         width: 50px;

@@ -1,20 +1,5 @@
-.logOutButton {
-    background-color: #4CAF50;
-    color: #fff;
-    padding: 10px 20px;
-    font-size: 16px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
+.confirmButton {
     margin-bottom: 100px;
-}
-
-.container {
-    background-color: #2d84da;
-    padding: 10px;
-    min-width: 600px;
-    max-width: 600px;
-    margin: 0 auto;
 }
 
 .logoutButtonContainer {
@@ -27,14 +12,6 @@
 }
 
 @media (max-width: 768px) {
-    .container {
-        background-color: #246ab1;
-        padding: 10px;
-        margin: 0 auto;
-        min-width: auto;
-        max-width: auto;
-    }
-
     .logoutButtonContainer {
         padding: 10px;
         min-width: 450px;

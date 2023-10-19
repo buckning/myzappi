@@ -21,7 +21,7 @@
         </div>
 
         <div *ngIf="target === 'eddi'">
-            Set mode to: <select [(ngModel)]="recurringValue" class="eddiSelect">
+            Set mode to: <select [(ngModel)]="recurringValue">
                 <option value="STOPPED">Stopped</option>
                 <option value="NORMAL">Normal</option>
             </select>
@@ -31,7 +31,7 @@
     </div>
     <br>
     Repeat on: <div class="days-of-week">
-        <button *ngFor="let day of daysOfWeek" [ngClass]="{ selected: selectedDays[day] }" (click)="toggleDay(day)">
+        <button *ngFor="let day of daysOfWeek" class="toggleButton" [ngClass]="{ selected: selectedDays[day] }" (click)="toggleDay(day)">
             {{ day[0] }}
         </button>
     </div>
