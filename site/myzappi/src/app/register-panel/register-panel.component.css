@@ -34,21 +34,6 @@ input[type="password"] {
     margin-bottom: 10px; /* Added vertical spacing */
 }
 
-button {
-    background-color: #4CAF50;
-    color: #fff;
-    padding: 10px 20px;
-    font-size: 16px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-button:disabled {
-    background-color: #ccc;
-    cursor: not-allowed;
-}
-
 .errorMessage {
     margin-top: 10px;
     padding: 5px;

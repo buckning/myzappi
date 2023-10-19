@@ -39,31 +39,6 @@ input[type="string"] {
     margin-bottom: 10px;
 }
 
-button {
-    background-color: #4CAF50;
-    color: #fff;
-    padding: 10px 20px;
-    font-size: 16px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-button:disabled {
-    background-color: #ccc;
-    cursor: not-allowed;
-}
-
-.deleteButton {
-    background-color: #ff6f6f;
-    color: #fff;
-    padding: 10px 20px;
-    font-size: 16px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
 .errorMessage {
     margin-top: 10px;
     padding: 5px;

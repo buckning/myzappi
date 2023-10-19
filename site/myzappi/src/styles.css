@@ -31,3 +31,42 @@ footer a {
     text-align: center;
     margin-top: 30px;
 }
+
+.confirmButton {
+    background-color: #4CAF50;
+    color: #fff;
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.confirmButton:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+.destructiveButton {
+    background-color: #ff6f6f;
+    color: #fff;
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.destructiveButton:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+select {
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #fff;
+    color: #333;
+}

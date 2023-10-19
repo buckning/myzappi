@@ -48,7 +48,7 @@
             <input type="text" name="repeat" class="repeatDays" [ngModel]="calculateDisplayString(row)" readonly>
           </td>
           <td>
-            <button type="button" class="deleteButton" (click)="deleteSchedule(row)">Delete</button>
+            <button type="button" class="destructiveButton" (click)="deleteSchedule(row)">Delete</button>
           </td>
         </tr>
       </tbody>
@@ -80,7 +80,7 @@
             <input type="text" name="repeat" class="repeatDays" [ngModel]="calculateDisplayString(row)" readonly>
           </td>
           <td>
-            <button type="button" class="deleteButton" (click)="deleteSchedule(row)">Delete</button>
+            <button type="button" class="destructiveButton" (click)="deleteSchedule(row)">Delete</button>
           </td>
         </tr>
       </tbody>
@@ -116,7 +116,7 @@
               [ngModel]="convertOneTimeScheduleValue(row)" readonly>
           </td>
           <td>
-            <button type="button" class="deleteButton" (click)="deleteSchedule(row)">Delete</button>
+            <button type="button" class="destructiveButton" (click)="deleteSchedule(row)">Delete</button>
           </td>
         </tr>
       </tbody>
@@ -128,7 +128,7 @@
 
 
   <div>
-    <button type="submit" *ngIf="listSchedulesVisible" class="saveScheduleButton"
+    <button type="submit" *ngIf="listSchedulesVisible" class="confirmButton"
       (click)="createSchedule()">New Schedule</button>
   </div>
   <!-- Content for Recurring -->

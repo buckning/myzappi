@@ -18,7 +18,7 @@
     <div *ngIf="hubDetails != null">
         <div class="container">
             <div>
-                Your Devices:
+                <h1>Devices</h1>
             </div>
             <br>
             <div>
@@ -31,7 +31,7 @@
                 eddi: {{hubDetails.eddiSerialNumber}}
             </div>
             <br>
-            <button (click)="deleteZappi()" id="forgetMyDetailsButton" class="forgetMyDetailsButton">
+            <button (click)="deleteZappi()" id="forgetMyDetailsButton" class="destructiveButton">
                 Unregister
             </button>
         </div>

@@ -38,10 +38,10 @@
 
     <br>
     <div>
-        <button type="submit" class="saveScheduleButton" [disabled]="saveButtonDisabled  || !isScheduleValid()" (click)="saveSchedule()">Create Schedule</button>
+        <button type="submit" class="confirmButton" [disabled]="saveButtonDisabled  || !isScheduleValid()" (click)="saveSchedule()">Create Schedule</button>
     </div>
     <div>
-        <button type="cancel" class="cancelButton" [style.display]="cancelButtonVisible ? 'block' : 'none'" (click)="cancel()">Cancel</button>
+        <button type="cancel" class="destructiveButton" [style.display]="cancelButtonVisible ? 'block' : 'none'" (click)="cancel()">Cancel</button>
     </div>
     
 </div>

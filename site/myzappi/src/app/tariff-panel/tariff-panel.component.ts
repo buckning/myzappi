@@ -30,6 +30,7 @@ export class TariffPanelComponent {
   successMessageText = '';
   loaded:boolean = false;
   tariffsSaved:boolean = false;
+  modifyingTariffs = false;
   
   constructor(private http: HttpClient) {}
 
@@ -138,6 +139,9 @@ export class TariffPanelComponent {
     return true;
   }
   
+  modifyTariffs() {
+    this.modifyingTariffs = true;
+  }
 
   getTariffName(row: any): string {
     return row.name;
