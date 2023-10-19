@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 @Component({
@@ -13,6 +13,7 @@ export class RegisterPanelComponent {
   buttonDisabled:boolean = false;
   messageText = '';
   registrationComplete = false;
+  @Output() public registeredEvent = new EventEmitter();
 
   constructor(private http: HttpClient) { }
 
@@ -36,6 +37,8 @@ export class RegisterPanelComponent {
         // TODO set logged-in-content registered = true
         this.messageText = '';
         this.registrationComplete = true;
+        console.log('Emitting registered event');
+        this.registeredEvent.emit('');
       },
       error => {
         this.buttonDisabled = false;

@@ -32,6 +32,7 @@ export class SchedulesPanelComponent {
   createOneTimeScheduleVisible = false;
   listSchedulesVisible = false;
   loaded: boolean = false;
+  screenWidth: number = 1024;
   recurringScheduleRows: any[] = [];
   recurringScheduleEddiRows: any[] = [];
   oneTimeScheduleRows: any[] = [];
@@ -50,18 +51,19 @@ export class SchedulesPanelComponent {
   };
 
   scheduleTypeMapping: { [key: string]: string } = {
-    'setBoostKwh': 'Boosting kilowatt hours',
-    'setBoostFor': 'Boost for duration (hours)',
+    'setBoostKwh': 'Boosting kWh',
+    'setBoostFor': 'Boost for hours',
     'setBoostUntil': 'Boosting until time',
     'setChargeMode': 'Set charge mode',
     'setEddiMode': 'Set Eddi mode',
-    'setEddiBoostFor': 'Boost Eddi for minutes'
+    'setEddiBoostFor': 'Boost Eddi for mins'
   };
 
   constructor(private http: HttpClient) { }
 
   ngOnInit(): void {
     // make rest call to schedules api
+    this.screenWidth = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
     this.readSchedules();
   }
 
@@ -83,6 +85,9 @@ export class SchedulesPanelComponent {
   }
 
   calculateDisplayString(row: any): string {
+    if (this.screenWidth <= 768) {
+      return row.recurrence.daysOfWeek.map((day: number) => this.daysOfWeek[day - 1].slice(0, 3)).join(',');  
+    }
     return row.recurrence.daysOfWeek.map((day: number) => this.daysOfWeek[day - 1].slice(0, 3)).join(', ');
   }
 
@@ -131,7 +136,7 @@ export class SchedulesPanelComponent {
 
   convertOneTimeScheduleValue(input: any) {
     if (input.action.type === 'setBoostKwh') {
-      return input.action.value + " kWh";
+      return input.action.value + "kWh";
     }
     if (input.action.type === 'setBoostFor') {
       return this.convertDuration(input.action.value);
@@ -165,7 +170,7 @@ export class SchedulesPanelComponent {
       }
     
       if (minutes) {
-        parts.push(`${minutes} minutes`);
+        parts.push(`${minutes} mins`);
       }
     
       return parts.join(' ');

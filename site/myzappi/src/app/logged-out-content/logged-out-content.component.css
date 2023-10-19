@@ -1,20 +1,34 @@
 .loginWithAmazonButton {
-    width: 156px; /* Set the width of the button */
-    height: 32px; /* Set the height of the button */
-    padding: 0;
-    border: none;
-    background-color: transparent;
-    position: relative;
-    overflow: hidden;
-    margin-bottom: 30px;
-    cursor: pointer;
+  width: 156px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  background-color: transparent;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 30px;
+  cursor: pointer;
+}
+
+.background-image {
+  width: 100%;
+  height: 100%;
+  background-image: url('https://images-na.ssl-images-amazon.com/images/G/01/lwa/btnLWA_gold_156x32.png');
+  background-size: cover;
+  background-position: center;
+}
+
+iframe {
+  width: 560px;
+  height: 315px;
+}
+
+.screen-width {
+  color: #077ed5;
+}
+@media (max-width: 768px) {
+  iframe {
+    width: 450px;
+    height: 250px;
   }
-  
-  .background-image {
-    width: 100%;
-    height: 100%;
-    background-image: url('https://images-na.ssl-images-amazon.com/images/G/01/lwa/btnLWA_gold_156x32.png');
-    background-size: cover;
-    background-position: center;
-  }
-  
+}

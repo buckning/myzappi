@@ -1,6 +1,8 @@
 # Welcome to MyZappi!
 
 ## Next Features
+* Show only the register panel when not registered
+** All other panels should be hidden but should be displayed when registered without having to reload the page
 * Remind me when my car finishes charging
 * Better metrics
 * Notify if the charger is offline 

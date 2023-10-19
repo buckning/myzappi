@@ -36,6 +36,7 @@ export class LoggedInContentComponent implements OnInit {
     this.http.get('https://api.myzappiunofficial.com/hub', options)
       .subscribe(data => {
         console.log("Got zappi details: " + data);
+        this.registered = true;
         this.hubDetails = data;
         if (this.hubDetails.eddiSerialNumber !== null && this.hubDetails.eddiSerialNumber !== undefined) {
           this.eddiEnabled = true;
@@ -52,6 +53,12 @@ export class LoggedInContentComponent implements OnInit {
           this.logoutEvent.emit('');
         }
       });
+  }
+
+  registeredEvent() {
+    console.log('Received register event');
+    this.registered = true;
+    this.getHubDetails();
   }
 
   deleteZappi() {

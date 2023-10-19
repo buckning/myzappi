@@ -18,3 +18,39 @@
     cursor: pointer;
     margin-bottom: 100px;
 }
+
+.container {
+    background-color: #2d84da;
+    padding: 10px;
+    min-width: 600px;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.logoutButtonContainer {
+    padding: 10px;
+    min-width: 600px;
+    max-width: 600px;
+    margin: 0 auto;
+    align-content: center;
+    max-width: auto;
+}
+
+@media (max-width: 768px) {
+    .container {
+        background-color: #246ab1;
+        padding: 10px;
+        margin: 0 auto;
+        min-width: auto;
+        max-width: auto;
+    }
+
+    .logoutButtonContainer {
+        padding: 10px;
+        min-width: 450px;
+        max-width: 450px;
+        margin: 0 auto;
+        align-content: center;
+        max-width: auto;
+    }
+}

@@ -11,6 +11,7 @@ import { TariffPanelComponent } from './tariff-panel/tariff-panel.component';
 import { SchedulesPanelComponent } from './schedules-panel/schedules-panel.component';
 import { CreateRecurringSchedulePanelComponent } from './create-recurring-schedule-panel/create-recurring-schedule-panel.component';
 import { CreateOnetimeSchedulePanelComponent } from './create-onetime-schedule-panel/create-onetime-schedule-panel.component';
+import { EnergyCostPanelComponent } from './energy-cost-panel/energy-cost-panel.component';
 
 @NgModule({
   declarations: [
@@ -21,7 +22,8 @@ import { CreateOnetimeSchedulePanelComponent } from './create-onetime-schedule-p
     TariffPanelComponent,
     SchedulesPanelComponent,
     CreateRecurringSchedulePanelComponent,
-    CreateOnetimeSchedulePanelComponent
+    CreateOnetimeSchedulePanelComponent,
+    EnergyCostPanelComponent
   ],
   imports: [
     BrowserModule,

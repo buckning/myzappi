@@ -1,34 +1,43 @@
-<div class="container" style="background-color: #2d84da; padding: 10px; min-width: 600px;">
-    
-    <div *ngIf="registered === false">
-        <app-register-panel [bearerToken]="bearerToken"></app-register-panel>
-    </div>
-    <div *ngIf="hubDetails == null && registered !== false">
-        <p>
-            Loading your details...
-        </p>
-    </div>
-    
+<div *ngIf="registered === false">
+    <app-register-panel [bearerToken]="bearerToken" (registeredEvent)="registeredEvent()"></app-register-panel>
+</div>
+
+
+<div *ngIf="hubDetails == null && registered !== false">
+    <p>
+        Loading your details...
+    </p>
+</div>
+
+<div *ngIf="registered === true">
+    <app-energy-cost-panel [bearerToken]="bearerToken"></app-energy-cost-panel>
+    <app-tariff-panel [bearerToken]="bearerToken"></app-tariff-panel>
+    <br>
+    <app-schedules-panel [bearerToken]="bearerToken"></app-schedules-panel>
+    <br>
     <div *ngIf="hubDetails != null">
-        <div>
-            Your Zappi device is registered on My Zappi. You can start using My Zappi on your Alexa.
-        </div>
-        <p>
-            hub serial number: {{hubDetails.hubSerialNumber}}
+        <div class="container">
+            <div>
+                Your Devices:
+            </div>
             <br>
-            zappi serial number: {{hubDetails.zappiSerialNumber}}
-        </p>
-        <div *ngIf="hubDetails.eddiSerialNumber !== null">
-            eddi serial number: {{hubDetails.eddiSerialNumber}}
+            <div>
+                hub: {{hubDetails.hubSerialNumber}}
+            </div>
+            <div>
+                zappi: {{hubDetails.zappiSerialNumber}}
+            </div>
+            <div *ngIf="hubDetails.eddiSerialNumber !== null">
+                eddi: {{hubDetails.eddiSerialNumber}}
+            </div>
+            <br>
+            <button (click)="deleteZappi()" id="forgetMyDetailsButton" class="forgetMyDetailsButton">
+                Unregister
+            </button>
         </div>
-        <button (click)="deleteZappi()" id="forgetMyDetailsButton" class="forgetMyDetailsButton">Delete Zappi</button>
     </div>
 </div>
-<br>
-<app-tariff-panel [bearerToken]="bearerToken"></app-tariff-panel>
-<br>
-<app-schedules-panel [bearerToken]="bearerToken"></app-schedules-panel>
 
-<div class="container">
+<div class="logoutButtonContainer">
     <button (click)="logOut()" class="logOutButton" id="logoutButton">Logout</button>
 </div>
