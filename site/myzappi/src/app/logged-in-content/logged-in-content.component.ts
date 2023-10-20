@@ -13,6 +13,7 @@ export class LoggedInContentComponent implements OnInit {
   @Input() public bearerToken: any;
   hubDetails: any;
   registered: any;
+  registeredThisSession = false;
   public eddiEnabled = false;
   @Output() public logoutEvent = new EventEmitter();
 
@@ -58,6 +59,7 @@ export class LoggedInContentComponent implements OnInit {
   registeredEvent() {
     console.log('Received register event');
     this.registered = true;
+    this.registeredThisSession = true;
     this.getHubDetails();
   }
 
