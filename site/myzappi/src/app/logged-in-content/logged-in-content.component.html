@@ -72,9 +72,11 @@
         </ul>
     </div>
     <br>
-    <app-energy-cost-panel [bearerToken]="bearerToken"></app-energy-cost-panel>
-    <br>
-    <app-tariff-panel [bearerToken]="bearerToken"></app-tariff-panel>
+    <div *ngIf="tariffsRegistered === true">
+        <app-energy-cost-panel [bearerToken]="bearerToken"></app-energy-cost-panel>
+        <br>
+    </div>
+    <app-tariff-panel [bearerToken]="bearerToken" (tariffChangeEvent)="tariffChangeEvent()"></app-tariff-panel>
     <br>
     <app-schedules-panel [bearerToken]="bearerToken"></app-schedules-panel>
     <br>

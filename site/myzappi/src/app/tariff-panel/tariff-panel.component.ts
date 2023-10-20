@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
 
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 
@@ -21,6 +21,7 @@ interface TariffData {
 })
 export class TariffPanelComponent {
   @Input() public bearerToken: any;
+  @Output() public tariffChangeEvent = new EventEmitter();
   tariffCounter: number = 0;
   tariffCurrency = "EUR";
   tariffRows: any[] = [];
@@ -54,6 +55,7 @@ export class TariffPanelComponent {
         
         if (data.tariffs.length > 0) {
           this.tariffsSaved = true;
+          this.tariffChangeEvent.emit('');
         }
       },
       error => {
@@ -63,6 +65,7 @@ export class TariffPanelComponent {
           // if not 404, there is something wrong and it should not be editable
         this.editable = true;
         this.loaded = true;
+        this.modifyingTariffs = true;
       });
   }
 
@@ -105,11 +108,14 @@ export class TariffPanelComponent {
         console.log("Success saving tariffs");
         this.submitButtonDisabled = false;
         this.successMessageText = "Tariffs saved!";
+        this.modifyingTariffs = false;
+
+        this.tariffChangeEvent.emit('');
       },
       error => {
         console.log("error saving tariffs " + JSON.stringify(requestBody));
         this.submitButtonDisabled = false;
-
+        this.modifyingTariffs = false;
         if (error.status === 400) {
           this.messageText = "Tariff Saving Error: Please ensure you've configured tariffs to cover the entire day. Each tariff must be set on at least a minimum 30-minute basis.";
         } else if (error.status === 401) {

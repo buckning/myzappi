@@ -14,6 +14,7 @@ export class LoggedInContentComponent implements OnInit {
   hubDetails: any;
   registered: any;
   registeredThisSession = false;
+  tariffsRegistered = false;
   public eddiEnabled = false;
   @Output() public logoutEvent = new EventEmitter();
 
@@ -61,6 +62,11 @@ export class LoggedInContentComponent implements OnInit {
     this.registered = true;
     this.registeredThisSession = true;
     this.getHubDetails();
+  }
+
+  tariffChangeEvent() {
+    console.log("Tariffs were changed");
+    this.tariffsRegistered = true;
   }
 
   deleteZappi() {

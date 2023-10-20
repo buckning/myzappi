@@ -1,6 +1,17 @@
 <div id="tariffForm" class="tile" (submit)="onSubmit()">
   <h1>Tariffs</h1>
 
+  <div *ngIf="modifyingTariffs !== true">
+    <div id="messageContainer" class="container" *ngIf="messageText !== ''">
+      <div class="errorMessage">{{messageText}}</div>
+      <br><br>
+    </div>
+    <div id="messageContainer" class="container" *ngIf="successMessageText !== ''">
+      <div class="successMessage">{{successMessageText}}</div>
+      <br><br>
+    </div>
+  </div>
+
   <div *ngIf="tariffRows.length > 0 && modifyingTariffs !== true">
     <button type="button" class="confirmButton" (click)="modifyTariffs()">Modify Tariffs</button>
   </div>
@@ -91,16 +102,6 @@
       {{ tariffRows.length > 0 ? '+' : 'Add tariff' }}
     </button>
     <br><br>
-
-    <div id="messageContainer" class="container" *ngIf="messageText !== ''">
-      <div class="errorMessage">{{messageText}}</div>
-      <br><br>
-    </div>
-
-    <div id="messageContainer" class="container" *ngIf="successMessageText !== ''">
-      <div class="successMessage">{{successMessageText}}</div>
-      <br><br>
-    </div>
 
     <button type="submit" class="confirmButton" *ngIf="loaded" [disabled]="submitButtonDisabled || !isFormValid()" (click)="onSubmit()">Save
       Tariffs</button>
