@@ -10,66 +10,8 @@
 </div>
 
 <div *ngIf="registered === true && hubDetails !== null">
-    <div class="tile" *ngIf="registeredThisSession === true">
-        <p>My Zappi is now configured. You can start using it on your Alexa device.</p>
-
-        Here are some things you can ask Alexa to do:
-        <br>
-
-        Change charge mode:
-        <ul>
-            <li>"Alexa, ask my charger to charge my car" - This will change it to fast mode</li>
-            <li>"Alexa, ask my charger to go green" - This will change to Eco+</li>
-            <li>"Alexa, ask my charger to switch to solar" - This will change to Eco+</li>
-            <li>"Alexa, ask my charger to change to {{ '{' }}ChargeMode{{ '}' }} mode" - change to any charge mode.
-                Charge mode can be eco, fast, eco+ or stop</li>
-        </ul>
-        <br>
-
-        Reports:
-        <ul>
-            <li>"Alexa, ask my charger for my energy usage" - get the current rates for import/export/solar</li>
-            <li>"Alexa, ask my charger for energy usage for {{ '{' }}date{{ '}' }} - get the total
-                import/export/consumption for a specific date, e.g. today, yesterday, last Friday, the 10th of May 2023,
-                etc.</li>
-            <li>"Alexa, ask my charger for an energy cost" - get the estimated energy cost for today. Note that you need
-                to set up your tariffs on the myzappi website for this to work</li>
-            <li>"Alexa, ask my charger for an energy cost for {{ '{' }}date{{ '}' }}" - get the estimated energy cost
-                for for a specific date, e.g. today, yesterday, last Friday, the 10th of May 2023, etc. Note that you
-                need to set up your tariffs on the myzappi website for this to work</li>
-        </ul>
-        <br>
-
-        Boost mode:
-        <ul>
-            <li>"Alexa, ask my charger to boost for 5 kilowatt hours" - Set the boost mode for a certain kWh value</li>
-            <li>"Alexa, ask my charger to boost for 3 hours" - Start boosting for a certain time period</li>
-            <li>"Alexa, ask my charger to boost until 5 AM" - Start boosting until a certain time.</li>
-            <li>"Alexa, ask my charger to stop boosting" - Stop boost mode</li>
-        </ul>
-        <br>
-
-        Schedules:
-        <ul>
-            <li>Alexa, ask my charger to switch to eco+ mode starting at 2PM</li>
-            <li>Alexa, ask my charger to schedule a boost until 5AM</li>
-            <li>Alexa, ask my charger to schedule a boost for 10 kilowatt hours</li>
-            <li>Alexa, ask my charger to Boost until 5AM starting at 11PM</li>
-            <li>Alexa, ask my charger to Boost 10 kilowatt hours starting at 9PM</li>
-            <li>Alexa, ask my charger to Boost for 3 hours starting at 6PM</li>
-        </ul>
-
-        Others:
-        <ul>
-            <li>"Alexa, ask my charger if my car is plugged in" - this will tell you if it is plugged in and charging.
-            </li>
-            <li>"Alexa, ask my charger for a charging report" - this will tell you if it is plugged in, charge mode and
-                charging rate.</li>
-            <li>"Alexa, ask my charger to unlock" - this will unlock the charger so you don't have to enter the PIN on
-                the Zappi itself.</li>
-            <li>"Alexa, ask my charger to remind me when my car is not plugged in" - this will remind you every day to
-                plug in your E.V. if it is not currently connected.</li>
-        </ul>
+    <div *ngIf="registeredThisSession === true">
+        <app-help-panel></app-help-panel>
     </div>
     <br>
     <div *ngIf="tariffsRegistered === true">
@@ -100,6 +42,10 @@
                 Unregister
             </button>
         </div>
+    </div>
+    <br>
+    <div *ngIf="registeredThisSession !== true">
+        <app-help-panel></app-help-panel>
     </div>
 </div>
 

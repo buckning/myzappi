@@ -1,8 +1,7 @@
 # Welcome to MyZappi!
 
 ## Next Features
-* Show only the register panel when not registered
-** All other panels should be hidden but should be displayed when registered without having to reload the page
+* Support multiple tanks with Eddi (API changes, Alexa command changes, front end schedule changes)
 * Remind me when my car finishes charging
 * Better metrics
 * Notify if the charger is offline 

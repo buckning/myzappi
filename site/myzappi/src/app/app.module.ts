@@ -12,6 +12,7 @@ import { SchedulesPanelComponent } from './schedules-panel/schedules-panel.compo
 import { CreateRecurringSchedulePanelComponent } from './create-recurring-schedule-panel/create-recurring-schedule-panel.component';
 import { CreateOnetimeSchedulePanelComponent } from './create-onetime-schedule-panel/create-onetime-schedule-panel.component';
 import { EnergyCostPanelComponent } from './energy-cost-panel/energy-cost-panel.component';
+import { HelpPanelComponent } from './help-panel/help-panel.component';
 
 @NgModule({
   declarations: [
@@ -23,7 +24,8 @@ import { EnergyCostPanelComponent } from './energy-cost-panel/energy-cost-panel.
     SchedulesPanelComponent,
     CreateRecurringSchedulePanelComponent,
     CreateOnetimeSchedulePanelComponent,
-    EnergyCostPanelComponent
+    EnergyCostPanelComponent,
+    HelpPanelComponent
   ],
   imports: [
     BrowserModule,
