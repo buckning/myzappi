@@ -19,12 +19,28 @@ interface Schedule {
 })
 export class CreateOnetimeSchedulePanelComponent {
   @Input() public bearerToken: any;
+  @Input() public hubDetails: any;
   @Output() public viewListSchedulesScreen = new EventEmitter();
   startDateTime: string = '';
   scheduleType: string = 'setBoostKwh';
   scheduleActionValue: string = '';
   cancelButtonVisible = true;
   saveButtonDisabled = false;
+  target: 'zappi' | 'eddi' = 'zappi';
+
+  zappiOptions: { value: string, label: string }[] = [
+    { value: 'setBoostKwh', label: 'Boost until kilowatt hours reached' },
+    { value: 'setBoostFor', label: 'Boost for duration (hours)' },
+    { value: 'setBoostUntil', label: 'Boost until time' },
+    { value: 'setChargeMode', label: 'Set charge mode' }
+  ];
+
+  options: { value: string, label: string }[] = this.zappiOptions;
+
+  eddiOptions: { value: string, label: string }[] = [
+    { value: 'setEddiMode', label: 'Set Eddi mode' },
+    { value: 'setEddiBoostFor', label: 'Boost Eddi for duration (minutes)' }
+  ];
 
   constructor(private http: HttpClient) { }
 
@@ -32,6 +48,16 @@ export class CreateOnetimeSchedulePanelComponent {
     // TODO set logged-in-content registered = true
     console.log("Cancel clicked");
     this.viewListSchedulesScreen.emit('');
+  }
+
+  eddiSelected() {
+    this.scheduleType = 'setEddiMode';
+    this.options = this.eddiOptions;
+  }
+
+  zappiSelected() {
+    this.scheduleType = 'setBoostKwh';
+    this.options = this.zappiOptions;
   }
 
   saveSchedule() {

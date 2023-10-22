@@ -25,7 +25,7 @@ interface Schedules {
 })
 export class SchedulesPanelComponent {
   @Input() public bearerToken: any;
-  @Input() public eddiEnabled: any;
+  @Input() public hubDetails: any;
   // selectedOption: 'one-time' | 'recurring' = 'one-time';
   selectedOption: 'one-time' | 'recurring' = 'recurring';
   createRecurringScheduleVisible = false;
@@ -36,6 +36,7 @@ export class SchedulesPanelComponent {
   recurringScheduleRows: any[] = [];
   recurringScheduleEddiRows: any[] = [];
   oneTimeScheduleRows: any[] = [];
+  oneTimeScheduleEddiRows: any[] = [];
   daysOfWeek: string[] = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
   chargeModeMapping: { [key: string]: string } = {
@@ -205,7 +206,11 @@ export class SchedulesPanelComponent {
         );
 
         this.oneTimeScheduleRows = data.schedules.filter(schedule => 
-          schedule.startDateTime !== undefined && schedule.startDateTime !== null
+          schedule.startDateTime !== undefined && schedule.startDateTime !== null && schedule.action.type.indexOf("Eddi") === -1
+        );
+
+        this.oneTimeScheduleEddiRows = data.schedules.filter(schedule => 
+          schedule.startDateTime !== undefined && schedule.startDateTime !== null && schedule.action.type.indexOf("Eddi") !== -1
         );
         
         this.loaded = true;

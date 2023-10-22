@@ -78,7 +78,7 @@
     </div>
     <app-tariff-panel [bearerToken]="bearerToken" (tariffChangeEvent)="tariffChangeEvent()"></app-tariff-panel>
     <br>
-    <app-schedules-panel [bearerToken]="bearerToken"></app-schedules-panel>
+    <app-schedules-panel [bearerToken]="bearerToken" [hubDetails]="hubDetails"></app-schedules-panel>
     <br>
     <div *ngIf="hubDetails != null">
         <div class="tile">
