@@ -23,6 +23,7 @@ interface Schedule {
 export class CreateRecurringSchedulePanelComponent {
   @Input() public bearerToken: any;
   @Input() public eddiEnabled: any;
+  @Input() public hubDetails: any;
   @Output() public viewListSchedulesScreen = new EventEmitter();
   recurringTime: string = '';
   selectedDays: { [key: string]: boolean } = {};

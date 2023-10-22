@@ -1,80 +1,49 @@
-button {
-    background-color: #4CAF50;
-    color: #fff;
-    padding: 10px 20px;
-    font-size: 16px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
 input[type="string"] {
     width: 60px;
-    padding: 10px;
-    padding-right: 10px;
-    font-size: 14px;
-    border-radius: 4px;
-    border: 1px solid #ccc;
-    margin-bottom: 10px;
 }
 
 .repeatDays {
     width: 280px;
-    padding: 10px;
-    padding-right: 10px;
-    font-size: 14px;
-    border-radius: 4px;
-    border: 1px solid #ccc;
-    margin-bottom: 10px;
 }
 
 .scheduleType {
     width: 170px;
-    padding: 10px;
-    padding-right: 10px;
-    font-size: 14px;
-    border-radius: 4px;
-    border: 1px solid #ccc;
-    margin-bottom: 10px;
 }
 
 .scheduleDateTime {
     width: 130px;
-    padding: 10px;
-    padding-right: 10px;
-    font-size: 14px;
-    border-radius: 4px;
-    border: 1px solid #ccc;
-    margin-bottom: 10px;
 }
 
 .chargeMode {
     width: 80px;
-    padding: 10px;
-    padding-right: 10px;
-    font-size: 14px;
-    border-radius: 4px;
-    border: 1px solid #ccc;
-    margin-bottom: 10px;
 }
 
-.deleteButton {
-    background-color: #ff6f6f;
-    color: #fff;
-    padding: 10px 20px;
-    font-size: 16px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-}
+@media (max-width: 768px) {
+    input[type="string"] {
+        width: 40px;
+    }
 
-.schedulePanel {
-    max-width: 600px;
-    min-width: 600px;
-    margin: 0 auto;
-    color: #333333;
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 4px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    .repeatDays {
+        width: 285px;
+    }
+    
+    .scheduleType {
+        width: 140px;
+    }
+    
+    .scheduleDateTime {
+        width: 110px;
+    }
+    
+    .chargeMode {
+        width: 65px;
+    }
+
+    .repeatDays {
+        width: 200px;
+    }
+
+    .chargeMode {
+        width: 55px;
+    }
 }

@@ -1,4 +1,4 @@
-<div class="schedulePanel">
+<div class="tile">
   <h1>Schedules</h1>
 
   <div *ngIf="!loaded">
@@ -20,16 +20,17 @@
   </div>
 
   <div *ngIf="loaded && listSchedulesVisible && selectedOption === 'recurring'">
-    <p *ngIf="recurringScheduleRows.length === 0">
-      You have no zappi schedules. Create a new schedule below.
+    <p *ngIf="recurringScheduleRows.length === 0 && recurringScheduleEddiRows.length === 0">
+      You have no schedules. Create a new schedule below.
     </p>
 
+    <h2 *ngIf="hubDetails.eddiSerialNumber !== null && recurringScheduleRows.length > 0">Zappi Schedules</h2>
 
     <table id="scheduleTable" *ngIf="recurringScheduleRows.length > 0" class="scheduleTable">
       <thead>
         <tr>
           <th>Time</th>
-          <th>Charge Mode</th>
+          <th>Mode</th>
           <th>Repeat</th>
           <th></th>
         </tr>
@@ -48,7 +49,7 @@
             <input type="text" name="repeat" class="repeatDays" [ngModel]="calculateDisplayString(row)" readonly>
           </td>
           <td>
-            <button type="button" class="deleteButton" (click)="deleteSchedule(row)">Delete</button>
+            <button type="button" class="destructiveButton" (click)="deleteSchedule(row)">Delete</button>
           </td>
         </tr>
       </tbody>
@@ -80,7 +81,7 @@
             <input type="text" name="repeat" class="repeatDays" [ngModel]="calculateDisplayString(row)" readonly>
           </td>
           <td>
-            <button type="button" class="deleteButton" (click)="deleteSchedule(row)">Delete</button>
+            <button type="button" class="destructiveButton" (click)="deleteSchedule(row)">Delete</button>
           </td>
         </tr>
       </tbody>
@@ -90,10 +91,11 @@
   </div>
 
   <div *ngIf="loaded && listSchedulesVisible && selectedOption === 'one-time'">
-    <p *ngIf="oneTimeScheduleRows.length === 0">
+    <p *ngIf="oneTimeScheduleRows.length === 0 && oneTimeScheduleEddiRows.length === 0">
       You have no schedules. Create a new schedule below.
     </p>
 
+    <h2 *ngIf="oneTimeScheduleRows.length > 0 && hubDetails.eddiSerialNumber !== null">Zappi Schedules</h2>
     <table id="scheduleTable" *ngIf="oneTimeScheduleRows.length > 0" class="scheduleTable">
       <thead>
         <tr>
@@ -116,7 +118,37 @@
               [ngModel]="convertOneTimeScheduleValue(row)" readonly>
           </td>
           <td>
-            <button type="button" class="deleteButton" (click)="deleteSchedule(row)">Delete</button>
+            <button type="button" class="destructiveButton" (click)="deleteSchedule(row)">Delete</button>
+          </td>
+        </tr>
+      </tbody>
+
+    </table>
+
+    <h2 *ngIf="oneTimeScheduleEddiRows.length > 0">Eddi Schedules</h2>
+    <table id="scheduleTable" *ngIf="oneTimeScheduleEddiRows.length > 0" class="scheduleTable">
+      <thead>
+        <tr>
+          <th>Start Date & Time</th>
+          <th>Type</th>
+          <th>Value</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let row of oneTimeScheduleEddiRows; let i = index">
+          <td>
+            <input type="text" name="time" class="scheduleDateTime" [ngModel]="convertDateTime(row.startDateTime)" readonly>
+          </td>
+          <td>
+            <input type="text" name="time" class="scheduleType" [ngModel]="convertScheduleType(row.action.type)" readonly>
+          </td>
+          <td>
+            <input type="text" name="repeat" class="chargeMode" placeholder="Charge Mode"
+              [ngModel]="convertOneTimeScheduleValue(row)" readonly>
+          </td>
+          <td>
+            <button type="button" class="destructiveButton" (click)="deleteSchedule(row)">Delete</button>
           </td>
         </tr>
       </tbody>
@@ -128,17 +160,17 @@
 
 
   <div>
-    <button type="submit" *ngIf="listSchedulesVisible" class="saveScheduleButton"
+    <button type="submit" *ngIf="listSchedulesVisible" class="confirmButton"
       (click)="createSchedule()">New Schedule</button>
   </div>
   <!-- Content for Recurring -->
   <div *ngIf="createRecurringScheduleVisible">
-    <app-create-recurring-schedule-panel [bearerToken]="bearerToken"
+    <app-create-recurring-schedule-panel [bearerToken]="bearerToken" [hubDetails]="hubDetails"
       (viewListSchedulesScreen)="viewListSchedulesScreen()"></app-create-recurring-schedule-panel>
   </div>
 
   <div *ngIf="createOneTimeScheduleVisible">
-    <app-create-onetime-schedule-panel [bearerToken]="bearerToken"
+    <app-create-onetime-schedule-panel [bearerToken]="bearerToken" [hubDetails]="hubDetails"
       (viewListSchedulesScreen)="viewListSchedulesScreen()"></app-create-onetime-schedule-panel>
   </div>
 </div>

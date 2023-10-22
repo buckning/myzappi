@@ -1,15 +1,22 @@
 <div>
+    <div *ngIf="hubDetails.eddiSerialNumber !== null">
+        <div>
+            <label>
+                <input type="radio" name="radioGroup" value="zappi" [(ngModel)]="target" (click)="zappiSelected()"
+                    checked>Zappi
+            </label>
+
+            <label>
+                <input type="radio" name="radioGroup" value="eddi" [(ngModel)]="target" (click)="eddiSelected()">Eddi
+            </label>
+        </div>
+    </div>
     <div>
         Schedule time: <input type="datetime-local" [(ngModel)]="startDateTime" />
         <br>
         Schedule type: <select [(ngModel)]="scheduleType" (change)="onScheduleTypeChange()">
-            <option value="setBoostKwh">Boost until kilowatt hours reached</option>
-            <option value="setBoostFor">Boost for duration (hours)</option>
-            <option value="setBoostUntil">Boost until time</option>
-            <option value="setChargeMode">Set charge mode</option>
-            <option value="setEddiMode">Set Eddi mode</option>
-            <option value="setEddiBoostFor">Boost Eddi for duration (minutes)</option>
-        </select>
+            <option *ngFor="let option of options" [ngValue]="option.value">{{ option.label }}</option>
+          </select>
         <br>
         <div *ngIf="scheduleType === 'setBoostKwh'">
             Value: <input [(ngModel)]="scheduleActionValue" type="number" min="1" max="99" />
@@ -48,9 +55,9 @@
 
     <br>
     <div>
-        <button type="submit" class="saveScheduleButton" [disabled]="saveButtonDisabled  || !isScheduleValid()" (click)="saveSchedule()">Create Schedule</button>
+        <button type="submit" class="confirmButton" [disabled]="saveButtonDisabled  || !isScheduleValid()" (click)="saveSchedule()">Create Schedule</button>
     </div>
     <div>
-        <button type="cancel" class="cancelButton" [style.display]="cancelButtonVisible ? 'block' : 'none'" (click)="cancel()">Cancel</button>
+        <button type="cancel" class="destructiveButton" [style.display]="cancelButtonVisible ? 'block' : 'none'" (click)="cancel()">Cancel</button>
     </div>
 </div>

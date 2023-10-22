@@ -1,101 +1,111 @@
-<div id="tariffForm" class="tariffForm" (submit)="onSubmit()">
-  <div *ngIf="loaded && tariffsSaved">
-    <h1>Energy {{costOrCredit}} for today: {{ energyCost }}</h1>
-    <button type="button" [disabled]="isReadingEnergyCost" class="addTariffButton" (click)="readEnergyCost()" id="refreshCostButton">
-      Refresh Energy Cost
-    </button>
-</div>
+<div id="tariffForm" class="tile" (submit)="onSubmit()">
+  <h1>Tariffs</h1>
 
-    <h1>Enter your tariffs</h1>
+  <div *ngIf="modifyingTariffs !== true">
+    <div id="messageContainer" class="container" *ngIf="messageText !== ''">
+      <div class="errorMessage">{{messageText}}</div>
+      <br><br>
+    </div>
+    <div id="messageContainer" class="container" *ngIf="successMessageText !== ''">
+      <div class="successMessage">{{successMessageText}}</div>
+      <br><br>
+    </div>
+  </div>
+
+  <div *ngIf="tariffRows.length > 0 && modifyingTariffs !== true">
+    <button type="button" class="confirmButton" (click)="modifyTariffs()">Modify Tariffs</button>
+  </div>
+
+  <div *ngIf="tariffRows.length === 0 || modifyingTariffs === true">
     <div>
       <div *ngIf="tariffCurrency === 'EUR'">
-        Submit your tariff details here for Alexa to tell you your energy costs. 
-        Please enter tariff rates in both Euro and cent. 
+        Submit your tariff details here for Alexa to tell you your energy costs.
+        Please enter tariff rates in both Euro and cent.
         If your tariff rate is 44 cent, please enter <b>0.44</b>
       </div>
       <div *ngIf="tariffCurrency === 'GBP'">
-        Submit your tariff details here for Alexa to tell you your energy costs. 
-        Please enter tariff rates in both pounds and pence. 
+        Submit your tariff details here for Alexa to tell you your energy costs.
+        Please enter tariff rates in both pounds and pence.
         If your tariff rate is 44 pence, please enter <b>0.44</b>
       </div>
-        
+
       <br>
       <br>
       <i>"Alexa, ask my charger for an energy cost for today"</i>
     </div>
 
     <div *ngIf="!loaded">
-        <p>
-            Loading your tariffs...
-        </p>
+      <p>
+        Loading your tariffs...
+      </p>
     </div>
 
     <br>
     <label *ngIf="loaded" for="currency">Currency:</label>
     <select *ngIf="loaded" id="currency" name="currency" [(ngModel)]="tariffCurrency" required>
-        <option value="EUR">EUR</option>
-        <option value="GBP">GBP</option>
+      <option value="EUR">EUR</option>
+      <option value="GBP">GBP</option>
     </select><br><br>
 
     <h2 *ngIf="tariffRows.length > 0">Tariffs:</h2>
 
     <table id="tariffTable" *ngIf="tariffRows.length > 0" class="tariffTable">
-        <thead>
+      <thead>
         <tr>
-            <th>Name</th>
-            <th>Start Time</th>
-            <th>End Time</th>
-            <th>Import Cost per kWh
-              <br>
-              <div *ngIf="tariffCurrency === 'GBP'">in £</div>
-              <div *ngIf="tariffCurrency === 'EUR'">in €</div>
-            </th>
-            <th>Export Cost per kWh
-              <br>
-              <div *ngIf="tariffCurrency === 'GBP'">in £</div>
-              <div *ngIf="tariffCurrency === 'EUR'">in €</div>
-            </th>
-            <th></th>
+          <th>Name</th>
+          <th>Start Time</th>
+          <th>End Time</th>
+          <th>Import Cost per kWh
+            <br>
+            <div *ngIf="tariffCurrency === 'GBP'">in £</div>
+            <div *ngIf="tariffCurrency === 'EUR'">in €</div>
+          </th>
+          <th>Export Cost per kWh
+            <br>
+            <div *ngIf="tariffCurrency === 'GBP'">in £</div>
+            <div *ngIf="tariffCurrency === 'EUR'">in €</div>
+          </th>
+          <th></th>
         </tr>
-        </thead>
-        <tbody>
-            <tr *ngFor="let row of tariffRows; let i = index">
-                <td>
-                    <input type="text" name="name" class="tariffName" [(ngModel)]="row.name">
-                  </td>
-                  <td>
-                    <input type="string" name="start" placeholder="HH:mm" [(ngModel)]="row.start" [style.background-color]="isValidTime(row.start) ? '' : '#f8d7da'">
-                  </td>
-                  <td>
-                    <input type="string" name="end" placeholder="HH:mm" [(ngModel)]="row.end" [style.background-color]="isValidTime(row.end) ? '' : '#f8d7da'">
-                  </td>
-                  <td>
-                    <input type="number" step="0.0001" placeholder="e.g. 0.44" name="importCostPerKwh" min="0" [(ngModel)]="row.importCostPerKwh" [style.background-color]="isValidTariff(row.importCostPerKwh) ? '' : '#f8d7da'">
-                  </td>
-                  <td>
-                    <input type="number" step="0.0001" placeholder="e.g. 0.21" name="exportCostPerKwh" min="0" value='' [(ngModel)]="row.exportCostPerKwh" [style.background-color]="isValidTariff(row.exportCostPerKwh) ? '' : '#f8d7da'">
-                  </td>
-                  <td>
-                    <button type="button" class="deleteButton" (click)="deleteTariffRow(i)">X</button>
-                  </td>
-            </tr>
-        </tbody>
+      </thead>
+      <tbody>
+        <tr *ngFor="let row of tariffRows; let i = index">
+          <td>
+            <input type="text" name="name" class="tariffName" [(ngModel)]="row.name">
+          </td>
+          <td>
+            <input type="string" name="start" placeholder="HH:mm" [(ngModel)]="row.start"
+              [style.background-color]="isValidTime(row.start) ? '' : '#f8d7da'">
+          </td>
+          <td>
+            <input type="string" name="end" placeholder="HH:mm" [(ngModel)]="row.end"
+              [style.background-color]="isValidTime(row.end) ? '' : '#f8d7da'">
+          </td>
+          <td>
+            <input type="number" step="0.0001" placeholder="e.g. 0.44" name="importCostPerKwh" min="0"
+              [(ngModel)]="row.importCostPerKwh"
+              [style.background-color]="isValidTariff(row.importCostPerKwh) ? '' : '#f8d7da'">
+          </td>
+          <td>
+            <input type="number" step="0.0001" placeholder="e.g. 0.21" name="exportCostPerKwh" min="0" value=''
+              [(ngModel)]="row.exportCostPerKwh"
+              [style.background-color]="isValidTariff(row.exportCostPerKwh) ? '' : '#f8d7da'">
+          </td>
+          <td>
+            <button type="button" class="destructiveButton" (click)="deleteTariffRow(i)">X</button>
+          </td>
+        </tr>
+      </tbody>
     </table>
 
-    <button type="button" *ngIf="loaded" class="addTariffButton" (click)="addTariffRow()" id="addTariffButton">
+    <button type="button" *ngIf="loaded" class="confirmButton" (click)="addTariffRow()" id="addTariffButton">
       {{ tariffRows.length > 0 ? '+' : 'Add tariff' }}
     </button>
     <br><br>
 
-    <div id="messageContainer" class="container" *ngIf="messageText !== ''">
-        <div class="errorMessage">{{messageText}}</div>
-        <br><br>
-    </div>
+    <button type="submit" class="confirmButton" *ngIf="loaded" [disabled]="submitButtonDisabled || !isFormValid()" (click)="onSubmit()">Save
+      Tariffs</button>
+  </div>
 
-    <div id="messageContainer" class="container" *ngIf="successMessageText !== ''">
-        <div class="successMessage">{{successMessageText}}</div>
-        <br><br>
-    </div>
 
-    <button type="submit" *ngIf="loaded" [disabled]="submitButtonDisabled || !isFormValid()" (click)="onSubmit()">Save Tariffs</button>
 </div>

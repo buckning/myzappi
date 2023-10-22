@@ -1,34 +1,54 @@
-<div class="container" style="background-color: #2d84da; padding: 10px; min-width: 600px;">
-    
-    <div *ngIf="registered === false">
-        <app-register-panel [bearerToken]="bearerToken"></app-register-panel>
+<div *ngIf="registered === false">
+    <app-register-panel [bearerToken]="bearerToken" (registeredEvent)="registeredEvent()"></app-register-panel>
+</div>
+
+
+<div class="tile" *ngIf="hubDetails == null && registered !== false">
+    <p>
+        Loading your details...
+    </p>
+</div>
+
+<div *ngIf="registered === true && hubDetails !== null">
+    <div *ngIf="registeredThisSession === true">
+        <app-help-panel></app-help-panel>
     </div>
-    <div *ngIf="hubDetails == null && registered !== false">
-        <p>
-            Loading your details...
-        </p>
+    <br>
+    <div *ngIf="tariffsRegistered === true">
+        <app-energy-cost-panel [bearerToken]="bearerToken"></app-energy-cost-panel>
+        <br>
     </div>
-    
+    <app-tariff-panel [bearerToken]="bearerToken" (tariffChangeEvent)="tariffChangeEvent()"></app-tariff-panel>
+    <br>
+    <app-schedules-panel [bearerToken]="bearerToken" [hubDetails]="hubDetails"></app-schedules-panel>
+    <br>
     <div *ngIf="hubDetails != null">
-        <div>
-            Your Zappi device is registered on My Zappi. You can start using My Zappi on your Alexa.
-        </div>
-        <p>
-            hub serial number: {{hubDetails.hubSerialNumber}}
+        <div class="tile">
+            <div>
+                <h1>Devices</h1>
+            </div>
             <br>
-            zappi serial number: {{hubDetails.zappiSerialNumber}}
-        </p>
-        <div *ngIf="hubDetails.eddiSerialNumber !== null">
-            eddi serial number: {{hubDetails.eddiSerialNumber}}
+            <div>
+                hub: {{hubDetails.hubSerialNumber}}
+            </div>
+            <div>
+                zappi: {{hubDetails.zappiSerialNumber}}
+            </div>
+            <div *ngIf="hubDetails.eddiSerialNumber !== null">
+                eddi: {{hubDetails.eddiSerialNumber}}
+            </div>
+            <br>
+            <button (click)="deleteZappi()" id="forgetMyDetailsButton" class="destructiveButton">
+                Unregister
+            </button>
         </div>
-        <button (click)="deleteZappi()" id="forgetMyDetailsButton" class="forgetMyDetailsButton">Delete Zappi</button>
+    </div>
+    <br>
+    <div *ngIf="registeredThisSession !== true">
+        <app-help-panel></app-help-panel>
     </div>
 </div>
-<br>
-<app-tariff-panel [bearerToken]="bearerToken"></app-tariff-panel>
-<br>
-<app-schedules-panel [bearerToken]="bearerToken"></app-schedules-panel>
 
-<div class="container">
-    <button (click)="logOut()" class="logOutButton" id="logoutButton">Logout</button>
+<div class="logoutButtonContainer">
+    <button (click)="logOut()" class="confirmButton" id="logoutButton">Logout</button>
 </div>

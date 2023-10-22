@@ -9,8 +9,6 @@ declare const amazon: any;
 })
 export class LoggedOutContentComponent {
 
-  
-
   lwaLogin() {
     console.log("Doing LWA login...");
     var options = {

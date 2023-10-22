@@ -1,20 +1,23 @@
-.forgetMyDetailsButton {
-    background-color: #ff6f6f;
-    color: #fff;
-    padding: 10px 20px;
-    font-size: 16px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
+.confirmButton {
+    margin-bottom: 100px;
 }
 
-.logOutButton {
-    background-color: #4CAF50;
-    color: #fff;
-    padding: 10px 20px;
-    font-size: 16px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    margin-bottom: 100px;
+.logoutButtonContainer {
+    padding: 10px;
+    min-width: 600px;
+    max-width: 600px;
+    margin: 0 auto;
+    align-content: center;
+    max-width: auto;
+}
+
+@media (max-width: 768px) {
+    .logoutButtonContainer {
+        padding: 10px;
+        min-width: 450px;
+        max-width: 450px;
+        margin: 0 auto;
+        align-content: center;
+        max-width: auto;
+    }
 }

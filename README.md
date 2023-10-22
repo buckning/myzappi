@@ -1,6 +1,7 @@
 # Welcome to MyZappi!
 
 ## Next Features
+* Support multiple tanks with Eddi (API changes, Alexa command changes, front end schedule changes)
 * Remind me when my car finishes charging
 * Better metrics
 * Notify if the charger is offline 
