@@ -51,6 +51,7 @@ public class EndpointRouter {
 
         handlers = new HashMap<>();
         handlers.put("/hub", hubController);
+        handlers.put("/hub/refresh", hubController);
         handlers.put("/tariff", tariffController);
         handlers.put("/authenticate", authenticateController);
         handlers.put("/logout", logoutController);

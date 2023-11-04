@@ -90,6 +90,14 @@ aws dynamodb create-table \
 --provisioned-throughput ReadCapacityUnits=1,WriteCapacityUnits=1
 ```
 
+Contains all the myenergi device information for a user as a json blob
+```
+aws dynamodb create-table \
+--table-name devices \
+--attribute-definitions AttributeName=user-id,AttributeType=S \
+--key-schema AttributeName=user-id,KeyType=HASH \
+--provisioned-throughput ReadCapacityUnits=1,WriteCapacityUnits=1
+```
 ## Manually create role for Lambda
 
 ### Create role for myzappi Lambda
