@@ -2,15 +2,17 @@ package com.amcglynn.myenergi.apiresponse;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Getter;
 
+@Getter
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class MyEnergiDeviceStatus {
     @JsonProperty("sno")
     private String serialNumber;
-
-    public String getSerialNumber() {
-        return this.serialNumber;
-    }
+    @JsonProperty("ht1")
+    private String tank1Name;
+    @JsonProperty("ht2")
+    private String tank2Name;
 
 //    {
 //        "zappi": [

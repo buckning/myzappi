@@ -50,7 +50,8 @@ public class HubController implements RestController {
     }
 
     private Response refreshDeploymentDetails(Request request) {
-        throw new ServerException(409);
+        registrationService.refreshDeploymentDetails(request.getUserId());
+        return new Response(201);
     }
 
     @SneakyThrows

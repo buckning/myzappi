@@ -18,7 +18,6 @@ import software.amazon.awssdk.services.scheduler.model.Target;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -81,7 +80,7 @@ public class ScheduleService {
 
     private void validate(UserId userId, Schedule schedule) {
         if (schedule.getAction().getType().toLowerCase().contains("eddi")) {
-            if (loginService.readCredentials(userId.toString()).get().getEddiSerialNumber().isEmpty()) {
+            if (loginService.readDeploymentDetails(userId.toString()).get().getEddiSerialNumber().isEmpty()) {
                 log.info("Eddi not found for user {}", userId);
                 throw new MissingDeviceException("Eddi not available");
             }

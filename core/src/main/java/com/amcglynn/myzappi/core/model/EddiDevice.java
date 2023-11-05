@@ -2,9 +2,11 @@ package com.amcglynn.myzappi.core.model;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @NoArgsConstructor
 @Getter
+@ToString
 public class EddiDevice extends MyEnergiDevice {
 
     private String tank1Name;

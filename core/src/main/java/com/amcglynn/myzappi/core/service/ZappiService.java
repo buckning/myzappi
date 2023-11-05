@@ -10,9 +10,7 @@ import com.amcglynn.myenergi.apiresponse.ZappiHistory;
 import com.amcglynn.myenergi.units.KiloWattHour;
 import com.amcglynn.myzappi.core.exception.MissingDeviceException;
 import com.amcglynn.myzappi.core.exception.UserNotLoggedInException;
-import com.amcglynn.myzappi.core.model.Schedule;
 import com.amcglynn.myzappi.core.model.SerialNumber;
-import com.amcglynn.myzappi.core.model.UserId;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.Duration;
@@ -32,7 +30,7 @@ public class ZappiService {
     private final boolean hasEddi;
 
     private ZappiService(LoginService loginService, EncryptionService encryptionService, String user) {
-        var creds = loginService.readCredentials(user);
+        var creds = loginService.readDeploymentDetails(user);
         if (creds.isEmpty()) {
             throw new UserNotLoggedInException(user);
         }

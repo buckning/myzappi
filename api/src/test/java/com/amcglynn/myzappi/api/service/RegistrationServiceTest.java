@@ -5,12 +5,14 @@ import com.amcglynn.myenergi.MyEnergiClientFactory;
 import com.amcglynn.myenergi.apiresponse.MyEnergiDeviceStatus;
 import com.amcglynn.myenergi.apiresponse.StatusResponse;
 import com.amcglynn.myzappi.api.rest.ServerException;
+import com.amcglynn.myzappi.core.model.EddiDevice;
 import com.amcglynn.myzappi.core.model.SerialNumber;
 import com.amcglynn.myzappi.core.model.UserId;
 import com.amcglynn.myzappi.core.service.LoginService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
@@ -21,6 +23,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowableOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -73,13 +76,22 @@ class RegistrationServiceTest {
 
     @Test
     void registerWithZappiAndEddi() {
+        var eddiDeviceCaptor = ArgumentCaptor.forClass(EddiDevice.class);
+        when(mockEddiDeviceStatus.getTank1Name()).thenReturn("tank1");
+        when(mockEddiDeviceStatus.getTank2Name()).thenReturn("tank2");
         when(mockMyEnergiClientFactory.newMyEnergiClient(hubSerialNumber.toString(), zappiSerialNumber.toString(), eddiSerialNumber.toString(), apiKey))
                 .thenReturn(mockMyEnergiClient);
         service.register(userId, hubSerialNumber, apiKey);
         verify(mockMyEnergiClientFactory).newMyEnergiClient(hubSerialNumber.toString(), apiKey);
         verify(mockMyEnergiClientFactory).newMyEnergiClient(hubSerialNumber.toString(), zappiSerialNumber.toString(),
                 eddiSerialNumber.toString(), apiKey);
-        verify(mockLoginService).register(userId.toString(), zappiSerialNumber, hubSerialNumber, eddiSerialNumber, apiKey);
+        verify(mockLoginService).register(eq(userId.toString()), eq(zappiSerialNumber), eq(hubSerialNumber),
+                eddiDeviceCaptor.capture(), eq(apiKey));
+
+        assertThat(eddiDeviceCaptor.getAllValues()).hasSize(1);
+        assertThat(eddiDeviceCaptor.getValue().getSerialNumber()).isEqualTo(SerialNumber.from("09876543"));
+        assertThat(eddiDeviceCaptor.getValue().getTank1Name()).isEqualTo("tank1");
+        assertThat(eddiDeviceCaptor.getValue().getTank2Name()).isEqualTo("tank2");
     }
 
     @Test
@@ -100,6 +112,7 @@ class RegistrationServiceTest {
 
     @Test
     void registerTestAccount() {
+        var eddiDeviceCaptor = ArgumentCaptor.forClass(EddiDevice.class);
         when(mockMyEnergiClientFactory.newMyEnergiClient(zappiSerialNumber.toString(), hubSerialNumber.toString(), null, apiKey))
                 .thenReturn(mockMyEnergiClient);
 
@@ -109,10 +122,14 @@ class RegistrationServiceTest {
 
         service.register(userId, SerialNumber.from("12345678"), "myDemoApiKey");
 
-        verify(mockLoginService).register(userId.toString(), SerialNumber.from("12345678"),
-                SerialNumber.from("12345678"), eddiSerialNumber, "myDemoApiKey");
+        verify(mockLoginService).register(eq(userId.toString()), eq(SerialNumber.from("12345678")),
+                eq(SerialNumber.from("12345678")), eddiDeviceCaptor.capture(), eq("myDemoApiKey"));
         verify(mockMyEnergiClientFactory, never()).newMyEnergiClient(anyString(), anyString());
         verify(mockMyEnergiClientFactory, never()).newMyEnergiClient(any(),
                 anyString(), anyString(), anyString());
+        assertThat(eddiDeviceCaptor.getAllValues()).hasSize(1);
+        assertThat(eddiDeviceCaptor.getValue().getSerialNumber()).isEqualTo(SerialNumber.from("09876543"));
+        assertThat(eddiDeviceCaptor.getValue().getTank1Name()).isEqualTo("tank1");
+        assertThat(eddiDeviceCaptor.getValue().getTank2Name()).isEqualTo("tank2");
     }
 }

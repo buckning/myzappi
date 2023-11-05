@@ -87,6 +87,8 @@ class MyEnergiClientTest {
 
         assertThat(eddis.get().getEddi()).hasSize(1);
         assertThat(eddis.get().getEddi().get(0).getSerialNumber()).isEqualTo("10088888");
+        assertThat(eddis.get().getEddi().get(0).getTank1Name()).isEqualTo("Tank 1");
+        assertThat(eddis.get().getEddi().get(0).getTank2Name()).isEqualTo("Tank 2");
 
         assertThat(harvis.get().getHarvi()).hasSize(1);
         assertThat(harvis.get().getHarvi().get(0).getSerialNumber()).isEqualTo("10203040");

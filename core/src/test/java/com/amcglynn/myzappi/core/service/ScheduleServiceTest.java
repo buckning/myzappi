@@ -65,7 +65,7 @@ class ScheduleServiceTest {
     @BeforeEach
     void setUp() {
         when(mockSchedulerClient.createSchedule(any(CreateScheduleRequest.class))).thenReturn(createScheduleResponse);
-        when(mockLoginService.readCredentials("mockUserId"))
+        when(mockLoginService.readDeploymentDetails("mockUserId"))
                 .thenReturn(Optional.of(new MyEnergiDeployment("mockUserId", SerialNumber.from("12345678"),
                         SerialNumber.from("09876543"), null, null)));
         service = new ScheduleService(mockRepository, mockScheduleDetailsRepository, mockSchedulerClient,

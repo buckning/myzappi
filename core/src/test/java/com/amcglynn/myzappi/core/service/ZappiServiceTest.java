@@ -60,7 +60,7 @@ class ZappiServiceTest {
     @BeforeEach
     void setUp() {
         var zappiCreds = new MyEnergiDeployment(userId, zappiSerialNumber, serialNumber, null, encryptedApiKey);
-        when(mockLoginService.readCredentials(userId)).thenReturn(Optional.of(zappiCreds));
+        when(mockLoginService.readDeploymentDetails(userId)).thenReturn(Optional.of(zappiCreds));
         when(mockEncryptionService.decrypt(encryptedApiKey)).thenReturn("myApiKey");
         when(mockUserIdResolver.getUserId()).thenReturn(userId);
         this.zappiService = new ZappiService.Builder(mockLoginService, mockEncryptionService).build(mockUserIdResolver);
@@ -69,7 +69,7 @@ class ZappiServiceTest {
 
     @Test
     void testConstructorThrowsUserNotLoggedInExceptionWhenThereIsNoRowInTheDb() {
-        when(mockLoginService.readCredentials(userId)).thenReturn(Optional.empty());
+        when(mockLoginService.readDeploymentDetails(userId)).thenReturn(Optional.empty());
         var throwable = catchThrowable(() -> new ZappiService
                 .Builder(mockLoginService, mockEncryptionService).build(mockUserIdResolver));
         assertThat(throwable).isInstanceOf(UserNotLoggedInException.class);
@@ -196,7 +196,7 @@ class ZappiServiceTest {
     @Test
     void testBoostEddi() {
         var zappiCreds = new MyEnergiDeployment(userId, zappiSerialNumber, serialNumber, SerialNumber.from("09876543"), encryptedApiKey);
-        when(mockLoginService.readCredentials(userId)).thenReturn(Optional.of(zappiCreds));
+        when(mockLoginService.readDeploymentDetails(userId)).thenReturn(Optional.of(zappiCreds));
         this.zappiService = new ZappiService.Builder(mockLoginService, mockEncryptionService).build(mockUserIdResolver);
         zappiService.setClient(mockClient);
 
