@@ -67,7 +67,7 @@ public class HubController implements RestController {
 
     public void register(Request request) {
         if (request.getBody() == null) {
-            System.err.println("Null body in POST request");
+            log.info("Null body in POST request");
             throw new ServerException(400);
         }
         try {
@@ -77,7 +77,7 @@ public class HubController implements RestController {
             var apiKey = body.getApiKey().trim();
             registrationService.register(request.getUserId(), SerialNumber.from(serialNumber), apiKey);
         } catch (JsonProcessingException e) {
-            System.err.println("Invalid request");
+            log.info("Invalid request");
             throw new ServerException(400);
         }
     }

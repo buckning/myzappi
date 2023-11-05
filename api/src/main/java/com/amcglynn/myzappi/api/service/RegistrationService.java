@@ -58,6 +58,22 @@ public class RegistrationService {
         }
     }
 
+    private void refreshDetails(UserId userId, SerialNumber serialNumber, String apiKey) {
+        var myEnergiDevices = discoverMyEnergiDevices(serialNumber, apiKey);
+        var zappiSerialNumber = discoverZappi(serialNumber, apiKey, myEnergiDevices);
+
+        if (zappiSerialNumber.isPresent()) {
+            var eddi = discoverEddi(myEnergiDevices).orElse(null);
+            log.info("Refreshing deployment details zappi = {} hub = {} eddi = {} for user {}", zappiSerialNumber.get(), serialNumber, eddi, userId);
+            loginService.refreshDeploymentDetails(userId.toString(),
+                    zappiSerialNumber.get(),
+                    eddi);
+        } else {
+            log.warn("Could not find Zappi for system when refreshing deployment details");
+            throw new ServerException(409);
+        }
+    }
+
     private List<StatusResponse> discoverMyEnergiDevices(SerialNumber serialNumber, String apiKey) {
         var client = myEnergiClientFactory.newMyEnergiClient(serialNumber.toString(), apiKey);
         try {
@@ -117,6 +133,6 @@ public class RegistrationService {
             log.info("User is not registered {}", userId);
             throw new ServerException(404);
         }
-        discoverAndRegisterDetails(userId, creds.get().getSerialNumber(), creds.get().getApiKey());
+        refreshDetails(userId, creds.get().getSerialNumber(), creds.get().getApiKey());
     }
 }

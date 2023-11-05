@@ -48,6 +48,10 @@ public class LoginService {
         saveDeploymentDetails(UserId.from(userId), zappiSerialNumber, eddiDevice);
     }
 
+    public void refreshDeploymentDetails(String userId, SerialNumber zappiSerialNumber, EddiDevice eddiDevice) {
+        saveDeploymentDetails(UserId.from(userId), zappiSerialNumber, eddiDevice);
+    }
+
     private void saveDeploymentDetails(UserId userId, SerialNumber zappiSerialNumber, EddiDevice eddiDevice) {
         var devices = new ArrayList<MyEnergiDevice>();
         var zappi = new ZappiDevice(zappiSerialNumber);
