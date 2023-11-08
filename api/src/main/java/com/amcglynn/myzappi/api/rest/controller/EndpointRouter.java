@@ -23,7 +23,8 @@ public class EndpointRouter {
     private final AuthenticateController authenticateController;
 
     public EndpointRouter(ServiceManager serviceManager) {
-        this(serviceManager, new HubController(new RegistrationService(serviceManager.getLoginService(), new MyEnergiClientFactory())),
+        this(serviceManager, new HubController(
+                new RegistrationService(serviceManager.getLoginService(), serviceManager.getDevicesRepository(), new MyEnergiClientFactory())),
                 new TariffController(serviceManager.getTariffService()),
                 new LwaClientFactory());
     }
@@ -51,6 +52,7 @@ public class EndpointRouter {
 
         handlers = new HashMap<>();
         handlers.put("/hub", hubController);
+        handlers.put("/v2/hub", hubController);
         handlers.put("/hub/refresh", hubController);
         handlers.put("/tariff", tariffController);
         handlers.put("/authenticate", authenticateController);

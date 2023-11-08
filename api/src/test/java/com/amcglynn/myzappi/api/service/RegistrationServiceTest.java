@@ -5,9 +5,11 @@ import com.amcglynn.myenergi.MyEnergiClientFactory;
 import com.amcglynn.myenergi.apiresponse.MyEnergiDeviceStatus;
 import com.amcglynn.myenergi.apiresponse.StatusResponse;
 import com.amcglynn.myzappi.api.rest.ServerException;
+import com.amcglynn.myzappi.core.dal.DevicesRepository;
 import com.amcglynn.myzappi.core.model.EddiDevice;
 import com.amcglynn.myzappi.core.model.SerialNumber;
 import com.amcglynn.myzappi.core.model.UserId;
+import com.amcglynn.myzappi.core.model.ZappiDevice;
 import com.amcglynn.myzappi.core.service.LoginService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -34,6 +36,8 @@ class RegistrationServiceTest {
 
     @Mock
     private LoginService mockLoginService;
+    @Mock
+    private DevicesRepository mockDevicesRepository;
     @Mock
     private MyEnergiClient mockMyEnergiClient;
     @Mock
@@ -63,7 +67,7 @@ class RegistrationServiceTest {
         when(mockEddiStatusResponse.getEddi()).thenReturn(List.of(mockEddiDeviceStatus));
         when(mockEddiStatusResponse.getZappi()).thenReturn(null);
         when(mockMyEnergiClient.getStatus()).thenReturn(List.of(mockZappiStatusResponse, mockEddiStatusResponse));
-        service = new RegistrationService(mockLoginService, mockMyEnergiClientFactory);
+        service = new RegistrationService(mockLoginService, mockDevicesRepository, mockMyEnergiClientFactory);
     }
 
     @Test
@@ -72,6 +76,16 @@ class RegistrationServiceTest {
         var serverException = catchThrowableOfType(() ->
                 service.register(userId, hubSerialNumber, apiKey), ServerException.class);
         assertThat(serverException.getStatus()).isEqualTo(409);
+    }
+
+    @Test
+    void readDevices() {
+        var devices = List.of(
+                new ZappiDevice(zappiSerialNumber),
+                new EddiDevice(eddiSerialNumber, "tank1", "tank2"));
+        when(mockDevicesRepository.read(userId)).thenReturn(devices);
+        var response = service.readDevices(userId);
+        assertThat(response).isEqualTo(devices);
     }
 
     @Test

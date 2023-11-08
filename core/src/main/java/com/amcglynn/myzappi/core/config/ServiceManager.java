@@ -21,6 +21,7 @@ public class ServiceManager {
 
     private final EncryptionService encryptionService;
     private final CredentialsRepository credentialsRepository;
+    @Getter
     private final DevicesRepository devicesRepository;
     private ZappiService.Builder zappiServiceBuilder;
     private LoginService loginService;

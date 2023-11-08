@@ -4,6 +4,7 @@ import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.amazonaws.services.dynamodbv2.model.GetItemResult;
 import com.amazonaws.services.dynamodbv2.model.PutItemRequest;
+import com.amcglynn.myzappi.core.model.DeviceClass;
 import com.amcglynn.myzappi.core.model.EddiDevice;
 import com.amcglynn.myzappi.core.model.SerialNumber;
 import com.amcglynn.myzappi.core.model.UserId;
@@ -88,8 +89,10 @@ class DevicesRepositoryTest {
         var result = repository.read(UserId.from("userid"));
         assertThat(result).hasSize(2);
         assertThat(result.get(0)).isInstanceOf(ZappiDevice.class);
+        assertThat(result.get(0).getDeviceClass()).isEqualTo(DeviceClass.ZAPPI);
         assertThat(result.get(0).getSerialNumber()).isEqualTo(SerialNumber.from("1234567890"));
         assertThat(result.get(1)).isInstanceOf(EddiDevice.class);
+        assertThat(result.get(1).getDeviceClass()).isEqualTo(DeviceClass.EDDI);
         assertThat(result.get(1).getSerialNumber()).isEqualTo(SerialNumber.from("09876543"));
         var eddi = (EddiDevice) result.get(1);
         assertThat(eddi.getTank1Name()).isEqualTo("tank1");

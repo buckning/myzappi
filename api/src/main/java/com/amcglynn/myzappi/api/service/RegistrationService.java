@@ -3,7 +3,9 @@ package com.amcglynn.myzappi.api.service;
 import com.amcglynn.myenergi.MyEnergiClientFactory;
 import com.amcglynn.myenergi.apiresponse.StatusResponse;
 import com.amcglynn.myenergi.exception.ClientException;
+import com.amcglynn.myzappi.core.dal.DevicesRepository;
 import com.amcglynn.myzappi.core.model.EddiDevice;
+import com.amcglynn.myzappi.core.model.MyEnergiDevice;
 import com.amcglynn.myzappi.core.model.SerialNumber;
 import com.amcglynn.myzappi.core.model.UserId;
 import com.amcglynn.myzappi.core.service.LoginService;
@@ -18,10 +20,12 @@ import java.util.Optional;
 public class RegistrationService {
 
     private final LoginService loginService;
+    private final DevicesRepository devicesRepository;
     private final MyEnergiClientFactory myEnergiClientFactory;
 
-    public RegistrationService(LoginService loginService, MyEnergiClientFactory myEnergiClientFactory) {
+    public RegistrationService(LoginService loginService, DevicesRepository devicesRepository, MyEnergiClientFactory myEnergiClientFactory) {
         this.loginService = loginService;
+        this.devicesRepository = devicesRepository;
         this.myEnergiClientFactory = myEnergiClientFactory;
     }
 
@@ -125,6 +129,10 @@ public class RegistrationService {
             new HubDetailsResponse(creds.getSerialNumber().toString(), creds.getZappiSerialNumber().toString(),
                     creds.getEddiSerialNumber().map(SerialNumber::toString).orElse(null))
         );
+    }
+
+    public List<MyEnergiDevice> readDevices(UserId userId) {
+        return devicesRepository.read(userId);
     }
 
     public void refreshDeploymentDetails(UserId userId) {
