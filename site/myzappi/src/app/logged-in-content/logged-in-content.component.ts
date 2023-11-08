@@ -4,6 +4,11 @@ import { CookieService } from 'ngx-cookie-service';
 
 declare const amazon: any;
 
+interface Device {
+  serialNumber: string;
+  deviceClass: string;
+}
+
 @Component({
   selector: 'app-logged-in-content',
   templateUrl: './logged-in-content.component.html',
@@ -13,15 +18,16 @@ export class LoggedInContentComponent implements OnInit {
   @Input() public bearerToken: any;
   hubDetails: any;
   registered: any;
+  devices: any[] = [];
+  loadingDevices = true;
   registeredThisSession = false;
   tariffsRegistered = false;
-  public eddiEnabled = false;
   @Output() public logoutEvent = new EventEmitter();
 
   constructor(private http: HttpClient, private cookieService: CookieService) { }
 
   ngOnInit(): void {
-    this.getHubDetails();
+    this.getDeploymentDetails();
   }
 
   logOut() {
@@ -29,27 +35,30 @@ export class LoggedInContentComponent implements OnInit {
     amazon.Login.logout();
     this.logoutEvent.emit('');
   }
-  
-  getHubDetails() {
+
+  getDeploymentDetails() {
     let headers = new HttpHeaders({
       'Content-Type': 'application/json',
       'Authorization': this.bearerToken });
     let options = { headers: headers };
-    this.http.get('https://api.myzappiunofficial.com/hub', options)
+    this.http.get<Device[]>('https://api.myzappiunofficial.com/v2/hub', options)
       .subscribe(data => {
-        console.log("Got zappi details: " + data);
-        this.registered = true;
-        this.hubDetails = data;
-        if (this.hubDetails.eddiSerialNumber !== null && this.hubDetails.eddiSerialNumber !== undefined) {
-          this.eddiEnabled = true;
+        this.loadingDevices = false;
+        this.devices = data;
+        this.registered = this.devices.length > 0;
+        this.hubDetails = {};
+        this.hubDetails.eddiSerialNumber = null;
+        
+        for (const device of this.devices) {
+          if (device.deviceClass === "ZAPPI") {
+            this.hubDetails.zappiSerialNumber = device.serialNumber;
+          } else if (device.deviceClass === "EDDI") {
+            this.hubDetails.eddiSerialNumber = device.serialNumber;
+          }
         }
       },
       error => {
-        if (error.status === 404) {
-          console.log("Hub not registered");
-          this.registered = false;
-        }
-
+        this.loadingDevices = false;
         if (error.status === 401) {
           console.log("You are not logged in")
           this.logoutEvent.emit('');
@@ -61,7 +70,13 @@ export class LoggedInContentComponent implements OnInit {
     console.log('Received register event');
     this.registered = true;
     this.registeredThisSession = true;
-    this.getHubDetails();
+    this.getDeploymentDetails();
+  }
+
+  refreshDeploymentDetails() {
+    console.log("Refreshing...");
+    this.loadingDevices = true;
+    this.getDeploymentDetails();
   }
 
   tariffChangeEvent() {
@@ -70,6 +85,7 @@ export class LoggedInContentComponent implements OnInit {
   }
 
   deleteZappi() {
+    this.loadingDevices = true;
     let headers = new HttpHeaders({
       'Content-Type': 'application/json',
       'Authorization': this.bearerToken });

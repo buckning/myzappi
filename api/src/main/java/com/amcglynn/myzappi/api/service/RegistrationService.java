@@ -36,6 +36,7 @@ public class RegistrationService {
     public void delete(UserId userId) {
         log.info("Deleting hub details for user = {}", userId);
         loginService.delete(userId.toString());
+        devicesRepository.delete(userId);
     }
 
     private void discoverAndRegisterDetails(UserId userId, SerialNumber serialNumber, String apiKey) {

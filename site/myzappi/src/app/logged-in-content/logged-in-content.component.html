@@ -27,20 +27,35 @@
             <div>
                 <h1>Devices</h1>
             </div>
-            <br>
-            <div>
-                hub: {{hubDetails.hubSerialNumber}}
+
+            <div *ngIf="loadingDevices === true">
+                <p>
+                    Loading your devices...
+                </p>
             </div>
-            <div>
-                zappi: {{hubDetails.zappiSerialNumber}}
+
+            <div *ngIf="loadingDevices === false">
+                <div>
+                    <table id="devicesTable" class="devicesTable">
+                        <tbody>
+                          <tr *ngFor="let row of devices; let i = index">
+                              <b>{{row.deviceClass}}</b>: {{row.serialNumber}}
+                              <div *ngIf="row.deviceClass === 'EDDI'">
+                                Heater 1: {{row.tank1Name}}
+                                <br>
+                                Heater 2: {{row.tank2Name}}
+                            </div>
+                            <br>
+                          </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <br>
+                <button (click)="refreshDeploymentDetails()" class="confirmButton">Refresh</button>
+                <button (click)="deleteZappi()" id="forgetMyDetailsButton" class="destructiveButton">
+                    Unregister
+                </button>
             </div>
-            <div *ngIf="hubDetails.eddiSerialNumber !== null">
-                eddi: {{hubDetails.eddiSerialNumber}}
-            </div>
-            <br>
-            <button (click)="deleteZappi()" id="forgetMyDetailsButton" class="destructiveButton">
-                Unregister
-            </button>
         </div>
     </div>
     <br>

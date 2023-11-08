@@ -62,4 +62,11 @@ public class DevicesRepository {
                 .withItem(item);
         dbClient.putItem(request);
     }
+
+    public void delete(UserId userId) {
+        var request = new DeleteItemRequest()
+                .withTableName(TABLE_NAME)
+                .addKeyEntry(USER_ID_COLUMN, new AttributeValue(userId.toString()));
+        dbClient.deleteItem(request);
+    }
 }

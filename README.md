@@ -1,6 +1,10 @@
 # Welcome to MyZappi!
 
 ## Next Features
+* Remove dependencies on APIs from devices in credentials table
+* Remove devices from credential table
+* delete hub API should remove schedules
+
 * Support multiple tanks with Eddi (API changes, Alexa command changes, front end schedule changes)
 * Remind me when my car finishes charging
 * Better metrics
