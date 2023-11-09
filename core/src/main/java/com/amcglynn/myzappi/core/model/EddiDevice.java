@@ -1,10 +1,12 @@
 package com.amcglynn.myzappi.core.model;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 
 @Getter
 @ToString
+@EqualsAndHashCode
 public class EddiDevice extends MyEnergiDevice {
 
     private String tank1Name;

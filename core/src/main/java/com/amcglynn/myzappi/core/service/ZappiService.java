@@ -10,7 +10,11 @@ import com.amcglynn.myenergi.apiresponse.ZappiHistory;
 import com.amcglynn.myenergi.units.KiloWattHour;
 import com.amcglynn.myzappi.core.exception.MissingDeviceException;
 import com.amcglynn.myzappi.core.exception.UserNotLoggedInException;
+import com.amcglynn.myzappi.core.model.EddiDevice;
+import com.amcglynn.myzappi.core.model.MyEnergiDevice;
 import com.amcglynn.myzappi.core.model.SerialNumber;
+import com.amcglynn.myzappi.core.model.UserId;
+import com.amcglynn.myzappi.core.model.ZappiDevice;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.Duration;
@@ -19,6 +23,7 @@ import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -30,26 +35,45 @@ public class ZappiService {
     private final boolean hasEddi;
 
     private ZappiService(LoginService loginService, EncryptionService encryptionService, String user) {
-        var creds = loginService.readDeploymentDetails(user);
+        var userId = UserId.from(user);
+        var creds = loginService.readCredentials(userId);
+        var devices = loginService.readDevices(userId);
         if (creds.isEmpty()) {
             throw new UserNotLoggedInException(user);
         }
-        hasEddi = creds.get().getEddiSerialNumber().isPresent();
+        var eddiSerialNumberOpt = getEddiSerialNumber(devices);
+        hasEddi = eddiSerialNumberOpt.isPresent();
 
-        log.info("Found eddi {}", creds.get().getEddiSerialNumber());
-        var decryptedApiKey = encryptionService.decrypt(creds.get().getEncryptedApiKey());
-        var serialNumber = creds.get().getSerialNumber().toString();
-        var zappiSerialNumber = creds.get().getZappiSerialNumber().toString();
+        log.info("Found eddi {}", eddiSerialNumberOpt);
+        var decryptedApiKey = creds.get().getApiKey();
+        var hubSerialNumber = creds.get().getSerialNumber().toString();
+        // find zappi serial number from devices
+        var zappiSerialNumber = getZappiSerialNumber(devices);
 
-        if ("12345678".equals(serialNumber) && "myDemoApiKey".equals(decryptedApiKey)) {
+        if ("12345678".equals(hubSerialNumber) && "myDemoApiKey".equals(decryptedApiKey)) {
             client = new MockMyEnergiClient();
         } else{
-            client = new MyEnergiClient(zappiSerialNumber, serialNumber,
-                    creds.get().getEddiSerialNumber().map(SerialNumber::toString).orElse(null), decryptedApiKey);
+            client = new MyEnergiClient(zappiSerialNumber.toString(), hubSerialNumber,
+                    eddiSerialNumberOpt.map(SerialNumber::toString).orElse(null), decryptedApiKey);
         }
 
         // Zappi control APIs work off of local time and not UTC. Times in the retrieve Zappi information API is in UTC.
         localTimeSupplier = () -> LocalTime.now(ZoneId.of("Europe/London"));
+    }
+
+    private Optional<SerialNumber> getEddiSerialNumber(List<MyEnergiDevice> devices) {
+        return devices.stream()
+                .filter(EddiDevice.class::isInstance)
+                .findFirst()
+                .map(MyEnergiDevice::getSerialNumber);
+    }
+
+    private SerialNumber getZappiSerialNumber(List<MyEnergiDevice> devices) {
+        return devices.stream()
+                .filter(ZappiDevice.class::isInstance)
+                .findFirst()
+                .map(MyEnergiDevice::getSerialNumber)
+                .get();
     }
 
     /**

@@ -70,7 +70,7 @@ public class RegistrationService {
         if (zappiSerialNumber.isPresent()) {
             var eddi = discoverEddi(myEnergiDevices).orElse(null);
             log.info("Refreshing deployment details zappi = {} hub = {} eddi = {} for user {}", zappiSerialNumber.get(), serialNumber, eddi, userId);
-            loginService.refreshDeploymentDetails(userId.toString(),
+            loginService.refreshDeploymentDetails(userId,
                     zappiSerialNumber.get(),
                     eddi);
         } else {
@@ -122,14 +122,6 @@ public class RegistrationService {
             return Optional.of(new EddiDevice(serialNumber, tank1, tank2));
         }
         return Optional.empty();
-    }
-
-    public Optional<HubDetailsResponse> read(String userId) {
-        var details = loginService.readDeploymentDetails(userId);
-        return details.map(creds ->
-            new HubDetailsResponse(creds.getSerialNumber().toString(), creds.getZappiSerialNumber().toString(),
-                    creds.getEddiSerialNumber().map(SerialNumber::toString).orElse(null))
-        );
     }
 
     public List<MyEnergiDevice> readDevices(UserId userId) {

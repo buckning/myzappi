@@ -56,16 +56,7 @@ public class HubController implements RestController {
 
     @SneakyThrows
     private Response get(Request request) {
-        if ("/v2/hub".equals(request.getPath())) {
-            var body = new ObjectMapper().writeValueAsString(registrationService.readDevices(request.getUserId()));
-            return new Response(200, body);
-        }
-        var creds = registrationService.read(request.getUserId().toString());
-        if (creds.isEmpty()) {
-            log.info("No hub found for user {}", request.getUserId());
-            return new Response(404);
-        }
-        var body = new ObjectMapper().writeValueAsString(creds.get());
+        var body = new ObjectMapper().writeValueAsString(registrationService.readDevices(request.getUserId()));
         return new Response(200, body);
     }
 

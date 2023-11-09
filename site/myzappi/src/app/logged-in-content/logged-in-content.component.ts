@@ -66,6 +66,24 @@ export class LoggedInContentComponent implements OnInit {
       });
   }
 
+  triggerRefresh() {
+    let headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': this.bearerToken });
+    let options = { headers: headers };
+    this.http.post<Device[]>('https://api.myzappiunofficial.com/hub/refresh', '', options)
+      .subscribe(data => {
+        this.getDeploymentDetails();
+      },
+      error => {
+        this.loadingDevices = false;
+        if (error.status === 401) {
+          console.log("You are not logged in")
+          this.logoutEvent.emit('');
+        }
+      });
+  }
+
   registeredEvent() {
     console.log('Received register event');
     this.registered = true;
@@ -76,7 +94,7 @@ export class LoggedInContentComponent implements OnInit {
   refreshDeploymentDetails() {
     console.log("Refreshing...");
     this.loadingDevices = true;
-    this.getDeploymentDetails();
+    this.triggerRefresh();
   }
 
   tariffChangeEvent() {

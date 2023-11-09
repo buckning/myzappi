@@ -12,6 +12,7 @@ import com.amcglynn.myzappi.core.model.ZappiDevice;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -29,17 +30,10 @@ public class LoginService {
         this.encryptionService = encryptionService;
     }
 
-    public void logout(String user) {
-        var creds = credentialsRepository.read(user);
-        creds.ifPresent(credentials -> credentialsRepository.delete(credentials.getUserId()));
-    }
-
     public void register(String userId, SerialNumber zappiSerialNumber, SerialNumber serialNumber, EddiDevice eddiDevice, String apiKey) {
         var encryptedKey = encryptionService.encrypt(apiKey);
         var newCreds = new MyEnergiDeployment(userId,
-                zappiSerialNumber,
                 serialNumber,
-                eddiDevice == null ? null : eddiDevice.getSerialNumber(),
                 encryptedKey);
 
         credentialsRepository.delete(userId);
@@ -48,8 +42,8 @@ public class LoginService {
         saveDeploymentDetails(UserId.from(userId), zappiSerialNumber, eddiDevice);
     }
 
-    public void refreshDeploymentDetails(String userId, SerialNumber zappiSerialNumber, EddiDevice eddiDevice) {
-        saveDeploymentDetails(UserId.from(userId), zappiSerialNumber, eddiDevice);
+    public void refreshDeploymentDetails(UserId userId, SerialNumber zappiSerialNumber, EddiDevice eddiDevice) {
+        saveDeploymentDetails(userId, zappiSerialNumber, eddiDevice);
     }
 
     private void saveDeploymentDetails(UserId userId, SerialNumber zappiSerialNumber, EddiDevice eddiDevice) {
@@ -62,8 +56,8 @@ public class LoginService {
         devicesRepository.write(userId, devices);
     }
 
-    public Optional<MyEnergiDeployment> readDeploymentDetails(String userId) {
-        return credentialsRepository.read(userId);
+    public List<MyEnergiDevice> readDevices(UserId userId) {
+        return devicesRepository.read(userId);
     }
 
     public Optional<HubCredentials> readCredentials(UserId userId) {

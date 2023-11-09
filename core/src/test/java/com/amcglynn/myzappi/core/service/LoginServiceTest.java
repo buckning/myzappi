@@ -7,6 +7,7 @@ import com.amcglynn.myzappi.core.model.HubCredentials;
 import com.amcglynn.myzappi.core.model.SerialNumber;
 import com.amcglynn.myzappi.core.model.MyEnergiDeployment;
 import com.amcglynn.myzappi.core.model.UserId;
+import com.amcglynn.myzappi.core.model.ZappiDevice;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,6 +18,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 
 import java.nio.ByteBuffer;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -47,15 +49,9 @@ class LoginServiceTest {
 
     @BeforeEach
     void setUp() {
-        zappiCredentials = new MyEnergiDeployment(userId, zappiSerialNumber, serialNumber, null, encryptedApiKey);
+        zappiCredentials = new MyEnergiDeployment(userId, serialNumber, encryptedApiKey);
         loginService = new LoginService(mockCredentialsRepository, mockDevicesRepository, mockEncryptionService);
         when(mockEncryptionService.decrypt(encryptedApiKey)).thenReturn("decryptedKey");
-    }
-
-    @Test
-    void testReadDeploymentDetailsReturnsValueFromDb() {
-        when(mockCredentialsRepository.read(userId)).thenReturn(Optional.of(zappiCredentials));
-        assertThat(loginService.readDeploymentDetails(userId)).isEqualTo(Optional.of(zappiCredentials));
     }
 
     @Test
@@ -72,20 +68,6 @@ class LoginServiceTest {
         when(mockCredentialsRepository.read(userId)).thenReturn(Optional.empty());
         var creds = loginService.readCredentials(UserId.from(userId));
         assertThat(creds).isEmpty();
-    }
-
-    @Test
-    void testLogoutWhenDataFoundInDb() {
-        when(mockCredentialsRepository.read(userId)).thenReturn(Optional.of(zappiCredentials));
-        loginService.logout(userId);
-        verify(mockCredentialsRepository).delete(userId);
-    }
-
-    @Test
-    void testLogoutWhenDataNotFoundInDb() {
-        when(mockCredentialsRepository.read(userId)).thenReturn(Optional.empty());
-        loginService.logout(userId);
-        verify(mockCredentialsRepository, never()).delete(userId);
     }
 
     @Test
@@ -117,8 +99,20 @@ class LoginServiceTest {
         assertThat(credsInDb).isNotNull();
         assertThat(credsInDb.getUserId()).isEqualTo(userId);
         assertThat(credsInDb.getSerialNumber()).isEqualTo(serialNumber);
-        assertThat(credsInDb.getEddiSerialNumber()).isEqualTo(Optional.of(serialNumber));
         assertThat(credsInDb.getEncryptedApiKey()).isEqualTo(encryptedApiKey);
+    }
+
+    @Test
+    void testRefreshDeploymentDetailsWithNoEddi() {
+        loginService.refreshDeploymentDetails(UserId.from(userId), zappiSerialNumber, null);
+        verify(mockDevicesRepository).write(UserId.from(userId), List.of(new ZappiDevice(zappiSerialNumber)));
+    }
+
+    @Test
+    void testRefreshDeploymentDetailsWithEddi() {
+        loginService.refreshDeploymentDetails(UserId.from(userId), zappiSerialNumber, new EddiDevice(zappiSerialNumber, "t1", "t2"));
+        verify(mockDevicesRepository).write(UserId.from(userId), List.of(new ZappiDevice(zappiSerialNumber),
+                new EddiDevice(zappiSerialNumber, "t1", "t2")));
     }
 
     @Test
