@@ -37,6 +37,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.assertj.core.api.Assertions.catchThrowableOfType;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -200,7 +201,53 @@ class ZappiServiceTest {
         zappiService.setClient(mockClient);
 
         zappiService.boostEddi(Duration.of(1, ChronoUnit.HOURS));
-        verify(mockClient).boostEddi(Duration.of(1, ChronoUnit.HOURS));
+        verify(mockClient).boostEddi(Duration.of(1, ChronoUnit.HOURS), 1);
+    }
+
+    @Test
+    void testStopEddiBoost() {
+        when(mockLoginService.readDevices(UserId.from(userId)))
+                .thenReturn(List.of(new ZappiDevice(zappiSerialNumber), new EddiDevice(SerialNumber.from("09876543"), "tank1", "tank2")));
+        this.zappiService = new ZappiService.Builder(mockLoginService).build(mockUserIdResolver);
+        zappiService.setClient(mockClient);
+
+        zappiService.stopEddiBoost();
+        verify(mockClient).stopEddiBoost(1);
+    }
+
+    @Test
+    void testStopEddiBoostFor2ndHeater() {
+        when(mockLoginService.readDevices(UserId.from(userId)))
+                .thenReturn(List.of(new ZappiDevice(zappiSerialNumber), new EddiDevice(SerialNumber.from("09876543"), "tank1", "tank2")));
+        this.zappiService = new ZappiService.Builder(mockLoginService).build(mockUserIdResolver);
+        zappiService.setClient(mockClient);
+
+        zappiService.stopEddiBoost(2);
+        verify(mockClient).stopEddiBoost(2);
+    }
+
+    @Test
+    void testEddiValidationThrowsIllegalArgumentExceptionWhenHeaterIsLessThan1() {
+        when(mockLoginService.readDevices(UserId.from(userId)))
+                .thenReturn(List.of(new ZappiDevice(zappiSerialNumber), new EddiDevice(SerialNumber.from("09876543"), "tank1", "tank2")));
+        this.zappiService = new ZappiService.Builder(mockLoginService).build(mockUserIdResolver);
+        zappiService.setClient(mockClient);
+
+        var exception = catchThrowableOfType(() -> zappiService.stopEddiBoost(0), IllegalArgumentException.class);
+        assertThat(exception).isNotNull();
+        verify(mockClient, never()).stopEddiBoost(anyInt());
+    }
+
+    @Test
+    void testEddiValidationThrowsIllegalArgumentExceptionWhenHeaterIsGreaterThan2() {
+        when(mockLoginService.readDevices(UserId.from(userId)))
+                .thenReturn(List.of(new ZappiDevice(zappiSerialNumber), new EddiDevice(SerialNumber.from("09876543"), "tank1", "tank2")));
+        this.zappiService = new ZappiService.Builder(mockLoginService).build(mockUserIdResolver);
+        zappiService.setClient(mockClient);
+
+        var exception = catchThrowableOfType(() -> zappiService.stopEddiBoost(3), IllegalArgumentException.class);
+        assertThat(exception).isNotNull();
+        verify(mockClient, never()).stopEddiBoost(anyInt());
     }
 
     @Test
@@ -215,6 +262,22 @@ class ZappiServiceTest {
         var exception = catchThrowableOfType(() -> zappiService.stopEddiBoost(), MissingDeviceException.class);
         assertThat(exception).isNotNull();
         verify(mockClient, never()).stopEddiBoost();
+    }
+
+    @Test
+    void testBoostEddiThrowsMissingDeviceExceptionWhenEddiIsNotConfiguredForTank2() {
+        var exception = catchThrowableOfType(() -> zappiService.boostEddi(2, Duration.of(1, ChronoUnit.HOURS)), MissingDeviceException.class);
+        assertThat(exception).isNotNull();
+        verify(mockClient, never()).boostEddi(any());
+        verify(mockClient, never()).boostEddi(any(), anyInt());
+    }
+
+    @Test
+    void testStopEddiBoostThrowsMissingDeviceExceptionWhenEddiIsNotConfiguredForTank2() {
+        var exception = catchThrowableOfType(() -> zappiService.stopEddiBoost(2), MissingDeviceException.class);
+        assertThat(exception).isNotNull();
+        verify(mockClient, never()).stopEddiBoost();
+        verify(mockClient, never()).stopEddiBoost(anyInt());
     }
 
     private static Stream<Arguments> boostWithDurationSource() {

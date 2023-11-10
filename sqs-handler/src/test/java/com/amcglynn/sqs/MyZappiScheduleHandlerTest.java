@@ -1,5 +1,6 @@
 package com.amcglynn.sqs;
 
+import com.amcglynn.myenergi.EddiMode;
 import com.amcglynn.myenergi.ZappiChargeMode;
 import com.amcglynn.myenergi.units.KiloWattHour;
 import com.amcglynn.myzappi.core.model.Schedule;
@@ -137,6 +138,60 @@ class MyZappiScheduleHandlerTest {
                 .build()));
         handler.handle(new MyZappiScheduleEvent(input));
         verify(mockZappiService).startSmartBoost(Duration.ofHours(1));
+    }
+
+    @Test
+    void testSetEddiMode() {
+        var input = new LinkedHashMap<String, String>();
+        input.put("type", "setEddiMode");
+        var scheduleId = UUID.randomUUID().toString();
+        input.put("scheduleId", scheduleId);
+        input.put("lwaUserId", "mockLwaUserId");
+
+        when(mockScheduleService.getSchedule(scheduleId)).thenReturn(Optional.of(Schedule.builder()
+                .id(scheduleId)
+                .startDateTime(LocalDateTime.of(2023, 9, 13, 14, 0))
+                .zoneId(ZoneId.of("Europe/Dublin"))
+                .action(new ScheduleAction("setEddiMode", "NORMAL"))
+                .build()));
+        handler.handle(new MyZappiScheduleEvent(input));
+        verify(mockZappiService).setEddiMode(EddiMode.NORMAL);
+    }
+
+    @Test
+    void testSetEddiBoostForDuration() {
+        var input = new LinkedHashMap<String, String>();
+        input.put("type", "setEddiBoostFor");
+        var scheduleId = UUID.randomUUID().toString();
+        input.put("scheduleId", scheduleId);
+        input.put("lwaUserId", "mockLwaUserId");
+
+        when(mockScheduleService.getSchedule(scheduleId)).thenReturn(Optional.of(Schedule.builder()
+                .id(scheduleId)
+                .startDateTime(LocalDateTime.of(2023, 9, 13, 14, 0))
+                .zoneId(ZoneId.of("Europe/Dublin"))
+                .action(new ScheduleAction("setEddiBoostFor", "PT45M"))
+                .build()));
+        handler.handle(new MyZappiScheduleEvent(input));
+        verify(mockZappiService).boostEddi(1, Duration.ofMinutes(45));
+    }
+
+    @Test
+    void testSetEddiBoostForDurationForHeater2() {
+        var input = new LinkedHashMap<String, String>();
+        input.put("type", "setEddiBoostFor");
+        var scheduleId = UUID.randomUUID().toString();
+        input.put("scheduleId", scheduleId);
+        input.put("lwaUserId", "mockLwaUserId");
+
+        when(mockScheduleService.getSchedule(scheduleId)).thenReturn(Optional.of(Schedule.builder()
+                .id(scheduleId)
+                .startDateTime(LocalDateTime.of(2023, 9, 13, 14, 0))
+                .zoneId(ZoneId.of("Europe/Dublin"))
+                .action(new ScheduleAction("setEddiBoostFor", "PT45M;tank=2"))
+                .build()));
+        handler.handle(new MyZappiScheduleEvent(input));
+        verify(mockZappiService).boostEddi(2, Duration.ofMinutes(45));
     }
 
     @Test

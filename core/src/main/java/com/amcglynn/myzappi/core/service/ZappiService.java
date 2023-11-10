@@ -186,19 +186,33 @@ public class ZappiService {
     }
 
     public void boostEddi(Duration duration) {
-        if (!hasEddi) {
-            log.info("Eddi not configured");
-            throw new MissingDeviceException("Eddi not available");
-        }
-        client.boostEddi(duration);
+        boostEddi(1, duration);
     }
 
     public void stopEddiBoost() {
+        stopEddiBoost(1);
+    }
+
+    public void boostEddi(int heaterNumber, Duration duration) {
+        validateEddi(heaterNumber);
+        client.boostEddi(duration, heaterNumber);
+    }
+
+    public void stopEddiBoost(int heaterNumber) {
+        validateEddi(heaterNumber);
+        client.stopEddiBoost(heaterNumber);
+    }
+
+    private void validateEddi(int heaterNumber) {
         if (!hasEddi) {
             log.info("Eddi not configured");
             throw new MissingDeviceException("Eddi not available");
         }
-        client.stopEddiBoost();
+
+        if (heaterNumber < 1 || heaterNumber > 2) {
+            log.info("Invalid heater number {}", heaterNumber);
+            throw new IllegalArgumentException("Invalid heater number");
+        }
     }
 
     public static class Builder {
