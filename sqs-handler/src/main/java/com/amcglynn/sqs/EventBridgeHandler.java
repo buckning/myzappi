@@ -40,7 +40,7 @@ public class EventBridgeHandler implements RequestHandler<Object, Void> {
         serviceManager = new ServiceManager(properties);
         lwaClient = new LwaClient();
         zappiScheduleHandler = new MyZappiScheduleHandler(serviceManager.getScheduleService(),
-                new ZappiService.Builder(serviceManager.getLoginService(), serviceManager.getEncryptionService()));
+                new ZappiService.Builder(serviceManager.getLoginService()));
     }
 
     EventBridgeHandler(Properties properties, LwaClient lwaClient, MyZappiScheduleHandler myZappiScheduleHandler) {

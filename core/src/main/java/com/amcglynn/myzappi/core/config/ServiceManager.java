@@ -83,7 +83,7 @@ public class ServiceManager {
 
     public ZappiService.Builder getZappiServiceBuilder() {
         if (this.zappiServiceBuilder == null) {
-            zappiServiceBuilder = new ZappiService.Builder(getLoginService(), encryptionService);
+            zappiServiceBuilder = new ZappiService.Builder(getLoginService());
         }
         return this.zappiServiceBuilder;
     }

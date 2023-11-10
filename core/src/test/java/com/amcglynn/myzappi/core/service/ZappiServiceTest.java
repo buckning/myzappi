@@ -49,8 +49,6 @@ class ZappiServiceTest {
     @Mock
     private LoginService mockLoginService;
     @Mock
-    private EncryptionService mockEncryptionService;
-    @Mock
     private MyEnergiClient mockClient;
     @Mock
     private UserIdResolver mockUserIdResolver;
@@ -58,14 +56,13 @@ class ZappiServiceTest {
     private final String userId = "userId";
     private final SerialNumber zappiSerialNumber = SerialNumber.from("56781234");
     private final SerialNumber serialNumber = SerialNumber.from("12345678");
-    private final ByteBuffer encryptedApiKey = ByteBuffer.wrap(new byte[] { 0x01, 0x02, 0x03 });
 
     @BeforeEach
     void setUp() {
         when(mockLoginService.readCredentials(UserId.from(userId))).thenReturn(Optional.of(new HubCredentials(serialNumber, "myApiKey")));
         when(mockLoginService.readDevices(UserId.from(userId))).thenReturn(List.of(new ZappiDevice(zappiSerialNumber)));
         when(mockUserIdResolver.getUserId()).thenReturn(userId);
-        this.zappiService = new ZappiService.Builder(mockLoginService, mockEncryptionService).build(mockUserIdResolver);
+        this.zappiService = new ZappiService.Builder(mockLoginService).build(mockUserIdResolver);
         zappiService.setClient(mockClient);
     }
 
@@ -73,7 +70,7 @@ class ZappiServiceTest {
     void testConstructorThrowsUserNotLoggedInExceptionWhenThereIsNoRowInTheDb() {
         when(mockLoginService.readCredentials(UserId.from(userId))).thenReturn(Optional.empty());
         var throwable = catchThrowable(() -> new ZappiService
-                .Builder(mockLoginService, mockEncryptionService).build(mockUserIdResolver));
+                .Builder(mockLoginService).build(mockUserIdResolver));
         assertThat(throwable).isInstanceOf(UserNotLoggedInException.class);
         assertThat(throwable.getMessage()).isEqualTo("User not logged in - userId");
     }
@@ -199,7 +196,7 @@ class ZappiServiceTest {
     void testBoostEddi() {
         when(mockLoginService.readDevices(UserId.from(userId)))
                 .thenReturn(List.of(new ZappiDevice(zappiSerialNumber), new EddiDevice(SerialNumber.from("09876543"), "tank1", "tank2")));
-        this.zappiService = new ZappiService.Builder(mockLoginService, mockEncryptionService).build(mockUserIdResolver);
+        this.zappiService = new ZappiService.Builder(mockLoginService).build(mockUserIdResolver);
         zappiService.setClient(mockClient);
 
         zappiService.boostEddi(Duration.of(1, ChronoUnit.HOURS));

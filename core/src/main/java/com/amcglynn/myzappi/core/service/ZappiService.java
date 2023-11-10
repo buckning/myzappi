@@ -34,7 +34,7 @@ public class ZappiService {
     private Supplier<LocalTime> localTimeSupplier;
     private final boolean hasEddi;
 
-    private ZappiService(LoginService loginService, EncryptionService encryptionService, String user) {
+    private ZappiService(LoginService loginService, String user) {
         var userId = UserId.from(user);
         var creds = loginService.readCredentials(userId);
         var devices = loginService.readDevices(userId);
@@ -203,15 +203,13 @@ public class ZappiService {
 
     public static class Builder {
         private final LoginService loginService;
-        private final EncryptionService encryptionService;
 
-        public Builder(LoginService loginService, EncryptionService encryptionService) {
+        public Builder(LoginService loginService) {
             this.loginService = loginService;
-            this.encryptionService = encryptionService;
         }
 
         public ZappiService build(UserIdResolver userIdResolver) {
-            return new ZappiService(loginService, encryptionService, userIdResolver.getUserId());
+            return new ZappiService(loginService, userIdResolver.getUserId());
         }
     }
 }
