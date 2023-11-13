@@ -25,12 +25,12 @@ public class MyZappiScheduleHandler {
         this.scheduleService = scheduleService;
 
         handlers = Map.of(
-                "setChargeMode", (zappiService, value) -> zappiService.setChargeMode(ZappiChargeMode.valueOf(value)),
-                "setBoostKwh", (zappiService, value) -> zappiService.startBoost(new KiloWattHour(Double.parseDouble(value))),
-                "setBoostUntil", (zappiService, value) -> zappiService.startSmartBoost(LocalTime.parse(value)),
-                "setBoostFor", (zappiService, value) -> zappiService.startSmartBoost(Duration.parse(value)),
-                "setEddiMode", (zappiService, value) -> zappiService.setEddiMode(EddiMode.valueOf(value)),
-                "setEddiBoostFor", (zappiService, value) -> zappiService.boostEddi(parseHeater(value), parseDuration(value))
+                "setChargeMode",    (zappiService, value) -> zappiService.setChargeMode(ZappiChargeMode.valueOf(value)),
+                "setBoostKwh",      (zappiService, value) -> zappiService.startBoost(new KiloWattHour(Double.parseDouble(value))),
+                "setBoostUntil",    (zappiService, value) -> zappiService.startSmartBoost(LocalTime.parse(value)),
+                "setBoostFor",      (zappiService, value) -> zappiService.startSmartBoost(Duration.parse(value)),
+                "setEddiMode",      (zappiService, value) -> zappiService.setEddiMode(EddiMode.valueOf(value)),
+                "setEddiBoostFor",  (zappiService, value) -> zappiService.boostEddi(parseHeater(value), parseDuration(value))
         );
     }
 

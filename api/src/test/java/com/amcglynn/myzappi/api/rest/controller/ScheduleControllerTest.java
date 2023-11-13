@@ -154,6 +154,47 @@ class ScheduleControllerTest {
     }
 
     @Test
+    void postRecurringScheduleForBoostEddi() {
+        String body = "{\n" +
+                "    \"zoneId\": \"Europe/Dublin\",\n" +
+                "    \"action\": {\n" +
+                "        \"type\": \"setEddiBoostFor\",\n" +
+                "        \"value\": \"PT45M;tank=2\"\n" +
+                "    },\n" +
+                "    \"recurrence\": {\n" +
+                "        \"daysOfWeek\": [1, 2, 4, 7],\n" +
+                "        \"timeOfDay\": \"09:30\"\n" +
+                "    }\n" +
+                "}";
+        var id = UUID.randomUUID().toString();
+        when(mockService.createSchedule(eq(UserId.from("mockUserId")), any())).thenReturn(Schedule.builder()
+                .id(id)
+                .zoneId(ZoneId.of("Europe/Dublin"))
+                .recurrence(ScheduleRecurrence.builder()
+                        .daysOfWeek(Set.of(1, 2, 4, 7))
+                        .timeOfDay(LocalTime.of(9, 30))
+                        .build())
+                .action(ScheduleAction.builder()
+                        .type("setEddiBoostFor")
+                        .value("PT45M;tank=2")
+                        .build())
+                .build());
+        var response = controller.handle(new Request(UserId.from("mockUserId"), RequestMethod.POST, "/schedule", body));
+        assertThat(response.getStatus()).isEqualTo(200);
+        var responseBody = response.getBody();
+        assertThat(responseBody).isPresent();
+        assertThat(responseBody.get()).contains("{\"id\":\"" + id + "\",\"zoneId\":\"Europe/Dublin\"");
+        assertThat(responseBody.get()).contains("\"action\":{\"type\":\"setEddiBoostFor\",\"value\":\"PT45M;tank=2\"}");
+        assertThat(responseBody.get()).contains("\"recurrence\":{\"timeOfDay\":\"09:30\",\"daysOfWeek\":[");
+
+        verify(mockService).createSchedule(eq(UserId.from("mockUserId")), scheduleCaptor.capture());
+
+        assertThat(scheduleCaptor.getValue().getRecurrence()).isNotNull();
+        assertThat(scheduleCaptor.getValue().getRecurrence().getDaysOfWeek()).containsExactlyInAnyOrder(1, 2, 4, 7);
+        assertThat(scheduleCaptor.getValue().getRecurrence().getTimeOfDay()).isEqualTo(LocalTime.of(9, 30));
+    }
+
+    @Test
     void postReturns409WhenSetEddiModeScheduleRequestedButEddiNotFound() {
         String body = "{\n" +
                 "    \"zoneId\": \"Europe/Dublin\",\n" +

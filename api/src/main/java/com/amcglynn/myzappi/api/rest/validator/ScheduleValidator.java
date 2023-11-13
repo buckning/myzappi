@@ -7,6 +7,7 @@ import com.amcglynn.myzappi.core.model.Schedule;
 import com.amcglynn.myzappi.core.service.Clock;
 import lombok.AccessLevel;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 import java.time.Duration;
 import java.time.LocalTime;
@@ -15,6 +16,7 @@ import java.util.Map;
 import java.util.function.BooleanSupplier;
 import java.util.function.Predicate;
 
+@Slf4j
 public class ScheduleValidator {
 
     @Setter(AccessLevel.PACKAGE)
@@ -29,9 +31,10 @@ public class ScheduleValidator {
 
     private static boolean isValidEddiBoostDuration(String s) {
         try {
-            var duration = Duration.parse(s);
+            parseHeater(s);
+            var duration = parseDuration(s);
             return duration.toMinutes() < 100 && duration.toMinutes() > 0;
-        } catch (DateTimeParseException e) {
+        } catch (Exception e) {
             return false;
         }
     }
@@ -119,5 +122,40 @@ public class ScheduleValidator {
         } catch (Exception e) {
             return false;
         }
+    }
+
+    private static void parseHeater(String value) {
+        // parse tank value from PT45M;tank=2
+        var tokens = value.split(";");
+
+        if (tokens.length < 2) {
+            return;
+        }
+
+        validateTank(tokens[1]);
+    }
+
+    private static void validateTank(String value) {
+        var tankTokens = value.split("=");
+
+        validateVarName(tankTokens[0]);
+
+        var heater = Integer.parseInt(tankTokens[1]);
+
+        if (heater < 1 || heater > 2) {
+            log.info("Invalid heater number {}", heater);
+            throw new IllegalArgumentException("Invalid heater number");
+        }
+    }
+
+    private static void validateVarName(String token) {
+        if (!token.equals("tank")) {
+            throw new IllegalArgumentException("Invalid variable name");
+        }
+    }
+
+    private static Duration parseDuration(String value) {
+        var tokens = value.split(";");
+        return Duration.parse(tokens[0]);
     }
 }

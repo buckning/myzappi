@@ -50,6 +50,10 @@
 
         <div *ngIf="scheduleType === 'setEddiBoostFor'">
             Value: <input [(ngModel)]="scheduleActionValue" type="number" min="1" max="99" />
+            <br>
+            Tank: <select [(ngModel)]="selectedTank">
+                <option *ngFor="let tank of eddiTanks">{{ tank }}</option>
+            </select>
         </div>
     </div>
 

@@ -48,6 +48,7 @@ export class LoggedInContentComponent implements OnInit {
         this.registered = this.devices.length > 0;
         this.hubDetails = {};
         this.hubDetails.eddiSerialNumber = null;
+        this.hubDetails.devices = this.devices;
         
         for (const device of this.devices) {
           if (device.deviceClass === "ZAPPI") {

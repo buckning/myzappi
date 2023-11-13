@@ -37,6 +37,7 @@ export class SchedulesPanelComponent {
   recurringScheduleEddiRows: any[] = [];
   oneTimeScheduleRows: any[] = [];
   oneTimeScheduleEddiRows: any[] = [];
+  tanks: any[] = [];
   daysOfWeek: string[] = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
   chargeModeMapping: { [key: string]: string } = {
@@ -57,12 +58,17 @@ export class SchedulesPanelComponent {
     'setBoostUntil': 'Boosting until time',
     'setChargeMode': 'Set charge mode',
     'setEddiMode': 'Set Eddi mode',
-    'setEddiBoostFor': 'Boost Eddi for mins'
+    'setEddiBoostFor': 'Boost Eddi'
   };
 
   constructor(private http: HttpClient) { }
 
   ngOnInit(): void {
+      for (let device of Object.values(this.hubDetails.devices) as any[]) {
+        if (device.deviceClass === 'EDDI') {
+          this.tanks = [device.tank1Name, device.tank2Name];
+        }
+      }
     // make rest call to schedules api
     this.screenWidth = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
     this.readSchedules();
@@ -127,9 +133,18 @@ export class SchedulesPanelComponent {
     return input;
   }
 
-  convertScheduleType(input: string): string {
-    if (input in this.scheduleTypeMapping) {
-      return this.scheduleTypeMapping[input];
+  convertScheduleType(input: any): string {
+    if (input.action.type in this.scheduleTypeMapping) {
+      if (input.action.type === 'setEddiBoostFor') {
+        var tokens = input.action.value.split(";");
+        var tank = "";
+        if (tokens.length > 1) {
+          tank = tokens[1].split("=")[1];
+        }
+  
+        return this.scheduleTypeMapping[input.action.type] + " (" + this.tanks[parseInt(tank) - 1] + ")";
+      }
+      return this.scheduleTypeMapping[input.action.type];
     }
     
     return input;
@@ -177,8 +192,9 @@ export class SchedulesPanelComponent {
       return parts.join(' ');
     }
     
+    var tokens = isoDuration.split(";");
     
-    return formatDuration(isoDuration);
+    return formatDuration(tokens[0]);
   }
 
   convertDateTime(input: string): string {

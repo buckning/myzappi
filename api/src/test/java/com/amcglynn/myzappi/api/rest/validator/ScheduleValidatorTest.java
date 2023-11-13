@@ -178,7 +178,9 @@ class ScheduleValidatorTest {
                 Arguments.of("setBoostFor", "PT1H"),
                 Arguments.of("setEddiMode", "STOPPED"),
                 Arguments.of("setEddiMode", "NORMAL"),
-                Arguments.of("setEddiBoostFor", "PT1H")
+                Arguments.of("setEddiBoostFor", "PT1H"),
+                Arguments.of("setEddiBoostFor", "PT45M;tank=1"),
+                Arguments.of("setEddiBoostFor", "PT45M;tank=2")
         );
     }
 
@@ -196,6 +198,13 @@ class ScheduleValidatorTest {
                 Arguments.of("setBoostUntil", "-22:37"),
                 Arguments.of("setBoostFor", "T1H"),
                 Arguments.of("setEddiBoostFor", "PT2H"),    // only allow up to 99 minutes
+                Arguments.of("setEddiBoostFor", "tank=2;PT45M"),
+                Arguments.of("setEddiBoostFor", "PT45M,tank=0"),    // invalid delimiter
+                Arguments.of("setEddiBoostFor", "PT45M;tank=0"),    // invalid tank number, only 1 and 2 are allowed
+                Arguments.of("setEddiBoostFor", "PT45M;tank=3"),    // invalid tank number, only 1 and 2 are allowed
+                Arguments.of("setEddiBoostFor", "PT45M;tank=1.5"),    // invalid tank number, only 1 and 2 are allowed
+                Arguments.of("setEddiBoostFor", "PT45M;tank=abc"),
+                Arguments.of("setEddiBoostFor", "PT45M;=1"),
                 Arguments.of("setEddiMode", "Unknown")
         );
     }
