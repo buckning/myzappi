@@ -32,3 +32,11 @@ iframe {
     height: 250px;
   }
 }
+
+.bmc {
+  padding: 10px;
+  margin: 0 auto;
+  min-width: 600px;
+  max-width: 600px;
+  margin-bottom: 5px;
+}

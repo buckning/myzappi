@@ -1,6 +1,7 @@
 # Welcome to MyZappi!
 
 ## Next Features
+* Reminder if your car is plugged in but no schedule is set
 * Remove dependencies on APIs from devices in credentials table
 * Remove devices from credential table
 * delete hub API should remove schedules
