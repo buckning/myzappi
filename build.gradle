@@ -1,0 +1,27 @@
+
+
+subprojects {
+    apply plugin: "java"
+    buildDir = "target"
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        compileOnly "org.projectlombok:lombok:${lombokVersion}"
+        annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+        implementation "org.apache.logging.log4j:log4j-slf4j-impl:${log4jSlf4jVersion}"
+        testImplementation "org.junit.jupiter:junit-jupiter:${junitVersion}"
+        testImplementation "org.junit.jupiter:junit-jupiter-api:${junitVersion}"
+        testImplementation "org.junit.jupiter:junit-jupiter-params:${junitVersion}"
+        testImplementation "org.mockito:mockito-junit-jupiter:${mockitoVersion}"
+        testImplementation "org.assertj:assertj-core:${assertjVersion}"
+    }
+    test {
+        useJUnitPlatform {
+            includeEngines("junit-jupiter")
+        }
+    }
+}

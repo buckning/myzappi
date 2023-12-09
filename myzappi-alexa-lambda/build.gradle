@@ -1,0 +1,8 @@
+dependencies {
+    implementation "com.amazon.alexa:ask-sdk:${awsAskSdkVersion}"
+    implementation "software.amazon.awssdk:scheduler:${awsSchedulerVersion}"
+    implementation "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}"
+    implementation project(":core")
+    implementation project(":login-with-amazon")
+    implementation project(":myenergi-client")
+}
