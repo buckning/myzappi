@@ -1,7 +1,11 @@
+plugins {
+    id 'com.github.johnrengelman.shadow' version '7.1.0'
+}
 
 
 subprojects {
     apply plugin: "java"
+    apply plugin: "com.github.johnrengelman.shadow"
     buildDir = "target"
     sourceCompatibility = JavaVersion.VERSION_11
     targetCompatibility = JavaVersion.VERSION_11
