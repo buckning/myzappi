@@ -30,7 +30,7 @@ public class MyZappiScheduleHandler {
                 "setBoostUntil",    (zappiService, value) -> zappiService.startSmartBoost(LocalTime.parse(value)),
                 "setBoostFor",      (zappiService, value) -> zappiService.startSmartBoost(Duration.parse(value)),
                 "setEddiMode",      (zappiService, value) -> zappiService.setEddiMode(EddiMode.valueOf(value)),
-                "setEddiBoostFor",  (zappiService, value) -> zappiService.boostEddi(Duration.parse(value))
+                "setEddiBoostFor",  (zappiService, value) -> zappiService.boostEddi(parseHeater(value), parseDuration(value))
         );
     }
 
@@ -57,5 +57,22 @@ public class MyZappiScheduleHandler {
             scheduleService.deleteLocalSchedule(scheduleId);
         }
         handler.accept(zappiService, schedule.get().getAction().getValue());
+    }
+
+    private int parseHeater(String value) {
+        // parse tank value from PT45M;tank=2
+        var tokens = value.split(";");
+
+        if (tokens.length < 2) {
+            return 1;   // default to heater 1
+        }
+        value = tokens[1].split("=")[1];
+
+        return Integer.parseInt(value);
+    }
+
+    private Duration parseDuration(String value) {
+        var tokens = value.split(";");
+        return Duration.parse(tokens[0]);
     }
 }

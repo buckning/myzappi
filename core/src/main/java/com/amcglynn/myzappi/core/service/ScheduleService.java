@@ -3,6 +3,7 @@ package com.amcglynn.myzappi.core.service;
 import com.amcglynn.myzappi.core.dal.ScheduleDetailsRepository;
 import com.amcglynn.myzappi.core.dal.UserScheduleRepository;
 import com.amcglynn.myzappi.core.exception.MissingDeviceException;
+import com.amcglynn.myzappi.core.model.EddiDevice;
 import com.amcglynn.myzappi.core.model.Schedule;
 import com.amcglynn.myzappi.core.model.ScheduleRecurrence;
 import com.amcglynn.myzappi.core.model.UserId;
@@ -18,7 +19,6 @@ import software.amazon.awssdk.services.scheduler.model.Target;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -81,7 +81,7 @@ public class ScheduleService {
 
     private void validate(UserId userId, Schedule schedule) {
         if (schedule.getAction().getType().toLowerCase().contains("eddi")) {
-            if (loginService.readCredentials(userId.toString()).get().getEddiSerialNumber().isEmpty()) {
+            if (loginService.readDevices(userId).stream().noneMatch(EddiDevice.class::isInstance)) {
                 log.info("Eddi not found for user {}", userId);
                 throw new MissingDeviceException("Eddi not available");
             }

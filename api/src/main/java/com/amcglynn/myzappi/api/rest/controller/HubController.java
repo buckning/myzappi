@@ -28,9 +28,7 @@ public class HubController implements RestController {
     @Override
     public Response handle(Request request) {
         if (request.getMethod() == RequestMethod.POST) {
-            register(request);
-
-            return new Response(200, request.getBody());
+            return post(request);
         }
         if (request.getMethod() == RequestMethod.GET) {
             return get(request);
@@ -39,24 +37,32 @@ public class HubController implements RestController {
             registrationService.delete(request.getUserId());
             return new Response(204);
         }
-        System.out.println("Unsupported method for hub - " + request.getMethod());
+        log.info("Unsupported method for hub - {}", request.getMethod());
         throw new ServerException(404);
+    }
+
+    private Response post(Request request) {
+        if ("/hub/refresh".equals(request.getPath())) {
+            return refreshDeploymentDetails(request);
+        }
+        register(request);
+        return new Response(200, request.getBody());
+    }
+
+    private Response refreshDeploymentDetails(Request request) {
+        registrationService.refreshDeploymentDetails(request.getUserId());
+        return new Response(201);
     }
 
     @SneakyThrows
     private Response get(Request request) {
-        var creds = registrationService.read(request.getUserId().toString());
-        if (creds.isEmpty()) {
-            log.info("No hub found for user {}", request.getUserId());
-            return new Response(404);
-        }
-        var body = new ObjectMapper().writeValueAsString(creds.get());
+        var body = new ObjectMapper().writeValueAsString(registrationService.readDevices(request.getUserId()));
         return new Response(200, body);
     }
 
     public void register(Request request) {
         if (request.getBody() == null) {
-            System.err.println("Null body in POST request");
+            log.info("Null body in POST request");
             throw new ServerException(400);
         }
         try {
@@ -66,7 +72,7 @@ public class HubController implements RestController {
             var apiKey = body.getApiKey().trim();
             registrationService.register(request.getUserId(), SerialNumber.from(serialNumber), apiKey);
         } catch (JsonProcessingException e) {
-            System.err.println("Invalid request");
+            log.info("Invalid request");
             throw new ServerException(400);
         }
     }

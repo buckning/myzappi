@@ -24,8 +24,11 @@ export class CreateOnetimeSchedulePanelComponent {
   startDateTime: string = '';
   scheduleType: string = 'setBoostKwh';
   scheduleActionValue: string = '';
+  scheduleActionTankValue: string = '';
+  selectedTank: any;
   cancelButtonVisible = true;
   saveButtonDisabled = false;
+  eddiTanks: any[] = [];
   target: 'zappi' | 'eddi' = 'zappi';
 
   zappiOptions: { value: string, label: string }[] = [
@@ -52,6 +55,14 @@ export class CreateOnetimeSchedulePanelComponent {
 
   eddiSelected() {
     this.scheduleType = 'setEddiMode';
+
+    for (let device of Object.values(this.hubDetails.devices) as any[]) {
+      if (device.deviceClass === 'EDDI') {
+        this.eddiTanks = [device.tank1Name, device.tank2Name];
+        this.selectedTank = this.eddiTanks[0];
+      }
+    }
+
     this.options = this.eddiOptions;
   }
 
@@ -99,8 +110,15 @@ export class CreateOnetimeSchedulePanelComponent {
       return "PT" + this.scheduleActionValue + "H";
     }
     if (this.scheduleType === 'setEddiBoostFor') {
-      return "PT" + this.scheduleActionValue + "M";
+      console.log("selected tank = " + this.selectedTank);
+      for (const [index, tank] of this.eddiTanks.entries()) {
+        if (tank === this.selectedTank) {
+            console.log('Index:', index);
+            return "PT" + this.scheduleActionValue + "M;tank=" + (index + 1);
+        }
+      }
     }
+      
     return this.scheduleActionValue;
   }
 

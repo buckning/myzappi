@@ -149,12 +149,23 @@ public class MyEnergiClient {
         getRequest("/cgi-eddi-boost-E" + eddiSerialNumber + "-10-1-" + duration.toMinutes());
     }
 
+    public void boostEddi(Duration duration, int heaterNumber) {
+        if (duration.toMinutes() > 99) {
+            throw new IllegalArgumentException("Duration must be less than 99 minutes");
+        }
+        getRequest("/cgi-eddi-boost-E" + eddiSerialNumber + "-10-" + heaterNumber + "-" + duration.toMinutes());
+    }
+
     public void stopBoost() {
         invokeCgiZappiModeApi(ZappiChargeMode.BOOST, ZappiBoostMode.STOP, zeroKwh, localTimeMidnight);
     }
 
     public void stopEddiBoost() {
         getRequest("/cgi-eddi-boost-E" + eddiSerialNumber + "-1-1-0");
+    }
+
+    public void stopEddiBoost(int heaterNumber) {
+        getRequest("/cgi-eddi-boost-E" + eddiSerialNumber + "-1-" + heaterNumber + "-0");
     }
 
     private void invokeCgiZappiModeApi(ZappiChargeMode zappiChargeMode, ZappiBoostMode zappiBoostMode,

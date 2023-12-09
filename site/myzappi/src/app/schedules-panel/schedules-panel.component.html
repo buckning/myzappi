@@ -111,7 +111,7 @@
             <input type="text" name="time" class="scheduleDateTime" [ngModel]="convertDateTime(row.startDateTime)" readonly>
           </td>
           <td>
-            <input type="text" name="time" class="scheduleType" [ngModel]="convertScheduleType(row.action.type)" readonly>
+            <input type="text" name="time" class="scheduleType" [ngModel]="convertScheduleType(row)" readonly>
           </td>
           <td>
             <input type="text" name="repeat" class="chargeMode" placeholder="Charge Mode"
@@ -141,7 +141,7 @@
             <input type="text" name="time" class="scheduleDateTime" [ngModel]="convertDateTime(row.startDateTime)" readonly>
           </td>
           <td>
-            <input type="text" name="time" class="scheduleType" [ngModel]="convertScheduleType(row.action.type)" readonly>
+            <input type="text" name="time" class="scheduleType" [ngModel]="convertScheduleType(row)" readonly>
           </td>
           <td>
             <input type="text" name="repeat" class="chargeMode" placeholder="Charge Mode"
