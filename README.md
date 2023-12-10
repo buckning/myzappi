@@ -31,12 +31,64 @@ It offers functionality such as:
 * Get energy usage for a specific day
 * Check if your E.V. is plugged in
 
+## Architecture
+There are 3 AWS lambda functions that are used by the application and an Angular application.
+The 3 lambda functions are:
+* `api`: contains all the REST APIs that are used by the Angular application
+* `myzappi-alexa-lambda`: contains the Alexa skill that is used to control the Zappi
+* `sqs-handler`: consumes schedule events, which were initially supposed to be from SQS, but are now from a Eventbridge scheduler
+
+This project is broken up into a number of modules and an Angular application and are contained in the following directories:
+* `api`: REST APIs that is used by the Angular application
+* `core`: The core of the application and contains common code between the API and the Alexa skill
+* `login-with-amazon`: Client to interact with Login with Amazon and other Amazon services
+* `myenergi-client`: Client to interact with the myenergi APIs
+* `myzappi-alexa-lambda`: Contains the Alexa skill
+* `sqs-handler`: Contains the code that is used to handle schedule events
+* `site`: Contains the Angular application
+
+
 ## Build
 Build the project with the following command
 ```
-mvn clean package
+gradle clean build
 ```
 
+### Build and deploy lambdas
+Build the APIs, which are used by the website
+```
+./buildAndDeployApi.sh
+```
+Build and deploy the Alexa skill
+```
+./buildAndDeploySkill.sh
+```
+Build and deploy the schedule handler
+```
+./buildAndDeploySqs.sh
+```
+
+### Build and deploy website
+Build the website
+```
+cd site/myzappi
+ng build
+```
+Resulting files are found in `site/myzappi/dist/myzappi`
+
+There is no automation to deploy the website, it is all manual.
+1. Upload the contents of `site/myzappi/dist/myzappi` to the S3 bucket `www.myzappiunofficial.com`
+2. Invalidate the CDN cache in CloudFront for `www.myzappiunofficial.com`. This is done by creating an invalidation for `/*`
+
+### Running the website locally
+To login to the website locally, the Amazon authorize URL needs to change to http://localhost:4200 in
+`site/myzappi/src/app/logged-out-content/logged-out-content.component.ts`
+
+Run the website locally with the following commands
+```
+cd site/myzappi
+ng serve
+```
 # Configuration needed before running the application
 This project does not have IaC yet. The following section describes what is required to build the application and
 all its dependencies.

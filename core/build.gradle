@@ -1,0 +1,5 @@
+dependencies {
+    implementation "com.amazonaws:aws-java-sdk-dynamodb:${dynamodbVersion}"
+    implementation "software.amazon.awssdk:scheduler:${awsSchedulerVersion}"
+    implementation project(":myenergi-client")
+}

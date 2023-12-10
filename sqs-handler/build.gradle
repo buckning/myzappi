@@ -1,0 +1,8 @@
+dependencies {
+    implementation "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}"
+    implementation "com.amazonaws:aws-lambda-java-events:${awsLambdaJavaEventsVersion}"
+    implementation "com.amazonaws:aws-lambda-java-core:${awsLambdaJavaCoreVersion}"
+    implementation project(":core")
+    implementation project(":login-with-amazon")
+    implementation project(":myenergi-client")
+}

@@ -11,8 +11,6 @@ import com.amcglynn.myzappi.api.rest.controller.EndpointRouter;
 import com.amcglynn.myzappi.api.rest.Request;
 import com.amcglynn.myzappi.api.rest.RequestMethod;
 import lombok.extern.slf4j.Slf4j;
-import org.thymeleaf.TemplateEngine;
-import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -22,7 +20,6 @@ public class CompleteLoginHandler implements RequestHandler<APIGatewayProxyReque
 
     private final LoginService loginService;
     private final SessionManagementService sessionManagementService;
-    private final TemplateEngine templateEngine;
     private final EndpointRouter endpointRouter;
 
     private final Properties properties;
@@ -35,13 +32,6 @@ public class CompleteLoginHandler implements RequestHandler<APIGatewayProxyReque
         this.properties = properties;
         this.endpointRouter = endpointRouter;
         this.featureToggleUser = "notConfiguredForTest";
-
-        ClassLoaderTemplateResolver templateResolver = new ClassLoaderTemplateResolver();
-        templateResolver.setPrefix("/templates/");
-        templateResolver.setSuffix(".html");
-
-        templateEngine = new TemplateEngine();
-        templateEngine.setTemplateResolver(templateResolver);
     }
 
     public CompleteLoginHandler() {
@@ -53,13 +43,6 @@ public class CompleteLoginHandler implements RequestHandler<APIGatewayProxyReque
         this.featureToggleUser = properties.getDevFeatureToggle();
         this.sessionManagementService = new SessionManagementService(new SessionRepository(serviceManager.getAmazonDynamoDB()),
                 serviceManager.getEncryptionService(), new LwaClientFactory());
-
-        ClassLoaderTemplateResolver templateResolver = new ClassLoaderTemplateResolver();
-        templateResolver.setPrefix("/templates/");
-        templateResolver.setSuffix(".html");
-
-        templateEngine = new TemplateEngine();
-        templateEngine.setTemplateResolver(templateResolver);
     }
 
     @Override

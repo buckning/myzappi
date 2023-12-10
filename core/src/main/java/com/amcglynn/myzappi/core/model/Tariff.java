@@ -11,11 +11,9 @@ import java.time.LocalTime;
 @NoArgsConstructor
 @ToString
 public class Tariff {
-    @Getter
     @JsonDeserialize(using = LocalTimeDeserializer.class)
     @JsonSerialize(using = LocalTimeSerializer.class)
     private LocalTime start;
-    @Getter
     @JsonDeserialize(using = LocalTimeDeserializer.class)
     @JsonSerialize(using = LocalTimeSerializer.class)
     private LocalTime end;
