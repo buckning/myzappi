@@ -2,7 +2,6 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '7.1.0'
 }
 
-
 subprojects {
     apply plugin: "java"
     apply plugin: "com.github.johnrengelman.shadow"
@@ -13,6 +12,7 @@ subprojects {
     repositories {
         mavenCentral()
     }
+
     dependencies {
         compileOnly "org.projectlombok:lombok:${lombokVersion}"
         annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
@@ -23,6 +23,7 @@ subprojects {
         testImplementation "org.mockito:mockito-junit-jupiter:${mockitoVersion}"
         testImplementation "org.assertj:assertj-core:${assertjVersion}"
     }
+
     test {
         useJUnitPlatform {
             includeEngines("junit-jupiter")
