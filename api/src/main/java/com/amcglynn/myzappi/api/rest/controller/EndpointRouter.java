@@ -1,10 +1,9 @@
 package com.amcglynn.myzappi.api.rest.controller;
 
 import com.amcglynn.myenergi.MyEnergiClientFactory;
+import com.amcglynn.myzappi.core.config.Properties;
 import com.amcglynn.myzappi.core.config.ServiceManager;
 import com.amcglynn.myzappi.api.LwaClientFactory;
-import com.amcglynn.myzappi.api.SessionManagementService;
-import com.amcglynn.myzappi.api.SessionRepository;
 import com.amcglynn.myzappi.api.rest.Request;
 import com.amcglynn.myzappi.api.rest.RequestMethod;
 import com.amcglynn.myzappi.api.rest.Response;
@@ -21,47 +20,47 @@ public class EndpointRouter {
 
     private final Map<String, RestController> handlers;
     private final AuthenticateController authenticateController;
+    private final Properties properties;
 
     public EndpointRouter(ServiceManager serviceManager) {
         this(serviceManager, new HubController(
-                new RegistrationService(serviceManager.getLoginService(), serviceManager.getDevicesRepository(), new MyEnergiClientFactory())),
+                        new RegistrationService(serviceManager.getLoginService(), serviceManager.getDevicesRepository(), new MyEnergiClientFactory())),
                 new TariffController(serviceManager.getTariffService()),
                 new LwaClientFactory());
     }
 
     public EndpointRouter(ServiceManager serviceManager, HubController hubController, TariffController tariffController,
                           LwaClientFactory lwaClientFactory) {
-        this(hubController, tariffController, new SessionManagementService(new SessionRepository(serviceManager.getAmazonDynamoDB()),
-                serviceManager.getEncryptionService(), lwaClientFactory), lwaClientFactory,
+        this(hubController, tariffController, lwaClientFactory,
                 new ScheduleController(serviceManager.getScheduleService()), serviceManager);
     }
 
     public EndpointRouter(HubController hubController, TariffController tariffController,
-                          SessionManagementService sessionManagementService, LwaClientFactory lwaClientFactory,
+                          LwaClientFactory lwaClientFactory,
                           ScheduleController scheduleController, ServiceManager serviceManager) {
         this(hubController, tariffController,
-                new AuthenticateController(new TokenService(lwaClientFactory), sessionManagementService),
-                new LogoutController(sessionManagementService),
+                new AuthenticateController(new TokenService(lwaClientFactory)),
                 scheduleController,
-                new EnergyCostController(serviceManager.getZappiServiceBuilder(), serviceManager.getTariffService()));
+                new EnergyCostController(serviceManager.getZappiServiceBuilder(), serviceManager.getTariffService()),
+                serviceManager.getProperties());
     }
 
     public EndpointRouter(HubController hubController, TariffController tariffController,
-                          AuthenticateController authenticateController, LogoutController logoutController,
-                          ScheduleController scheduleController, EnergyCostController energyCostController) {
+                          AuthenticateController authenticateController,
+                          ScheduleController scheduleController, EnergyCostController energyCostController,
+                          Properties properties) {
 
         handlers = new HashMap<>();
         handlers.put("/hub", hubController);
         handlers.put("/v2/hub", hubController);
         handlers.put("/hub/refresh", hubController);
         handlers.put("/tariff", tariffController);
-        handlers.put("/authenticate", authenticateController);
-        handlers.put("/logout", logoutController);
         handlers.put("/schedule", scheduleController);
         handlers.put("/schedules", scheduleController);
         handlers.put("/energy-cost", energyCostController);
 
         this.authenticateController = authenticateController;
+        this.properties = properties;
     }
 
     public Response route(Request request) {
@@ -71,11 +70,12 @@ public class EndpointRouter {
 
         // POST /authenticate does not require a sessionId
         if (!isAuthenticated(request)) {
-            if (request.getSession().isEmpty()) {
-                log.info("User not authenticated");
-                return new Response(401);
-            }
+            log.info("User not authenticated");
+            return new Response(401);
         }
+
+        handleAdminUserOnBehalfOf(request);
+
         try {
             log.info("{} {}", request.getMethod(), request.getPath());
             var controller = handlers.get(request.getPath());
@@ -94,6 +94,14 @@ public class EndpointRouter {
         }
     }
 
+    private void handleAdminUserOnBehalfOf(Request request) {
+        if (properties.getAdminUser().equals(request.getUserId().toString())
+                && (request.getHeaders().containsKey("on-behalf-of"))) {
+            log.info("Admin user detected, running API as {} on behalf of {}", request.getUserId(), request.getHeaders().get("on-behalf-of"));
+            request.setUserId(request.getHeaders().get("on-behalf-of"));
+        }
+    }
+
     private boolean isAuthenticated(Request request) {
         var routeEndpoint = request.getMethod() + " " + request.getPath();
 
@@ -104,8 +112,7 @@ public class EndpointRouter {
         if (request.getHeaders().containsKey("Authorization")) {
             return isValidBearerToken(request, request.getHeaders().get("Authorization"));
         }
-
-        return request.getSession().isPresent();
+        return false;
     }
 
     private boolean isValidBearerToken(Request request, String authorization) {
