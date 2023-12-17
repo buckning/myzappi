@@ -127,6 +127,18 @@ class EndpointRouterTest {
     }
 
     @Test
+    void callApiOnBehalfOfUserFromAdminUserWithPostRequestExpectApiToRejectNonGetRequests() {
+        when(mockProperties.getAdminUser()).thenReturn("AdminUser");
+        var request = new Request(RequestMethod.POST, "/energy-cost", null, Map.of("Authorization", "Bearer 1234",
+                "on-behalf-of", "RandomUser"), Map.of());
+        request.setUserId("AdminUser");
+        when(mockAuthController.isAuthenticated(any(), eq("1234"))).thenReturn(true);
+        router.route(request);
+        assertThat(request.getUserId()).hasToString("AdminUser");
+        verify(mockEnergyCostController).handle(request);
+    }
+
+    @Test
     void callApiOnBehalfOfUserFromNonAdminUserExpectNonAdminUserToNotBeAbleToRunRequestAsAnotherUser() {
         when(mockProperties.getAdminUser()).thenReturn("AdminUser");
         var request = new Request(RequestMethod.GET, "/energy-cost", null, Map.of("Authorization", "Bearer 1234",

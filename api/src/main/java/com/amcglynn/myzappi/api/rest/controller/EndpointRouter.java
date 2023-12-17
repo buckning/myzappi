@@ -96,7 +96,8 @@ public class EndpointRouter {
 
     private void handleAdminUserOnBehalfOf(Request request) {
         if (properties.getAdminUser().equals(request.getUserId().toString())
-                && (request.getHeaders().containsKey("on-behalf-of"))) {
+                && request.getHeaders().containsKey("on-behalf-of")
+                && request.getMethod() == RequestMethod.GET) {
             log.info("Admin user detected, running API as {} on behalf of {}", request.getUserId(), request.getHeaders().get("on-behalf-of"));
             request.setUserId(request.getHeaders().get("on-behalf-of"));
         }
