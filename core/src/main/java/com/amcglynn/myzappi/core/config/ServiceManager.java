@@ -70,6 +70,10 @@ public class ServiceManager {
         return properties.getSchedulerTargetLambdaArn();
     }
 
+    public Properties getProperties() {
+        return properties;
+    }
+
     public TariffService getTariffService() {
         return tariffService;
     }

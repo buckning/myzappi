@@ -24,6 +24,14 @@ public class Properties {
         return getOrDefault("devFeatureEnabled", "notConfigured");
     }
 
+    /**
+     * An admin user can execute APIs for any user in the system. This requires the on-behalf-of header to be set.
+     * @return the admin user configured for the system. Only one user is supported.
+     */
+    public String getAdminUser() {
+        return getOrDefault("adminUser", "notConfigured");
+    }
+
     public String getKmsKeyArn() {
         return getOrThrow("kmsKeyArn");
     }

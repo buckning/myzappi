@@ -18,31 +18,20 @@ import java.util.Map;
 @Slf4j
 public class CompleteLoginHandler implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
 
-    private final LoginService loginService;
-    private final SessionManagementService sessionManagementService;
     private final EndpointRouter endpointRouter;
 
     private final Properties properties;
-    private final String featureToggleUser;
 
-    CompleteLoginHandler(LoginService loginService, SessionManagementService sessionManagementService,
-                         EndpointRouter endpointRouter, Properties properties) {
-        this.sessionManagementService = sessionManagementService;
-        this.loginService = loginService;
+    CompleteLoginHandler(EndpointRouter endpointRouter, Properties properties) {
         this.properties = properties;
         this.endpointRouter = endpointRouter;
-        this.featureToggleUser = "notConfiguredForTest";
     }
 
     public CompleteLoginHandler() {
         // TODO set up the redirect URL to /login
         this.properties = new Properties();
         var serviceManager = new ServiceManager(properties);
-        this.loginService = serviceManager.getLoginService();
         this.endpointRouter = new EndpointRouter(serviceManager);
-        this.featureToggleUser = properties.getDevFeatureToggle();
-        this.sessionManagementService = new SessionManagementService(new SessionRepository(serviceManager.getAmazonDynamoDB()),
-                serviceManager.getEncryptionService(), new LwaClientFactory());
     }
 
     @Override
@@ -61,8 +50,6 @@ public class CompleteLoginHandler implements RequestHandler<APIGatewayProxyReque
                 input.getBody(),
                 input.getHeaders(),
                 input.getQueryStringParameters());
-        var session = sessionManagementService.handle(input, responseEvent);
-        session.ifPresent(request::setSession);
 
         var response = endpointRouter.route(request);
 
@@ -85,12 +72,5 @@ public class CompleteLoginHandler implements RequestHandler<APIGatewayProxyReque
         );
 
         return responseEvent;
-    }
-
-    private boolean devFeatureEnabled(Request request) {
-        if (request.getSession().isEmpty()) {
-            return false;
-        }
-        return featureToggleUser.equals(request.getUserId().toString());
     }
 }
