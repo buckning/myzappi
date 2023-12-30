@@ -1,6 +1,9 @@
 package com.amcglynn.myzappi.api.rest.controller;
 
 import com.amcglynn.myenergi.MyEnergiClientFactory;
+import com.amcglynn.myzappi.api.SessionRepository;
+import com.amcglynn.myzappi.api.service.AuthenticationService;
+import com.amcglynn.myzappi.api.service.SessionService;
 import com.amcglynn.myzappi.core.config.Properties;
 import com.amcglynn.myzappi.core.config.ServiceManager;
 import com.amcglynn.myzappi.api.LwaClientFactory;
@@ -19,7 +22,7 @@ import java.util.Map;
 public class EndpointRouter {
 
     private final Map<String, RestController> handlers;
-    private final AuthenticateController authenticateController;
+    private final AuthenticationService authenticationService;
     private final Properties properties;
 
     public EndpointRouter(ServiceManager serviceManager) {
@@ -39,14 +42,15 @@ public class EndpointRouter {
                           LwaClientFactory lwaClientFactory,
                           ScheduleController scheduleController, ServiceManager serviceManager) {
         this(hubController, tariffController,
-                new AuthenticateController(new TokenService(lwaClientFactory)),
+                new AuthenticationService(new TokenService(lwaClientFactory),
+                        new SessionService(new SessionRepository(serviceManager.getAmazonDynamoDB()))),
                 scheduleController,
                 new EnergyCostController(serviceManager.getZappiServiceBuilder(), serviceManager.getTariffService()),
                 serviceManager.getProperties());
     }
 
     public EndpointRouter(HubController hubController, TariffController tariffController,
-                          AuthenticateController authenticateController,
+                          AuthenticationService authenticationService,
                           ScheduleController scheduleController, EnergyCostController energyCostController,
                           Properties properties) {
 
@@ -59,7 +63,7 @@ public class EndpointRouter {
         handlers.put("/schedules", scheduleController);
         handlers.put("/energy-cost", energyCostController);
 
-        this.authenticateController = authenticateController;
+        this.authenticationService = authenticationService;
         this.properties = properties;
     }
 
@@ -68,7 +72,6 @@ public class EndpointRouter {
             return new Response(204);
         }
 
-        // POST /authenticate does not require a sessionId
         if (!isAuthenticated(request)) {
             log.info("User not authenticated");
             return new Response(401);
@@ -104,29 +107,6 @@ public class EndpointRouter {
     }
 
     private boolean isAuthenticated(Request request) {
-        var routeEndpoint = request.getMethod() + " " + request.getPath();
-
-        if ("POST /authenticate".equals(routeEndpoint)) {
-            return true;
-        }
-
-        if (request.getHeaders().containsKey("Authorization")) {
-            return isValidBearerToken(request, request.getHeaders().get("Authorization"));
-        }
-        return false;
-    }
-
-    private boolean isValidBearerToken(Request request, String authorization) {
-        // split token
-        if (authorization == null) {
-            return false;
-        }
-
-        var tokens = authorization.split("Bearer ");
-        if (tokens.length == 2) {
-            return authenticateController.isAuthenticated(request, tokens[1]);
-        }
-
-        return false;
+        return authenticationService.authenticate(request).isPresent();
     }
 }
