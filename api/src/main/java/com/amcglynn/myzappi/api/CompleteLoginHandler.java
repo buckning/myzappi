@@ -57,6 +57,7 @@ public class CompleteLoginHandler implements RequestHandler<APIGatewayProxyReque
         var responseHeaders = new HashMap<>(response.getHeaders());
         responseHeaders.put("Content-Type", "application/json");
         responseHeaders.put("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS");
+        responseHeaders.put("Access-Control-Allow-Credentials", "true");
         if (input.getHeaders().containsKey("origin")) {
             var origin = input.getHeaders().get("origin");
             if ("https://www.myzappiunofficial.com".equals(origin) ||

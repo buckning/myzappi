@@ -15,7 +15,7 @@ public class SessionService {
 
     private static final long DEFAULT_SESSION_TTL = 3600;
 
-    private SessionRepository sessionRepository;
+    private final SessionRepository sessionRepository;
     private Supplier<Instant> instantSupplier;
 
     public SessionService(SessionRepository sessionRepository) {

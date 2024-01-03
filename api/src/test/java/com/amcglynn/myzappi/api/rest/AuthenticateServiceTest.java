@@ -93,8 +93,11 @@ class AuthenticateServiceTest {
 
     @Test
     void authenticateReturnsExistingSessionWhenSessionIsValid() {
-        var sessionId = service.authenticate(request);
-        assertThat(sessionId).contains(session.getSessionId());
+        var session = service.authenticate(request);
+        assertThat(session).isPresent();
+        assertThat(session.get().getSessionId()).isEqualTo(this.session.getSessionId());
+        assertThat(session.get().getTtl()).isEqualTo(this.session.getTtl());
+        assertThat(session.get().getUserId()).isEqualTo(this.session.getUserId());
         verify(mockTokenService, never()).getTokenInfo(any());
     }
 
@@ -106,8 +109,8 @@ class AuthenticateServiceTest {
                 "Authorization", authToken);
         request = new Request(RequestMethod.POST, "/authenticate", "{}", headersWithNoSessionId, Map.of());
         when(mockSessionService.getValidSession(any())).thenReturn(Optional.empty());
-        var sessionId = service.authenticate(request);
-        assertThat(sessionId).contains(session.getSessionId());
+        var session = service.authenticate(request);
+        assertThat(session).contains(this.session);
         verify(mockTokenService).getTokenInfo("Atza|tokencontentshere");
     }
 }

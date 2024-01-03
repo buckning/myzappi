@@ -1,6 +1,7 @@
 package com.amcglynn.myzappi.api.rest.controller;
 
 import com.amcglynn.myenergi.MyEnergiClientFactory;
+import com.amcglynn.myzappi.api.Session;
 import com.amcglynn.myzappi.api.SessionRepository;
 import com.amcglynn.myzappi.api.service.AuthenticationService;
 import com.amcglynn.myzappi.api.service.SessionService;
@@ -72,9 +73,15 @@ public class EndpointRouter {
             return new Response(204);
         }
 
-        if (!isAuthenticated(request)) {
+        var session = authenticationService.authenticate(request);
+
+        if (session.isEmpty()) {
             log.info("User not authenticated");
             return new Response(401);
+        }
+
+        if (request.getPath().equals("/authenticate")) {
+            return new Response(200, "{\"sessionId\":\"" + session.get().getSessionId() + "\"}");
         }
 
         handleAdminUserOnBehalfOf(request);
@@ -91,9 +98,19 @@ public class EndpointRouter {
                 return new Response(404);
             }
             log.info("Found controller {}", controller.getClass());
-            return controller.handle(request);
+            var response = controller.handle(request);
+            updateSessionCookie(request, session.get(), response);
+            return response;
         } catch (ServerException e) {
             return new Response(e.getStatus());
+        }
+    }
+
+    private void updateSessionCookie(Request request, Session session, Response response) {
+        var sessionFromHeaders = authenticationService.getSessionIdFromCookie(request.getHeaders());
+        if (sessionFromHeaders.isEmpty()) {
+            response.getHeaders().put("Set-Cookie", "sessionID=" + session.getSessionId() +
+                    "; Max-Age=" + session.getTtl() + "; Path=/; Secure; SameSite=None; HttpOnly; domain=.myzappiunofficial.com");
         }
     }
 
@@ -104,9 +121,5 @@ public class EndpointRouter {
             log.info("Admin user detected, running API as {} on behalf of {}", request.getUserId(), request.getHeaders().get("on-behalf-of"));
             request.setUserId(request.getHeaders().get("on-behalf-of"));
         }
-    }
-
-    private boolean isAuthenticated(Request request) {
-        return authenticationService.authenticate(request).isPresent();
     }
 }

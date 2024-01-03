@@ -29,20 +29,22 @@ public class AuthenticationService {
         this.sessionService = sessionService;
     }
 
-    public Optional<SessionId> authenticate(Request request) {
+    public Optional<Session> authenticate(Request request) {
         var sessionId = getSessionIdFromCookie(request.getHeaders());
         if (sessionId.isPresent()) {
-            return sessionService.getValidSession(sessionId.get()).map(Session::getSessionId);
+            var session = sessionService.getValidSession(sessionId.get());
+            session.ifPresent(s -> request.setUserId(s.getUserId().toString()));
+            return session;
         }
 
         if (isValidBearerToken(request)) {
-            return Optional.of(sessionService.createSession(request.getUserId()).getSessionId());
+            return Optional.of(sessionService.createSession(request.getUserId()));
         }
 
         return Optional.empty();
     }
 
-    private Optional<SessionId> getSessionIdFromCookie(Map<String, String> headers) {
+    public Optional<SessionId> getSessionIdFromCookie(Map<String, String> headers) {
         var cookieHeader = headers.get("cookie");
 
         if (cookieHeader == null) {

@@ -25,7 +25,7 @@ export class RegisterPanelComponent {
       'Content-Type': 'application/json',
       'Authorization': this.bearerToken });
 
-    let options = { headers: headers };
+    let options = { headers: headers, withCredentials: true };
 
     let requestBody = {
       apiKey: this.apiKeyText,

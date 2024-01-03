@@ -44,7 +44,7 @@ export class TariffPanelComponent {
     let headers = new HttpHeaders({
       'Content-Type': 'application/json',
       'Authorization': this.bearerToken });
-    let options = { headers: headers };
+    let options = { headers: headers, withCredentials: true };
     this.http.get<TariffData>('https://api.myzappiunofficial.com/tariff', options)
       .subscribe(data => {
         console.log("Got tariff details: " + data);
@@ -95,7 +95,7 @@ export class TariffPanelComponent {
     let headers = new HttpHeaders({
       'Content-Type': 'application/json',
       'Authorization': this.bearerToken });
-    let options = { headers: headers };
+    let options = { headers: headers, withCredentials: true };
 
     var requestBody = {
       currency: this.tariffCurrency,

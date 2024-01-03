@@ -1,5 +1,6 @@
 package com.amcglynn.myzappi.api.rest;
 
+import com.amcglynn.myzappi.api.Session;
 import com.amcglynn.myzappi.api.SessionId;
 import com.amcglynn.myzappi.api.rest.controller.EnergyCostController;
 import com.amcglynn.myzappi.core.config.Properties;
@@ -8,6 +9,7 @@ import com.amcglynn.myzappi.api.rest.controller.EndpointRouter;
 import com.amcglynn.myzappi.api.rest.controller.HubController;
 import com.amcglynn.myzappi.api.rest.controller.ScheduleController;
 import com.amcglynn.myzappi.api.rest.controller.TariffController;
+import com.amcglynn.myzappi.core.model.UserId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,6 +18,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
@@ -50,11 +53,12 @@ class EndpointRouterTest {
         router = new EndpointRouter(mockHubController, mockTariffController, mockAuthController,
                 mockScheduleController, mockEnergyCostController, mockProperties);
         when(mockResponse.getStatus()).thenReturn(200);
+        when(mockResponse.getHeaders()).thenReturn(new HashMap<>());
         when(mockProperties.getAdminUser()).thenReturn("regularUser");
         when(mockTariffController.handle(any())).thenReturn(mockResponse);
         when(mockScheduleController.handle(any())).thenReturn(mockResponse);
         when(mockHubController.handle(any())).thenReturn(mockResponse);
-        when(mockAuthController.authenticate(any())).thenReturn(Optional.of(SessionId.from("1234")));
+        when(mockAuthController.authenticate(any())).thenReturn(Optional.of(new Session(SessionId.from("1234"), UserId.from("userId"), 3600L)));
         when(mockEnergyCostController.handle(any())).thenReturn(mockResponse);
     }
 
@@ -93,6 +97,19 @@ class EndpointRouterTest {
         var response = router.route(request);
         assertThat(response.getStatus()).isEqualTo(200);
         verify(mockHubController).handle(request);
+        assertThat(response.getHeaders()).containsEntry("Set-Cookie", "sessionID=1234; Max-Age=3600; Path=/; Secure; SameSite=None; HttpOnly; domain=.myzappiunofficial.com");
+    }
+
+    @Test
+    void sessionIdCookieNotSetWhenSessionWasInTheRequest() {
+        var request = new Request(RequestMethod.DELETE, "/hub", "{}", Map.of("Authorization", "Bearer 1234",
+                "cookie", "sessionID=1234"), Map.of());
+        when(mockAuthController.getSessionIdFromCookie(request.getHeaders())).thenReturn(Optional.of(SessionId.from("1234")));
+        request.setUserId("regularUser");
+        var response = router.route(request);
+        assertThat(response.getStatus()).isEqualTo(200);
+        verify(mockHubController).handle(request);
+        assertThat(response.getHeaders().get("Set-Cookie")).isNull();
     }
 
     @Test

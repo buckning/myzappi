@@ -106,7 +106,7 @@ export class SchedulesPanelComponent {
       'Content-Type': 'application/json',
       'Authorization': this.bearerToken
     });
-    let options = { headers: headers };
+    let options = { headers: headers, withCredentials: true };
     this.http.delete('https://api.myzappiunofficial.com/schedules/' + id, options)
       .subscribe(data => {
         console.log("Deleted schedule with id: " + id);
@@ -210,7 +210,7 @@ export class SchedulesPanelComponent {
       'Content-Type': 'application/json',
       'Authorization': this.bearerToken
     });
-    let options = { headers: headers };
+    let options = { headers: headers, withCredentials: true };
     this.http.get<Schedules>('https://api.myzappiunofficial.com/schedules', options)
       .subscribe(data => {
         this.recurringScheduleRows = data.schedules.filter(schedule => 
