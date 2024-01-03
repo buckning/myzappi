@@ -33,10 +33,39 @@ public class AuthenticationService {
         var sessionId = getSessionIdFromCookie(request.getHeaders());
         if (sessionId.isPresent()) {
             var session = sessionService.getValidSession(sessionId.get());
+            if (session.isPresent()) {
+                request.setUserId(session.get().getUserId().toString());
+                return session;
+            }
+        }
+
+        if (isValidBearerToken(request)) {
+            return Optional.of(sessionService.createSession(request.getUserId()));
+        }
+
+        return Optional.empty();
+    }
+
+    public Optional<Session> authenticateLwaToken(Request request) {
+        if (isValidBearerToken(request)) {
+            return Optional.of(sessionService.createSession(request.getUserId()));
+        }
+
+        return Optional.empty();
+    }
+
+    public Optional<Session> authenticateSession(Request request) {
+        var sessionId = getSessionIdFromCookie(request.getHeaders());
+        if (sessionId.isPresent()) {
+            var session = sessionService.getValidSession(sessionId.get());
             session.ifPresent(s -> request.setUserId(s.getUserId().toString()));
             return session;
         }
 
+        return Optional.empty();
+    }
+
+    public Optional<Session> authenticateBearerToken(Request request) {
         if (isValidBearerToken(request)) {
             return Optional.of(sessionService.createSession(request.getUserId()));
         }

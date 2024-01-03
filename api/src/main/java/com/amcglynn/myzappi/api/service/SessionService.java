@@ -6,14 +6,11 @@ import com.amcglynn.myzappi.api.SessionRepository;
 import com.amcglynn.myzappi.core.model.UserId;
 
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Supplier;
 
 public class SessionService {
-
-    private static final long DEFAULT_SESSION_TTL = 3600;
 
     private final SessionRepository sessionRepository;
     private Supplier<Instant> instantSupplier;
@@ -29,7 +26,7 @@ public class SessionService {
 
     public Session createSession(UserId userId) {
         var sessionId = SessionId.from(UUID.randomUUID().toString());
-        var expiryTimestamp = instantSupplier.get().plus(DEFAULT_SESSION_TTL, ChronoUnit.SECONDS);
+        var expiryTimestamp = instantSupplier.get().plus(Session.DEFAULT_TTL);
         var session = new Session(sessionId, userId, expiryTimestamp.getEpochSecond());
         sessionRepository.write(session);
         return session;

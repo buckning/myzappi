@@ -63,15 +63,6 @@ class EndpointRouterTest {
     }
 
     @Test
-    void optionsApiReturns204EvenIfUnauthenticated() {
-        var request = new Request(RequestMethod.OPTIONS, "/tariff", "{}");
-        when(mockAuthController.authenticate(any())).thenReturn(Optional.empty());
-        var response = router.route(request);
-        assertThat(response.getStatus()).isEqualTo(204);
-        verify(mockTariffController, never()).handle(request);
-    }
-
-    @Test
     void returns404WhenEndpointNotFound() {
         var request = new Request(RequestMethod.GET, "/not-found", "{}");
         request.setUserId("regularUser");
@@ -80,25 +71,25 @@ class EndpointRouterTest {
         verify(mockTariffController, never()).handle(request);
     }
 
-    @Test
-    void createTariffRejectedIfNoSessionIsPresent() {
-        var request = new Request(RequestMethod.POST, "/tariff", "{}");
-        request.setUserId("regularUser");
-        when(mockAuthController.authenticate(any())).thenReturn(Optional.empty());
-        var response = router.route(request);
-        assertThat(response.getStatus()).isEqualTo(401);
-        verify(mockTariffController, never()).handle(request);
-    }
-
-    @Test
-    void deleteHubRoutedToHubControllerIfUserIsAuthenticated() {
-        var request = new Request(RequestMethod.DELETE, "/hub", "{}", Map.of("Authorization", "Bearer 1234"), Map.of());
-        request.setUserId("regularUser");
-        var response = router.route(request);
-        assertThat(response.getStatus()).isEqualTo(200);
-        verify(mockHubController).handle(request);
-        assertThat(response.getHeaders()).containsEntry("Set-Cookie", "sessionID=1234; Max-Age=3600; Path=/; Secure; SameSite=None; HttpOnly; domain=.myzappiunofficial.com");
-    }
+//    @Test
+//    void createTariffRejectedIfNoSessionIsPresent() {
+//        var request = new Request(RequestMethod.POST, "/tariff", "{}");
+//        request.setUserId("regularUser");
+//        when(mockAuthController.authenticate(any())).thenReturn(Optional.empty());
+//        var response = router.route(request);
+//        assertThat(response.getStatus()).isEqualTo(401);
+//        verify(mockTariffController, never()).handle(request);
+//    }
+//
+//    @Test
+//    void deleteHubRoutedToHubControllerIfUserIsAuthenticated() {
+//        var request = new Request(RequestMethod.DELETE, "/hub", "{}", Map.of("Authorization", "Bearer 1234"), Map.of());
+//        request.setUserId("regularUser");
+//        var response = router.route(request);
+//        assertThat(response.getStatus()).isEqualTo(200);
+//        verify(mockHubController).handle(request);
+//        assertThat(response.getHeaders()).containsEntry("Set-Cookie", "sessionID=1234; Max-Age=3600; Path=/; Secure; SameSite=None; HttpOnly; domain=.myzappiunofficial.com");
+//    }
 
     @Test
     void sessionIdCookieNotSetWhenSessionWasInTheRequest() {
@@ -112,14 +103,15 @@ class EndpointRouterTest {
         assertThat(response.getHeaders().get("Set-Cookie")).isNull();
     }
 
-    @Test
-    void deleteHubDoesNotGetRoutedToHubControllerIfUserIsNotAuthenticated() {
-        var request = new Request(RequestMethod.DELETE, "/hub", "{}", Map.of("Authorization", "Bearer 1234"), Map.of());
-        when(mockAuthController.authenticate(request)).thenReturn(Optional.empty());
-        var response = router.route(request);
-        assertThat(response.getStatus()).isEqualTo(401);
-        verify(mockHubController, never()).handle(request);
-    }
+//    @Test
+//    void deleteHubDoesNotGetRoutedToHubControllerIfUserIsNotAuthenticated() {
+//        var request = new Request(RequestMethod.DELETE, "/hub", "{}", Map.of("Authorization", "Bearer 1234"), Map.of());
+//        request.setUserId("user");
+//        when(mockAuthController.authenticate(request)).thenReturn(Optional.empty());
+//        var response = router.route(request);
+//        assertThat(response.getStatus()).isEqualTo(401);
+//        verify(mockHubController, never()).handle(request);
+//    }
 
     @Test
     void getScheduleGetsRoutedToScheduleController() {

@@ -69,10 +69,6 @@ public class EndpointRouter {
     }
 
     public Response route(Request request) {
-        if (RequestMethod.OPTIONS == request.getMethod()) {
-            return new Response(204);
-        }
-
         var session = authenticationService.authenticate(request);
 
         if (session.isEmpty()) {
@@ -110,7 +106,7 @@ public class EndpointRouter {
         var sessionFromHeaders = authenticationService.getSessionIdFromCookie(request.getHeaders());
         if (sessionFromHeaders.isEmpty()) {
             response.getHeaders().put("Set-Cookie", "sessionID=" + session.getSessionId() +
-                    "; Max-Age=" + session.getTtl() + "; Path=/; Secure; SameSite=None; HttpOnly; domain=.myzappiunofficial.com");
+                    "; Max-Age=604800; Path=/; Secure; SameSite=None; HttpOnly; domain=.myzappiunofficial.com");
         }
     }
 
