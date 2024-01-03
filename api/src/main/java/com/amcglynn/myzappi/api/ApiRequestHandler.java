@@ -4,35 +4,34 @@ import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
+import com.amcglynn.myzappi.api.rest.Request;
+import com.amcglynn.myzappi.api.rest.RequestMethod;
 import com.amcglynn.myzappi.api.rest.Response;
+import com.amcglynn.myzappi.api.rest.controller.EndpointRouter;
 import com.amcglynn.myzappi.api.service.AuthenticationService;
 import com.amcglynn.myzappi.api.service.SessionService;
 import com.amcglynn.myzappi.api.service.TokenService;
 import com.amcglynn.myzappi.core.config.Properties;
 import com.amcglynn.myzappi.core.config.ServiceManager;
-import com.amcglynn.myzappi.api.rest.controller.EndpointRouter;
-import com.amcglynn.myzappi.api.rest.Request;
-import com.amcglynn.myzappi.api.rest.RequestMethod;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
-public class CompleteLoginHandler implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
+public class ApiRequestHandler implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
 
     private final EndpointRouter endpointRouter;
 
     private final Properties properties;
     private AuthenticationService authenticationService;
 
-    CompleteLoginHandler(EndpointRouter endpointRouter, Properties properties) {
+    ApiRequestHandler(EndpointRouter endpointRouter, Properties properties) {
         this.properties = properties;
         this.endpointRouter = endpointRouter;
     }
 
-    public CompleteLoginHandler() {
-        // TODO set up the redirect URL to /login
+    public ApiRequestHandler() {
         this.properties = new Properties();
         var serviceManager = new ServiceManager(properties);
         this.endpointRouter = new EndpointRouter(serviceManager);
