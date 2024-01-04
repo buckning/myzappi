@@ -54,9 +54,18 @@ public class EndpointRouter {
                           AuthenticationService authenticationService,
                           ScheduleController scheduleController, EnergyCostController energyCostController,
                           Properties properties) {
+        this(hubController, tariffController, authenticationService, scheduleController, energyCostController, new LogoutController(authenticationService), properties);
+    }
+
+    public EndpointRouter(HubController hubController, TariffController tariffController,
+                          AuthenticationService authenticationService,
+                          ScheduleController scheduleController, EnergyCostController energyCostController,
+                          LogoutController logoutController,
+                          Properties properties) {
 
         handlers = new HashMap<>();
         handlers.put("/hub", hubController);
+        handlers.put("/logout", logoutController);
         handlers.put("/v2/hub", hubController);
         handlers.put("/hub/refresh", hubController);
         handlers.put("/tariff", tariffController);

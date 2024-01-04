@@ -3,6 +3,7 @@ package com.amcglynn.myzappi.api.rest;
 import com.amcglynn.myzappi.api.Session;
 import com.amcglynn.myzappi.api.SessionId;
 import com.amcglynn.myzappi.api.rest.controller.EnergyCostController;
+import com.amcglynn.myzappi.api.rest.controller.LogoutController;
 import com.amcglynn.myzappi.core.config.Properties;
 import com.amcglynn.myzappi.api.service.AuthenticationService;
 import com.amcglynn.myzappi.api.rest.controller.EndpointRouter;
@@ -44,6 +45,8 @@ class EndpointRouterTest {
     @Mock
     private EnergyCostController mockEnergyCostController;
     @Mock
+    private LogoutController mockLogoutController;
+    @Mock
     private Properties mockProperties;
     @Mock
     private Response mockResponse;
@@ -51,7 +54,7 @@ class EndpointRouterTest {
     @BeforeEach
     void setUp() {
         router = new EndpointRouter(mockHubController, mockTariffController, mockAuthController,
-                mockScheduleController, mockEnergyCostController, mockProperties);
+                mockScheduleController, mockEnergyCostController, mockLogoutController, mockProperties);
         when(mockResponse.getStatus()).thenReturn(200);
         when(mockResponse.getHeaders()).thenReturn(new HashMap<>());
         when(mockProperties.getAdminUser()).thenReturn("regularUser");

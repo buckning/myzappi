@@ -88,6 +88,10 @@ public class AuthenticationService {
                 .findFirst();
     }
 
+    public void invalidateSession(SessionId sessionId) {
+        sessionService.getValidSession(sessionId).ifPresent(sessionService::invalidateSession);
+    }
+
     private boolean validateAwsToken(Request request, String lwaToken) {
         var awsUser = getAwsUser(lwaToken);
         awsUser.ifPresent(request::setUserId);
