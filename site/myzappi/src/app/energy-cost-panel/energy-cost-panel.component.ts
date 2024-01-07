@@ -33,7 +33,7 @@ export class EnergyCostPanelComponent {
       'Content-Type': 'application/json',
       'Authorization': this.bearerToken
     });
-    let options = { headers: headers };
+    let options = { headers: headers, withCredentials: true };
     this.http.get<EnergyCost>('https://api.myzappiunofficial.com/energy-cost', options)
       .subscribe(data => {
         console.log("Got energyCost details: " + data);

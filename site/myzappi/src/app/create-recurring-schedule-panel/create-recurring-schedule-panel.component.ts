@@ -70,7 +70,7 @@ export class CreateRecurringSchedulePanelComponent {
       'Content-Type': 'application/json',
       'Authorization': this.bearerToken
     });
-    let options = { headers: headers };
+    let options = { headers: headers, withCredentials: true };
     this.http.post('https://api.myzappiunofficial.com/schedules', requestBody, options)
       .subscribe(data => {
         // TODO set logged-in-content registered = true

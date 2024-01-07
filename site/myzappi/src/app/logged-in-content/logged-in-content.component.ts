@@ -40,7 +40,7 @@ export class LoggedInContentComponent implements OnInit {
     let headers = new HttpHeaders({
       'Content-Type': 'application/json',
       'Authorization': this.bearerToken });
-    let options = { headers: headers };
+    let options = { headers: headers, withCredentials: true };
     this.http.get<Device[]>('https://api.myzappiunofficial.com/v2/hub', options)
       .subscribe(data => {
         this.loadingDevices = false;
@@ -71,7 +71,7 @@ export class LoggedInContentComponent implements OnInit {
     let headers = new HttpHeaders({
       'Content-Type': 'application/json',
       'Authorization': this.bearerToken });
-    let options = { headers: headers };
+    let options = { headers: headers, withCredentials: true };
     this.http.post<Device[]>('https://api.myzappiunofficial.com/hub/refresh', '', options)
       .subscribe(data => {
         this.getDeploymentDetails();
@@ -108,7 +108,7 @@ export class LoggedInContentComponent implements OnInit {
     let headers = new HttpHeaders({
       'Content-Type': 'application/json',
       'Authorization': this.bearerToken });
-    let options = { headers: headers };
+    let options = { headers: headers, withCredentials: true };
     this.http.delete('https://api.myzappiunofficial.com/hub', options)
       .subscribe(data => {
         console.log("Deleted Zappi");

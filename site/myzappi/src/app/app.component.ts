@@ -17,6 +17,19 @@ export class AppComponent implements OnInit {
   logOut() {
     console.log("Logging you out and should display the login screen");
     this.loggedIn = false;
+
+    let headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': this.bearerToken
+    });
+    let options = { headers: headers, withCredentials: true };
+    this.http.get('https://api.myzappiunofficial.com/logout', options)
+      .subscribe(data => {
+        console.log('Logged out successfully');
+      },
+      error => {
+        console.log("Could not log out");
+      });
   }
 
   ngOnInit(): void {

@@ -1,6 +1,10 @@
 package com.amcglynn.myzappi.api.rest.controller;
 
 import com.amcglynn.myenergi.MyEnergiClientFactory;
+import com.amcglynn.myzappi.api.Session;
+import com.amcglynn.myzappi.api.SessionRepository;
+import com.amcglynn.myzappi.api.service.AuthenticationService;
+import com.amcglynn.myzappi.api.service.SessionService;
 import com.amcglynn.myzappi.core.config.Properties;
 import com.amcglynn.myzappi.core.config.ServiceManager;
 import com.amcglynn.myzappi.api.LwaClientFactory;
@@ -19,7 +23,7 @@ import java.util.Map;
 public class EndpointRouter {
 
     private final Map<String, RestController> handlers;
-    private final AuthenticateController authenticateController;
+    private final AuthenticationService authenticationService;
     private final Properties properties;
 
     public EndpointRouter(ServiceManager serviceManager) {
@@ -39,19 +43,29 @@ public class EndpointRouter {
                           LwaClientFactory lwaClientFactory,
                           ScheduleController scheduleController, ServiceManager serviceManager) {
         this(hubController, tariffController,
-                new AuthenticateController(new TokenService(lwaClientFactory)),
+                new AuthenticationService(new TokenService(lwaClientFactory),
+                        new SessionService(new SessionRepository(serviceManager.getAmazonDynamoDB()))),
                 scheduleController,
                 new EnergyCostController(serviceManager.getZappiServiceBuilder(), serviceManager.getTariffService()),
                 serviceManager.getProperties());
     }
 
     public EndpointRouter(HubController hubController, TariffController tariffController,
-                          AuthenticateController authenticateController,
+                          AuthenticationService authenticationService,
                           ScheduleController scheduleController, EnergyCostController energyCostController,
+                          Properties properties) {
+        this(hubController, tariffController, authenticationService, scheduleController, energyCostController, new LogoutController(authenticationService), properties);
+    }
+
+    public EndpointRouter(HubController hubController, TariffController tariffController,
+                          AuthenticationService authenticationService,
+                          ScheduleController scheduleController, EnergyCostController energyCostController,
+                          LogoutController logoutController,
                           Properties properties) {
 
         handlers = new HashMap<>();
         handlers.put("/hub", hubController);
+        handlers.put("/logout", logoutController);
         handlers.put("/v2/hub", hubController);
         handlers.put("/hub/refresh", hubController);
         handlers.put("/tariff", tariffController);
@@ -59,17 +73,14 @@ public class EndpointRouter {
         handlers.put("/schedules", scheduleController);
         handlers.put("/energy-cost", energyCostController);
 
-        this.authenticateController = authenticateController;
+        this.authenticationService = authenticationService;
         this.properties = properties;
     }
 
     public Response route(Request request) {
-        if (RequestMethod.OPTIONS == request.getMethod()) {
-            return new Response(204);
-        }
+        var session = authenticationService.authenticate(request);
 
-        // POST /authenticate does not require a sessionId
-        if (!isAuthenticated(request)) {
+        if (session.isEmpty()) {
             log.info("User not authenticated");
             return new Response(401);
         }
@@ -88,9 +99,19 @@ public class EndpointRouter {
                 return new Response(404);
             }
             log.info("Found controller {}", controller.getClass());
-            return controller.handle(request);
+            var response = controller.handle(request);
+            updateSessionCookie(request, session.get(), response);
+            return response;
         } catch (ServerException e) {
             return new Response(e.getStatus());
+        }
+    }
+
+    private void updateSessionCookie(Request request, Session session, Response response) {
+        var sessionFromHeaders = authenticationService.getSessionIdFromCookie(request.getHeaders());
+        if (sessionFromHeaders.isEmpty()) {
+            response.getHeaders().put("Set-Cookie", "sessionID=" + session.getSessionId() +
+                    "; Max-Age=604800; Path=/; Secure; SameSite=None; HttpOnly; domain=.myzappiunofficial.com");
         }
     }
 
@@ -101,32 +122,5 @@ public class EndpointRouter {
             log.info("Admin user detected, running API as {} on behalf of {}", request.getUserId(), request.getHeaders().get("on-behalf-of"));
             request.setUserId(request.getHeaders().get("on-behalf-of"));
         }
-    }
-
-    private boolean isAuthenticated(Request request) {
-        var routeEndpoint = request.getMethod() + " " + request.getPath();
-
-        if ("POST /authenticate".equals(routeEndpoint)) {
-            return true;
-        }
-
-        if (request.getHeaders().containsKey("Authorization")) {
-            return isValidBearerToken(request, request.getHeaders().get("Authorization"));
-        }
-        return false;
-    }
-
-    private boolean isValidBearerToken(Request request, String authorization) {
-        // split token
-        if (authorization == null) {
-            return false;
-        }
-
-        var tokens = authorization.split("Bearer ");
-        if (tokens.length == 2) {
-            return authenticateController.isAuthenticated(request, tokens[1]);
-        }
-
-        return false;
     }
 }
