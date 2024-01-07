@@ -44,7 +44,7 @@ public class LogoutController implements RestController {
         var sessionIdFromCookie = authenticationService.getSessionIdFromCookie(request.getHeaders());
         if (sessionIdFromCookie.isPresent()) {
             authenticationService.invalidateSession(sessionIdFromCookie.get());
-            headers.put("Set-Cookie", "sessionID=" + sessionIdFromCookie.get() + "; Max-Age=0; Path=/; Secure; SameSite=None; HttpOnly; domain=.myzappiunofficial.com");
+            headers.put("Set-Cookie", "sessionID=" + sessionIdFromCookie.get() + ";expires=Thu, Jan 01 1970 00:00:00 UTC; Path=/; Secure; SameSite=None; HttpOnly; domain=.myzappiunofficial.com");
         }
         return new Response(200, headers);
     }
