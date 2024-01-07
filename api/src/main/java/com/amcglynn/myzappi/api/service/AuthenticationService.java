@@ -54,25 +54,6 @@ public class AuthenticationService {
         return Optional.empty();
     }
 
-    public Optional<Session> authenticateSession(Request request) {
-        var sessionId = getSessionIdFromCookie(request.getHeaders());
-        if (sessionId.isPresent()) {
-            var session = sessionService.getValidSession(sessionId.get());
-            session.ifPresent(s -> request.setUserId(s.getUserId().toString()));
-            return session;
-        }
-
-        return Optional.empty();
-    }
-
-    public Optional<Session> authenticateBearerToken(Request request) {
-        if (isValidBearerToken(request)) {
-            return Optional.of(sessionService.createSession(request.getUserId()));
-        }
-
-        return Optional.empty();
-    }
-
     public Optional<SessionId> getSessionIdFromCookie(Map<String, String> headers) {
         var cookieHeader = headers.get("cookie");
 

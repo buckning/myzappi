@@ -85,10 +85,6 @@ public class EndpointRouter {
             return new Response(401);
         }
 
-        if (request.getPath().equals("/authenticate")) {
-            return new Response(200, "{\"sessionId\":\"" + session.get().getSessionId() + "\"}");
-        }
-
         handleAdminUserOnBehalfOf(request);
 
         try {

@@ -113,4 +113,11 @@ class AuthenticateServiceTest {
         assertThat(session).contains(this.session);
         verify(mockTokenService).getTokenInfo("Atza|tokencontentshere");
     }
+
+    @Test
+    void invalidateSessionCallsSessionService() {
+        when(mockSessionService.getValidSession(sessionId)).thenReturn(Optional.of(session));
+        service.invalidateSession(sessionId);
+        verify(mockSessionService).invalidateSession(session);
+    }
 }

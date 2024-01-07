@@ -17,7 +17,6 @@ export class AppComponent implements OnInit {
   logOut() {
     console.log("Logging you out and should display the login screen");
     this.loggedIn = false;
-    // TODO call log out API here
 
     let headers = new HttpHeaders({
       'Content-Type': 'application/json',
