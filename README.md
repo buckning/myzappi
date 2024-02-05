@@ -38,6 +38,8 @@ The 3 lambda functions are:
 * `myzappi-alexa-lambda`: contains the Alexa skill that is used to control the Zappi
 * `sqs-handler`: consumes schedule events, which were initially supposed to be from SQS, but are now from a Eventbridge scheduler
 
+![alt text](https://github.com/buckning/myzappi/blob/main/docs/Architecture.png?raw=true)
+
 This project is broken up into a number of modules and an Angular application and are contained in the following directories:
 * `api`: REST APIs that is used by the Angular application
 * `core`: The core of the application and contains common code between the API and the Alexa skill
