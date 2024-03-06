@@ -13,6 +13,7 @@ import com.amcglynn.myzappi.handlers.FallbackHandler;
 import com.amcglynn.myzappi.handlers.GetEnergyCostHandler;
 import com.amcglynn.myzappi.handlers.GetEnergyUsageHandler;
 import com.amcglynn.myzappi.handlers.GetPlugStatusHandler;
+import com.amcglynn.myzappi.handlers.GetSolarReportHandler;
 import com.amcglynn.myzappi.handlers.GoGreenHandler;
 import com.amcglynn.myzappi.handlers.HelpHandler;
 import com.amcglynn.myzappi.handlers.LaunchHandler;
@@ -52,6 +53,7 @@ public class MyZappiSkillStreamHandler extends SkillStreamHandler {
                 .addRequestHandler(new FallbackHandler())
                 .addRequestHandler(new UnlockZappiHandler(serviceManager.getZappiServiceBuilder(), userIdResolverFactory))
                 .addRequestHandler(new StatusSummaryHandler(serviceManager.getZappiServiceBuilder(), userIdResolverFactory))
+                .addRequestHandler(new GetSolarReportHandler(serviceManager.getZappiServiceBuilder(), userIdResolverFactory))
                 .addRequestHandler(new StartBoostHandler(serviceManager.getZappiServiceBuilder(), userIdResolverFactory, userZoneResolver))
                 .addRequestHandler(new StopBoostHandler(serviceManager.getZappiServiceBuilder(), userIdResolverFactory))
                 .addRequestHandler(new GetPlugStatusHandler(serviceManager.getZappiServiceBuilder(), userIdResolverFactory))

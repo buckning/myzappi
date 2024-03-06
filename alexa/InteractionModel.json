@@ -239,6 +239,8 @@
             }
           ],
           "samples": [
+            "Boost for {boostKwh} kilowatts starting at {scheduleTime}",
+            "Boost for {boostKwh} kilowatt hours starting at {scheduleTime}",
             "Boost {boostKwh} kilowatt hours starting at {scheduleTime}",
             "Boost {boostKwh} kilowatts starting at {scheduleTime}",
             "Boost for {boostDuration} starting at {scheduleTime}",
@@ -263,34 +265,69 @@
           "name": "SetEddiModeToNormal",
           "slots": [],
           "samples": [
-            "Enable Eddi",
-            "Turn on Eddi",
-            "change Eddi to normal mode",
-            "change Eddi to normal",
-            "set Eddi to normal mode",
-            "change Eddi mode to normal mode",
-            "change Eddi mode to normal",
-            "set Eddi mode to normal"
+            "I want my water heater on",
+            "I want to turn on the water heater",
+            "Turn the water heater on",
+            "Turn my water heater on",
+            "Enable my water heater",
+            "Turn on my water heater",
+            "Set my water heater to normal mode"
           ]
         },
         {
           "name": "SetEddiModeToStopped",
           "slots": [],
           "samples": [
-            "Disable Eddi",
-            "change Eddi to stopped mode",
-            "change Eddi to stop mode",
-            "Disable my Eddi",
-            "Stop Eddi",
-            "Stop my Eddi",
-            "Turn off Eddi",
-            "Turn off my Eddi",
-            "change Eddi mode to stop",
-            "change Eddi mode to stopped",
-            "set Eddi mode to stop",
-            "set Eddi mode to stopped",
-            "set my Eddi mode to stop",
-            "set my Eddi mode to stopped"
+            "I don't want hot water",
+            "Water heater off",
+            "Turn my water heater off",
+            "Turn the water heater off",
+            "Turn off the water heater",
+            "Stop the water heater",
+            "Disable the water heater",
+            "Turn off my water heater",
+            "Disable my water heater",
+            "Stop my water heater"
+          ]
+        },
+        {
+          "name": "BoostEddi",
+          "slots": [
+            {
+              "name": "Duration",
+              "type": "AMAZON.DURATION"
+            }
+          ],
+          "samples": [
+            "Boost my water heater for {Duration}",
+            "Boost the hot water for {Duration}",
+            "Boost the water heater for {Duration}",
+            "Boost my hot water for {Duration}"
+          ]
+        },
+        {
+          "name": "StopEddiBoost",
+          "slots": [],
+          "samples": [
+            "Stop boosting the hot water",
+            "Cancel boosting the the hot water",
+            "Cancel boosting the water heater",
+            "Stop boosting the water heater",
+            "Stop boosting my heater",
+            "Cancel boosting the hot water",
+            "Stop boosting my hot water"
+          ]
+        },
+        {
+          "name": "GetSolarReport",
+          "slots": [],
+          "samples": [
+            "solar generation",
+            "what's my solar generating",
+            "generate a solar report",
+            "give me a solar report",
+            "get a solar report",
+            "solar report"
           ]
         }
       ],
@@ -432,6 +469,22 @@
           "confirmationRequired": false,
           "prompts": {},
           "slots": []
+        },
+        {
+          "name": "BoostEddi",
+          "confirmationRequired": false,
+          "prompts": {},
+          "slots": [
+            {
+              "name": "Duration",
+              "type": "AMAZON.DURATION",
+              "confirmationRequired": false,
+              "elicitationRequired": true,
+              "prompts": {
+                "elicitation": "Elicit.Slot.100143912541.189556316592"
+              }
+            }
+          ]
         }
       ],
       "delegationStrategy": "ALWAYS"
@@ -477,6 +530,19 @@
           {
             "type": "PlainText",
             "value": "What time do you want me to schedule this at?"
+          }
+        ]
+      },
+      {
+        "id": "Elicit.Slot.100143912541.189556316592",
+        "variations": [
+          {
+            "type": "PlainText",
+            "value": "For how long?"
+          },
+          {
+            "type": "PlainText",
+            "value": "Please tell me how long you want me to boost for"
           }
         ]
       }
