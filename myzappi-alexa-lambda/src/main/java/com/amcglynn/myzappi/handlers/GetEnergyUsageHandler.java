@@ -7,6 +7,7 @@ import com.amazon.ask.request.RequestHelper;
 import com.amcglynn.myzappi.UserIdResolverFactory;
 import com.amcglynn.myzappi.UserZoneResolver;
 import com.amcglynn.myzappi.core.Brand;
+import com.amcglynn.myzappi.core.service.MyEnergiService;
 import com.amcglynn.myzappi.core.service.ZappiService;
 import com.amcglynn.myzappi.handlers.responses.ZappiDaySummaryCardResponse;
 import com.amcglynn.myzappi.handlers.responses.ZappiDaySummaryVoiceResponse;
@@ -25,11 +26,11 @@ import static com.amcglynn.myzappi.LocalisedResponse.voiceResponse;
 @Slf4j
 public class GetEnergyUsageHandler implements RequestHandler {
 
-    private final ZappiService.Builder zappyServiceBuilder;
+    private final MyEnergiService.Builder zappyServiceBuilder;
     private final UserIdResolverFactory userIdResolverFactory;
     private final UserZoneResolver userZoneResolver;
 
-    public GetEnergyUsageHandler(ZappiService.Builder zappyServiceBuilder, UserIdResolverFactory userIdResolverFactory,
+    public GetEnergyUsageHandler(MyEnergiService.Builder zappyServiceBuilder, UserIdResolverFactory userIdResolverFactory,
                                  UserZoneResolver userZoneResolver) {
         this.zappyServiceBuilder = zappyServiceBuilder;
         this.userIdResolverFactory = userIdResolverFactory;
@@ -56,7 +57,7 @@ public class GetEnergyUsageHandler implements RequestHandler {
             return getInvalidRequestedDateResponse(handlerInput);
         }
 
-        var zappiService = zappyServiceBuilder.build(userIdResolverFactory.newUserIdResolver(handlerInput));
+        var zappiService = zappyServiceBuilder.build(userIdResolverFactory.newUserIdResolver(handlerInput)).getZappiServiceOrThrow();
         var history = zappiService.getEnergyUsage(localDate, userTimeZone);
 
         return handlerInput.getResponseBuilder()

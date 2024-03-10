@@ -14,6 +14,7 @@ import com.amcglynn.myenergi.ZappiDaySummary;
 import com.amcglynn.myenergi.units.KiloWattHour;
 import com.amcglynn.myzappi.UserIdResolverFactory;
 import com.amcglynn.myzappi.UserZoneResolver;
+import com.amcglynn.myzappi.core.service.MyEnergiService;
 import com.amcglynn.myzappi.core.service.ZappiService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -40,7 +41,9 @@ import static org.mockito.Mockito.when;
 class GetEnergyUsageHandlerTest {
 
     @Mock
-    private ZappiService.Builder mockZappiServiceBuilder;
+    private MyEnergiService.Builder mockMyEnergiServiceBuilder;
+    @Mock
+    private MyEnergiService mockMyEnergiService;
     @Mock
     private ZappiService mockZappiService;
     @Mock
@@ -53,9 +56,10 @@ class GetEnergyUsageHandlerTest {
 
     @BeforeEach
     void setUp() {
-        when(mockZappiServiceBuilder.build(any())).thenReturn(mockZappiService);
+        when(mockMyEnergiService.getZappiServiceOrThrow()).thenReturn(mockZappiService);
+        when(mockMyEnergiServiceBuilder.build(any())).thenReturn(mockMyEnergiService);
         when(mockUserZoneResolver.getZoneId(any())).thenReturn(ZoneId.of("Europe/Dublin"));
-        handler = new GetEnergyUsageHandler(mockZappiServiceBuilder, mockUserIdResolverFactory, mockUserZoneResolver);
+        handler = new GetEnergyUsageHandler(mockMyEnergiServiceBuilder, mockUserIdResolverFactory, mockUserZoneResolver);
         intentRequest = IntentRequest.builder()
                 .withLocale("en-GB")
                 .withIntent(Intent.builder().withName("GetEnergyUsage").build())

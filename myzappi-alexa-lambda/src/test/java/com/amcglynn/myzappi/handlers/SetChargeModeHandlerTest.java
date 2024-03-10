@@ -9,6 +9,7 @@ import com.amazon.ask.model.Slot;
 import com.amazon.ask.model.User;
 import com.amcglynn.myenergi.ZappiChargeMode;
 import com.amcglynn.myzappi.UserIdResolverFactory;
+import com.amcglynn.myzappi.core.service.MyEnergiService;
 import com.amcglynn.myzappi.core.service.ZappiService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,9 +37,11 @@ import static org.mockito.Mockito.when;
 class SetChargeModeHandlerTest {
 
     @Mock
+    private MyEnergiService mockMyEnergiService;
+    @Mock
     private ZappiService mockZappiService;
     @Mock
-    private ZappiService.Builder mockZappiServiceBuilder;
+    private MyEnergiService.Builder mockMyEnergiServiceBuilder;
     @Mock
     private UserIdResolverFactory mockUserIdResolverFactory;
     private IntentRequest intentRequest;
@@ -47,7 +50,8 @@ class SetChargeModeHandlerTest {
 
     @BeforeEach
     void setUp() {
-        handler = new SetChargeModeHandler(mockZappiServiceBuilder, mockUserIdResolverFactory);
+        when(mockMyEnergiService.getZappiServiceOrThrow()).thenReturn(mockZappiService);
+        handler = new SetChargeModeHandler(mockMyEnergiServiceBuilder, mockUserIdResolverFactory);
         intentRequest = IntentRequest.builder()
                 .withIntent(Intent.builder().withName("SetChargeMode").build())
                 .build();
@@ -69,7 +73,7 @@ class SetChargeModeHandlerTest {
     @ParameterizedTest
     @MethodSource("zappiChargeMode")
     void testHandle(ZappiChargeMode zappiChargeMode) {
-        when(mockZappiServiceBuilder.build(any())).thenReturn(mockZappiService);
+        when(mockMyEnergiServiceBuilder.build(any())).thenReturn(mockMyEnergiService);
         initIntentRequest(zappiChargeMode);
         var result = handler.handle(handlerInputBuilder().build());
         assertThat(result).isPresent();
@@ -85,7 +89,7 @@ class SetChargeModeHandlerTest {
     @ParameterizedTest
     @MethodSource("invalidChargeModes")
     void testHandleReturnsErrorIfChargeModeIsNotRecognised(String zappiChargeMode) {
-        when(mockZappiServiceBuilder.build(any())).thenReturn(mockZappiService);
+        when(mockMyEnergiServiceBuilder.build(any())).thenReturn(mockMyEnergiService);
         initIntentRequest(zappiChargeMode);
         var result = handler.handle(handlerInputBuilder().build());
         assertThat(result).isPresent();

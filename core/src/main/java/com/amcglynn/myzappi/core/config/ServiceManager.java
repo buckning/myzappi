@@ -10,6 +10,7 @@ import com.amcglynn.myzappi.core.dal.TariffRepository;
 import com.amcglynn.myzappi.core.dal.UserScheduleRepository;
 import com.amcglynn.myzappi.core.service.EncryptionService;
 import com.amcglynn.myzappi.core.service.LoginService;
+import com.amcglynn.myzappi.core.service.MyEnergiService;
 import com.amcglynn.myzappi.core.service.ScheduleService;
 import com.amcglynn.myzappi.core.service.TariffService;
 import com.amcglynn.myzappi.core.service.ZappiService;
@@ -23,7 +24,8 @@ public class ServiceManager {
     private final CredentialsRepository credentialsRepository;
     @Getter
     private final DevicesRepository devicesRepository;
-    private ZappiService.Builder zappiServiceBuilder;
+    private MyEnergiService.Builder zappiServiceBuilder;
+    private MyEnergiService.Builder myEnergiServiceBuilder;
     private LoginService loginService;
     private final TariffService tariffService;
     private final Properties properties;
@@ -85,10 +87,10 @@ public class ServiceManager {
         return loginService;
     }
 
-    public ZappiService.Builder getZappiServiceBuilder() {
-        if (this.zappiServiceBuilder == null) {
-            zappiServiceBuilder = new ZappiService.Builder(getLoginService());
+    public MyEnergiService.Builder getMyEnergiServiceBuilder() {
+        if (this.myEnergiServiceBuilder == null) {
+            myEnergiServiceBuilder = new MyEnergiService.Builder(getLoginService());
         }
-        return this.zappiServiceBuilder;
+        return this.myEnergiServiceBuilder;
     }
 }

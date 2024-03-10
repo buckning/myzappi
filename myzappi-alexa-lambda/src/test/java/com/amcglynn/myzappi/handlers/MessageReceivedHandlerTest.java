@@ -16,6 +16,7 @@ import com.amcglynn.myenergi.ZappiStatusSummary;
 import com.amcglynn.myenergi.apiresponse.ZappiStatus;
 import com.amcglynn.myzappi.core.dal.AlexaToLwaLookUpRepository;
 import com.amcglynn.myzappi.core.model.AlexaToLwaUserDetails;
+import com.amcglynn.myzappi.core.service.MyEnergiService;
 import com.amcglynn.myzappi.core.service.ZappiService;
 import com.amcglynn.myzappi.service.ReminderService;
 import com.amcglynn.myzappi.service.ReminderServiceFactory;
@@ -43,9 +44,11 @@ import static org.mockito.Mockito.when;
 class MessageReceivedHandlerTest {
 
     @Mock
+    private MyEnergiService mockMyEnergiService;
+    @Mock
     private ZappiService mockZappiService;
     @Mock
-    private ZappiService.Builder mockZappiServiceBuilder;
+    private MyEnergiService.Builder mockZappiServiceBuilder;
     @Mock
     private AlexaToLwaLookUpRepository mockUserLookUpRepository;
     @Mock
@@ -59,7 +62,8 @@ class MessageReceivedHandlerTest {
 
     @BeforeEach
     void setUp() {
-        when(mockZappiServiceBuilder.build(any())).thenReturn(mockZappiService);
+        when(mockMyEnergiService.getZappiServiceOrThrow()).thenReturn(mockZappiService);
+        when(mockZappiServiceBuilder.build(any())).thenReturn(mockMyEnergiService);
         when(mockReminderServiceFactory.newReminderService(any())).thenReturn(mockReminderService);
         when(mockUserLookUpRepository.read("mockAlexaUserId"))
                 .thenReturn(Optional.of(new AlexaToLwaUserDetails("mockAlexaUser", "mockLwaUserId", "Europe/Dublin")));

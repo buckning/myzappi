@@ -5,8 +5,8 @@ import com.amcglynn.myzappi.api.rest.RequestMethod;
 import com.amcglynn.myzappi.api.rest.Response;
 import com.amcglynn.myzappi.api.rest.ServerException;
 import com.amcglynn.myzappi.api.rest.response.EnergyCostResponse;
-import com.amcglynn.myzappi.core.model.Cost;
 import com.amcglynn.myzappi.core.service.Clock;
+import com.amcglynn.myzappi.core.service.MyEnergiService;
 import com.amcglynn.myzappi.core.service.TariffService;
 import com.amcglynn.myzappi.core.service.ZappiService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -22,12 +22,12 @@ import java.time.ZoneId;
 public class EnergyCostController implements RestController {
 
     private final TariffService tariffService;
-    private final ZappiService.Builder zappiServiceBuilder;
+    private final MyEnergiService.Builder myEnergiServiceBuilder;
     private final Clock clock;
 
-    public EnergyCostController(ZappiService.Builder zappiServiceBuilder, TariffService tariffService) {
+    public EnergyCostController(MyEnergiService.Builder myEnergiServiceBuilder, TariffService tariffService) {
         this.tariffService = tariffService;
-        this.zappiServiceBuilder = zappiServiceBuilder;
+        this.myEnergiServiceBuilder = myEnergiServiceBuilder;
         this.clock = new Clock();
     }
 
@@ -45,7 +45,7 @@ public class EnergyCostController implements RestController {
     @SneakyThrows
     private Response getTariffs(Request request) {
         var dayTariff = tariffService.get(request.getUserId().toString());
-        var zappiService = zappiServiceBuilder.build(() -> request.getUserId().toString());
+        var zappiService = myEnergiServiceBuilder.build(() -> request.getUserId().toString());
         if (dayTariff.isEmpty()) {
             log.info("No tariffs configured for {}", request.getUserId());
             throw new ServerException(404);
@@ -54,7 +54,7 @@ public class EnergyCostController implements RestController {
         var zoneId = getZoneId(request);
         var localDate = getLocalDate(request, zoneId);
 
-        var history = zappiService.getHistory(localDate, zoneId);
+        var history = zappiService.getZappiServiceOrThrow().getHistory(localDate, zoneId);
 
         var cost = tariffService.calculateCost(dayTariff.get(), history, localDate, zoneId);
 

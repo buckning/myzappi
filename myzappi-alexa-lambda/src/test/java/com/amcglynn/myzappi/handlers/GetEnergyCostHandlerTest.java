@@ -20,6 +20,7 @@ import com.amcglynn.myzappi.core.model.DayCost;
 import com.amcglynn.myzappi.core.model.DayTariff;
 import com.amcglynn.myzappi.core.model.Tariff;
 import com.amcglynn.myzappi.core.service.EnergyCostHourSummary;
+import com.amcglynn.myzappi.core.service.MyEnergiService;
 import com.amcglynn.myzappi.core.service.TariffService;
 import com.amcglynn.myzappi.core.service.UserIdResolver;
 import com.amcglynn.myzappi.core.service.ZappiService;
@@ -56,7 +57,9 @@ import static org.mockito.Mockito.when;
 class GetEnergyCostHandlerTest {
 
     @Mock
-    private ZappiService.Builder mockZappiServiceBuilder;
+    private MyEnergiService.Builder mockMyEnergiServiceBuilder;
+    @Mock
+    private MyEnergiService mockMyEnergiService;
     @Mock
     private ZappiService mockZappiService;
     @Mock
@@ -73,9 +76,10 @@ class GetEnergyCostHandlerTest {
 
     @BeforeEach
     void setUp() {
-        when(mockZappiServiceBuilder.build(any())).thenReturn(mockZappiService);
+        when(mockMyEnergiService.getZappiServiceOrThrow()).thenReturn(mockZappiService);
+        when(mockMyEnergiServiceBuilder.build(any())).thenReturn(mockMyEnergiService);
         when(mockUserZoneResolver.getZoneId(any())).thenReturn(ZoneId.of("Europe/Dublin"));
-        handler = new GetEnergyCostHandler(mockZappiServiceBuilder, mockUserIdResolverFactory, mockUserZoneResolver, mockTariffService);
+        handler = new GetEnergyCostHandler(mockMyEnergiServiceBuilder, mockUserIdResolverFactory, mockUserZoneResolver, mockTariffService);
         when(mockUserIdResolverFactory.newUserIdResolver(any())).thenReturn(mockUserIdResolver);
         when(mockUserIdResolver.getUserId()).thenReturn("mockUserId");
         intentRequest = IntentRequest.builder()

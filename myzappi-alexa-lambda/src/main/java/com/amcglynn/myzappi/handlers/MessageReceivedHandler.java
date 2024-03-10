@@ -5,6 +5,7 @@ import com.amazon.ask.dispatcher.request.handler.RequestHandler;
 import com.amazon.ask.model.Response;
 import com.amcglynn.myenergi.EvStatusSummary;
 import com.amcglynn.myzappi.core.dal.AlexaToLwaLookUpRepository;
+import com.amcglynn.myzappi.core.service.MyEnergiService;
 import com.amcglynn.myzappi.core.service.ZappiService;
 import com.amcglynn.myzappi.service.ReminderServiceFactory;
 import lombok.extern.slf4j.Slf4j;
@@ -18,10 +19,10 @@ import java.util.Optional;
 public class MessageReceivedHandler implements RequestHandler {
 
     private final ReminderServiceFactory reminderServiceFactory;
-    private final ZappiService.Builder zappiServiceBuilder;
+    private final MyEnergiService.Builder zappiServiceBuilder;
     private final AlexaToLwaLookUpRepository userLookupRepository;
 
-    public MessageReceivedHandler(ReminderServiceFactory reminderServiceFactory, ZappiService.Builder zappiServiceBuilder, AlexaToLwaLookUpRepository userLookupRepository) {
+    public MessageReceivedHandler(ReminderServiceFactory reminderServiceFactory, MyEnergiService.Builder zappiServiceBuilder, AlexaToLwaLookUpRepository userLookupRepository) {
         this.reminderServiceFactory = reminderServiceFactory;
         this.zappiServiceBuilder = zappiServiceBuilder;
         this.userLookupRepository = userLookupRepository;
@@ -43,7 +44,7 @@ public class MessageReceivedHandler implements RequestHandler {
         lwaUser.ifPresentOrElse(userDetails -> {
             log.info("User found for Alexa user {} - lwaUserId = {}", alexaUserId, userDetails.getLwaUserId());
             var zappiService = zappiServiceBuilder.build(userDetails::getLwaUserId);
-            var summary = new EvStatusSummary(zappiService.getStatusSummary().get(0));
+            var summary = new EvStatusSummary(zappiService.getZappiServiceOrThrow().getStatusSummary().get(0));
             reminderService.handleReminderMessage(handlerInput.getRequestEnvelope().getContext().getSystem().getUser().getPermissions().getConsentToken(),
                     alexaUserId,
                     userDetails.getZoneId(),

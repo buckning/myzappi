@@ -8,6 +8,8 @@ import com.amazon.ask.model.Session;
 import com.amazon.ask.model.Slot;
 import com.amazon.ask.model.User;
 import com.amcglynn.myzappi.UserIdResolverFactory;
+import com.amcglynn.myzappi.core.service.EddiService;
+import com.amcglynn.myzappi.core.service.MyEnergiService;
 import com.amcglynn.myzappi.core.service.ZappiService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,9 +35,11 @@ import static org.mockito.Mockito.when;
 class BoostEddiHandlerTest {
 
     @Mock
-    private ZappiService.Builder mockBuilder;
+    private MyEnergiService.Builder mockBuilder;
     @Mock
-    private ZappiService mockService;
+    private MyEnergiService mockMyEnergiService;
+    @Mock
+    private EddiService mockService;
     @Mock
     private UserIdResolverFactory mockUserIdResolverFactory;
     private BoostEddiHandler handler;
@@ -43,7 +47,8 @@ class BoostEddiHandlerTest {
 
     @BeforeEach
     void setUp() {
-        when(mockBuilder.build(any())).thenReturn(mockService);
+        when(mockBuilder.build(any())).thenReturn(mockMyEnergiService);
+        when(mockMyEnergiService.getEddiServiceOrThrow()).thenReturn(mockService);
         handler = new BoostEddiHandler(mockBuilder, mockUserIdResolverFactory);
         initIntentRequest("Duration", "PT25M");
     }

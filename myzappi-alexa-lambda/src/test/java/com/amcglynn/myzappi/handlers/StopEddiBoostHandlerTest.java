@@ -7,7 +7,8 @@ import com.amazon.ask.model.RequestEnvelope;
 import com.amazon.ask.model.Session;
 import com.amazon.ask.model.User;
 import com.amcglynn.myzappi.UserIdResolverFactory;
-import com.amcglynn.myzappi.core.service.ZappiService;
+import com.amcglynn.myzappi.core.service.EddiService;
+import com.amcglynn.myzappi.core.service.MyEnergiService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,9 +29,11 @@ import static org.mockito.Mockito.when;
 class StopEddiBoostHandlerTest {
 
     @Mock
-    private ZappiService.Builder mockZappiServiceBuilder;
+    private MyEnergiService.Builder mockMyEnergiServiceBuilder;
     @Mock
-    private ZappiService mockZappiService;
+    private MyEnergiService mockMyEnergiService;
+    @Mock
+    private EddiService mockEddiService;
     @Mock
     private UserIdResolverFactory mockUserIdResolverFactory;
 
@@ -39,8 +42,9 @@ class StopEddiBoostHandlerTest {
 
     @BeforeEach
     void setUp() {
-        when(mockZappiServiceBuilder.build(any())).thenReturn(mockZappiService);
-        handler = new StopEddiBoostHandler(mockZappiServiceBuilder, mockUserIdResolverFactory);
+        when(mockMyEnergiServiceBuilder.build(any())).thenReturn(mockMyEnergiService);
+        when(mockMyEnergiService.getEddiServiceOrThrow()).thenReturn(mockEddiService);
+        handler = new StopEddiBoostHandler(mockMyEnergiServiceBuilder, mockUserIdResolverFactory);
         intentRequest = IntentRequest.builder()
                 .withLocale("en-GB")
                 .withIntent(Intent.builder().withName("StopEddiBoost").build())
@@ -67,7 +71,7 @@ class StopEddiBoostHandlerTest {
         assertThat(result).isPresent();
         verifySpeechInResponse(result.get(), "<speak>Stopping hot water boost now.</speak>");
         verifySimpleCardInResponse(result.get(), "My Zappi", "Stopping hot water boost now.");
-        verify(mockZappiService).stopEddiBoost();
+        verify(mockEddiService).stopEddiBoost();
     }
 
     private HandlerInput.Builder handlerInputBuilder() {

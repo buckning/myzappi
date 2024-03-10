@@ -6,6 +6,7 @@ import com.amazon.ask.model.Response;
 import com.amazon.ask.request.RequestHelper;
 import com.amcglynn.myzappi.UserIdResolverFactory;
 import com.amcglynn.myzappi.core.Brand;
+import com.amcglynn.myzappi.core.service.MyEnergiService;
 import com.amcglynn.myzappi.core.service.ZappiService;
 
 import java.time.Duration;
@@ -17,10 +18,10 @@ import static com.amcglynn.myzappi.LocalisedResponse.voiceResponse;
 
 public class BoostEddiHandler implements RequestHandler {
 
-    private final ZappiService.Builder zappiServiceBuilder;
+    private final MyEnergiService.Builder zappiServiceBuilder;
     private final UserIdResolverFactory userIdResolverFactory;
 
-    public BoostEddiHandler(ZappiService.Builder zappiServiceBuilder, UserIdResolverFactory userIdResolverFactory) {
+    public BoostEddiHandler(MyEnergiService.Builder zappiServiceBuilder, UserIdResolverFactory userIdResolverFactory) {
         this.zappiServiceBuilder = zappiServiceBuilder;
         this.userIdResolverFactory = userIdResolverFactory;
     }
@@ -42,7 +43,7 @@ public class BoostEddiHandler implements RequestHandler {
                     .build();
         }
 
-        var zappiService = zappiServiceBuilder.build(userIdResolverFactory.newUserIdResolver(handlerInput));
+        var zappiService = zappiServiceBuilder.build(userIdResolverFactory.newUserIdResolver(handlerInput)).getEddiServiceOrThrow();
 
         zappiService.boostEddi(duration);
 

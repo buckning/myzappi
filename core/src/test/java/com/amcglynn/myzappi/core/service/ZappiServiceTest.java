@@ -5,13 +5,6 @@ import com.amcglynn.myenergi.ZappiChargeMode;
 import com.amcglynn.myenergi.apiresponse.ZappiDayHistory;
 import com.amcglynn.myenergi.apiresponse.ZappiHistory;
 import com.amcglynn.myenergi.units.KiloWattHour;
-import com.amcglynn.myzappi.core.exception.MissingDeviceException;
-import com.amcglynn.myzappi.core.exception.UserNotLoggedInException;
-import com.amcglynn.myzappi.core.model.EddiDevice;
-import com.amcglynn.myzappi.core.model.HubCredentials;
-import com.amcglynn.myzappi.core.model.SerialNumber;
-import com.amcglynn.myzappi.core.model.UserId;
-import com.amcglynn.myzappi.core.model.ZappiDevice;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,7 +14,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.nio.ByteBuffer;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -29,17 +21,11 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.assertj.core.api.Assertions.catchThrowableOfType;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -48,32 +34,11 @@ class ZappiServiceTest {
 
     private ZappiService zappiService;
     @Mock
-    private LoginService mockLoginService;
-    @Mock
     private MyEnergiClient mockClient;
-    @Mock
-    private UserIdResolver mockUserIdResolver;
-
-    private final String userId = "userId";
-    private final SerialNumber zappiSerialNumber = SerialNumber.from("56781234");
-    private final SerialNumber serialNumber = SerialNumber.from("12345678");
 
     @BeforeEach
     void setUp() {
-        when(mockLoginService.readCredentials(UserId.from(userId))).thenReturn(Optional.of(new HubCredentials(serialNumber, "myApiKey")));
-        when(mockLoginService.readDevices(UserId.from(userId))).thenReturn(List.of(new ZappiDevice(zappiSerialNumber)));
-        when(mockUserIdResolver.getUserId()).thenReturn(userId);
-        this.zappiService = new ZappiService.Builder(mockLoginService).build(mockUserIdResolver);
-        zappiService.setClient(mockClient);
-    }
-
-    @Test
-    void testConstructorThrowsUserNotLoggedInExceptionWhenThereIsNoRowInTheDb() {
-        when(mockLoginService.readCredentials(UserId.from(userId))).thenReturn(Optional.empty());
-        var throwable = catchThrowable(() -> new ZappiService
-                .Builder(mockLoginService).build(mockUserIdResolver));
-        assertThat(throwable).isInstanceOf(UserNotLoggedInException.class);
-        assertThat(throwable.getMessage()).isEqualTo("User not logged in - userId");
+        this.zappiService = new ZappiService(mockClient);
     }
 
     @ParameterizedTest
@@ -91,7 +56,7 @@ class ZappiServiceTest {
     @MethodSource("boostWithEndTime")
     void testBoostUntilTimeWillBoostToTheNearest15Minutes(String endTime, String expectedEndTime) {
         zappiService.setLocalTimeSupplier(LocalTime::now);
-        var boostStopTime = zappiService .startSmartBoost(LocalTime.parse(endTime));
+        var boostStopTime = zappiService.startSmartBoost(LocalTime.parse(endTime));
 
         var timeFormatterForUrl = DateTimeFormatter.ofPattern("HHmm");
         assertThat(expectedEndTime).isEqualTo(boostStopTime.format(timeFormatterForUrl));
@@ -191,93 +156,6 @@ class ZappiServiceTest {
     void testStartBoostGetsProxiedToClient() {
         zappiService.startBoost(new KiloWattHour(100));
         verify(mockClient).boost(new KiloWattHour(100));
-    }
-
-    @Test
-    void testBoostEddi() {
-        when(mockLoginService.readDevices(UserId.from(userId)))
-                .thenReturn(List.of(new ZappiDevice(zappiSerialNumber), new EddiDevice(SerialNumber.from("09876543"), "tank1", "tank2")));
-        this.zappiService = new ZappiService.Builder(mockLoginService).build(mockUserIdResolver);
-        zappiService.setClient(mockClient);
-
-        zappiService.boostEddi(Duration.of(1, ChronoUnit.HOURS));
-        verify(mockClient).boostEddi(Duration.of(1, ChronoUnit.HOURS), 1);
-    }
-
-    @Test
-    void testStopEddiBoost() {
-        when(mockLoginService.readDevices(UserId.from(userId)))
-                .thenReturn(List.of(new ZappiDevice(zappiSerialNumber), new EddiDevice(SerialNumber.from("09876543"), "tank1", "tank2")));
-        this.zappiService = new ZappiService.Builder(mockLoginService).build(mockUserIdResolver);
-        zappiService.setClient(mockClient);
-
-        zappiService.stopEddiBoost();
-        verify(mockClient).stopEddiBoost(1);
-    }
-
-    @Test
-    void testStopEddiBoostFor2ndHeater() {
-        when(mockLoginService.readDevices(UserId.from(userId)))
-                .thenReturn(List.of(new ZappiDevice(zappiSerialNumber), new EddiDevice(SerialNumber.from("09876543"), "tank1", "tank2")));
-        this.zappiService = new ZappiService.Builder(mockLoginService).build(mockUserIdResolver);
-        zappiService.setClient(mockClient);
-
-        zappiService.stopEddiBoost(2);
-        verify(mockClient).stopEddiBoost(2);
-    }
-
-    @Test
-    void testEddiValidationThrowsIllegalArgumentExceptionWhenHeaterIsLessThan1() {
-        when(mockLoginService.readDevices(UserId.from(userId)))
-                .thenReturn(List.of(new ZappiDevice(zappiSerialNumber), new EddiDevice(SerialNumber.from("09876543"), "tank1", "tank2")));
-        this.zappiService = new ZappiService.Builder(mockLoginService).build(mockUserIdResolver);
-        zappiService.setClient(mockClient);
-
-        var exception = catchThrowableOfType(() -> zappiService.stopEddiBoost(0), IllegalArgumentException.class);
-        assertThat(exception).isNotNull();
-        verify(mockClient, never()).stopEddiBoost(anyInt());
-    }
-
-    @Test
-    void testEddiValidationThrowsIllegalArgumentExceptionWhenHeaterIsGreaterThan2() {
-        when(mockLoginService.readDevices(UserId.from(userId)))
-                .thenReturn(List.of(new ZappiDevice(zappiSerialNumber), new EddiDevice(SerialNumber.from("09876543"), "tank1", "tank2")));
-        this.zappiService = new ZappiService.Builder(mockLoginService).build(mockUserIdResolver);
-        zappiService.setClient(mockClient);
-
-        var exception = catchThrowableOfType(() -> zappiService.stopEddiBoost(3), IllegalArgumentException.class);
-        assertThat(exception).isNotNull();
-        verify(mockClient, never()).stopEddiBoost(anyInt());
-    }
-
-    @Test
-    void testBoostEddiThrowsMissingDeviceExceptionWhenEddiIsNotConfigured() {
-        var exception = catchThrowableOfType(() -> zappiService.boostEddi(Duration.of(1, ChronoUnit.HOURS)), MissingDeviceException.class);
-        assertThat(exception).isNotNull();
-        verify(mockClient, never()).boostEddi(any());
-    }
-
-    @Test
-    void testStopEddiBoostThrowsMissingDeviceExceptionWhenEddiIsNotConfigured() {
-        var exception = catchThrowableOfType(() -> zappiService.stopEddiBoost(), MissingDeviceException.class);
-        assertThat(exception).isNotNull();
-        verify(mockClient, never()).stopEddiBoost();
-    }
-
-    @Test
-    void testBoostEddiThrowsMissingDeviceExceptionWhenEddiIsNotConfiguredForTank2() {
-        var exception = catchThrowableOfType(() -> zappiService.boostEddi(2, Duration.of(1, ChronoUnit.HOURS)), MissingDeviceException.class);
-        assertThat(exception).isNotNull();
-        verify(mockClient, never()).boostEddi(any());
-        verify(mockClient, never()).boostEddi(any(), anyInt());
-    }
-
-    @Test
-    void testStopEddiBoostThrowsMissingDeviceExceptionWhenEddiIsNotConfiguredForTank2() {
-        var exception = catchThrowableOfType(() -> zappiService.stopEddiBoost(2), MissingDeviceException.class);
-        assertThat(exception).isNotNull();
-        verify(mockClient, never()).stopEddiBoost();
-        verify(mockClient, never()).stopEddiBoost(anyInt());
     }
 
     private static Stream<Arguments> boostWithDurationSource() {

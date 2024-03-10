@@ -8,6 +8,7 @@ import com.amcglynn.myzappi.TariffNotFoundException;
 import com.amcglynn.myzappi.UserIdResolverFactory;
 import com.amcglynn.myzappi.UserZoneResolver;
 import com.amcglynn.myzappi.core.Brand;
+import com.amcglynn.myzappi.core.service.MyEnergiService;
 import com.amcglynn.myzappi.core.service.TariffService;
 import com.amcglynn.myzappi.core.service.ZappiService;
 import com.amcglynn.myzappi.handlers.responses.ZappiEnergyCostCardResponse;
@@ -26,12 +27,12 @@ import static com.amcglynn.myzappi.LocalisedResponse.voiceResponse;
 
 @Slf4j
 public class GetEnergyCostHandler implements RequestHandler {
-    private final ZappiService.Builder zappyServiceBuilder;
+    private final MyEnergiService.Builder zappyServiceBuilder;
     private final UserIdResolverFactory userIdResolverFactory;
     private final UserZoneResolver userZoneResolver;
     private final TariffService tariffService;
 
-    public GetEnergyCostHandler(ZappiService.Builder zappyServiceBuilder, UserIdResolverFactory userIdResolverFactory,
+    public GetEnergyCostHandler(MyEnergiService.Builder zappyServiceBuilder, UserIdResolverFactory userIdResolverFactory,
                                 UserZoneResolver userZoneResolver, TariffService tariffService) {
         this.zappyServiceBuilder = zappyServiceBuilder;
         this.userIdResolverFactory = userIdResolverFactory;
@@ -66,7 +67,7 @@ public class GetEnergyCostHandler implements RequestHandler {
         var userId = userIdResolver.getUserId();
         var dayTariff = tariffService.get(userId).orElseThrow(() -> new TariffNotFoundException(userId));
 
-        var zappiService = zappyServiceBuilder.build(userIdResolver);
+        var zappiService = zappyServiceBuilder.build(userIdResolver).getZappiServiceOrThrow();
 
         // call getHistory instead of getHourlyHistory so that requests for "today" are always up-to-date
         var history = zappiService.getHistory(localDate, userTimeZone);

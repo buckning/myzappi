@@ -62,6 +62,15 @@ class DevicesRepositoryTest {
             "        }\n" +
             "    ]";
 
+    private final String testEddiOnlyString = "[\n" +
+            "        {\n" +
+            "            \"serialNumber\": \"09876543\",\n" +
+            "            \"deviceClass\": \"EDDI\",\n" +
+            "            \"tank1Name\": \"tank1\",\n" +
+            "            \"tank2Name\": \"tank2\"\n" +
+            "        }\n" +
+            "    ]";
+
     @BeforeEach
     void setUp() {
         repository = new DevicesRepository(mockDb);
@@ -114,6 +123,17 @@ class DevicesRepositoryTest {
     }
 
     @Test
+    void testReadForUserWhoHasEddiEntryInDb() {
+        when(mockGetResult.getItem()).thenReturn(Map.of("user-id", new AttributeValue("testuser"),
+                "devices", new AttributeValue(testEddiOnlyString)));
+        when(mockDb.getItem(any())).thenReturn(mockGetResult);
+        var result = repository.read(UserId.from("userid"));
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0)).isInstanceOf(EddiDevice.class);
+        assertThat(result.get(0).getSerialNumber()).isEqualTo(SerialNumber.from("09876543"));
+    }
+
+    @Test
     void testReadUnknownDeviceInDb() {
         var unknownStr = "[\n" +
                 "        {\n" +
@@ -150,6 +170,18 @@ class DevicesRepositoryTest {
         assertThat(putItemCaptor.getValue().getItem().get("user-id").getS()).isEqualTo("testUser");
         assertThat(putItemCaptor.getValue().getItem().get("devices").getS())
                 .isEqualTo(testZappiOnlyString.replaceAll("\\s", ""));
+    }
+
+    @Test
+    void testWriteEddiOnly() {
+        repository.write(UserId.from("testUser"), List.of(new EddiDevice(SerialNumber.from("09876543"), "tank1", "tank2")));
+        verify(mockDb).putItem(putItemCaptor.capture());
+        assertThat(putItemCaptor.getValue()).isNotNull();
+        assertThat(putItemCaptor.getValue().getItem()).hasSize(2);
+        assertThat(putItemCaptor.getValue().getTableName()).isEqualTo("devices");
+        assertThat(putItemCaptor.getValue().getItem().get("user-id").getS()).isEqualTo("testUser");
+        assertThat(putItemCaptor.getValue().getItem().get("devices").getS())
+                .isEqualTo(testEddiOnlyString.replaceAll("\\s", ""));
     }
 
     @Test

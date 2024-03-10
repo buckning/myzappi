@@ -8,7 +8,8 @@ import com.amazon.ask.model.Session;
 import com.amazon.ask.model.User;
 import com.amcglynn.myenergi.EddiMode;
 import com.amcglynn.myzappi.UserIdResolverFactory;
-import com.amcglynn.myzappi.core.service.ZappiService;
+import com.amcglynn.myzappi.core.service.EddiService;
+import com.amcglynn.myzappi.core.service.MyEnergiService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,9 +30,11 @@ import static org.mockito.Mockito.when;
 class SetEddiModeToStoppedHandlerTest {
 
     @Mock
-    private ZappiService mockZappiService;
+    private MyEnergiService mockMyEnergiService;
     @Mock
-    private ZappiService.Builder mockZappiServiceBuilder;
+    private EddiService mockEddiService;
+    @Mock
+    private MyEnergiService.Builder mockMyEnergiServiceBuilder;
     @Mock
     private UserIdResolverFactory mockUserIdResolverFactory;
     private IntentRequest intentRequest;
@@ -40,7 +43,8 @@ class SetEddiModeToStoppedHandlerTest {
 
     @BeforeEach
     void setUp() {
-        handler = new SetEddiModeToStoppedHandler(mockZappiServiceBuilder, mockUserIdResolverFactory);
+        when(mockMyEnergiService.getEddiServiceOrThrow()).thenReturn(mockEddiService);
+        handler = new SetEddiModeToStoppedHandler(mockMyEnergiServiceBuilder, mockUserIdResolverFactory);
         intentRequest = IntentRequest.builder()
                 .withIntent(Intent.builder()
                         .withName("SetEddiModeToStopped").build())
@@ -63,14 +67,14 @@ class SetEddiModeToStoppedHandlerTest {
 
     @Test
     void testHandle() {
-        when(mockZappiServiceBuilder.build(any())).thenReturn(mockZappiService);
+        when(mockMyEnergiServiceBuilder.build(any())).thenReturn(mockMyEnergiService);
         var result = handler.handle(handlerInputBuilder().build());
         assertThat(result).isPresent();
 
         verifySpeechInResponse(result.get(), "<speak>Changing Eddi mode to stopped. This may take a few minutes.</speak>");
         verifySimpleCardInResponse(result.get(), "My Zappi", "Changing Eddi mode to stopped. This may take a few minutes.");
 
-        verify(mockZappiService).setEddiMode(EddiMode.STOPPED);
+        verify(mockEddiService).setEddiMode(EddiMode.STOPPED);
     }
 
     private HandlerInput.Builder handlerInputBuilder() {

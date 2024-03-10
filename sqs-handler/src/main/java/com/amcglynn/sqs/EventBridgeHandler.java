@@ -4,6 +4,7 @@ import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amcglynn.lwa.LwaClient;
 import com.amcglynn.myzappi.core.config.ServiceManager;
+import com.amcglynn.myzappi.core.service.MyEnergiService;
 import com.amcglynn.myzappi.core.service.ZappiService;
 import lombok.AccessLevel;
 import lombok.Setter;
@@ -40,7 +41,7 @@ public class EventBridgeHandler implements RequestHandler<Object, Void> {
         serviceManager = new ServiceManager(properties);
         lwaClient = new LwaClient();
         zappiScheduleHandler = new MyZappiScheduleHandler(serviceManager.getScheduleService(),
-                new ZappiService.Builder(serviceManager.getLoginService()));
+                new MyEnergiService.Builder(serviceManager.getLoginService()));
     }
 
     EventBridgeHandler(Properties properties, LwaClient lwaClient, MyZappiScheduleHandler myZappiScheduleHandler) {

@@ -8,6 +8,7 @@ import com.amazon.ask.model.services.directive.SendDirectiveRequest;
 import com.amazon.ask.model.services.directive.SpeakDirective;
 import com.amcglynn.myzappi.UserIdResolverFactory;
 import com.amcglynn.myzappi.core.Brand;
+import com.amcglynn.myzappi.core.service.MyEnergiService;
 import com.amcglynn.myzappi.core.service.ZappiService;
 import com.amcglynn.myzappi.handlers.responses.SolarReportCardResponse;
 import com.amcglynn.myzappi.handlers.responses.SolarReportVoiceResponse;
@@ -21,10 +22,10 @@ import static com.amazon.ask.request.Predicates.intentName;
 
 public class GetSolarReportHandler implements RequestHandler {
 
-    private final ZappiService.Builder zappiServiceBuilder;
+    private final MyEnergiService.Builder zappiServiceBuilder;
     private final UserIdResolverFactory userIdResolverFactory;
 
-    public GetSolarReportHandler(ZappiService.Builder zappiServiceBuilder, UserIdResolverFactory userIdResolverFactory) {
+    public GetSolarReportHandler(MyEnergiService.Builder zappiServiceBuilder, UserIdResolverFactory userIdResolverFactory) {
         this.zappiServiceBuilder = zappiServiceBuilder;
         this.userIdResolverFactory = userIdResolverFactory;
     }
@@ -45,7 +46,7 @@ public class GetSolarReportHandler implements RequestHandler {
         var locale = Locale.forLanguageTag(handlerInput.getRequestEnvelope().getRequest().getLocale());
 
         var zappiService = zappiServiceBuilder.build(userIdResolverFactory.newUserIdResolver(handlerInput));
-        var summary = zappiService.getStatusSummary().get(0);
+        var summary = zappiService.getZappiServiceOrThrow().getStatusSummary().get(0);
 
         return handlerInput.getResponseBuilder()
                 .withSpeech(new SolarReportVoiceResponse(locale, summary).toString())
