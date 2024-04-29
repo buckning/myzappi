@@ -6,6 +6,7 @@ import com.amazon.ask.model.Response;
 import com.amcglynn.myenergi.EddiMode;
 import com.amcglynn.myzappi.UserIdResolverFactory;
 import com.amcglynn.myzappi.core.Brand;
+import com.amcglynn.myzappi.core.service.MyEnergiService;
 import com.amcglynn.myzappi.core.service.ZappiService;
 
 import java.util.Map;
@@ -17,10 +18,10 @@ import static com.amcglynn.myzappi.LocalisedResponse.voiceResponse;
 
 public class SetEddiModeToStoppedHandler implements RequestHandler {
 
-    private final ZappiService.Builder zappiServiceBuilder;
+    private final MyEnergiService.Builder zappiServiceBuilder;
     private final UserIdResolverFactory userIdResolverFactory;
 
-    public SetEddiModeToStoppedHandler(ZappiService.Builder zappiServiceBuilder, UserIdResolverFactory userIdResolverFactory) {
+    public SetEddiModeToStoppedHandler(MyEnergiService.Builder zappiServiceBuilder, UserIdResolverFactory userIdResolverFactory) {
         this.zappiServiceBuilder = zappiServiceBuilder;
         this.userIdResolverFactory = userIdResolverFactory;
     }
@@ -32,7 +33,7 @@ public class SetEddiModeToStoppedHandler implements RequestHandler {
 
     @Override
     public Optional<Response> handle(HandlerInput handlerInput) {
-        var zappiService = zappiServiceBuilder.build(userIdResolverFactory.newUserIdResolver(handlerInput));
+        var zappiService = zappiServiceBuilder.build(userIdResolverFactory.newUserIdResolver(handlerInput)).getEddiServiceOrThrow();
         var eddiMode = EddiMode.STOPPED;
         zappiService.setEddiMode(eddiMode);
         return handlerInput.getResponseBuilder()

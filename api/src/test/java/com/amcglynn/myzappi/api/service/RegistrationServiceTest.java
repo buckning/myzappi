@@ -72,7 +72,7 @@ class RegistrationServiceTest {
 
     @Test
     void registerThrows409ServerExceptionWhenNoZappiIsFound() {
-        when(mockMyEnergiClient.getStatus()).thenReturn(List.of(mockEddiStatusResponse));
+        when(mockMyEnergiClient.getStatus()).thenReturn(List.of());
         var serverException = catchThrowableOfType(() ->
                 service.register(userId, hubSerialNumber, apiKey), ServerException.class);
         assertThat(serverException.getStatus()).isEqualTo(409);
@@ -100,6 +100,23 @@ class RegistrationServiceTest {
         verify(mockMyEnergiClientFactory).newMyEnergiClient(hubSerialNumber.toString(), zappiSerialNumber.toString(),
                 eddiSerialNumber.toString(), apiKey);
         verify(mockLoginService).register(eq(userId.toString()), eq(zappiSerialNumber), eq(hubSerialNumber),
+                eddiDeviceCaptor.capture(), eq(apiKey));
+
+        assertThat(eddiDeviceCaptor.getAllValues()).hasSize(1);
+        assertThat(eddiDeviceCaptor.getValue().getSerialNumber()).isEqualTo(SerialNumber.from("09876543"));
+        assertThat(eddiDeviceCaptor.getValue().getTank1Name()).isEqualTo("tank1");
+        assertThat(eddiDeviceCaptor.getValue().getTank2Name()).isEqualTo("tank2");
+    }
+
+    @Test
+    void registerWithEddi() {
+        var eddiDeviceCaptor = ArgumentCaptor.forClass(EddiDevice.class);
+        when(mockEddiDeviceStatus.getTank1Name()).thenReturn("tank1");
+        when(mockEddiDeviceStatus.getTank2Name()).thenReturn("tank2");
+        when(mockMyEnergiClient.getStatus()).thenReturn(List.of(mockEddiStatusResponse));
+        service.register(userId, hubSerialNumber, apiKey);
+        verify(mockMyEnergiClientFactory).newMyEnergiClient(hubSerialNumber.toString(), apiKey);
+        verify(mockLoginService).register(eq(userId.toString()), eq(null), eq(hubSerialNumber),
                 eddiDeviceCaptor.capture(), eq(apiKey));
 
         assertThat(eddiDeviceCaptor.getAllValues()).hasSize(1);

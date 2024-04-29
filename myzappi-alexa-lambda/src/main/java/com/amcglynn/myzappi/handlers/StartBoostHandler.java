@@ -8,6 +8,7 @@ import com.amcglynn.myenergi.units.KiloWattHour;
 import com.amcglynn.myzappi.UserIdResolverFactory;
 import com.amcglynn.myzappi.UserZoneResolver;
 import com.amcglynn.myzappi.core.Brand;
+import com.amcglynn.myzappi.core.service.MyEnergiService;
 import com.amcglynn.myzappi.core.service.ZappiService;
 
 import java.time.Duration;
@@ -22,11 +23,11 @@ import static com.amcglynn.myzappi.LocalisedResponse.voiceResponse;
 
 public class StartBoostHandler implements RequestHandler {
 
-    private final ZappiService.Builder zappiServiceBuilder;
+    private final MyEnergiService.Builder zappiServiceBuilder;
     private final UserIdResolverFactory userIdResolverFactory;
     private final UserZoneResolver userZoneResolver;
 
-    public StartBoostHandler(ZappiService.Builder zappiServiceBuilder, UserIdResolverFactory userIdResolverFactory,
+    public StartBoostHandler(MyEnergiService.Builder zappiServiceBuilder, UserIdResolverFactory userIdResolverFactory,
                              UserZoneResolver userZoneResolver) {
         this.zappiServiceBuilder = zappiServiceBuilder;
         this.userIdResolverFactory = userIdResolverFactory;
@@ -44,7 +45,7 @@ public class StartBoostHandler implements RequestHandler {
         var time = parseSlot(handlerInput, "Time");
         var kilowattHours = parseKiloWattHourSlot(handlerInput);
 
-        var zappiService = zappiServiceBuilder.build(userIdResolverFactory.newUserIdResolver(handlerInput));
+        var zappiService = zappiServiceBuilder.build(userIdResolverFactory.newUserIdResolver(handlerInput)).getZappiServiceOrThrow();
         // The boost API when duration is used needs to have the local time read from the device that made the request.
         // This is done by reading the base URL and access token from the request and making a request to Alexa API
         // to retrieve the timezone for the device. Once the timezone is retrieved, it is set here so that when an end

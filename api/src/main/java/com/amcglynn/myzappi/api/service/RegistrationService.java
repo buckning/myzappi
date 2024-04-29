@@ -48,14 +48,15 @@ public class RegistrationService {
 
         var myEnergiDevices = discoverMyEnergiDevices(serialNumber, apiKey);
         var zappiSerialNumber = discoverZappi(serialNumber, apiKey, myEnergiDevices);
+        var eddi = discoverEddi(myEnergiDevices);
 
-        if (zappiSerialNumber.isPresent()) {
-            var eddi = discoverEddi(myEnergiDevices).orElse(null);
-            log.info("Registering zappi = {} hub = {} eddi = {} for user {}", zappiSerialNumber.get(), serialNumber, eddi, userId);
+        if (zappiSerialNumber.isPresent() || eddi.isPresent()) {
+            log.info("Registering zappi = {} hub = {} eddi = {} for user {}",
+                    zappiSerialNumber.orElse(null), serialNumber, eddi.orElse(null), userId);
             loginService.register(userId.toString(),
-                    zappiSerialNumber.get(), // zappi serial number may be different to gateway/hub
+                    zappiSerialNumber.orElse(null), // zappi serial number may be different to gateway/hub
                     serialNumber,
-                    eddi,
+                    eddi.orElse(null),
                     apiKey);
         } else {
             log.warn("Could not find Zappi for system");
@@ -96,6 +97,7 @@ public class RegistrationService {
             if (zappis.isPresent() && !zappis.get().getZappi().isEmpty()) {
                 var zappiSerialNumber = SerialNumber.from(zappis.get().getZappi().get(0).getSerialNumber());
                 var eddi = getEddi(myEnergiDevices).map(EddiDevice::getSerialNumber);
+                // Zappi pre-check - ensure Zappi can be controlled by my zappi
                 myEnergiClientFactory.newMyEnergiClient(hubSerialNumber.toString(), zappiSerialNumber.toString(),
                         eddi.map(SerialNumber::toString).orElse(null), apiKey).getZappiStatus();
                 return Optional.of(zappiSerialNumber);

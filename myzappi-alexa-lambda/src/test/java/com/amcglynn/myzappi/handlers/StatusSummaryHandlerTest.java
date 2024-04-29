@@ -16,6 +16,7 @@ import com.amcglynn.myenergi.ZappiChargeMode;
 import com.amcglynn.myenergi.ZappiStatusSummary;
 import com.amcglynn.myenergi.apiresponse.ZappiStatus;
 import com.amcglynn.myzappi.UserIdResolverFactory;
+import com.amcglynn.myzappi.core.service.MyEnergiService;
 import com.amcglynn.myzappi.core.service.ZappiService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,6 +25,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
 
 import java.util.List;
 
@@ -35,10 +37,14 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = org.mockito.quality.Strictness.LENIENT)
 class StatusSummaryHandlerTest {
 
     @Mock
-    private ZappiService.Builder mockZappiServiceBuilder;
+    private MyEnergiService.Builder mockMyEnergiServiceBuilder;
+
+    @Mock
+    private MyEnergiService mockMyEnergiService;
     @Mock
     private ZappiService mockZappiService;
     @Mock
@@ -54,7 +60,9 @@ class StatusSummaryHandlerTest {
 
     @BeforeEach
     void setUp() {
-        handler = new StatusSummaryHandler(mockZappiServiceBuilder, mockUserIdResolverFactory);
+        when(mockMyEnergiServiceBuilder.build(any())).thenReturn(mockMyEnergiService);
+        when(mockMyEnergiService.getZappiServiceOrThrow()).thenReturn(mockZappiService);
+        handler = new StatusSummaryHandler(mockMyEnergiServiceBuilder, mockUserIdResolverFactory);
         intentRequest = IntentRequest.builder()
                 .withLocale("en-GB")
                 .withIntent(Intent.builder().withName("StatusSummary").build())
@@ -77,7 +85,6 @@ class StatusSummaryHandlerTest {
 
     @Test
     void testHandleSendsProgressiveResponseAndReturnsSummary() {
-        when(mockZappiServiceBuilder.build(any())).thenReturn(mockZappiService);
         when(mockServiceClientFactory.getDirectiveService()).thenReturn(mockDirectiveServiceClient);
         when(mockZappiService.getStatusSummary()).thenReturn(List.of(new ZappiStatusSummary(
                 new ZappiStatus("12345678", 1500L, 1400L,
@@ -104,7 +111,6 @@ class StatusSummaryHandlerTest {
 
     @Test
     void testHandleSendsProgressiveResponseAndReturnsSummaryForChargeMode() {
-        when(mockZappiServiceBuilder.build(any())).thenReturn(mockZappiService);
         when(mockServiceClientFactory.getDirectiveService()).thenReturn(mockDirectiveServiceClient);
         when(mockZappiService.getStatusSummary()).thenReturn(List.of(new ZappiStatusSummary(
                 new ZappiStatus("12345678", 1500L, 1400L,
@@ -124,7 +130,6 @@ class StatusSummaryHandlerTest {
 
     @Test
     void testHandleSendsProgressiveResponseAndReturnsSummaryWithOnlyRequiredInformation() {
-        when(mockZappiServiceBuilder.build(any())).thenReturn(mockZappiService);
         when(mockServiceClientFactory.getDirectiveService()).thenReturn(mockDirectiveServiceClient);
         when(mockZappiService.getStatusSummary()).thenReturn(List.of(new ZappiStatusSummary(
                 new ZappiStatus("12345678", 0L, 0L,
@@ -138,7 +143,6 @@ class StatusSummaryHandlerTest {
 
     @Test
     void testHandleSaysChargeCompleteWhenItChargeStatusIsComplete() {
-        when(mockZappiServiceBuilder.build(any())).thenReturn(mockZappiService);
         when(mockServiceClientFactory.getDirectiveService()).thenReturn(mockDirectiveServiceClient);
         when(mockZappiService.getStatusSummary()).thenReturn(List.of(new ZappiStatusSummary(
                 new ZappiStatus("12345678", 0L, 0L,
@@ -153,7 +157,6 @@ class StatusSummaryHandlerTest {
 
     @Test
     void testHandleSaysExportRate() {
-        when(mockZappiServiceBuilder.build(any())).thenReturn(mockZappiService);
         when(mockServiceClientFactory.getDirectiveService()).thenReturn(mockDirectiveServiceClient);
         when(mockZappiService.getStatusSummary()).thenReturn(List.of(new ZappiStatusSummary(
                 new ZappiStatus("12345678", 0L, 0L,

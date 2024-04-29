@@ -86,7 +86,7 @@ class MyZappiExceptionHandlerTest {
                 Arguments.of(new ClientException(404), "Could not authenticate with myenergi APIs. Your API key may no longer be valid. Please register again on https://myzappiunofficial.com"),
                 Arguments.of(new ServerCommunicationException(), "I couldn't communicate with myenergi servers."),
                 Arguments.of(new NullPointerException("unexpectedException"), "There was an unexpected error."),
-                Arguments.of(new MissingDeviceException("unexpectedException"), "I could not find an Eddi to control. Please register again on https://myzappiunofficial.com once your Eddi has been configured."),
+                Arguments.of(new MissingDeviceException("unexpectedException"), "I could not find the correct device to control. Please register again on https://myzappiunofficial.com once the appropriate device has been configured."),
                 Arguments.of(new InvalidScheduleException("unexpectedException"), "I didn't understand that, please try again."));
     }
 
@@ -97,7 +97,7 @@ class MyZappiExceptionHandlerTest {
                 Arguments.of(new ClientException(404), "<speak>Could not authenticate with my energy APIs. Your API key may no longer be valid. Please register again on my zappi unofficial dot com</speak>"),
                 Arguments.of(new ServerCommunicationException(), "<speak>I couldn't communicate with my energy servers.</speak>"),
                 Arguments.of(new NullPointerException("unexpectedException"), "<speak>There was an unexpected error.</speak>"),
-                Arguments.of(new MissingDeviceException("unexpectedException"), "<speak>I could not find an Eddi to control. Please register again on my zappi unofficial dot com once your Eddi has been configured.</speak>"),
+                Arguments.of(new MissingDeviceException("unexpectedException"), "<speak>I could not find the correct device to control. Please register again on my zappi unofficial dot com once the appropriate device has been configured.</speak>"),
                 Arguments.of(new InvalidScheduleException("unexpectedException"), "<speak>I didn't understand that, please try again.</speak>"));
     }
 

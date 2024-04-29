@@ -16,6 +16,7 @@ import com.amcglynn.myenergi.ZappiChargeMode;
 import com.amcglynn.myenergi.ZappiStatusSummary;
 import com.amcglynn.myenergi.apiresponse.ZappiStatus;
 import com.amcglynn.myzappi.UserIdResolverFactory;
+import com.amcglynn.myzappi.core.service.MyEnergiService;
 import com.amcglynn.myzappi.core.service.ZappiService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,6 +25,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
 
 import java.util.List;
 
@@ -35,10 +37,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = org.mockito.quality.Strictness.LENIENT)
 class GetSolarReportHandlerTest {
 
     @Mock
-    private ZappiService.Builder mockZappiServiceBuilder;
+    private MyEnergiService.Builder mockMyEnergiServiceBuilder;
+    @Mock
+    private MyEnergiService mockMyEnergiService;
     @Mock
     private ZappiService mockZappiService;
     @Mock
@@ -54,7 +59,8 @@ class GetSolarReportHandlerTest {
 
     @BeforeEach
     void setUp() {
-        handler = new GetSolarReportHandler(mockZappiServiceBuilder, mockUserIdResolverFactory);
+        when(mockMyEnergiService.getZappiServiceOrThrow()).thenReturn(mockZappiService);
+        handler = new GetSolarReportHandler(mockMyEnergiServiceBuilder, mockUserIdResolverFactory);
         intentRequest = IntentRequest.builder()
                 .withLocale("en-GB")
                 .withIntent(Intent.builder().withName("GetSolarReport").build())
@@ -77,7 +83,7 @@ class GetSolarReportHandlerTest {
 
     @Test
     void testHandleSendsProgressiveResponseAndReturnsSolarGeneration() {
-        when(mockZappiServiceBuilder.build(any())).thenReturn(mockZappiService);
+        when(mockMyEnergiServiceBuilder.build(any())).thenReturn(mockMyEnergiService);
         when(mockServiceClientFactory.getDirectiveService()).thenReturn(mockDirectiveServiceClient);
         when(mockZappiService.getStatusSummary()).thenReturn(List.of(new ZappiStatusSummary(
                 new ZappiStatus("12345678", 1500L, 1400L,
@@ -97,7 +103,7 @@ class GetSolarReportHandlerTest {
 
     @Test
     void testHandleSendsProgressiveResponseAndReturnsSolarGenerationAndRoundsToZeroWhenLessThan100Watts() {
-        when(mockZappiServiceBuilder.build(any())).thenReturn(mockZappiService);
+        when(mockMyEnergiServiceBuilder.build(any())).thenReturn(mockMyEnergiService);
         when(mockServiceClientFactory.getDirectiveService()).thenReturn(mockDirectiveServiceClient);
         when(mockZappiService.getStatusSummary()).thenReturn(List.of(new ZappiStatusSummary(
                 new ZappiStatus("12345678", 99L, 1400L,

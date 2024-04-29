@@ -12,6 +12,7 @@ import com.amcglynn.myzappi.core.model.ScheduleRecurrence;
 import com.amcglynn.myzappi.core.model.Tariff;
 import com.amcglynn.myzappi.core.model.UserId;
 import com.amcglynn.myzappi.core.service.EnergyCostHourSummary;
+import com.amcglynn.myzappi.core.service.MyEnergiService;
 import com.amcglynn.myzappi.core.service.TariffService;
 import com.amcglynn.myzappi.core.service.ZappiService;
 import org.junit.jupiter.api.BeforeEach;
@@ -47,7 +48,9 @@ import static org.mockito.Mockito.when;
 class EnergyCostControllerTest {
 
     @Mock
-    private ZappiService.Builder mockZappiServiceBuilder;
+    private MyEnergiService mockMyEnergiService;
+    @Mock
+    private MyEnergiService.Builder mockMyEnergiServiceBuilder;
     @Mock
     private TariffService mockTariffService;
     @Captor
@@ -58,7 +61,8 @@ class EnergyCostControllerTest {
 
     @BeforeEach
     void setUp() {
-        when(mockZappiServiceBuilder.build(any())).thenReturn(mockZappiService);
+        when(mockMyEnergiService.getZappiServiceOrThrow()).thenReturn(mockZappiService);
+        when(mockMyEnergiServiceBuilder.build(any())).thenReturn(mockMyEnergiService);
         var dayCost = new DayCost("EUR");
         var tariff = new Tariff("MockTariff", LocalTime.of(0, 0), LocalTime.of(0, 0), 1, 1);
         dayCost.add(new EnergyCostHourSummary(tariff, new ZappiHistory(2023, 1, 6, 0, 0, "Monday",
@@ -66,7 +70,7 @@ class EnergyCostControllerTest {
 
         when(mockTariffService.get(anyString())).thenReturn(Optional.of(new DayTariff("EUR", List.of(tariff))));
         when(mockTariffService.calculateCost(any(), any(), any(), any())).thenReturn(dayCost);
-        controller = new EnergyCostController(mockZappiServiceBuilder, mockTariffService);
+        controller = new EnergyCostController(mockMyEnergiServiceBuilder, mockTariffService);
     }
 
     @Test
@@ -81,7 +85,7 @@ class EnergyCostControllerTest {
 
     @Test
     void get() {
-        when(mockZappiServiceBuilder.build(any())).thenReturn(mockZappiService);
+        when(mockMyEnergiServiceBuilder.build(any())).thenReturn(mockMyEnergiService);
         Request request = new Request(RequestMethod.GET, "/energy-cost", null, Map.of(), null);
         request.setUserId("mockUserId");
         var response = controller.handle(request);
@@ -92,7 +96,7 @@ class EnergyCostControllerTest {
 
     @Test
     void getWithDateQueryParam() {
-        when(mockZappiServiceBuilder.build(any())).thenReturn(mockZappiService);
+        when(mockMyEnergiServiceBuilder.build(any())).thenReturn(mockMyEnergiService);
         Request request = new Request(RequestMethod.GET, "/energy-cost", null, Map.of(), Map.of("date", "2023-01-06"));
         request.setUserId("mockUserId");
         var response = controller.handle(request);
@@ -105,7 +109,7 @@ class EnergyCostControllerTest {
 
     @Test
     void getWithZoneIdQueryParam() {
-        when(mockZappiServiceBuilder.build(any())).thenReturn(mockZappiService);
+        when(mockMyEnergiServiceBuilder.build(any())).thenReturn(mockMyEnergiService);
         Request request = new Request(RequestMethod.GET, "/energy-cost", null, Map.of(),
                 Map.of("zoneId", "Europe%2FDublin",
                         "date", "2023-01-06"));

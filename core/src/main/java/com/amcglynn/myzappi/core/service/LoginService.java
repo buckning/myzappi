@@ -49,7 +49,9 @@ public class LoginService {
     private void saveDeploymentDetails(UserId userId, SerialNumber zappiSerialNumber, EddiDevice eddiDevice) {
         var devices = new ArrayList<MyEnergiDevice>();
         var zappi = new ZappiDevice(zappiSerialNumber);
-        devices.add(zappi);
+        if (zappiSerialNumber != null) {
+            devices.add(zappi);
+        }
         if (eddiDevice != null) {
             devices.add(eddiDevice);
         }

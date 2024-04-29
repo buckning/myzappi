@@ -46,7 +46,7 @@ public class EndpointRouter {
                 new AuthenticationService(new TokenService(lwaClientFactory),
                         new SessionService(new SessionRepository(serviceManager.getAmazonDynamoDB()))),
                 scheduleController,
-                new EnergyCostController(serviceManager.getZappiServiceBuilder(), serviceManager.getTariffService()),
+                new EnergyCostController(serviceManager.getMyEnergiServiceBuilder(), serviceManager.getTariffService()),
                 serviceManager.getProperties());
     }
 

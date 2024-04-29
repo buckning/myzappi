@@ -5,3 +5,6 @@ target
 node_modules
 site/myzappi/.vscode
 .gradle
+gradle
+gradlew
+gradlew.bat
