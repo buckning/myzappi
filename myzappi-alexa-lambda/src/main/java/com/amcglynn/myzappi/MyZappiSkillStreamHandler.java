@@ -10,6 +10,7 @@ import com.amcglynn.myzappi.core.service.Clock;
 import com.amcglynn.myzappi.handlers.BoostEddiHandler;
 import com.amcglynn.myzappi.handlers.ChargeMyCarHandler;
 import com.amcglynn.myzappi.handlers.FallbackHandler;
+import com.amcglynn.myzappi.handlers.GetChargeRateHandler;
 import com.amcglynn.myzappi.handlers.GetEnergyCostHandler;
 import com.amcglynn.myzappi.handlers.GetEnergyUsageHandler;
 import com.amcglynn.myzappi.handlers.GetPlugStatusHandler;
@@ -65,6 +66,7 @@ public class MyZappiSkillStreamHandler extends SkillStreamHandler {
                 .addRequestHandler(new BoostEddiHandler(serviceManager.getMyEnergiServiceBuilder(), userIdResolverFactory))
                 .addRequestHandler(new StopEddiBoostHandler(serviceManager.getMyEnergiServiceBuilder(), userIdResolverFactory))
                 .addRequestHandler(new GoGreenHandler(serviceManager.getMyEnergiServiceBuilder(), userIdResolverFactory))
+                .addRequestHandler(new GetChargeRateHandler(serviceManager.getMyEnergiServiceBuilder(), userIdResolverFactory))
                 .addRequestHandler(new ChargeMyCarHandler(serviceManager.getMyEnergiServiceBuilder(), userIdResolverFactory))
                 .addRequestHandler(new SetReminderHandler(reminderServiceFactory, userZoneResolver, userIdResolverFactory,
                         new AlexaToLwaLookUpRepository(serviceManager.getAmazonDynamoDB()),
