@@ -1,5 +1,96 @@
 This module contains the code for the myzappi APIs
 
+
+### Discover devices
+```
+POST /devices/discover
+Request
+{
+"serialNumber": "12345678",
+"apiKey": "myDemoApiKey"
+}
+
+Response 202
+Response 409 - if the device is already registered
+```
+
+### Unregister devices
+```
+DELETE /devices
+Response 204
+```
+
+### Get Device
+```
+GET /devices/{serialNumber}
+Response 200, 404
+{
+    "serialNumber": "12345678",
+    "type": "zappi"
+}
+```
+ 
+### List Devices               
+```
+GET /devices
+Response 200
+{
+    "devices": [
+        {
+            "serialNumber": "12345678",
+            "type": "zappi"
+        }
+    ]
+}
+```
+                
+```
+GET /devices?type=zappi
+Response 200
+{
+    "devices": [
+        {
+            "serialNumber": "12345678",
+            "type": "zappi"
+        }
+    ]
+}
+```
+                
+### Commands
+```
+POST /devices/{serialNumber}/unlock
+Response 202
+```
+
+#### Set mode
+```
+PUT /devices/{serialNumber}/mode
+Request
+{
+    "mode": "eco"
+}
+Response 202
+```
+
+#### Enable boost
+```
+PUT /devices/{serialNumber}/boost
+Request
+{
+    tbd
+}
+Response 202
+```
+
+#### Disable boost
+```
+DELETE /devices/{serialNumber}/boost
+Response 204
+```
+
+
+
 Schedule APIs
 PUT, GET and DELETE
 Single / Recurring
