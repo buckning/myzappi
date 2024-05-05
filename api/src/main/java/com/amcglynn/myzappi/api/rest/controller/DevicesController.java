@@ -4,10 +4,14 @@ import com.amcglynn.myzappi.api.rest.Request;
 import com.amcglynn.myzappi.api.rest.RequestMethod;
 import com.amcglynn.myzappi.api.rest.Response;
 import com.amcglynn.myzappi.api.rest.ServerException;
+import com.amcglynn.myzappi.api.rest.response.DeviceResponse;
+import com.amcglynn.myzappi.api.rest.response.ListDeviceResponse;
 import com.amcglynn.myzappi.api.service.RegistrationService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.stream.Collectors;
 
 @Slf4j
 public class DevicesController implements RestController {
@@ -31,8 +35,18 @@ public class DevicesController implements RestController {
 
     @SneakyThrows
     private Response listDevices(Request request) {
-        var body = new ObjectMapper().writeValueAsString(registrationService.readDevices(request.getUserId()));
+        var typeFilter = request.getQueryStringParameters().get("type");
+
+        var devices = registrationService.readDevices(request.getUserId())
+                .stream().map(DeviceResponse::new)
+                .filter(device -> filterByType(device, typeFilter))
+                .collect(Collectors.toList());
+        var body = new ObjectMapper().writeValueAsString(new ListDeviceResponse(devices));
         return new Response(200, body);
+    }
+
+    private boolean filterByType(DeviceResponse deviceResponse, String typeFilter) {
+        return typeFilter == null || deviceResponse.getType().toString().equals(typeFilter);
     }
 
     @SneakyThrows
