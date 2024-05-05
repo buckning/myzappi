@@ -21,6 +21,14 @@ public class Request {
         this.userId = userId;
     }
 
+    public Request(RequestMethod method, String path) {
+        this.method = method;
+        this.path = path;
+        this.body = body;
+        this.headers = new HashMap<>();
+        this.queryStringParameters = new HashMap<>();
+    }
+
     public Request(RequestMethod method, String path, String body) {
         this.method = method;
         this.path = path;

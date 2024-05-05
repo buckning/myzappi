@@ -2,6 +2,7 @@ package com.amcglynn.myzappi.api.rest;
 
 import com.amcglynn.myzappi.api.Session;
 import com.amcglynn.myzappi.api.SessionId;
+import com.amcglynn.myzappi.api.rest.controller.DevicesController;
 import com.amcglynn.myzappi.api.rest.controller.EnergyCostController;
 import com.amcglynn.myzappi.api.rest.controller.LogoutController;
 import com.amcglynn.myzappi.core.config.Properties;
@@ -45,6 +46,8 @@ class EndpointRouterTest {
     @Mock
     private EnergyCostController mockEnergyCostController;
     @Mock
+    private DevicesController mockDevicesController;
+    @Mock
     private LogoutController mockLogoutController;
     @Mock
     private Properties mockProperties;
@@ -53,13 +56,14 @@ class EndpointRouterTest {
 
     @BeforeEach
     void setUp() {
-        router = new EndpointRouter(mockHubController, mockTariffController, mockAuthController,
+        router = new EndpointRouter(mockHubController, mockDevicesController, mockTariffController, mockAuthController,
                 mockScheduleController, mockEnergyCostController, mockLogoutController, mockProperties);
         when(mockResponse.getStatus()).thenReturn(200);
         when(mockResponse.getHeaders()).thenReturn(new HashMap<>());
         when(mockProperties.getAdminUser()).thenReturn("regularUser");
         when(mockTariffController.handle(any())).thenReturn(mockResponse);
         when(mockScheduleController.handle(any())).thenReturn(mockResponse);
+        when(mockDevicesController.handle(any())).thenReturn(mockResponse);
         when(mockHubController.handle(any())).thenReturn(mockResponse);
         when(mockAuthController.authenticate(any())).thenReturn(Optional.of(new Session(SessionId.from("1234"), UserId.from("userId"), 3600L)));
         when(mockEnergyCostController.handle(any())).thenReturn(mockResponse);
@@ -93,6 +97,15 @@ class EndpointRouterTest {
         var response = router.route(request);
         assertThat(response.getStatus()).isEqualTo(200);
         verify(mockScheduleController).handle(request);
+    }
+
+    @Test
+    void getDevicesGetsRoutedToDevicesController() {
+        var request = new Request(RequestMethod.GET, "/devices", null, Map.of("Authorization", "Bearer 1234"), Map.of());
+        request.setUserId("regularUser");
+        var response = router.route(request);
+        assertThat(response.getStatus()).isEqualTo(200);
+        verify(mockDevicesController).handle(request);
     }
 
     @Test

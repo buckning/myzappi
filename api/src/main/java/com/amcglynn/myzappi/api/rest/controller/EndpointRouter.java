@@ -29,20 +29,22 @@ public class EndpointRouter {
     public EndpointRouter(ServiceManager serviceManager) {
         this(serviceManager, new HubController(
                         new RegistrationService(serviceManager.getLoginService(), serviceManager.getDevicesRepository(), new MyEnergiClientFactory())),
+                new DevicesController(new RegistrationService(serviceManager.getLoginService(), serviceManager.getDevicesRepository(), new MyEnergiClientFactory())),
                 new TariffController(serviceManager.getTariffService()),
                 new LwaClientFactory());
     }
 
-    public EndpointRouter(ServiceManager serviceManager, HubController hubController, TariffController tariffController,
+    public EndpointRouter(ServiceManager serviceManager, HubController hubController, DevicesController devicesController,
+                          TariffController tariffController,
                           LwaClientFactory lwaClientFactory) {
-        this(hubController, tariffController, lwaClientFactory,
+        this(hubController, devicesController, tariffController, lwaClientFactory,
                 new ScheduleController(serviceManager.getScheduleService()), serviceManager);
     }
 
-    public EndpointRouter(HubController hubController, TariffController tariffController,
+    public EndpointRouter(HubController hubController, DevicesController devicesController, TariffController tariffController,
                           LwaClientFactory lwaClientFactory,
                           ScheduleController scheduleController, ServiceManager serviceManager) {
-        this(hubController, tariffController,
+        this(hubController, devicesController, tariffController,
                 new AuthenticationService(new TokenService(lwaClientFactory),
                         new SessionService(new SessionRepository(serviceManager.getAmazonDynamoDB()))),
                 scheduleController,
@@ -50,14 +52,15 @@ public class EndpointRouter {
                 serviceManager.getProperties());
     }
 
-    public EndpointRouter(HubController hubController, TariffController tariffController,
+    public EndpointRouter(HubController hubController, DevicesController devicesController, TariffController tariffController,
                           AuthenticationService authenticationService,
                           ScheduleController scheduleController, EnergyCostController energyCostController,
                           Properties properties) {
-        this(hubController, tariffController, authenticationService, scheduleController, energyCostController, new LogoutController(authenticationService), properties);
+        this(hubController, devicesController, tariffController, authenticationService, scheduleController, energyCostController, new LogoutController(authenticationService), properties);
     }
 
-    public EndpointRouter(HubController hubController, TariffController tariffController,
+    public EndpointRouter(HubController hubController, DevicesController devicesController,
+                          TariffController tariffController,
                           AuthenticationService authenticationService,
                           ScheduleController scheduleController, EnergyCostController energyCostController,
                           LogoutController logoutController,
@@ -71,6 +74,7 @@ public class EndpointRouter {
         handlers.put("/tariff", tariffController);
         handlers.put("/schedule", scheduleController);
         handlers.put("/schedules", scheduleController);
+        handlers.put("/devices", devicesController);
         handlers.put("/energy-cost", energyCostController);
 
         this.authenticationService = authenticationService;
@@ -88,7 +92,7 @@ public class EndpointRouter {
         handleAdminUserOnBehalfOf(request);
 
         try {
-            log.info("{} {}", request.getMethod(), request.getPath());
+            log.info("Processing request {} {}", request.getMethod(), request.getPath());
             var controller = handlers.get(request.getPath());
 
             if (controller == null && request.getPath().startsWith("/schedules/")) {
