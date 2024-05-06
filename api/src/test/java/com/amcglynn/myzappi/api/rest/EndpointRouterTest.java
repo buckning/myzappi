@@ -92,7 +92,7 @@ class EndpointRouterTest {
 
     @Test
     void getScheduleGetsRoutedToScheduleController() {
-        var request = new Request(RequestMethod.GET, "/schedule", null, Map.of("Authorization", "Bearer 1234"), Map.of());
+        var request = new Request(RequestMethod.GET, "/schedules", null, Map.of("Authorization", "Bearer 1234"), Map.of());
         request.setUserId("regularUser");
         var response = router.route(request);
         assertThat(response.getStatus()).isEqualTo(200);

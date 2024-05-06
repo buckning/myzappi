@@ -18,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Slf4j
 public class EndpointRouter {
@@ -72,8 +73,8 @@ public class EndpointRouter {
         handlers.put("/v2/hub", hubController);
         handlers.put("/hub/refresh", hubController);
         handlers.put("/tariff", tariffController);
-        handlers.put("/schedule", scheduleController);
         handlers.put("/schedules", scheduleController);
+        handlers.put("/schedules/{scheduleId}", scheduleController);
         handlers.put("/devices", devicesController);
         handlers.put("/energy-cost", energyCostController);
 
@@ -93,22 +94,51 @@ public class EndpointRouter {
 
         try {
             log.info("Processing request {} {}", request.getMethod(), request.getPath());
-            var controller = handlers.get(request.getPath());
+            var controller = getController(request.getPath());
 
-            if (controller == null && request.getPath().startsWith("/schedules/")) {
-                controller = handlers.get("/schedules");
-            }
-            if (controller == null) {
+            if (controller.isEmpty()) {
                 log.info("Controller not found for {}", request.getPath());
                 return new Response(404);
             }
             log.info("Found controller {}", controller.getClass());
-            var response = controller.handle(request);
+            var response = controller.get().handle(request);
             updateSessionCookie(request, session.get(), response);
             return response;
         } catch (ServerException e) {
             return new Response(e.getStatus());
         }
+    }
+
+    private Optional<RestController> getController(String path) {
+        for (String pattern : handlers.keySet()) {
+            if (matches(path, pattern)) {
+                return Optional.of(handlers.get(pattern));
+            }
+        }
+        return Optional.empty();
+    }
+
+    private boolean matches(String url, String pattern) {
+        // Basic pattern matching logic to handle URLs with path variables
+        if (pattern.equals(url)) {
+            return true;
+        }
+
+        // Handle path variables by comparing segments
+        String[] urlSegments = url.split("/");
+        String[] patternSegments = pattern.split("/");
+
+        if (urlSegments.length != patternSegments.length) {
+            return false;
+        }
+
+        for (int i = 0; i < urlSegments.length; i++) {
+            if (!patternSegments[i].equals(urlSegments[i]) && !patternSegments[i].startsWith("{")) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private void updateSessionCookie(Request request, Session session, Response response) {
