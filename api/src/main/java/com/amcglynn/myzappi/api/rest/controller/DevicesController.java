@@ -1,14 +1,18 @@
 package com.amcglynn.myzappi.api.rest.controller;
 
+import com.amcglynn.myzappi.api.CompleteLoginRequest;
 import com.amcglynn.myzappi.api.rest.Request;
 import com.amcglynn.myzappi.api.rest.RequestMethod;
 import com.amcglynn.myzappi.api.rest.Response;
 import com.amcglynn.myzappi.api.rest.ServerException;
+import com.amcglynn.myzappi.api.rest.response.DeviceDiscoveryResponse;
 import com.amcglynn.myzappi.api.rest.response.DeviceResponse;
 import com.amcglynn.myzappi.api.rest.response.ListDeviceResponse;
 import com.amcglynn.myzappi.api.service.RegistrationService;
 import com.amcglynn.myzappi.core.model.SerialNumber;
 import com.amcglynn.myzappi.core.model.UserId;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -83,5 +87,26 @@ public class DevicesController implements RestController {
     public Response deleteDevices(Request request) {
         registrationService.delete(request.getUserId());
         return new Response(204);
+    }
+
+    public Response discoverDevices(Request request) {
+        if (request.getBody() == null) {
+            log.info("Null body in POST request");
+            throw new ServerException(400);
+        }
+        try {
+            var body = new ObjectMapper().readValue(request.getBody(), new TypeReference<CompleteLoginRequest>() {
+            });
+            var serialNumber = SerialNumber.from(body.getSerialNumber().replaceAll("\\s", "").toLowerCase());
+            var apiKey = body.getApiKey().trim();
+            registrationService.register(request.getUserId(), serialNumber, apiKey);
+            return new Response(202, new ObjectMapper()
+                    .writeValueAsString(DeviceDiscoveryResponse.builder()
+                            .serialNumber(serialNumber)
+                            .build()));
+        } catch (JsonProcessingException e) {
+            log.info("Invalid request");
+            throw new ServerException(400);
+        }
     }
 }

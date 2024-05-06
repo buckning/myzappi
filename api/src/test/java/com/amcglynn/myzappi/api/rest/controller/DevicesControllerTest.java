@@ -36,6 +36,33 @@ class DevicesControllerTest {
     }
 
     @Test
+    void discoverDevices() {
+        var body = """
+                {"serialNumber":"12345678","apiKey":"myApiKey"}
+                """;
+        var response = controller.discoverDevices(new Request(RequestMethod.POST, "/devices/discover", body));
+        assertThat(response.getStatus()).isEqualTo(202);
+        assertThat(response.getBody()).isEqualTo(Optional.of("{\"serialNumber\":\"12345678\"}"));
+    }
+
+    @Test
+    void discoverDevicesReturns400WhenBodyIsNull() {
+        var exception = catchThrowableOfType(() -> controller.discoverDevices(
+                new Request(RequestMethod.POST, "/devices/discover", null)), ServerException.class);
+        assertThat(exception.getStatus()).isEqualTo(400);
+    }
+
+    @Test
+    void discoverDevicesReturns400WhenBodyIsMalformed() {
+        var body = """
+                {"serialNumber":
+                """;
+        var exception = catchThrowableOfType(() -> controller.discoverDevices(
+                new Request(RequestMethod.POST, "/devices/discover", body)), ServerException.class);
+        assertThat(exception.getStatus()).isEqualTo(400);
+    }
+
+    @Test
     void testListDevices() {
         when(mockRegistrationService.readDevices(UserId.from("userId")))
                 .thenReturn(List.of(new ZappiDevice(SerialNumber.from("serial")),
