@@ -32,14 +32,14 @@ public class LogoutController implements RestController {
     @Override
     public Response handle(Request request) {
         if (request.getMethod() == RequestMethod.GET) {
-            return get(request);
+            return logout(request);
         }
         log.info("Unsupported method for logout - {}", request.getMethod());
         throw new ServerException(404);
     }
 
     @SneakyThrows
-    private Response get(Request request) {
+    public Response logout(Request request) {
         var headers = new HashMap<String, String>();
         var sessionIdFromCookie = authenticationService.getSessionIdFromCookie(request.getHeaders());
         if (sessionIdFromCookie.isPresent()) {

@@ -37,7 +37,7 @@ public class ScheduleController implements RestController {
     @Override
     public Response handle(Request request) {
         if (request.getMethod() == RequestMethod.POST) {
-            return new Response(200, postSchedule(request));
+            return createSchedule(request);
         }
         if (request.getMethod() == RequestMethod.GET) {
             return getSchedules(request);
@@ -51,19 +51,20 @@ public class ScheduleController implements RestController {
         throw new ServerException(404);
     }
 
-    private void deleteSchedule(Request request) {
+    public Response deleteSchedule(Request request) {
         var resourceId = request.getPath().split("/schedules/")[1];
         service.deleteSchedule(request.getUserId(), resourceId);
+        return new Response(204);
     }
 
-    private String postSchedule(Request request) {
+    public Response createSchedule(Request request) {
         try {
             var schedulerRequest = objectMapper.readValue(request.getBody(), new TypeReference<Schedule>() {
             });
             log.info("Got scheduler request {}", schedulerRequest);
             validator.validate(schedulerRequest);
             var newSchedule = service.createSchedule(request.getUserId(), schedulerRequest);
-            return objectMapper.writeValueAsString(newSchedule);
+            return new Response(200, objectMapper.writeValueAsString(newSchedule));
         } catch (MissingDeviceException e) {
             log.info("User {} requested eddi schedule but does not have an eddi", request.getUserId());
             throw new ServerException(409);
@@ -74,7 +75,7 @@ public class ScheduleController implements RestController {
     }
 
     @SneakyThrows
-    private Response getSchedules(Request request) {
+    public Response getSchedules(Request request) {
         var schedules = service.listSchedules(UserId.from(request.getUserId().toString()));
         var body = objectMapper.writeValueAsString(new ScheduleResponse(schedules));
         return new Response(200, body);

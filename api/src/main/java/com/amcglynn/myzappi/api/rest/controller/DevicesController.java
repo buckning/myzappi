@@ -29,7 +29,7 @@ public class DevicesController implements RestController {
         if (request.getMethod() == RequestMethod.GET) {
             return handleGetRequest(request);
         } else if (request.getMethod() == RequestMethod.DELETE){
-            return deleteDevice(request);
+            return deleteDevices(request);
         }
         log.info("Unsupported method for devices - {}", request.getMethod());
         throw new ServerException(404);
@@ -42,6 +42,11 @@ public class DevicesController implements RestController {
             var deviceId = request.getPath().split("/devices/")[1];
             return getDevice(request.getUserId(), SerialNumber.from(deviceId));
         }
+    }
+
+    public Response getDevice(Request request) {
+        var deviceId = request.getPath().split("/devices/")[1];
+        return getDevice(request.getUserId(), SerialNumber.from(deviceId));
     }
 
     private Response getDevice(UserId userId, SerialNumber serialNumber) {
@@ -59,7 +64,7 @@ public class DevicesController implements RestController {
     }
 
     @SneakyThrows
-    private Response listDevices(Request request) {
+    public Response listDevices(Request request) {
         var typeFilter = request.getQueryStringParameters().get("type");
 
         var devices = registrationService.readDevices(request.getUserId())
@@ -75,7 +80,7 @@ public class DevicesController implements RestController {
     }
 
     @SneakyThrows
-    private Response deleteDevice(Request request) {
+    public Response deleteDevices(Request request) {
         registrationService.delete(request.getUserId());
         return new Response(204);
     }

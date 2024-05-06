@@ -19,11 +19,12 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 
 @Slf4j
 public class EndpointRouter {
 
-    private final Map<String, RestController> handlers;
+    private final Map<String, Function<Request, Response>> handlers;
     private final AuthenticationService authenticationService;
     private final Properties properties;
 
@@ -68,16 +69,20 @@ public class EndpointRouter {
                           Properties properties) {
 
         handlers = new HashMap<>();
-        handlers.put("/hub", hubController);
-        handlers.put("/logout", logoutController);
-        handlers.put("/v2/hub", hubController);
-        handlers.put("/hub/refresh", hubController);
-        handlers.put("/tariff", tariffController);
-        handlers.put("/schedules", scheduleController);
-        handlers.put("/schedules/{scheduleId}", scheduleController);
-        handlers.put("/devices", devicesController);
-        handlers.put("/devices/{deviceId}", devicesController);
-        handlers.put("/energy-cost", energyCostController);
+        handlers.put("POST /hub", hubController::register);
+        handlers.put("DELETE /hub", hubController::delete);
+        handlers.put("GET /logout", logoutController::logout);
+        handlers.put("GET /v2/hub", hubController::get);
+        handlers.put("POST /hub/refresh", hubController::refresh);
+        handlers.put("GET /tariff", tariffController::getTariffs);
+        handlers.put("POST /tariff", tariffController::saveTariffs);
+        handlers.put("POST /schedules", scheduleController::createSchedule);
+        handlers.put("GET /schedules", scheduleController::getSchedules);
+        handlers.put("DELETE /schedules/{scheduleId}", scheduleController::deleteSchedule);
+        handlers.put("GET /devices", devicesController::listDevices);
+        handlers.put("DELETE /devices", devicesController::deleteDevices);
+        handlers.put("GET /devices/{deviceId}", devicesController::getDevice);
+        handlers.put("GET /energy-cost", energyCostController::getEnergyCost);
 
         this.authenticationService = authenticationService;
         this.properties = properties;
@@ -95,14 +100,14 @@ public class EndpointRouter {
 
         try {
             log.info("Processing request {} {}", request.getMethod(), request.getPath());
-            var controller = getController(request.getPath());
+            var handler = getEndpointHandler(request.getMethod().toString() + " " + request.getPath());
 
-            if (controller.isEmpty()) {
-                log.info("Controller not found for {}", request.getPath());
+            if (handler.isEmpty()) {
+                log.info("Handler not found for {} {}", request.getMethod(), request.getPath());
                 return new Response(404);
             }
-            log.info("Found controller {}", controller.getClass());
-            var response = controller.get().handle(request);
+            log.info("Found handler for {} {}", request.getMethod(), request.getPath());
+            var response = handler.get().apply(request);
             updateSessionCookie(request, session.get(), response);
             return response;
         } catch (ServerException e) {
@@ -110,7 +115,7 @@ public class EndpointRouter {
         }
     }
 
-    private Optional<RestController> getController(String path) {
+    private Optional<Function<Request, Response>> getEndpointHandler(String path) {
         for (String pattern : handlers.keySet()) {
             if (matches(path, pattern)) {
                 return Optional.of(handlers.get(pattern));

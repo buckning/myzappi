@@ -40,7 +40,7 @@ public class TariffController implements RestController {
         throw new ServerException(404);
     }
 
-    private Response saveTariffs(Request request) {
+    public Response saveTariffs(Request request) {
         try {
             var tariffRequest = new ObjectMapper().readValue(request.getBody(), new TypeReference<TariffRequest>() {
             });
@@ -54,7 +54,7 @@ public class TariffController implements RestController {
     }
 
     @SneakyThrows
-    private Response getTariffs(Request request) {
+    public Response getTariffs(Request request) {
         var tariffs = tariffService.get(request.getUserId().toString());
 
         if (tariffs.isEmpty()) {
