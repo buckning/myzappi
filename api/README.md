@@ -56,6 +56,45 @@ Response 200
     ]
 }
 ```
+
+```
+GET /devices/{serialNumber}/status
+
+Response 200
+{
+    "serialNumber": "12345678",
+    "type": "zappi",
+    "mode": "eco",
+    "firmware": "1.2.3",
+    
+    "energy": {
+        "solarGeneration": "20",
+        "consumpting": "10",
+        "importing": "5",
+        "exporting": "2"
+    },
+    // zappi fields
+    "chargeAddedKwh": "10",
+    "lockStatus": "locked",
+    "connectionStatus": "connected",
+    "chargingStatus": "charging",
+    "chargeRate": "5",
+    
+    // eddi fields
+    
+    
+    
+    
+    
+    
+     
+    "boost": {
+        "status": "enabled",
+        "kWh": "5",
+        "duration": "10"
+    }
+}
+```
                 
 ### Commands
 ```
