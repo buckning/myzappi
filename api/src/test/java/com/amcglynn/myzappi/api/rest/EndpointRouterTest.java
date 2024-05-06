@@ -109,6 +109,15 @@ class EndpointRouterTest {
     }
 
     @Test
+    void getDeviceGetsRoutedToDevicesController() {
+        var request = new Request(RequestMethod.GET, "/devices/12345678", null, Map.of("Authorization", "Bearer 1234"), Map.of());
+        request.setUserId("regularUser");
+        var response = router.route(request);
+        assertThat(response.getStatus()).isEqualTo(200);
+        verify(mockDevicesController).handle(request);
+    }
+
+    @Test
     void getSpecificScheduleGetsRoutedToScheduleController() {
         var request = new Request(RequestMethod.GET, "/schedules/1234", null, Map.of("Authorization", "Bearer 1234"), Map.of());
         request.setUserId("regularUser");

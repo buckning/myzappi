@@ -7,6 +7,8 @@ import com.amcglynn.myzappi.api.rest.ServerException;
 import com.amcglynn.myzappi.api.rest.response.DeviceResponse;
 import com.amcglynn.myzappi.api.rest.response.ListDeviceResponse;
 import com.amcglynn.myzappi.api.service.RegistrationService;
+import com.amcglynn.myzappi.core.model.SerialNumber;
+import com.amcglynn.myzappi.core.model.UserId;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -25,12 +27,35 @@ public class DevicesController implements RestController {
     @Override
     public Response handle(Request request) {
         if (request.getMethod() == RequestMethod.GET) {
-            return listDevices(request);
+            return handleGetRequest(request);
         } else if (request.getMethod() == RequestMethod.DELETE){
             return deleteDevice(request);
         }
         log.info("Unsupported method for devices - {}", request.getMethod());
         throw new ServerException(404);
+    }
+
+    private Response handleGetRequest(Request request) {
+        if ("/devices".equals(request.getPath())) {
+            return listDevices(request);
+        } else {
+            var deviceId = request.getPath().split("/devices/")[1];
+            return getDevice(request.getUserId(), SerialNumber.from(deviceId));
+        }
+    }
+
+    private Response getDevice(UserId userId, SerialNumber serialNumber) {
+        return registrationService.getDevice(userId, serialNumber)
+                .map(DeviceResponse::new)
+                .map(deviceResponse -> {
+                    try {
+                        return new Response(200, new ObjectMapper().writeValueAsString(deviceResponse));
+                    } catch (Exception e) {
+                        log.info("Failed to serialize device response for user {}, serialNumber {}", userId, serialNumber, e);
+                        throw new ServerException(500);
+                    }
+                })
+                .orElseThrow(() -> new ServerException(404));
     }
 
     @SneakyThrows

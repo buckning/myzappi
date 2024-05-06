@@ -89,6 +89,27 @@ class RegistrationServiceTest {
     }
 
     @Test
+    void getDevice() {
+        var zappiDevice = new ZappiDevice(zappiSerialNumber);
+        var devices = List.of(
+                zappiDevice,
+                new EddiDevice(eddiSerialNumber, "tank1", "tank2"));
+        when(mockDevicesRepository.read(userId)).thenReturn(devices);
+        var response = service.getDevice(userId, zappiSerialNumber);
+        assertThat(response).isPresent().contains(zappiDevice);
+    }
+
+    @Test
+    void getDeviceReturnsEmptyOptionalWhenNotFound() {
+        var devices = List.of(
+                new ZappiDevice(zappiSerialNumber),
+                new EddiDevice(eddiSerialNumber, "tank1", "tank2"));
+        when(mockDevicesRepository.read(userId)).thenReturn(devices);
+        var response = service.getDevice(userId, SerialNumber.from("12344624"));
+        assertThat(response).isEmpty();
+    }
+
+    @Test
     void registerWithZappiAndEddi() {
         var eddiDeviceCaptor = ArgumentCaptor.forClass(EddiDevice.class);
         when(mockEddiDeviceStatus.getTank1Name()).thenReturn("tank1");

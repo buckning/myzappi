@@ -2,6 +2,7 @@ package com.amcglynn.myzappi.api.rest.controller;
 
 import com.amcglynn.myzappi.api.rest.Request;
 import com.amcglynn.myzappi.api.rest.RequestMethod;
+import com.amcglynn.myzappi.api.rest.ServerException;
 import com.amcglynn.myzappi.api.service.RegistrationService;
 import com.amcglynn.myzappi.core.model.EddiDevice;
 import com.amcglynn.myzappi.core.model.SerialNumber;
@@ -18,6 +19,8 @@ import java.util.Map;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.assertj.core.api.Assertions.catchThrowableOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -45,6 +48,27 @@ class DevicesControllerTest {
                         {"serialNumber":"serial","type":"zappi"},\
                         {"serialNumber":"eddiSerialNumber","type":"eddi"}]\
                         }"""));
+    }
+
+    @Test
+    void testGetDevices() {
+        when(mockRegistrationService.getDevice(UserId.from("userId"), SerialNumber.from("12345678")))
+                .thenReturn(Optional.of(new ZappiDevice(SerialNumber.from("serial"))));
+        var response = controller.handle(new Request(UserId.from("userId"), RequestMethod.GET, "/devices/12345678", null));
+        assertThat(response.getStatus()).isEqualTo(200);
+        assertThat(response.getBody()).isPresent()
+                .isEqualTo(Optional.of("""
+                        {"serialNumber":"serial","type":"zappi"}\
+                        """));
+    }
+
+    @Test
+    void testGetDevicesReturns404WhenDeviceNotFound() {
+        when(mockRegistrationService.getDevice(UserId.from("userId"), SerialNumber.from("12345678")))
+                .thenReturn(Optional.empty());
+        var exception = catchThrowableOfType(() -> controller.handle(new Request(UserId.from("userId"),
+                RequestMethod.GET, "/devices/12345678", null)), ServerException.class);
+        assertThat(exception.getStatus()).isEqualTo(404);
     }
 
     @Test

@@ -76,6 +76,7 @@ public class EndpointRouter {
         handlers.put("/schedules", scheduleController);
         handlers.put("/schedules/{scheduleId}", scheduleController);
         handlers.put("/devices", devicesController);
+        handlers.put("/devices/{deviceId}", devicesController);
         handlers.put("/energy-cost", energyCostController);
 
         this.authenticationService = authenticationService;
