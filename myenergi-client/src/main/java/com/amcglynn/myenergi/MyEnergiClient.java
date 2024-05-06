@@ -92,6 +92,10 @@ public class MyEnergiClient {
     }
 
     public ZappiStatusResponse getZappiStatus() {
+        return getZappiStatus(zappiSerialNumber);
+    }
+
+    public ZappiStatusResponse getZappiStatus(String zappiSerialNumber) {
         var response = getRequest("/cgi-jstatus-Z" + zappiSerialNumber);
         try {
             return new ObjectMapper().readValue(response, new TypeReference<>(){});

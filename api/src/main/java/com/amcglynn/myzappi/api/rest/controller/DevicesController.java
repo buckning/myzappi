@@ -1,5 +1,6 @@
 package com.amcglynn.myzappi.api.rest.controller;
 
+import com.amcglynn.myenergi.MyEnergiClientFactory;
 import com.amcglynn.myzappi.api.CompleteLoginRequest;
 import com.amcglynn.myzappi.api.rest.Request;
 import com.amcglynn.myzappi.api.rest.RequestMethod;
@@ -9,8 +10,10 @@ import com.amcglynn.myzappi.api.rest.response.DeviceDiscoveryResponse;
 import com.amcglynn.myzappi.api.rest.response.DeviceResponse;
 import com.amcglynn.myzappi.api.rest.response.ListDeviceResponse;
 import com.amcglynn.myzappi.api.service.RegistrationService;
+import com.amcglynn.myzappi.core.model.DeviceClass;
 import com.amcglynn.myzappi.core.model.SerialNumber;
 import com.amcglynn.myzappi.core.model.UserId;
+import com.amcglynn.myzappi.core.service.MyEnergiService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -23,9 +26,12 @@ import java.util.stream.Collectors;
 public class DevicesController implements RestController {
 
     private final RegistrationService registrationService;
+    private final MyEnergiService.Builder myEnergiServiceBuilder;
 
-    public DevicesController(RegistrationService registrationService) {
+    public DevicesController(RegistrationService registrationService,
+                             MyEnergiService.Builder myEnergiServiceBuilder) {
         this.registrationService = registrationService;
+        this.myEnergiServiceBuilder = myEnergiServiceBuilder;
     }
 
     @Override
@@ -108,5 +114,20 @@ public class DevicesController implements RestController {
             log.info("Invalid request");
             throw new ServerException(400);
         }
+    }
+
+    public Response getDeviceStatus(Request request) {
+        // split deviceId from url path /devices/{deviceId}/status
+        var deviceId = request.getPath().split("/devices/")[1].split("/status")[0];
+        var serialNumber = SerialNumber.from(deviceId);
+        var device = registrationService.getDevice(request.getUserId(), serialNumber)
+                .orElseThrow(() -> new ServerException(404));
+        var service = myEnergiServiceBuilder.build(() -> request.getUserId().toString());
+        if (DeviceClass.ZAPPI == device.getDeviceClass()) {
+            return new Response(200, service.getZappiService().get().getStatusSummary(serialNumber).toString());
+        } else {
+            throw new ServerException(404);
+        }
+//        return myEnergiServiceBuilder.build().getZappiService()request.getUserId(), SerialNumber.from(deviceId));
     }
 }

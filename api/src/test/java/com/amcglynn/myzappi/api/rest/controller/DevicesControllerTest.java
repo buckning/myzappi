@@ -8,6 +8,7 @@ import com.amcglynn.myzappi.core.model.EddiDevice;
 import com.amcglynn.myzappi.core.model.SerialNumber;
 import com.amcglynn.myzappi.core.model.UserId;
 import com.amcglynn.myzappi.core.model.ZappiDevice;
+import com.amcglynn.myzappi.core.service.MyEnergiService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,20 +20,20 @@ import java.util.Map;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.assertj.core.api.Assertions.catchThrowableOfType;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class DevicesControllerTest {
     @Mock
     private RegistrationService mockRegistrationService;
+    @Mock
+    private MyEnergiService.Builder mockMyEnergiServiceBuilder;
     private DevicesController controller;
 
     @BeforeEach
     void setUp() {
-        controller = new DevicesController(mockRegistrationService);
+        controller = new DevicesController(mockRegistrationService, mockMyEnergiServiceBuilder);
     }
 
     @Test

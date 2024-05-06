@@ -6,6 +6,7 @@ import com.amcglynn.myenergi.ZappiDaySummary;
 import com.amcglynn.myenergi.ZappiStatusSummary;
 import com.amcglynn.myenergi.apiresponse.ZappiHistory;
 import com.amcglynn.myenergi.units.KiloWattHour;
+import com.amcglynn.myzappi.core.model.SerialNumber;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.Duration;
@@ -34,6 +35,11 @@ public class ZappiService {
     public List<ZappiStatusSummary> getStatusSummary() {
         return client.getZappiStatus().getZappi()
                 .stream().map(ZappiStatusSummary::new).collect(Collectors.toList());
+    }
+
+    public ZappiStatusSummary getStatusSummary(SerialNumber serialNumber) {
+        return client.getZappiStatus(serialNumber.toString()).getZappi()
+                .stream().map(ZappiStatusSummary::new).findAny().get();
     }
 
     public void setChargeMode(ZappiChargeMode chargeMode) {

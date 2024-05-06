@@ -31,7 +31,7 @@ public class EndpointRouter {
     public EndpointRouter(ServiceManager serviceManager) {
         this(serviceManager, new HubController(
                         new RegistrationService(serviceManager.getLoginService(), serviceManager.getDevicesRepository(), new MyEnergiClientFactory())),
-                new DevicesController(new RegistrationService(serviceManager.getLoginService(), serviceManager.getDevicesRepository(), new MyEnergiClientFactory())),
+                new DevicesController(new RegistrationService(serviceManager.getLoginService(), serviceManager.getDevicesRepository(), new MyEnergiClientFactory()), serviceManager.getMyEnergiServiceBuilder()),
                 new TariffController(serviceManager.getTariffService()),
                 new LwaClientFactory());
     }
@@ -83,6 +83,7 @@ public class EndpointRouter {
         handlers.put("GET /devices", devicesController::listDevices);
         handlers.put("DELETE /devices", devicesController::deleteDevices);
         handlers.put("GET /devices/{deviceId}", devicesController::getDevice);
+        handlers.put("GET /devices/{deviceId}/status", devicesController::getDeviceStatus);
         handlers.put("GET /energy-cost", energyCostController::getEnergyCost);
 
         this.authenticationService = authenticationService;
