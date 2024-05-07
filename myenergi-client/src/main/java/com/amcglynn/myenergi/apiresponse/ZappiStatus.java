@@ -22,6 +22,8 @@ public class ZappiStatus {
     @JsonProperty("sta")
     private int chargeStatus;
 
+    @JsonProperty("fwv")
+    private String firmwareVersion;
     @JsonProperty("pst")        // plug status
     private String evConnectionStatus;
 
@@ -36,9 +38,10 @@ public class ZappiStatus {
         this.evConnectionStatus = evConnectionStatus;
     }
 
-    public ZappiStatus(String serialNumber, Long solarGeneration, Long carDiversionAmountWatts, Double chargeAddedThisSessionKwh, Long gridWatts, int zappiChargeMode, int chargeStatus, String evConnectionStatus, int lockStatus) {
+    public ZappiStatus(String serialNumber, Long solarGeneration, Long carDiversionAmountWatts, Double chargeAddedThisSessionKwh, Long gridWatts, int zappiChargeMode, int chargeStatus, String evConnectionStatus, int lockStatus, String firmwareVersion) {
         this(serialNumber, solarGeneration, carDiversionAmountWatts, chargeAddedThisSessionKwh, gridWatts, zappiChargeMode, chargeStatus, evConnectionStatus);
         this.lockStatus = lockStatus;
+        this.firmwareVersion = firmwareVersion;
     }
 
     public ZappiStatus() {
@@ -82,6 +85,10 @@ public class ZappiStatus {
 
     public String getEvConnectionStatus() {
         return this.evConnectionStatus;
+    }
+
+    public String getFirmwareVersion() {
+        return this.firmwareVersion;
     }
 
     @JsonProperty("sno")

@@ -9,6 +9,7 @@ import com.amcglynn.myzappi.api.rest.ServerException;
 import com.amcglynn.myzappi.api.rest.response.DeviceDiscoveryResponse;
 import com.amcglynn.myzappi.api.rest.response.DeviceResponse;
 import com.amcglynn.myzappi.api.rest.response.ListDeviceResponse;
+import com.amcglynn.myzappi.api.rest.response.MyEnergiDeviceStatusResponse;
 import com.amcglynn.myzappi.api.service.RegistrationService;
 import com.amcglynn.myzappi.core.model.DeviceClass;
 import com.amcglynn.myzappi.core.model.SerialNumber;
@@ -116,15 +117,20 @@ public class DevicesController implements RestController {
         }
     }
 
+    @SneakyThrows
     public Response getDeviceStatus(Request request) {
-        // split deviceId from url path /devices/{deviceId}/status
         var deviceId = request.getPath().split("/devices/")[1].split("/status")[0];
         var serialNumber = SerialNumber.from(deviceId);
         var device = registrationService.getDevice(request.getUserId(), serialNumber)
                 .orElseThrow(() -> new ServerException(404));
         var service = myEnergiServiceBuilder.build(() -> request.getUserId().toString());
         if (DeviceClass.ZAPPI == device.getDeviceClass()) {
-            return new Response(200, service.getZappiService().get().getStatusSummary(serialNumber).toString());
+            ObjectMapper mapper = new ObjectMapper();
+
+            return new Response(200, mapper
+                    .writeValueAsString(new MyEnergiDeviceStatusResponse(service.getZappiService()
+                    .get()  // safe to call get() as we have already checked the zappi device is owned by the user
+                    .getStatusSummary(serialNumber))));
         } else {
             throw new ServerException(404);
         }

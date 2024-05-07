@@ -88,7 +88,7 @@ class MessageReceivedHandlerTest {
         when(mockZappiService.getStatusSummary()).thenReturn(List.of(new ZappiStatusSummary(
                 new ZappiStatus("12345678", 0L, 0L,
                         25.0, 0L, ZappiChargeMode.ECO_PLUS.getApiValue(),
-                        ChargeStatus.PAUSED.ordinal(), EvConnectionStatus.EV_DISCONNECTED.getCode(), LockStatus.LOCKED.getCode()))));
+                        ChargeStatus.PAUSED.ordinal(), EvConnectionStatus.EV_DISCONNECTED.getCode(), LockStatus.LOCKED.getCode(), "v1.2.3"))));
         handler.handle(handlerInputBuilder().build());
         verify(mockReminderService, never()).handleReminderMessage(anyString(), anyString(), anyString(), any());
     }
@@ -98,7 +98,7 @@ class MessageReceivedHandlerTest {
         when(mockZappiService.getStatusSummary()).thenReturn(List.of(new ZappiStatusSummary(
                 new ZappiStatus("12345678", 0L, 0L,
                         25.0, 0L, ZappiChargeMode.ECO_PLUS.getApiValue(),
-                        ChargeStatus.PAUSED.ordinal(), EvConnectionStatus.EV_DISCONNECTED.getCode(), LockStatus.LOCKED.getCode()))));
+                        ChargeStatus.PAUSED.ordinal(), EvConnectionStatus.EV_DISCONNECTED.getCode(), LockStatus.LOCKED.getCode(), "v1.2.3"))));
         handler.handle(handlerInputBuilder().build());
         verify(mockReminderService).handleReminderMessage(eq("mockConsentToken"), eq("mockAlexaUserId"), eq("Europe/Dublin"), any());
     }

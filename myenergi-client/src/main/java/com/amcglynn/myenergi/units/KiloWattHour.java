@@ -1,5 +1,6 @@
 package com.amcglynn.myenergi.units;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode
@@ -31,6 +32,7 @@ public class KiloWattHour {
         return value;
     }
 
+    @JsonValue
     @Override
     public String toString() {
         return String.format("%.1f", value);

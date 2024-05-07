@@ -1,5 +1,10 @@
 package com.amcglynn.myzappi.api.rest.controller;
 
+import com.amcglynn.myenergi.ChargeStatus;
+import com.amcglynn.myenergi.EvConnectionStatus;
+import com.amcglynn.myenergi.ZappiChargeMode;
+import com.amcglynn.myenergi.ZappiStatusSummary;
+import com.amcglynn.myenergi.apiresponse.ZappiStatus;
 import com.amcglynn.myzappi.api.rest.Request;
 import com.amcglynn.myzappi.api.rest.RequestMethod;
 import com.amcglynn.myzappi.api.rest.ServerException;
@@ -9,6 +14,7 @@ import com.amcglynn.myzappi.core.model.SerialNumber;
 import com.amcglynn.myzappi.core.model.UserId;
 import com.amcglynn.myzappi.core.model.ZappiDevice;
 import com.amcglynn.myzappi.core.service.MyEnergiService;
+import com.amcglynn.myzappi.core.service.ZappiService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,6 +27,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowableOfType;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -29,6 +36,10 @@ class DevicesControllerTest {
     private RegistrationService mockRegistrationService;
     @Mock
     private MyEnergiService.Builder mockMyEnergiServiceBuilder;
+    @Mock
+    private MyEnergiService mockMyEnergiService;
+    @Mock
+    private ZappiService mockZappiService;
     private DevicesController controller;
 
     @BeforeEach
@@ -131,5 +142,26 @@ class DevicesControllerTest {
     void testDeleteDevice() {
         var response = controller.handle(new Request(RequestMethod.DELETE, "/devices", "userId"));
         assertThat(response.getStatus()).isEqualTo(204);
+    }
+
+    @Test
+    void testGetZappiStatus() {
+        when(mockRegistrationService.getDevice(UserId.from("userId"), SerialNumber.from("12345678")))
+                .thenReturn(Optional.of(new ZappiDevice(SerialNumber.from("12345678"))));
+        when(mockMyEnergiServiceBuilder.build(any()))
+                .thenReturn(mockMyEnergiService);
+        when(mockMyEnergiService.getZappiService()).thenReturn(Optional.of(mockZappiService));
+        when(mockZappiService.getStatusSummary(SerialNumber.from("12345678"))).thenReturn(new ZappiStatusSummary(
+                new ZappiStatus("12345678", 1500L, 1400L,
+                        24.3, 1000L, ZappiChargeMode.ECO_PLUS.getApiValue(),
+                        ChargeStatus.DIVERTING.ordinal(), EvConnectionStatus.CHARGING.getCode(), 0, "v1.2.3")));
+        var response = controller.getDeviceStatus(new Request(UserId.from("userId"), RequestMethod.GET, "/devices/12345678/status", null));
+        assertThat(response.getStatus()).isEqualTo(200);
+        assertThat(response.getBody()).isEqualTo(Optional.of("""
+                {"serialNumber":"12345678","type":"zappi","firmware":"v1.2.3",\
+                "energy":{"solarGenerationKW":"1.5","consumingKW":"2.5","importingKW":"1.0","exportingKW":"0.0"},\
+                "mode":"Eco+","chargeAddedKwh":"24.3","connectionStatus":"CHARGING","chargeStatus":"DIVERTING",\
+                "chargeRateKw":"1.4"}\
+                """));
     }
 }
