@@ -154,14 +154,14 @@ class DevicesControllerTest {
         when(mockZappiService.getStatusSummary(SerialNumber.from("12345678"))).thenReturn(new ZappiStatusSummary(
                 new ZappiStatus("12345678", 1500L, 1400L,
                         24.3, 1000L, ZappiChargeMode.ECO_PLUS.getApiValue(),
-                        ChargeStatus.DIVERTING.ordinal(), EvConnectionStatus.CHARGING.getCode(), 0, "v1.2.3")));
+                        ChargeStatus.DIVERTING.ordinal(), EvConnectionStatus.CHARGING.getCode(), 23, "v1.2.3")));
         var response = controller.getDeviceStatus(new Request(UserId.from("userId"), RequestMethod.GET, "/devices/12345678/status", null));
         assertThat(response.getStatus()).isEqualTo(200);
         assertThat(response.getBody()).isEqualTo(Optional.of("""
                 {"serialNumber":"12345678","type":"zappi","firmware":"v1.2.3",\
                 "energy":{"solarGenerationKW":"1.5","consumingKW":"2.5","importingKW":"1.0","exportingKW":"0.0"},\
                 "mode":"Eco+","chargeAddedKwh":"24.3","connectionStatus":"CHARGING","chargeStatus":"DIVERTING",\
-                "chargeRateKw":"1.4"}\
+                "chargeRateKw":"1.4","lockStatus":"CHARGE_ALLOWED"}\
                 """));
     }
 }

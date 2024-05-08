@@ -67,6 +67,7 @@ public class MyEnergiDeviceStatusResponse {
     private EvConnectionStatus connectionStatus;
     private ChargeStatus chargeStatus;
     private KiloWatt chargeRateKw;
+    private LockStatus lockStatus;
 
     public MyEnergiDeviceStatusResponse(ZappiStatusSummary summary) {
         this.serialNumber = SerialNumber.from(summary.getSerialNumber());
@@ -78,5 +79,6 @@ public class MyEnergiDeviceStatusResponse {
         this.connectionStatus = summary.getEvConnectionStatus();
         this.chargeRateKw = new KiloWatt(summary.getEvChargeRate());
         this.chargeStatus = summary.getChargeStatus();
+        this.lockStatus = summary.getLockStatus();
     }
 }

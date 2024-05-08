@@ -123,6 +123,10 @@ public class MyEnergiClient {
         invokeCgiZappiModeApi(zappiChargeMode, ZappiBoostMode.OFF, zeroKwh, localTimeMidnight);
     }
 
+    public void setZappiChargeMode(String serialNumber, ZappiChargeMode zappiChargeMode) {
+        invokeCgiZappiModeApi(serialNumber, zappiChargeMode, ZappiBoostMode.OFF, zeroKwh, localTimeMidnight);
+    }
+
     public void boost(KiloWattHour kiloWattHour) {
         invokeCgiZappiModeApi(ZappiChargeMode.BOOST, ZappiBoostMode.BOOST, kiloWattHour, localTimeMidnight);
     }
@@ -174,12 +178,17 @@ public class MyEnergiClient {
 
     private void invokeCgiZappiModeApi(ZappiChargeMode zappiChargeMode, ZappiBoostMode zappiBoostMode,
                                        KiloWattHour kiloWattHour, LocalTime endTime) {
+        invokeCgiZappiModeApi(zappiSerialNumber, zappiChargeMode, zappiBoostMode, kiloWattHour, endTime);
+    }
+
+    private void invokeCgiZappiModeApi(String serialNumber, ZappiChargeMode zappiChargeMode, ZappiBoostMode zappiBoostMode,
+                                       KiloWattHour kiloWattHour, LocalTime endTime) {
         var kwh = validateAndClamp(kiloWattHour);
 
         var formatter = DateTimeFormatter.ofPattern("HHmm");
         String formattedTime = endTime.format(formatter);
 
-        var url = "/cgi-zappi-mode-Z" + zappiSerialNumber + "-" + zappiChargeMode.getApiValue() + "-"
+        var url = "/cgi-zappi-mode-Z" + serialNumber + "-" + zappiChargeMode.getApiValue() + "-"
                 + zappiBoostMode.getBoostValue() + "-" + kwh + "-" + formattedTime;
         var responseStr = getRequest(url);
         validateResponse(responseStr);

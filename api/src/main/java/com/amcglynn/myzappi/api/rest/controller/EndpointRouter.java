@@ -84,6 +84,7 @@ public class EndpointRouter {
         handlers.put("DELETE /devices", devicesController::deleteDevices);
         handlers.put("GET /devices/{deviceId}", devicesController::getDevice);
         handlers.put("GET /devices/{deviceId}/status", devicesController::getDeviceStatus);
+        handlers.put("PUT /devices/{deviceId}/mode", devicesController::setMode);
         handlers.put("GET /energy-cost", energyCostController::getEnergyCost);
 
         this.authenticationService = authenticationService;

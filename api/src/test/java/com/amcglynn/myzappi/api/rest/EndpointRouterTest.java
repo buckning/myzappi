@@ -69,6 +69,7 @@ class EndpointRouterTest {
         when(mockDevicesController.getDevice(any())).thenReturn(mockResponse);
         when(mockDevicesController.listDevices(any())).thenReturn(mockResponse);
         when(mockDevicesController.deleteDevices(any())).thenReturn(mockResponse);
+        when(mockDevicesController.setMode(any())).thenReturn(mockResponse);
         when(mockHubController.delete(any())).thenReturn(mockResponse);
         when(mockHubController.refresh(any())).thenReturn(mockResponse);
         when(mockHubController.get(any())).thenReturn(mockResponse);
@@ -141,6 +142,15 @@ class EndpointRouterTest {
         var response = router.route(request);
         assertThat(response.getStatus()).isEqualTo(200);
         verify(mockDevicesController).getDevice(request);
+    }
+
+    @Test
+    void setModeGetsRoutedToDevicesController() {
+        var request = new Request(RequestMethod.PUT, "/devices/12345678/mode", null, Map.of("Authorization", "Bearer 1234"), Map.of());
+        request.setUserId("regularUser");
+        var response = router.route(request);
+        assertThat(response.getStatus()).isEqualTo(200);
+        verify(mockDevicesController).setMode(request);
     }
 
     @Test

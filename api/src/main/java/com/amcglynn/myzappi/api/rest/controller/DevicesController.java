@@ -1,11 +1,14 @@
 package com.amcglynn.myzappi.api.rest.controller;
 
 import com.amcglynn.myenergi.MyEnergiClientFactory;
+import com.amcglynn.myenergi.ZappiChargeMode;
 import com.amcglynn.myzappi.api.CompleteLoginRequest;
 import com.amcglynn.myzappi.api.rest.Request;
 import com.amcglynn.myzappi.api.rest.RequestMethod;
 import com.amcglynn.myzappi.api.rest.Response;
 import com.amcglynn.myzappi.api.rest.ServerException;
+import com.amcglynn.myzappi.api.rest.request.SetModeRequest;
+import com.amcglynn.myzappi.api.rest.request.ZappiChargeModeMapper;
 import com.amcglynn.myzappi.api.rest.response.DeviceDiscoveryResponse;
 import com.amcglynn.myzappi.api.rest.response.DeviceResponse;
 import com.amcglynn.myzappi.api.rest.response.ListDeviceResponse;
@@ -111,6 +114,36 @@ public class DevicesController implements RestController {
                     .writeValueAsString(DeviceDiscoveryResponse.builder()
                             .serialNumber(serialNumber)
                             .build()));
+        } catch (JsonProcessingException e) {
+            log.info("Invalid request");
+            throw new ServerException(400);
+        }
+    }
+
+    public Response setMode(Request request) {
+        if (request.getBody() == null) {
+            log.info("Null body in set mode request");
+            throw new ServerException(400);
+        }
+        try {
+            var body = new ObjectMapper().readValue(request.getBody(), new TypeReference<SetModeRequest>() {
+            });
+            var deviceId = request.getPath().split("/devices/")[1].split("/mode")[0];
+            var serialNumber = SerialNumber.from(deviceId);
+            var device = registrationService.getDevice(request.getUserId(), serialNumber)
+                    .orElseThrow(() -> new ServerException(404));
+            var service = myEnergiServiceBuilder.build(() -> request.getUserId().toString());
+            if (DeviceClass.ZAPPI == device.getDeviceClass()) {
+                var zappiMode = new ZappiChargeModeMapper().getZappiChargeMode(body.getMode().toLowerCase());
+                if (zappiMode.isEmpty()) {
+                    log.info("Invalid zappi mode requested");
+                    throw new ServerException(400);
+                }
+                service.getZappiService().get().setChargeMode(serialNumber, zappiMode.get());
+                return new Response(202);
+            } else {
+                throw new ServerException(404);
+            }
         } catch (JsonProcessingException e) {
             log.info("Invalid request");
             throw new ServerException(400);

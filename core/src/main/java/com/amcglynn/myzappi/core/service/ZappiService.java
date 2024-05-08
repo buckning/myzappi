@@ -46,6 +46,10 @@ public class ZappiService {
         client.setZappiChargeMode(chargeMode);
     }
 
+    public void setChargeMode(SerialNumber serialNumber, ZappiChargeMode chargeMode) {
+        client.setZappiChargeMode(serialNumber.toString(), chargeMode);
+    }
+
     public void startBoost(final KiloWattHour targetChargeAmount) {
         client.boost(targetChargeAmount);
     }
