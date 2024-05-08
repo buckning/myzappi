@@ -92,6 +92,9 @@ public class EndpointRouter {
     }
 
     public Response route(Request request) {
+        if (request.getMethod() == RequestMethod.OPTIONS) {
+            return new Response(200);
+        }
         var session = authenticationService.authenticate(request);
 
         if (session.isEmpty()) {

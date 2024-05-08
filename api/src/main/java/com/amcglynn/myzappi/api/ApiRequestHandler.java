@@ -6,11 +6,7 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
 import com.amcglynn.myzappi.api.rest.Request;
 import com.amcglynn.myzappi.api.rest.RequestMethod;
-import com.amcglynn.myzappi.api.rest.Response;
 import com.amcglynn.myzappi.api.rest.controller.EndpointRouter;
-import com.amcglynn.myzappi.api.service.AuthenticationService;
-import com.amcglynn.myzappi.api.service.SessionService;
-import com.amcglynn.myzappi.api.service.TokenService;
 import com.amcglynn.myzappi.core.config.Properties;
 import com.amcglynn.myzappi.core.config.ServiceManager;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +20,6 @@ public class ApiRequestHandler implements RequestHandler<APIGatewayProxyRequestE
     private final EndpointRouter endpointRouter;
 
     private final Properties properties;
-    private AuthenticationService authenticationService;
 
     ApiRequestHandler(EndpointRouter endpointRouter, Properties properties) {
         this.properties = properties;
@@ -35,8 +30,6 @@ public class ApiRequestHandler implements RequestHandler<APIGatewayProxyRequestE
         this.properties = new Properties();
         var serviceManager = new ServiceManager(properties);
         this.endpointRouter = new EndpointRouter(serviceManager);
-        this.authenticationService = new AuthenticationService(new TokenService(new LwaClientFactory()),
-                new SessionService(new SessionRepository(serviceManager.getAmazonDynamoDB())));
     }
 
     @Override
@@ -57,27 +50,14 @@ public class ApiRequestHandler implements RequestHandler<APIGatewayProxyRequestE
                 input.getHeaders(),
                 input.getQueryStringParameters());
 
-        Response response;
-        if (request.getPath().equals("/authenticate")) {
-            var session = authenticationService.authenticateLwaToken(request);
-
-            if (session.isEmpty()) {
-                log.info("User not authenticated");
-                response = new Response(401);
-            } else {
-                response = new Response(200, responseHeaders);
-                response.getHeaders().put("Set-Cookie", "sessionID=" + session.get().getSessionId() +
-                        "; Max-Age=" + Session.DEFAULT_TTL.getSeconds() + "; Path=/; Secure; SameSite=None; HttpOnly; domain=.myzappiunofficial.com");
-            }
-        } else {
-            response = endpointRouter.route(request);
-        }
+        var response = endpointRouter.route(request);
 
         responseEvent.setStatusCode(response.getStatus());
         responseHeaders.putAll(response.getHeaders());
         responseHeaders.put("Content-Type", "application/json");
-        responseHeaders.put("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS");
+        responseHeaders.put("Access-Control-Allow-Methods", "DELETE,GET,HEAD,OPTIONS,PATCH,POST,PUT");
         responseHeaders.put("Access-Control-Allow-Credentials", "true");
+
         if (input.getHeaders().containsKey("origin")) {
             var origin = input.getHeaders().get("origin");
             if ("https://www.myzappiunofficial.com".equals(origin) ||
@@ -86,7 +66,7 @@ public class ApiRequestHandler implements RequestHandler<APIGatewayProxyRequestE
                 responseHeaders.put("Access-Control-Allow-Origin", origin);
             }
         }
-        responseHeaders.put("Access-Control-Allow-Headers", "content-type");
+        responseHeaders.put("Access-Control-Allow-Headers", "Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token");
         responseEvent.setHeaders(responseHeaders);
 
         response.getBody().ifPresent(responseEvent::setBody
