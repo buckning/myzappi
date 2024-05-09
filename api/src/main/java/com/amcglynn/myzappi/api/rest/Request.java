@@ -8,13 +8,13 @@ import java.util.Map;
 
 public class Request {
     private UserId userId;  // user authenticated in this request. Null if not authenticated.
-    private RequestMethod method;
-    private String path;
+    private final RequestMethod method;
+    private final String path;
     private String body;
     @Getter
-    private Map<String, String> headers;
+    private final Map<String, String> headers;
     @Getter
-    private Map<String, String> queryStringParameters;
+    private final Map<String, String> queryStringParameters;
 
     public Request(UserId userId, RequestMethod method, String path, String body) {
         this(method, path, body);
@@ -24,7 +24,6 @@ public class Request {
     public Request(RequestMethod method, String path) {
         this.method = method;
         this.path = path;
-        this.body = body;
         this.headers = new HashMap<>();
         this.queryStringParameters = new HashMap<>();
     }

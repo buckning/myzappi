@@ -3,7 +3,6 @@ package com.amcglynn.myzappi.api.rest.controller;
 import com.amcglynn.myzappi.core.model.DayTariff;
 import com.amcglynn.myzappi.core.service.TariffService;
 import com.amcglynn.myzappi.api.rest.Request;
-import com.amcglynn.myzappi.api.rest.RequestMethod;
 import com.amcglynn.myzappi.api.rest.Response;
 import com.amcglynn.myzappi.api.rest.ServerException;
 import com.amcglynn.myzappi.api.rest.validator.TariffRequestValidator;
@@ -18,8 +17,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class TariffController {
 
-    private TariffService tariffService;
-    private TariffRequestValidator validator;
+    private final TariffService tariffService;
+    private final TariffRequestValidator validator;
 
     public TariffController(TariffService tariffService) {
         this.tariffService = tariffService;
