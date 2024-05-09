@@ -79,7 +79,7 @@ class DevicesControllerTest {
         when(mockRegistrationService.readDevices(UserId.from("userId")))
                 .thenReturn(List.of(new ZappiDevice(SerialNumber.from("serial")),
                         new EddiDevice(SerialNumber.from("eddiSerialNumber"), "tank1", "tank2")));
-        var response = controller.handle(new Request(UserId.from("userId"), RequestMethod.GET, "/devices", null));
+        var response = controller.listDevices(new Request(UserId.from("userId"), RequestMethod.GET, "/devices", null));
         assertThat(response.getStatus()).isEqualTo(200);
         assertThat(response.getBody()).isPresent()
                 .isEqualTo(Optional.of("""
@@ -90,10 +90,10 @@ class DevicesControllerTest {
     }
 
     @Test
-    void testGetDevices() {
+    void testGetDevice() {
         when(mockRegistrationService.getDevice(UserId.from("userId"), SerialNumber.from("12345678")))
                 .thenReturn(Optional.of(new ZappiDevice(SerialNumber.from("serial"))));
-        var response = controller.handle(new Request(UserId.from("userId"), RequestMethod.GET, "/devices/12345678", null));
+        var response = controller.getDevice(new Request(UserId.from("userId"), RequestMethod.GET, "/devices/12345678", null));
         assertThat(response.getStatus()).isEqualTo(200);
         assertThat(response.getBody()).isPresent()
                 .isEqualTo(Optional.of("""
@@ -105,7 +105,7 @@ class DevicesControllerTest {
     void testGetDevicesReturns404WhenDeviceNotFound() {
         when(mockRegistrationService.getDevice(UserId.from("userId"), SerialNumber.from("12345678")))
                 .thenReturn(Optional.empty());
-        var exception = catchThrowableOfType(() -> controller.handle(new Request(UserId.from("userId"),
+        var exception = catchThrowableOfType(() -> controller.getDevice(new Request(UserId.from("userId"),
                 RequestMethod.GET, "/devices/12345678", null)), ServerException.class);
         assertThat(exception.getStatus()).isEqualTo(404);
     }
@@ -118,7 +118,7 @@ class DevicesControllerTest {
                         new EddiDevice(SerialNumber.from("eddiSerialNumber2"), "tank1", "tank2")));
         var request = new Request(RequestMethod.GET, "/devices", null, Map.of(), Map.of("type", "eddi"));
         request.setUserId("userId");
-        var response = controller.handle(request);
+        var response = controller.listDevices(request);
         assertThat(response.getStatus()).isEqualTo(200);
         assertThat(response.getBody()).isPresent()
                 .isEqualTo(Optional.of("""
@@ -132,7 +132,7 @@ class DevicesControllerTest {
     void testListDevicesNoDevices() {
         when(mockRegistrationService.readDevices(UserId.from("userId")))
                 .thenReturn(List.of());
-        var response = controller.handle(new Request(UserId.from("userId"), RequestMethod.GET, "/devices", null));
+        var response = controller.listDevices(new Request(UserId.from("userId"), RequestMethod.GET, "/devices", null));
         assertThat(response.getStatus()).isEqualTo(200);
         assertThat(response.getBody()).isPresent()
                 .isEqualTo(Optional.of("{\"devices\":[]}"));
@@ -140,7 +140,7 @@ class DevicesControllerTest {
 
     @Test
     void testDeleteDevice() {
-        var response = controller.handle(new Request(RequestMethod.DELETE, "/devices", "userId"));
+        var response = controller.deleteDevices(new Request(RequestMethod.DELETE, "/devices", "userId"));
         assertThat(response.getStatus()).isEqualTo(204);
     }
 

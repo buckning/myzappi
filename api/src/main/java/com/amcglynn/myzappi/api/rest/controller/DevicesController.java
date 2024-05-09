@@ -1,10 +1,7 @@
 package com.amcglynn.myzappi.api.rest.controller;
 
-import com.amcglynn.myenergi.MyEnergiClientFactory;
-import com.amcglynn.myenergi.ZappiChargeMode;
 import com.amcglynn.myzappi.api.CompleteLoginRequest;
 import com.amcglynn.myzappi.api.rest.Request;
-import com.amcglynn.myzappi.api.rest.RequestMethod;
 import com.amcglynn.myzappi.api.rest.Response;
 import com.amcglynn.myzappi.api.rest.ServerException;
 import com.amcglynn.myzappi.api.rest.request.SetModeRequest;
@@ -27,7 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.stream.Collectors;
 
 @Slf4j
-public class DevicesController implements RestController {
+public class DevicesController {
 
     private final RegistrationService registrationService;
     private final MyEnergiService.Builder myEnergiServiceBuilder;
@@ -36,26 +33,6 @@ public class DevicesController implements RestController {
                              MyEnergiService.Builder myEnergiServiceBuilder) {
         this.registrationService = registrationService;
         this.myEnergiServiceBuilder = myEnergiServiceBuilder;
-    }
-
-    @Override
-    public Response handle(Request request) {
-        if (request.getMethod() == RequestMethod.GET) {
-            return handleGetRequest(request);
-        } else if (request.getMethod() == RequestMethod.DELETE){
-            return deleteDevices(request);
-        }
-        log.info("Unsupported method for devices - {}", request.getMethod());
-        throw new ServerException(404);
-    }
-
-    private Response handleGetRequest(Request request) {
-        if ("/devices".equals(request.getPath())) {
-            return listDevices(request);
-        } else {
-            var deviceId = request.getPath().split("/devices/")[1];
-            return getDevice(request.getUserId(), SerialNumber.from(deviceId));
-        }
     }
 
     public Response getDevice(Request request) {

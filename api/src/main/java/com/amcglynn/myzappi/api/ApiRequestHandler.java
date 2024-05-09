@@ -36,7 +36,6 @@ public class ApiRequestHandler implements RequestHandler<APIGatewayProxyRequestE
     public APIGatewayProxyResponseEvent handleRequest(APIGatewayProxyRequestEvent input, Context context) {
         APIGatewayProxyResponseEvent responseEvent = new APIGatewayProxyResponseEvent();
         responseEvent.setHeaders(Map.of());
-        var responseHeaders = new HashMap<String, String>();
 
         if (input.getHttpMethod() == null) {
             responseEvent.setStatusCode(200);
@@ -53,7 +52,7 @@ public class ApiRequestHandler implements RequestHandler<APIGatewayProxyRequestE
         var response = endpointRouter.route(request);
 
         responseEvent.setStatusCode(response.getStatus());
-        responseHeaders.putAll(response.getHeaders());
+        var responseHeaders = new HashMap<>(response.getHeaders());
         responseHeaders.put("Content-Type", "application/json");
         responseHeaders.put("Access-Control-Allow-Methods", "DELETE,GET,HEAD,OPTIONS,PATCH,POST,PUT");
         responseHeaders.put("Access-Control-Allow-Credentials", "true");

@@ -1,7 +1,6 @@
 package com.amcglynn.myzappi.api.rest.controller;
 
 import com.amcglynn.myzappi.api.rest.Request;
-import com.amcglynn.myzappi.api.rest.RequestMethod;
 import com.amcglynn.myzappi.api.rest.Response;
 import com.amcglynn.myzappi.api.rest.ServerException;
 import com.amcglynn.myzappi.api.rest.response.EnergyCostResponse;
@@ -18,7 +17,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 
 @Slf4j
-public class EnergyCostController implements RestController {
+public class EnergyCostController {
 
     private final TariffService tariffService;
     private final MyEnergiService.Builder myEnergiServiceBuilder;
@@ -29,17 +28,6 @@ public class EnergyCostController implements RestController {
         this.myEnergiServiceBuilder = myEnergiServiceBuilder;
         this.clock = new Clock();
     }
-
-    @Override
-    public Response handle(Request request) {
-        if (RequestMethod.GET == request.getMethod()) {
-            return getEnergyCost(request);
-        }
-
-        log.info("Unsupported method for energy cost - " + request.getMethod());
-        throw new ServerException(404);
-    }
-
 
     @SneakyThrows
     public Response getEnergyCost(Request request) {

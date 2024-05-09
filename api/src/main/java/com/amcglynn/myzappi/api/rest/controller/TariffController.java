@@ -16,7 +16,7 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class TariffController implements RestController {
+public class TariffController {
 
     private TariffService tariffService;
     private TariffRequestValidator validator;
@@ -24,20 +24,6 @@ public class TariffController implements RestController {
     public TariffController(TariffService tariffService) {
         this.tariffService = tariffService;
         this.validator = new TariffRequestValidator(tariffService);
-    }
-
-
-    @Override
-    public Response handle(Request request) {
-        if (RequestMethod.GET == request.getMethod()) {
-            return getTariffs(request);
-        }
-        if (RequestMethod.POST == request.getMethod()) {
-            return saveTariffs(request);
-        }
-
-        log.info("Unsupported method for tariff - " + request.getMethod());
-        throw new ServerException(404);
     }
 
     public Response saveTariffs(Request request) {

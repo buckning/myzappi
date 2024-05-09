@@ -79,12 +79,11 @@ class EndpointRouterTest {
     }
 
     @Test
-    void returns404WhenEndpointNotFound() {
+    void returns404WhenHandlerNotFound() {
         var request = new Request(RequestMethod.GET, "/not-found", "{}");
         request.setUserId("regularUser");
         var response = router.route(request);
         assertThat(response.getStatus()).isEqualTo(404);
-        verify(mockTariffController, never()).handle(request);
     }
 
     @Test

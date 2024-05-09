@@ -6,7 +6,6 @@ import com.amcglynn.myzappi.core.model.Schedule;
 import com.amcglynn.myzappi.core.model.UserId;
 import com.amcglynn.myzappi.core.service.ScheduleService;
 import com.amcglynn.myzappi.api.rest.Request;
-import com.amcglynn.myzappi.api.rest.RequestMethod;
 import com.amcglynn.myzappi.api.rest.Response;
 import com.amcglynn.myzappi.api.rest.ServerException;
 import com.amcglynn.myzappi.api.rest.response.ScheduleResponse;
@@ -20,7 +19,7 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class ScheduleController implements RestController {
+public class ScheduleController {
 
     private final ScheduleService service;
     private final ObjectMapper objectMapper;
@@ -32,23 +31,6 @@ public class ScheduleController implements RestController {
         this.validator = new ScheduleValidator();
         objectMapper = new ObjectMapper();
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-    }
-
-    @Override
-    public Response handle(Request request) {
-        if (request.getMethod() == RequestMethod.POST) {
-            return createSchedule(request);
-        }
-        if (request.getMethod() == RequestMethod.GET) {
-            return getSchedules(request);
-        }
-        if (request.getMethod() == RequestMethod.DELETE) {
-            log.info("Request path = {}", request.getPath());
-            deleteSchedule(request);
-            return new Response(204);
-        }
-        log.info("Unsupported method for schedule - {}", request.getMethod());
-        throw new ServerException(404);
     }
 
     public Response deleteSchedule(Request request) {

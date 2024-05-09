@@ -79,7 +79,7 @@ class EnergyCostControllerTest {
 
         Request request = new Request(RequestMethod.GET, "/energy-cost", null, Map.of(), Map.of());
         request.setUserId("mockUserId");
-        var serverException = catchThrowableOfType(() -> controller.handle(request), ServerException.class);
+        var serverException = catchThrowableOfType(() -> controller.getEnergyCost(request), ServerException.class);
         assertThat(serverException.getStatus()).isEqualTo(404);
     }
 
@@ -88,7 +88,7 @@ class EnergyCostControllerTest {
         when(mockMyEnergiServiceBuilder.build(any())).thenReturn(mockMyEnergiService);
         Request request = new Request(RequestMethod.GET, "/energy-cost", null, Map.of(), null);
         request.setUserId("mockUserId");
-        var response = controller.handle(request);
+        var response = controller.getEnergyCost(request);
         assertThat(response.getStatus()).isEqualTo(200);
         assertThat(response.getBody()).isEqualTo(Optional.of("{\"currency\":\"EUR\",\"importCost\":1.0," +
                 "\"exportCost\":2.0,\"solarConsumed\":-1.0,\"totalCost\":-1.0}"));
@@ -99,7 +99,7 @@ class EnergyCostControllerTest {
         when(mockMyEnergiServiceBuilder.build(any())).thenReturn(mockMyEnergiService);
         Request request = new Request(RequestMethod.GET, "/energy-cost", null, Map.of(), Map.of("date", "2023-01-06"));
         request.setUserId("mockUserId");
-        var response = controller.handle(request);
+        var response = controller.getEnergyCost(request);
         assertThat(response.getStatus()).isEqualTo(200);
         assertThat(response.getBody()).isEqualTo(Optional.of("{\"currency\":\"EUR\",\"importCost\":1.0," +
                 "\"exportCost\":2.0,\"solarConsumed\":-1.0,\"totalCost\":-1.0}"));
@@ -114,7 +114,7 @@ class EnergyCostControllerTest {
                 Map.of("zoneId", "Europe%2FDublin",
                         "date", "2023-01-06"));
         request.setUserId("mockUserId");
-        var response = controller.handle(request);
+        var response = controller.getEnergyCost(request);
         assertThat(response.getStatus()).isEqualTo(200);
         assertThat(response.getBody()).isEqualTo(Optional.of("{\"currency\":\"EUR\",\"importCost\":1.0," +
                 "\"exportCost\":2.0,\"solarConsumed\":-1.0,\"totalCost\":-1.0}"));

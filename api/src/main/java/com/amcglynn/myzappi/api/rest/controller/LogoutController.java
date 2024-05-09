@@ -1,41 +1,20 @@
 package com.amcglynn.myzappi.api.rest.controller;
 
-import com.amcglynn.myzappi.api.CompleteLoginRequest;
-import com.amcglynn.myzappi.api.Session;
-import com.amcglynn.myzappi.api.SessionId;
 import com.amcglynn.myzappi.api.rest.Request;
-import com.amcglynn.myzappi.api.rest.RequestMethod;
 import com.amcglynn.myzappi.api.rest.Response;
-import com.amcglynn.myzappi.api.rest.ServerException;
 import com.amcglynn.myzappi.api.service.AuthenticationService;
-import com.amcglynn.myzappi.api.service.RegistrationService;
-import com.amcglynn.myzappi.core.model.SerialNumber;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
 
 @Slf4j
-public class LogoutController implements RestController {
+public class LogoutController {
 
-    private AuthenticationService authenticationService;
+    private final AuthenticationService authenticationService;
 
     public LogoutController(AuthenticationService authenticationService) {
         this.authenticationService = authenticationService;
-    }
-
-    @Override
-    public Response handle(Request request) {
-        if (request.getMethod() == RequestMethod.GET) {
-            return logout(request);
-        }
-        log.info("Unsupported method for logout - {}", request.getMethod());
-        throw new ServerException(404);
     }
 
     @SneakyThrows

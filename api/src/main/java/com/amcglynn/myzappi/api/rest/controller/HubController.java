@@ -17,28 +17,12 @@ import lombok.extern.slf4j.Slf4j;
  * Handles the registering and retrieval of the myenergi hub/gateway.
  */
 @Slf4j
-public class HubController implements RestController {
+public class HubController {
 
     private final RegistrationService registrationService;
 
     public HubController(RegistrationService registrationService) {
         this.registrationService = registrationService;
-    }
-
-    @Override
-    public Response handle(Request request) {
-        if (request.getMethod() == RequestMethod.POST) {
-            return post(request);
-        }
-        if (request.getMethod() == RequestMethod.GET) {
-            return get(request);
-        }
-        if (request.getMethod() == RequestMethod.DELETE) {
-            registrationService.delete(request.getUserId());
-            return new Response(204);
-        }
-        log.info("Unsupported method for hub - {}", request.getMethod());
-        throw new ServerException(404);
     }
 
     public Response delete(Request request) {
