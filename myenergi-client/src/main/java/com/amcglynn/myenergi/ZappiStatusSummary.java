@@ -3,12 +3,15 @@ package com.amcglynn.myenergi;
 import com.amcglynn.myenergi.apiresponse.ZappiStatus;
 import com.amcglynn.myenergi.units.KiloWattHour;
 import com.amcglynn.myenergi.units.Watt;
+import lombok.Getter;
 
 /**
  * This class converts the raw values from the API and provides some convenience methods.
  */
 public class ZappiStatusSummary {
 
+    @Getter
+    private final String serialNumber;
     private Watt gridImport;
     private Watt gridExport;
     private Watt consumed;
@@ -19,6 +22,8 @@ public class ZappiStatusSummary {
     private ZappiChargeMode chargeMode;
     private ChargeStatus chargeStatus;
     private LockStatus lockStatus;
+    private String firmwareVersion;
+
 
     public ZappiStatusSummary(ZappiStatus zappiStatus) {
         gridImport = new Watt(Math.max(0, zappiStatus.getGridWatts()));
@@ -34,6 +39,8 @@ public class ZappiStatusSummary {
         evChargeRate = new Watt(zappiStatus.getCarDiversionAmountWatts());
         evConnectionStatus = EvConnectionStatus.fromString(zappiStatus.getEvConnectionStatus());
         lockStatus = LockStatus.from(zappiStatus.getLockStatus());
+        serialNumber = zappiStatus.getSerialNumber();
+        firmwareVersion = zappiStatus.getFirmwareVersion();
     }
 
     public Watt getGridImport() {
@@ -74,6 +81,10 @@ public class ZappiStatusSummary {
 
     public LockStatus getLockStatus() {
         return this.lockStatus;
+    }
+
+    public String getFirmwareVersion() {
+        return this.firmwareVersion;
     }
 
     public String toString() {

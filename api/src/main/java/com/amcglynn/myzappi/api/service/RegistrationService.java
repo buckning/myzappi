@@ -10,7 +10,6 @@ import com.amcglynn.myzappi.core.model.SerialNumber;
 import com.amcglynn.myzappi.core.model.UserId;
 import com.amcglynn.myzappi.core.service.LoginService;
 import com.amcglynn.myzappi.api.rest.ServerException;
-import com.amcglynn.myzappi.api.rest.response.HubDetailsResponse;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
@@ -128,6 +127,13 @@ public class RegistrationService {
 
     public List<MyEnergiDevice> readDevices(UserId userId) {
         return devicesRepository.read(userId);
+    }
+
+    public Optional<MyEnergiDevice> getDevice(UserId userId, SerialNumber serialNumber) {
+        return devicesRepository.read(userId)
+                .stream()
+                .filter(device1 -> device1.getSerialNumber().equals(serialNumber))
+                .findFirst();
     }
 
     public void refreshDeploymentDetails(UserId userId) {

@@ -52,20 +52,13 @@ class LogoutControllerTest {
     }
 
     @Test
-    void postReturns404() {
-        var exception = catchThrowableOfType(() -> controller.handle(new Request(UserId.from("mockUserId"), RequestMethod.POST, "/logout", "")),
-                ServerException.class);
-        assertThat(exception.getStatus()).isEqualTo(404);
-    }
-
-    @Test
     void getInvalidatesSession() {
         var headers = new HashMap<String, String>();
         headers.put("cookie", "sessionID=03662064-99b5-404c-b4c7-a0bd04257f95");
         when(mockService.getSessionIdFromCookie(any())).thenReturn(Optional.of(SessionId.from("03662064-99b5-404c-b4c7-a0bd04257f95")));
         var request = new Request(RequestMethod.GET, "/logout", "", headers, Map.of());
 
-        var response = controller.handle(request);
+        var response = controller.logout(request);
         assertThat(response.getHeaders()).contains(Map.entry("Set-Cookie",
                 "sessionID=03662064-99b5-404c-b4c7-a0bd04257f95;expires=Thu, Jan 01 1970 00:00:00 UTC; Path=/; Secure; SameSite=None; HttpOnly; domain=.myzappiunofficial.com"));
         verify(mockService).invalidateSession(SessionId.from("03662064-99b5-404c-b4c7-a0bd04257f95"));
@@ -78,7 +71,7 @@ class LogoutControllerTest {
         when(mockService.getSessionIdFromCookie(any())).thenReturn(Optional.empty());
         var request = new Request(RequestMethod.GET, "/logout", "", headers, Map.of());
 
-        var response = controller.handle(request);
+        var response = controller.logout(request);
         assertThat(response.getStatus()).isEqualTo(200);
         assertThat(response.getHeaders()).doesNotContainKey("Set-Cookie");
         verify(mockService, never()).invalidateSession(any());

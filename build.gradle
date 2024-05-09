@@ -31,7 +31,7 @@ subprojects {
     }
 
     task wrapper(type: Wrapper){
-        gradleVersion = '8.5'
+        gradleVersion = '8.7'
     }
 
     task prepareKotlinBuildScriptModel {

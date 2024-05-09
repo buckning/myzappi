@@ -1,8 +1,10 @@
 package com.amcglynn.myzappi.core.model;
 
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 
-@EqualsAndHashCode
+@Getter
+@EqualsAndHashCode(callSuper = false)
 public class ZappiDevice extends MyEnergiDevice {
 
     public ZappiDevice() {

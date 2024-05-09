@@ -18,31 +18,35 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
 
 @Slf4j
 public class EndpointRouter {
 
-    private final Map<String, RestController> handlers;
+    private final Map<String, Function<Request, Response>> handlers;
     private final AuthenticationService authenticationService;
     private final Properties properties;
 
     public EndpointRouter(ServiceManager serviceManager) {
         this(serviceManager, new HubController(
                         new RegistrationService(serviceManager.getLoginService(), serviceManager.getDevicesRepository(), new MyEnergiClientFactory())),
+                new DevicesController(new RegistrationService(serviceManager.getLoginService(), serviceManager.getDevicesRepository(), new MyEnergiClientFactory()), serviceManager.getMyEnergiServiceBuilder()),
                 new TariffController(serviceManager.getTariffService()),
                 new LwaClientFactory());
     }
 
-    public EndpointRouter(ServiceManager serviceManager, HubController hubController, TariffController tariffController,
+    public EndpointRouter(ServiceManager serviceManager, HubController hubController, DevicesController devicesController,
+                          TariffController tariffController,
                           LwaClientFactory lwaClientFactory) {
-        this(hubController, tariffController, lwaClientFactory,
+        this(hubController, devicesController, tariffController, lwaClientFactory,
                 new ScheduleController(serviceManager.getScheduleService()), serviceManager);
     }
 
-    public EndpointRouter(HubController hubController, TariffController tariffController,
+    public EndpointRouter(HubController hubController, DevicesController devicesController, TariffController tariffController,
                           LwaClientFactory lwaClientFactory,
                           ScheduleController scheduleController, ServiceManager serviceManager) {
-        this(hubController, tariffController,
+        this(hubController, devicesController, tariffController,
                 new AuthenticationService(new TokenService(lwaClientFactory),
                         new SessionService(new SessionRepository(serviceManager.getAmazonDynamoDB()))),
                 scheduleController,
@@ -50,34 +54,47 @@ public class EndpointRouter {
                 serviceManager.getProperties());
     }
 
-    public EndpointRouter(HubController hubController, TariffController tariffController,
+    public EndpointRouter(HubController hubController, DevicesController devicesController, TariffController tariffController,
                           AuthenticationService authenticationService,
                           ScheduleController scheduleController, EnergyCostController energyCostController,
                           Properties properties) {
-        this(hubController, tariffController, authenticationService, scheduleController, energyCostController, new LogoutController(authenticationService), properties);
+        this(hubController, devicesController, tariffController, authenticationService, scheduleController, energyCostController, new LogoutController(authenticationService), properties);
     }
 
-    public EndpointRouter(HubController hubController, TariffController tariffController,
+    public EndpointRouter(HubController hubController, DevicesController devicesController,
+                          TariffController tariffController,
                           AuthenticationService authenticationService,
                           ScheduleController scheduleController, EnergyCostController energyCostController,
                           LogoutController logoutController,
                           Properties properties) {
 
         handlers = new HashMap<>();
-        handlers.put("/hub", hubController);
-        handlers.put("/logout", logoutController);
-        handlers.put("/v2/hub", hubController);
-        handlers.put("/hub/refresh", hubController);
-        handlers.put("/tariff", tariffController);
-        handlers.put("/schedule", scheduleController);
-        handlers.put("/schedules", scheduleController);
-        handlers.put("/energy-cost", energyCostController);
+        handlers.put("POST /hub", hubController::register);
+        handlers.put("DELETE /hub", hubController::delete);
+        handlers.put("GET /logout", logoutController::logout);
+        handlers.put("GET /v2/hub", hubController::get);
+        handlers.put("POST /hub/refresh", hubController::refresh);
+        handlers.put("GET /tariff", tariffController::getTariffs);
+        handlers.put("POST /tariff", tariffController::saveTariffs);
+        handlers.put("POST /schedules", scheduleController::createSchedule);
+        handlers.put("GET /schedules", scheduleController::getSchedules);
+        handlers.put("DELETE /schedules/{scheduleId}", scheduleController::deleteSchedule);
+        handlers.put("POST /devices/discover", devicesController::discoverDevices);
+        handlers.put("GET /devices", devicesController::listDevices);
+        handlers.put("DELETE /devices", devicesController::deleteDevices);
+        handlers.put("GET /devices/{deviceId}", devicesController::getDevice);
+        handlers.put("GET /devices/{deviceId}/status", devicesController::getDeviceStatus);
+        handlers.put("PUT /devices/{deviceId}/mode", devicesController::setMode);
+        handlers.put("GET /energy-cost", energyCostController::getEnergyCost);
 
         this.authenticationService = authenticationService;
         this.properties = properties;
     }
 
     public Response route(Request request) {
+        if (request.getMethod() == RequestMethod.OPTIONS) {
+            return new Response(200);
+        }
         var session = authenticationService.authenticate(request);
 
         if (session.isEmpty()) {
@@ -88,23 +105,52 @@ public class EndpointRouter {
         handleAdminUserOnBehalfOf(request);
 
         try {
-            log.info("{} {}", request.getMethod(), request.getPath());
-            var controller = handlers.get(request.getPath());
+            log.info("Processing request {} {}", request.getMethod(), request.getPath());
+            var handler = getEndpointHandler(request.getMethod().toString() + " " + request.getPath());
 
-            if (controller == null && request.getPath().startsWith("/schedules/")) {
-                controller = handlers.get("/schedules");
-            }
-            if (controller == null) {
-                log.info("Controller not found for {}", request.getPath());
+            if (handler.isEmpty()) {
+                log.info("Handler not found for {} {}", request.getMethod(), request.getPath());
                 return new Response(404);
             }
-            log.info("Found controller {}", controller.getClass());
-            var response = controller.handle(request);
+            log.info("Found handler for {} {}", request.getMethod(), request.getPath());
+            var response = handler.get().apply(request);
             updateSessionCookie(request, session.get(), response);
             return response;
         } catch (ServerException e) {
             return new Response(e.getStatus());
         }
+    }
+
+    private Optional<Function<Request, Response>> getEndpointHandler(String path) {
+        for (String pattern : handlers.keySet()) {
+            if (matches(path, pattern)) {
+                return Optional.of(handlers.get(pattern));
+            }
+        }
+        return Optional.empty();
+    }
+
+    private boolean matches(String url, String pattern) {
+        // Basic pattern matching logic to handle URLs with path variables
+        if (pattern.equals(url)) {
+            return true;
+        }
+
+        // Handle path variables by comparing segments
+        String[] urlSegments = url.split("/");
+        String[] patternSegments = pattern.split("/");
+
+        if (urlSegments.length != patternSegments.length) {
+            return false;
+        }
+
+        for (int i = 0; i < urlSegments.length; i++) {
+            if (!patternSegments[i].equals(urlSegments[i]) && !patternSegments[i].startsWith("{")) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private void updateSessionCookie(Request request, Session session, Response response) {

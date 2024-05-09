@@ -3,7 +3,6 @@ package com.amcglynn.myzappi.api.rest.controller;
 import com.amcglynn.myzappi.core.model.DayTariff;
 import com.amcglynn.myzappi.core.service.TariffService;
 import com.amcglynn.myzappi.api.rest.Request;
-import com.amcglynn.myzappi.api.rest.RequestMethod;
 import com.amcglynn.myzappi.api.rest.Response;
 import com.amcglynn.myzappi.api.rest.ServerException;
 import com.amcglynn.myzappi.api.rest.validator.TariffRequestValidator;
@@ -16,31 +15,17 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class TariffController implements RestController {
+public class TariffController {
 
-    private TariffService tariffService;
-    private TariffRequestValidator validator;
+    private final TariffService tariffService;
+    private final TariffRequestValidator validator;
 
     public TariffController(TariffService tariffService) {
         this.tariffService = tariffService;
         this.validator = new TariffRequestValidator(tariffService);
     }
 
-
-    @Override
-    public Response handle(Request request) {
-        if (RequestMethod.GET == request.getMethod()) {
-            return getTariffs(request);
-        }
-        if (RequestMethod.POST == request.getMethod()) {
-            return saveTariffs(request);
-        }
-
-        log.info("Unsupported method for tariff - " + request.getMethod());
-        throw new ServerException(404);
-    }
-
-    private Response saveTariffs(Request request) {
+    public Response saveTariffs(Request request) {
         try {
             var tariffRequest = new ObjectMapper().readValue(request.getBody(), new TypeReference<TariffRequest>() {
             });
@@ -54,7 +39,7 @@ public class TariffController implements RestController {
     }
 
     @SneakyThrows
-    private Response getTariffs(Request request) {
+    public Response getTariffs(Request request) {
         var tariffs = tariffService.get(request.getUserId().toString());
 
         if (tariffs.isEmpty()) {

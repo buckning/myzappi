@@ -17,7 +17,7 @@ import lombok.extern.slf4j.Slf4j;
  * Handles the registering and retrieval of the myenergi hub/gateway.
  */
 @Slf4j
-public class HubController implements RestController {
+public class HubController {
 
     private final RegistrationService registrationService;
 
@@ -25,28 +25,20 @@ public class HubController implements RestController {
         this.registrationService = registrationService;
     }
 
-    @Override
-    public Response handle(Request request) {
-        if (request.getMethod() == RequestMethod.POST) {
-            return post(request);
-        }
-        if (request.getMethod() == RequestMethod.GET) {
-            return get(request);
-        }
-        if (request.getMethod() == RequestMethod.DELETE) {
-            registrationService.delete(request.getUserId());
-            return new Response(204);
-        }
-        log.info("Unsupported method for hub - {}", request.getMethod());
-        throw new ServerException(404);
+    public Response delete(Request request) {
+        registrationService.delete(request.getUserId());
+        return new Response(204);
     }
 
     private Response post(Request request) {
         if ("/hub/refresh".equals(request.getPath())) {
             return refreshDeploymentDetails(request);
         }
-        register(request);
-        return new Response(200, request.getBody());
+        return register(request);
+    }
+
+    public Response refresh(Request request) {
+        return refreshDeploymentDetails(request);
     }
 
     private Response refreshDeploymentDetails(Request request) {
@@ -55,12 +47,12 @@ public class HubController implements RestController {
     }
 
     @SneakyThrows
-    private Response get(Request request) {
+    public Response get(Request request) {
         var body = new ObjectMapper().writeValueAsString(registrationService.readDevices(request.getUserId()));
         return new Response(200, body);
     }
 
-    public void register(Request request) {
+    public Response register(Request request) {
         if (request.getBody() == null) {
             log.info("Null body in POST request");
             throw new ServerException(400);
@@ -75,5 +67,6 @@ public class HubController implements RestController {
             log.info("Invalid request");
             throw new ServerException(400);
         }
+        return new Response(200, request.getBody());
     }
 }

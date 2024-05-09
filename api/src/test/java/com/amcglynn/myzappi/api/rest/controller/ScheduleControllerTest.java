@@ -27,7 +27,6 @@ import java.util.Set;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.assertj.core.api.Assertions.catchThrowableOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -71,7 +70,7 @@ class ScheduleControllerTest {
                         .value("ECO+")
                         .build())
                 .build());
-        var response = controller.handle(new Request(UserId.from("mockUserId"), RequestMethod.POST, "/schedule", body));
+        var response = controller.createSchedule(new Request(UserId.from("mockUserId"), RequestMethod.POST, "/schedule", body));
         verify(mockValidator).validate(any(Schedule.class));
         assertThat(response.getStatus()).isEqualTo(200);
         var responseBody = response.getBody();
@@ -102,7 +101,7 @@ class ScheduleControllerTest {
                         .value("ECO+")
                         .build())
                 .build());
-        var response = controller.handle(new Request(UserId.from("mockUserId"), RequestMethod.POST, "/schedule", body));
+        var response = controller.createSchedule(new Request(UserId.from("mockUserId"), RequestMethod.POST, "/schedule", body));
         assertThat(response.getStatus()).isEqualTo(200);
         var responseBody = response.getBody();
         assertThat(responseBody).isPresent();
@@ -138,7 +137,7 @@ class ScheduleControllerTest {
                         .value("ECO+")
                         .build())
                 .build());
-        var response = controller.handle(new Request(UserId.from("mockUserId"), RequestMethod.POST, "/schedule", body));
+        var response = controller.createSchedule(new Request(UserId.from("mockUserId"), RequestMethod.POST, "/schedule", body));
         assertThat(response.getStatus()).isEqualTo(200);
         var responseBody = response.getBody();
         assertThat(responseBody).isPresent();
@@ -179,7 +178,7 @@ class ScheduleControllerTest {
                         .value("PT45M;tank=2")
                         .build())
                 .build());
-        var response = controller.handle(new Request(UserId.from("mockUserId"), RequestMethod.POST, "/schedule", body));
+        var response = controller.createSchedule(new Request(UserId.from("mockUserId"), RequestMethod.POST, "/schedule", body));
         assertThat(response.getStatus()).isEqualTo(200);
         var responseBody = response.getBody();
         assertThat(responseBody).isPresent();
@@ -209,7 +208,7 @@ class ScheduleControllerTest {
                 "}";
         var id = UUID.randomUUID().toString();
         when(mockService.createSchedule(eq(UserId.from("mockUserId")), any())).thenThrow(new MissingDeviceException("Eddi not found"));
-        var serverException = catchThrowableOfType(() -> controller.handle(new Request(UserId.from("mockUserId"), RequestMethod.POST, "/schedule", body)), ServerException.class);
+        var serverException = catchThrowableOfType(() -> controller.createSchedule(new Request(UserId.from("mockUserId"), RequestMethod.POST, "/schedule", body)), ServerException.class);
         assertThat(serverException).isNotNull();
         assertThat(serverException.getStatus()).isEqualTo(409);
     }
@@ -223,7 +222,7 @@ class ScheduleControllerTest {
                         .type("chargeMode")
                         .value("ECO+").build())
                 .build()));
-        var response = controller.handle(new Request(UserId.from("mockUserId"), RequestMethod.GET, "/schedule", null));
+        var response = controller.getSchedules(new Request(UserId.from("mockUserId"), RequestMethod.GET, "/schedule", null));
         assertThat(response.getStatus()).isEqualTo(200);
         assertThat(response.getBody()).isEqualTo(Optional.of("{\"schedules\":[{\"id\":\"1234567890\"," +
                 "\"startDateTime\":\"2023-09-13T14:00\",\"zoneId\":\"Europe/Dublin\",\"action\":{\"type\":\"chargeMode\",\"value\":\"ECO+\"}}]}"));
@@ -232,17 +231,8 @@ class ScheduleControllerTest {
     @Test
     void delete() {
         var scheduleId = UUID.randomUUID();
-        var response = controller.handle(new Request(UserId.from("mockUserId"), RequestMethod.DELETE, "/schedules/" + scheduleId, null));
+        var response = controller.deleteSchedule(new Request(UserId.from("mockUserId"), RequestMethod.DELETE, "/schedules/" + scheduleId, null));
         verify(mockService).deleteSchedule(UserId.from("mockUserId"), scheduleId.toString());
         assertThat(response.getStatus()).isEqualTo(204);
-    }
-
-    @Test
-    void putUnsupported() {
-        var throwable = catchThrowable(() ->
-                controller.handle(new Request(UserId.from("mockUserId"), RequestMethod.PUT, "/schedule", null)));
-        assertThat(throwable).isNotNull().isInstanceOf(ServerException.class);
-        ServerException exception = (ServerException) throwable;
-        assertThat(exception.getStatus()).isEqualTo(404);
     }
 }
