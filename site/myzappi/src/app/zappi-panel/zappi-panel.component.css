@@ -1,0 +1,14 @@
+.toggleButton {
+    border: 1px solid #ccc;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 5px;
+    width: 70px;
+    text-align: center;
+    margin-right: 5px;
+}
+
+.toggleButton:disabled {
+    opacity: 0.5; /* Reduce opacity when button is disabled */
+    cursor: not-allowed; /* Change cursor to not-allowed when button is disabled */
+  }

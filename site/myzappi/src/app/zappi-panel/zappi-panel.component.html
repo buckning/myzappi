@@ -1,0 +1,23 @@
+<h2>Zappi</h2>
+<br>
+<b>Serial number</b>: {{serialNumber}}
+<br>
+<b>Charge rate</b>: {{chargeRate}} kW
+<br>
+<b>Charge added</b>: {{chargeAddedKwh}} kWh
+<br>
+
+<div class="chargeMode">
+    <button class="toggleButton" [class.selected]="isModeActive('Eco+')" (click)="changeMode('Eco+')" [disabled]="!isChangeModeEnabled()">
+        Eco+
+    </button>
+    <button class="toggleButton" [class.selected]="isModeActive('Eco')" (click)="changeMode('Eco')" [disabled]="!isChangeModeEnabled()">
+        Eco
+    </button>
+    <button class="toggleButton" [class.selected]="isModeActive('Fast')" (click)="changeMode('Fast')" [disabled]="!isChangeModeEnabled()">
+        Fast
+    </button>
+    <button class="toggleButton" [class.selected]="isModeActive('Stop')" (click)="changeMode('Stop')" [disabled]="!isChangeModeEnabled()">
+        Stop
+    </button>    
+</div>
