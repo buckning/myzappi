@@ -99,6 +99,46 @@ class MyEnergiClientTest {
     }
 
     @Test
+    void testGetStatusWithZappiEddiAndLibbi() {
+        var mockResponse = new MockResponse()
+                .setResponseCode(200)
+                .addHeader("x_myenergi-asn", mockWebServer.url("").uri())
+                .setBody(ZappiResponse.getExampleJStatusResponseWithZappiEddiAndLibbiButNoHarvi());
+        mockWebServer.enqueue(mockResponse);
+        var response = client.getStatus();
+
+        assertThat(response).hasSize(5);
+        var zappis = response.stream().filter(statusResponse -> statusResponse.getZappi() != null).findFirst();
+        var eddis = response.stream().filter(statusResponse -> statusResponse.getEddi() != null).findFirst();
+        var harvis = response.stream().filter(statusResponse -> statusResponse.getHarvi() != null).findFirst();
+        var libbis = response.stream().filter(statusResponse -> statusResponse.getLibbi() != null).findFirst();
+        var hub = response.stream().filter(statusResponse -> statusResponse.getAsn() != null
+                && statusResponse.getFwv() != null && statusResponse.getVhub() != null).findFirst();
+
+        assertThat(zappis).isPresent();
+        assertThat(eddis).isPresent();
+        assertThat(harvis).isPresent();
+        assertThat(libbis).isPresent();
+        assertThat(hub).isPresent();
+
+        assertThat(zappis.get().getZappi()).hasSize(1);
+        assertThat(zappis.get().getZappi().get(0).getSerialNumber()).isEqualTo("12321432");
+
+        assertThat(libbis.get().getLibbi().get(0).getSerialNumber()).isEqualTo("12342345");
+
+        assertThat(eddis.get().getEddi()).hasSize(1);
+        assertThat(eddis.get().getEddi().get(0).getSerialNumber()).isEqualTo("12341234");
+        assertThat(eddis.get().getEddi().get(0).getTank1Name()).isEqualTo("Tank 1");
+        assertThat(eddis.get().getEddi().get(0).getTank2Name()).isEqualTo("Tank 2");
+
+        assertThat(harvis.get().getHarvi()).isEmpty();
+
+        assertThat(hub.get().getAsn()).isEqualTo("s18.myenergi.net");
+        assertThat(hub.get().getVhub()).isEqualTo(1);
+        assertThat(hub.get().getFwv()).isEqualTo("3402S5.433");
+    }
+
+    @Test
     void test401ResponseResultsInClientExceptionBeingThrown() {
         var mockResponse = new MockResponse()
                 .setResponseCode(401)

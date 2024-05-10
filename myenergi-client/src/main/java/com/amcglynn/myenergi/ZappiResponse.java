@@ -2,6 +2,8 @@ package com.amcglynn.myenergi;
 
 public class ZappiResponse {
 
+    private ZappiResponse() {}
+
     public static String getErrorResponse() {
         return "{\"status\":\"-14\",\"statustext\":\"\"}";
     }
@@ -10,482 +12,656 @@ public class ZappiResponse {
         return "{\"status\":0,\"statustext\":\"\",\"asn\":\"s18.myenergi.net\"}";
     }
 
+    public static String getExampleJStatusResponseWithZappiEddiAndLibbiButNoHarvi() {
+        return """ 
+                [
+                {
+                    "eddi": [
+                        {
+                            "deviceClass": "EDDI",
+                            "sno": 12341234,
+                            "dat": "10-05-2024",
+                            "tim": "15:19:32",
+                            "ectp1": 4,
+                            "ectp2": 0,
+                            "ectp3": 0,
+                            "ectt1": "Internal Load",
+                            "ectt2": "None",
+                            "ectt3": "None",
+                            "bsm": 0,
+                            "bst": 0,
+                            "dst": 1,
+                            "div": 4,
+                            "frq": 50.02,
+                            "gen": 2723,
+                            "grd": -76,
+                            "pha": 1,
+                            "pri": 3,
+                            "sta": 1,
+                            "tz": 0,
+                            "vol": 2443,
+                            "che": 0,
+                            "isVHubEnabled": false,
+                            "hpri": 1,
+                            "hno": 1,
+                            "ht1": "Tank 1",
+                            "ht2": "Tank 2",
+                            "r1a": 0,
+                            "r2a": 0,
+                            "r1b": 0,
+                            "r2b": 0,
+                            "rbc": 1,
+                            "tp1": 42,
+                            "tp2": 41,
+                            "batteryDischargeEnabled": false,
+                            "g100LockoutState": "NONE",
+                            "cmt": 254,
+                            "fwv": "3202S5.408",
+                            "newAppAvailable": false,
+                            "newBootloaderAvailable": false,
+                            "productCode": "3202"
+                        }
+                    ]
+                }
+                ,
+                {
+                    "harvi": []
+                }
+                ,
+                {
+                    "libbi": [
+                        {
+                            "deviceClass": "LIBBI",
+                            "sno": 12342345,
+                            "dat": "10-05-2024",
+                            "tim": "15:19:32",
+                            "ectp1": 1936,
+                            "ectp2": 70,
+                            "ectp3": 1734,
+                            "ectt1": "Internal Load",
+                            "ectt2": "Grid",
+                            "ectt3": "Generation",
+                            "ectp4": 58,
+                            "ectp5": 1027,
+                            "ectt4": "Monitor",
+                            "ectt5": "DCPV",
+                            "ectt6": "None",
+                            "dst": 1,
+                            "tz": 0,
+                            "lmo": "BALANCE",
+                            "sta": 5,
+                            "frq": 50.02,
+                            "pri": 2,
+                            "soc": 90,
+                            "isp": true,
+                            "pha": 1,
+                            "vol": 2396,
+                            "mbc": 10200,
+                            "mic": 5000,
+                            "gen": 2723,
+                            "grd": -76,
+                            "div": 1936,
+                            "ect1p": 1,
+                            "ect2p": 1,
+                            "ect3p": 1,
+                            "batteryDischargingBoost": false,
+                            "pvDirectlyConnected": true,
+                            "g100LockoutState": "NONE",
+                            "countryCode": "GBR",
+                            "isVHubEnabled": true,
+                            "cmt": 254,
+                            "fwv": "3702S5.433",
+                            "newAppAvailable": false,
+                            "newBootloaderAvailable": false,
+                            "productCode": "3702"
+                        }
+                    ]
+                }
+                ,
+                {
+                    "zappi": [
+                        {
+                            "deviceClass": "ZAPPI",
+                            "sno": 12321432,
+                            "dat": "10-05-2024",
+                            "tim": "15:19:32",
+                            "ectp1": 0,
+                            "ectp2": 6,
+                            "ectp3": 0,
+                            "ectt1": "Internal Load",
+                            "ectt2": "Monitor",
+                            "ectt3": "None",
+                            "bsm": 0,
+                            "bst": 0,
+                            "dst": 1,
+                            "div": 0,
+                            "frq": 50.02,
+                            "gen": 2723,
+                            "grd": -76,
+                            "pha": 1,
+                            "pri": 1,
+                            "sta": 1,
+                            "tz": 0,
+                            "vol": 2442,
+                            "che": 5.1,
+                            "isVHubEnabled": false,
+                            "bss": 0,
+                            "lck": 16,
+                            "pst": "A",
+                            "zmo": 3,
+                            "pwm": 5297,
+                            "zs": 256,
+                            "rdc": -6,
+                            "rac": -3,
+                            "rrac": -6,
+                            "zsh": 1,
+                            "ectt4": "None",
+                            "ectt5": "None",
+                            "ectt6": "None",
+                            "beingTamperedWith": false,
+                            "batteryDischargeEnabled": true,
+                            "g100LockoutState": "NONE",
+                            "phaseSetting": "SINGLE_PHASE",
+                            "mgl": 100,
+                            "sbh": 6,
+                            "sbk": 99,
+                            "fwv": "3562S5.434",
+                            "cmt": 254,
+                            "newAppAvailable": false,
+                            "newBootloaderAvailable": false,
+                            "productCode": "3562"
+                        }
+                    ]
+                }
+                ,
+                {
+                    "asn": "s18.myenergi.net",
+                    "fwv": "3402S5.433",
+                    "vhub": 1
+                }
+                ]
+                """;
+    }
+
     public static String getExampleResponse() {
-        return "{\n" +
-                "    \"zappi\": [\n" +
-                "        {\n" +
-                "            \"sno\": 12345678,\n" +
-                "            \"dat\": \"16-02-2023\",\n" +
-                "            \"tim\": \"11:47:14\",\n" +
-                "            \"ectp1\": 0,\n" +
-                "            \"ectp2\": 54,\n" +
-                "            \"ectp3\": 0,\n" +
-                "            \"ectt1\": \"Internal Load\",\n" +
-                "            \"ectt2\": \"Grid\",\n" +
-                "            \"ectt3\": \"None\",\n" +
-                "            \"bsm\": 0,\n" +
-                "            \"bst\": 0,\n" +
-                "            \"cmt\": 254,\n" +
-                "            \"dst\": 1,\n" +
-                "            \"div\": 0,\n" +
-                "            \"frq\": 50.01,\n" +
-                "            \"fwv\": \"3562S4.525\",\n" +
-                "            \"gen\": 594,\n" +
-                "            \"grd\": 64,\n" +
-                "            \"pha\": 1,\n" +
-                "            \"pri\": 1,\n" +
-                "            \"sta\": 1,\n" +
-                "            \"tz\": 0,\n" +
-                "            \"vol\": 2389,\n" +
-                "            \"che\": 21.39,\n" +
-                "            \"bss\": 0,\n" +
-                "            \"lck\": 7,\n" +
-                "            \"pst\": \"A\",\n" +
-                "            \"zmo\": 3,\n" +
-                "            \"pwm\": 1200,\n" +
-                "            \"zs\": 256,\n" +
-                "            \"rdc\": -1,\n" +
-                "            \"rac\": 1,\n" +
-                "            \"rrac\": -3,\n" +
-                "            \"zsh\": 1,\n" +
-                "            \"ectt4\": \"None\",\n" +
-                "            \"ectt5\": \"None\",\n" +
-                "            \"ectt6\": \"None\",\n" +
-                "            \"newAppAvailable\": false,\n" +
-                "            \"newBootloaderAvailable\": false,\n" +
-                "            \"beingTamperedWith\": false,\n" +
-                "            \"batteryDischargeEnabled\": false,\n" +
-                "            \"mgl\": 30,\n" +
-                "            \"sbh\": 17,\n" +
-                "            \"sbk\": 5\n" +
-                "        }\n" +
-                "    ]\n" +
-                "}";
+        return """
+                {
+                    "zappi": [
+                        {
+                            "sno": 12345678,
+                            "dat": "16-02-2023",
+                            "tim": "11:47:14",
+                            "ectp1": 0,
+                            "ectp2": 54,
+                            "ectp3": 0,
+                            "ectt1": "Internal Load",
+                            "ectt2": "Grid",
+                            "ectt3": "None",
+                            "bsm": 0,
+                            "bst": 0,
+                            "cmt": 254,
+                            "dst": 1,
+                            "div": 0,
+                            "frq": 50.01,
+                            "fwv": "3562S4.525",
+                            "gen": 594,
+                            "grd": 64,
+                            "pha": 1,
+                            "pri": 1,
+                            "sta": 1,
+                            "tz": 0,
+                            "vol": 2389,
+                            "che": 21.39,
+                            "bss": 0,
+                            "lck": 7,
+                            "pst": "A",
+                            "zmo": 3,
+                            "pwm": 1200,
+                            "zs": 256,
+                            "rdc": -1,
+                            "rac": 1,
+                            "rrac": -3,
+                            "zsh": 1,
+                            "ectt4": "None",
+                            "ectt5": "None",
+                            "ectt6": "None",
+                            "newAppAvailable": false,
+                            "newBootloaderAvailable": false,
+                            "beingTamperedWith": false,
+                            "batteryDischargeEnabled": false,
+                            "mgl": 30,
+                            "sbh": 17,
+                            "sbk": 5
+                        }
+                    ]
+                }""";
     }
 
     public static String getExampleStatusResponse() {
-        return "[\n" +
-                "    {\n" +
-                "        \"eddi\":[ \n" +
-                "         { \n" +
-                "            \"dat\":\"09-09-2019\",\n" +
-                "            \"tim\":\"16:55:50\",\n" +
-                "            \"ectp1\":1,\n" +
-                "            \"ectp2\":1,\n" +
-                "            \"ectt1\":\"Grid\",\n" +
-                "            \"ectt2\":\"Generation\",\n" +
-                "            \"frq\":50.15,\n" +
-                "            \"gen\":304,\n" +
-                "            \"grd\":4429,\n" +
-                "            \"hno\":1,\n" +
-                "            \"pha\":3,\n" +
-                "            \"sno\":10088888,\n" +
-                "            \"sta\":1,\n" +
-                "            \"vol\":0.0,\n" +
-                "            \"ht1\":\"Tank 1\",\n" +
-                "            \"ht2\":\"Tank 2\",\n" +
-                "            \"tp1\":-1,\n" +
-                "            \"tp2\":-1,\n" +
-                "            \"pri\":2,\n" +
-                "            \"cmt\":254,\n" +
-                "            \"r1a\":1,\n" +
-                "            \"r2a\":1,\n" +
-                "            \"r2b\":1,\n" +
-                "            \"che\":1\n" +
-                "         }\n" +
-                "      ]" +
-                "    },\n" +
-                "    {\n" +
-                "        \"zappi\": [\n" +
-                "            {\n" +
-                "                \"sno\": 12345678,\n" +
-                "                \"dat\": \"08-07-2023\",\n" +
-                "                \"tim\": \"08:51:48\",\n" +
-                "                \"ectp1\": 0,\n" +
-                "                \"ectp2\": 3239,\n" +
-                "                \"ectp3\": 0,\n" +
-                "                \"ectt1\": \"Internal Load\",\n" +
-                "                \"ectt2\": \"Grid\",\n" +
-                "                \"ectt3\": \"None\",\n" +
-                "                \"bsm\": 0,\n" +
-                "                \"bst\": 0,\n" +
-                "                \"cmt\": 254,\n" +
-                "                \"dst\": 1,\n" +
-                "                \"div\": 0,\n" +
-                "                \"frq\": 50.02,\n" +
-                "                \"fwv\": \"3562S5.044\",\n" +
-                "                \"gen\": 2254,\n" +
-                "                \"grd\": 3582,\n" +
-                "                \"pha\": 1,\n" +
-                "                \"pri\": 1,\n" +
-                "                \"sta\": 4,\n" +
-                "                \"tz\": 0,\n" +
-                "                \"vol\": 2286,\n" +
-                "                \"bss\": 0,\n" +
-                "                \"lck\": 7,\n" +
-                "                \"pst\": \"A\",\n" +
-                "                \"zmo\": 1,\n" +
-                "                \"pwm\": 1000,\n" +
-                "                \"zs\": 256,\n" +
-                "                \"rdc\": -1,\n" +
-                "                \"rac\": 3,\n" +
-                "                \"rrac\": -4,\n" +
-                "                \"zsh\": 1,\n" +
-                "                \"ectt4\": \"None\",\n" +
-                "                \"ectt5\": \"None\",\n" +
-                "                \"ectt6\": \"None\",\n" +
-                "                \"newAppAvailable\": false,\n" +
-                "                \"newBootloaderAvailable\": false,\n" +
-                "                \"beingTamperedWith\": false,\n" +
-                "                \"batteryDischargeEnabled\": false,\n" +
-                "                \"g100LockoutState\": \"NONE\",\n" +
-                "                \"mgl\": 30,\n" +
-                "                \"sbh\": 3,\n" +
-                "                \"sbk\": 99\n" +
-                "            }\n" +
-                "        ]\n" +
-                "    },\n" +
-                "    {\n" +
-                "        \"harvi\": [\n" +
-                "            {\n" +
-                "                \"sno\": 10203040,\n" +
-                "                \"dat\": \"08-07-2023\",\n" +
-                "                \"tim\": \"08:51:48\",\n" +
-                "                \"ectp1\": 2254,\n" +
-                "                \"ectp2\": 0,\n" +
-                "                \"ectp3\": 0,\n" +
-                "                \"ectt1\": \"Generation\",\n" +
-                "                \"ectt2\": \"None\",\n" +
-                "                \"ectt3\": \"None\",\n" +
-                "                \"ect1p\": 1,\n" +
-                "                \"ect2p\": 1,\n" +
-                "                \"ect3p\": 1,\n" +
-                "                \"fwv\": \"3170S0.000\"\n" +
-                "            }\n" +
-                "        ]\n" +
-                "    },\n" +
-                "    {\n" +
-                "        \"libbi\": []\n" +
-                "    },\n" +
-                "    {\n" +
-                "        \"asn\": \"s18.myenergi.net\",\n" +
-                "        \"fwv\": \"3401S5.044\",\n" +
-                "        \"vhub\": 1\n" +
-                "    }\n" +
-                "]";
+        return """
+                [
+                    {
+                        "eddi":[\s
+                         {\s
+                            "dat":"09-09-2019",
+                            "tim":"16:55:50",
+                            "ectp1":1,
+                            "ectp2":1,
+                            "ectt1":"Grid",
+                            "ectt2":"Generation",
+                            "frq":50.15,
+                            "gen":304,
+                            "grd":4429,
+                            "hno":1,
+                            "pha":3,
+                            "sno":10088888,
+                            "sta":1,
+                            "vol":0.0,
+                            "ht1":"Tank 1",
+                            "ht2":"Tank 2",
+                            "tp1":-1,
+                            "tp2":-1,
+                            "pri":2,
+                            "cmt":254,
+                            "r1a":1,
+                            "r2a":1,
+                            "r2b":1,
+                            "che":1
+                         }
+                      ]    },
+                    {
+                        "zappi": [
+                            {
+                                "sno": 12345678,
+                                "dat": "08-07-2023",
+                                "tim": "08:51:48",
+                                "ectp1": 0,
+                                "ectp2": 3239,
+                                "ectp3": 0,
+                                "ectt1": "Internal Load",
+                                "ectt2": "Grid",
+                                "ectt3": "None",
+                                "bsm": 0,
+                                "bst": 0,
+                                "cmt": 254,
+                                "dst": 1,
+                                "div": 0,
+                                "frq": 50.02,
+                                "fwv": "3562S5.044",
+                                "gen": 2254,
+                                "grd": 3582,
+                                "pha": 1,
+                                "pri": 1,
+                                "sta": 4,
+                                "tz": 0,
+                                "vol": 2286,
+                                "bss": 0,
+                                "lck": 7,
+                                "pst": "A",
+                                "zmo": 1,
+                                "pwm": 1000,
+                                "zs": 256,
+                                "rdc": -1,
+                                "rac": 3,
+                                "rrac": -4,
+                                "zsh": 1,
+                                "ectt4": "None",
+                                "ectt5": "None",
+                                "ectt6": "None",
+                                "newAppAvailable": false,
+                                "newBootloaderAvailable": false,
+                                "beingTamperedWith": false,
+                                "batteryDischargeEnabled": false,
+                                "g100LockoutState": "NONE",
+                                "mgl": 30,
+                                "sbh": 3,
+                                "sbk": 99
+                            }
+                        ]
+                    },
+                    {
+                        "harvi": [
+                            {
+                                "sno": 10203040,
+                                "dat": "08-07-2023",
+                                "tim": "08:51:48",
+                                "ectp1": 2254,
+                                "ectp2": 0,
+                                "ectp3": 0,
+                                "ectt1": "Generation",
+                                "ectt2": "None",
+                                "ectt3": "None",
+                                "ect1p": 1,
+                                "ect2p": 1,
+                                "ect3p": 1,
+                                "fwv": "3170S0.000"
+                            }
+                        ]
+                    },
+                    {
+                        "libbi": []
+                    },
+                    {
+                        "asn": "s18.myenergi.net",
+                        "fwv": "3401S5.044",
+                        "vhub": 1
+                    }
+                ]""";
     }
 
     public static String getHistoryResponse() {
-        return "{\n" +
-                "    \"U20149781\": [\n" +
-                "        {\n" +
-                "            \"yr\": 2023,\n" +
-                "            \"mon\": 1,\n" +
-                "            \"dom\": 20,\n" +
-                "            \"dow\": \"Fri\",\n" +
-                "            \"imp\": 173040,\n" +
-                "            \"gen\": 360,\n" +
-                "            \"pect1\": 171300,\n" +
-                "            \"v1\": 2412,\n" +
-                "            \"frq\": 5005\n" +
-                "        },\n" +
-                "        {\n" +
-                "            \"yr\": 2023,\n" +
-                "            \"mon\": 1,\n" +
-                "            \"dom\": 20,\n" +
-                "            \"dow\": \"Fri\",\n" +
-                "            \"min\": 1,\n" +
-                "            \"imp\": 36960,\n" +
-                "            \"pect1\": 37020,\n" +
-                "            \"v1\": 2434,\n" +
-                "            \"frq\": 5005\n" +
-                "        },\n" +
-                "        {\n" +
-                "            \"yr\": 2023,\n" +
-                "            \"mon\": 1,\n" +
-                "            \"dom\": 20,\n" +
-                "            \"dow\": \"Fri\",\n" +
-                "            \"min\": 2,\n" +
-                "            \"imp\": 37740,\n" +
-                "            \"pect1\": 37740,\n" +
-                "            \"v1\": 2433,\n" +
-                "            \"frq\": 5004\n" +
-                "        },\n" +
-                "        {\n" +
-                "            \"yr\": 2023,\n" +
-                "            \"mon\": 1,\n" +
-                "            \"dom\": 20,\n" +
-                "            \"dow\": \"Fri\",\n" +
-                "            \"min\": 3,\n" +
-                "            \"imp\": 37740,\n" +
-                "            \"pect1\": 37740,\n" +
-                "            \"v1\": 2437,\n" +
-                "            \"frq\": 5002\n" +
-                "        },\n" +
-                "        {\n" +
-                "            \"yr\": 2023,\n" +
-                "            \"mon\": 1,\n" +
-                "            \"dom\": 20,\n" +
-                "            \"dow\": \"Fri\",\n" +
-                "            \"min\": 4,\n" +
-                "            \"imp\": 37560,\n" +
-                "            \"pect1\": 37560,\n" +
-                "            \"v1\": 2429,\n" +
-                "            \"frq\": 5000\n" +
-                "        }\n" +
-                "    ]\n" +
-                "}";
+        return """
+                {
+                    "U20149781": [
+                        {
+                            "yr": 2023,
+                            "mon": 1,
+                            "dom": 20,
+                            "dow": "Fri",
+                            "imp": 173040,
+                            "gen": 360,
+                            "pect1": 171300,
+                            "v1": 2412,
+                            "frq": 5005
+                        },
+                        {
+                            "yr": 2023,
+                            "mon": 1,
+                            "dom": 20,
+                            "dow": "Fri",
+                            "min": 1,
+                            "imp": 36960,
+                            "pect1": 37020,
+                            "v1": 2434,
+                            "frq": 5005
+                        },
+                        {
+                            "yr": 2023,
+                            "mon": 1,
+                            "dom": 20,
+                            "dow": "Fri",
+                            "min": 2,
+                            "imp": 37740,
+                            "pect1": 37740,
+                            "v1": 2433,
+                            "frq": 5004
+                        },
+                        {
+                            "yr": 2023,
+                            "mon": 1,
+                            "dom": 20,
+                            "dow": "Fri",
+                            "min": 3,
+                            "imp": 37740,
+                            "pect1": 37740,
+                            "v1": 2437,
+                            "frq": 5002
+                        },
+                        {
+                            "yr": 2023,
+                            "mon": 1,
+                            "dom": 20,
+                            "dow": "Fri",
+                            "min": 4,
+                            "imp": 37560,
+                            "pect1": 37560,
+                            "v1": 2429,
+                            "frq": 5000
+                        }
+                    ]
+                }""";
     }
 
     public static String getHourlyHistoryResponse() {
-        return "{\n" +
-                "    \"U12345678\": [\n" +
-                "        {\n" +
-                "            \"yr\": 2023,\n" +
-                "            \"mon\": 5,\n" +
-                "            \"dom\": 20,\n" +
-                "            \"imp\": 1042680,\n" +
-                "            \"gep\": 900,\n" +
-                "            \"gen\": 1260,\n" +
-                "            \"dow\": \"Sat\"\n" +
-                "        },\n" +
-                "        {\n" +
-                "            \"yr\": 2023,\n" +
-                "            \"mon\": 5,\n" +
-                "            \"dom\": 20,\n" +
-                "            \"hr\": 1,\n" +
-                "            \"imp\": 1017480,\n" +
-                "            \"gep\": 480,\n" +
-                "            \"gen\": 1740,\n" +
-                "            \"dow\": \"Sat\"\n" +
-                "        },\n" +
-                "        {\n" +
-                "            \"yr\": 2023,\n" +
-                "            \"mon\": 5,\n" +
-                "            \"dom\": 20,\n" +
-                "            \"hr\": 2,\n" +
-                "            \"imp\": 1086360,\n" +
-                "            \"gep\": 300,\n" +
-                "            \"gen\": 1380,\n" +
-                "            \"dow\": \"Sat\"\n" +
-                "        },\n" +
-                "        {\n" +
-                "            \"yr\": 2023,\n" +
-                "            \"mon\": 5,\n" +
-                "            \"dom\": 20,\n" +
-                "            \"hr\": 3,\n" +
-                "            \"imp\": 948180,\n" +
-                "            \"gep\": 1080,\n" +
-                "            \"gen\": 4800,\n" +
-                "            \"dow\": \"Sat\"\n" +
-                "        },\n" +
-                "        {\n" +
-                "            \"yr\": 2023,\n" +
-                "            \"mon\": 5,\n" +
-                "            \"dom\": 20,\n" +
-                "            \"hr\": 4,\n" +
-                "            \"imp\": 976140,\n" +
-                "            \"gep\": 300,\n" +
-                "            \"gen\": 1980,\n" +
-                "            \"dow\": \"Sat\"\n" +
-                "        },\n" +
-                "        {\n" +
-                "            \"yr\": 2023,\n" +
-                "            \"mon\": 5,\n" +
-                "            \"dom\": 20,\n" +
-                "            \"hr\": 5,\n" +
-                "            \"imp\": 576900,\n" +
-                "            \"gep\": 415680,\n" +
-                "            \"gen\": 1080,\n" +
-                "            \"dow\": \"Sat\"\n" +
-                "        },\n" +
-                "        {\n" +
-                "            \"yr\": 2023,\n" +
-                "            \"mon\": 5,\n" +
-                "            \"dom\": 20,\n" +
-                "            \"hr\": 6,\n" +
-                "            \"imp\": 3720360,\n" +
-                "            \"exp\": 129720,\n" +
-                "            \"gep\": 1577880,\n" +
-                "            \"dow\": \"Sat\"\n" +
-                "        },\n" +
-                "        {\n" +
-                "            \"yr\": 2023,\n" +
-                "            \"mon\": 5,\n" +
-                "            \"dom\": 20,\n" +
-                "            \"hr\": 7,\n" +
-                "            \"imp\": 3035040,\n" +
-                "            \"exp\": 730320,\n" +
-                "            \"gep\": 3446940,\n" +
-                "            \"h1d\": 647220,\n" +
-                "            \"dow\": \"Sat\"\n" +
-                "        },\n" +
-                "        {\n" +
-                "            \"yr\": 2023,\n" +
-                "            \"mon\": 5,\n" +
-                "            \"dom\": 20,\n" +
-                "            \"hr\": 8,\n" +
-                "            \"imp\": 1100340,\n" +
-                "            \"exp\": 530220,\n" +
-                "            \"gep\": 4223940,\n" +
-                "            \"h1d\": 2896740,\n" +
-                "            \"dow\": \"Sat\"\n" +
-                "        },\n" +
-                "        {\n" +
-                "            \"yr\": 2023,\n" +
-                "            \"mon\": 5,\n" +
-                "            \"dom\": 20,\n" +
-                "            \"hr\": 9,\n" +
-                "            \"imp\": 2297460,\n" +
-                "            \"exp\": 437760,\n" +
-                "            \"gep\": 4115580,\n" +
-                "            \"h1d\": 3323640,\n" +
-                "            \"dow\": \"Sat\"\n" +
-                "        },\n" +
-                "        {\n" +
-                "            \"yr\": 2023,\n" +
-                "            \"mon\": 5,\n" +
-                "            \"dom\": 20,\n" +
-                "            \"hr\": 10,\n" +
-                "            \"imp\": 192600,\n" +
-                "            \"exp\": 604860,\n" +
-                "            \"gep\": 10543800,\n" +
-                "            \"h1d\": 8153880,\n" +
-                "            \"dow\": \"Sat\"\n" +
-                "        },\n" +
-                "        {\n" +
-                "            \"yr\": 2023,\n" +
-                "            \"mon\": 5,\n" +
-                "            \"dom\": 20,\n" +
-                "            \"hr\": 11,\n" +
-                "            \"imp\": 1298700,\n" +
-                "            \"exp\": 2353140,\n" +
-                "            \"gep\": 7152840,\n" +
-                "            \"h1d\": 1368180,\n" +
-                "            \"dow\": \"Sat\"\n" +
-                "        },\n" +
-                "        {\n" +
-                "            \"yr\": 2023,\n" +
-                "            \"mon\": 5,\n" +
-                "            \"dom\": 20,\n" +
-                "            \"hr\": 12,\n" +
-                "            \"exp\": 8722680,\n" +
-                "            \"gep\": 10226340,\n" +
-                "            \"dow\": \"Sat\"\n" +
-                "        },\n" +
-                "        {\n" +
-                "            \"yr\": 2023,\n" +
-                "            \"mon\": 5,\n" +
-                "            \"dom\": 20,\n" +
-                "            \"hr\": 13,\n" +
-                "            \"imp\": 358080,\n" +
-                "            \"exp\": 976320,\n" +
-                "            \"gep\": 8334360,\n" +
-                "            \"h1d\": 5715780,\n" +
-                "            \"dow\": \"Sat\"\n" +
-                "        },\n" +
-                "        {\n" +
-                "            \"yr\": 2023,\n" +
-                "            \"mon\": 5,\n" +
-                "            \"dom\": 20,\n" +
-                "            \"hr\": 14,\n" +
-                "            \"imp\": 887580,\n" +
-                "            \"exp\": 418860,\n" +
-                "            \"gep\": 5537220,\n" +
-                "            \"h1d\": 2338200,\n" +
-                "            \"dow\": \"Sat\"\n" +
-                "        },\n" +
-                "        {\n" +
-                "            \"yr\": 2023,\n" +
-                "            \"mon\": 5,\n" +
-                "            \"dom\": 20,\n" +
-                "            \"hr\": 15,\n" +
-                "            \"imp\": 985860,\n" +
-                "            \"exp\": 418200,\n" +
-                "            \"gep\": 4686600,\n" +
-                "            \"h1d\": 4025040,\n" +
-                "            \"dow\": \"Sat\"\n" +
-                "        },\n" +
-                "        {\n" +
-                "            \"yr\": 2023,\n" +
-                "            \"mon\": 5,\n" +
-                "            \"dom\": 20,\n" +
-                "            \"hr\": 16,\n" +
-                "            \"imp\": 1701600,\n" +
-                "            \"exp\": 174660,\n" +
-                "            \"gep\": 2464200,\n" +
-                "            \"h1d\": 1048380,\n" +
-                "            \"dow\": \"Sat\"\n" +
-                "        },\n" +
-                "        {\n" +
-                "            \"yr\": 2023,\n" +
-                "            \"mon\": 5,\n" +
-                "            \"dom\": 20,\n" +
-                "            \"hr\": 17,\n" +
-                "            \"imp\": 1017900,\n" +
-                "            \"gep\": 895920,\n" +
-                "            \"dow\": \"Sat\"\n" +
-                "        },\n" +
-                "        {\n" +
-                "            \"yr\": 2023,\n" +
-                "            \"mon\": 5,\n" +
-                "            \"dom\": 20,\n" +
-                "            \"hr\": 18,\n" +
-                "            \"imp\": 1460340,\n" +
-                "            \"gep\": 764880,\n" +
-                "            \"dow\": \"Sat\"\n" +
-                "        },\n" +
-                "        {\n" +
-                "            \"yr\": 2023,\n" +
-                "            \"mon\": 5,\n" +
-                "            \"dom\": 20,\n" +
-                "            \"hr\": 19,\n" +
-                "            \"imp\": 3048660,\n" +
-                "            \"gep\": 552540,\n" +
-                "            \"dow\": \"Sat\"\n" +
-                "        },\n" +
-                "        {\n" +
-                "            \"yr\": 2023,\n" +
-                "            \"mon\": 5,\n" +
-                "            \"dom\": 20,\n" +
-                "            \"hr\": 20,\n" +
-                "            \"imp\": 2626860,\n" +
-                "            \"gep\": 10740,\n" +
-                "            \"dow\": \"Sat\"\n" +
-                "        },\n" +
-                "        {\n" +
-                "            \"yr\": 2023,\n" +
-                "            \"mon\": 5,\n" +
-                "            \"dom\": 20,\n" +
-                "            \"hr\": 21,\n" +
-                "            \"imp\": 4820220,\n" +
-                "            \"gep\": 480,\n" +
-                "            \"gen\": 1800,\n" +
-                "            \"dow\": \"Sat\"\n" +
-                "        },\n" +
-                "        {\n" +
-                "            \"yr\": 2023,\n" +
-                "            \"mon\": 5,\n" +
-                "            \"dom\": 20,\n" +
-                "            \"hr\": 22,\n" +
-                "            \"imp\": 21387900,\n" +
-                "            \"gep\": 900,\n" +
-                "            \"gen\": 1680,\n" +
-                "            \"h1b\": 19815540,\n" +
-                "            \"dow\": \"Sat\"\n" +
-                "        },\n" +
-                "        {\n" +
-                "            \"yr\": 2023,\n" +
-                "            \"mon\": 5,\n" +
-                "            \"dom\": 20,\n" +
-                "            \"hr\": 23,\n" +
-                "            \"imp\": 28019520,\n" +
-                "            \"gep\": 480,\n" +
-                "            \"gen\": 3600,\n" +
-                "            \"h1b\": 26640840,\n" +
-                "            \"dow\": \"Sat\"\n" +
-                "        }\n" +
-                "    ]\n" +
-                "}";
+        return """
+                {
+                    "U12345678": [
+                        {
+                            "yr": 2023,
+                            "mon": 5,
+                            "dom": 20,
+                            "imp": 1042680,
+                            "gep": 900,
+                            "gen": 1260,
+                            "dow": "Sat"
+                        },
+                        {
+                            "yr": 2023,
+                            "mon": 5,
+                            "dom": 20,
+                            "hr": 1,
+                            "imp": 1017480,
+                            "gep": 480,
+                            "gen": 1740,
+                            "dow": "Sat"
+                        },
+                        {
+                            "yr": 2023,
+                            "mon": 5,
+                            "dom": 20,
+                            "hr": 2,
+                            "imp": 1086360,
+                            "gep": 300,
+                            "gen": 1380,
+                            "dow": "Sat"
+                        },
+                        {
+                            "yr": 2023,
+                            "mon": 5,
+                            "dom": 20,
+                            "hr": 3,
+                            "imp": 948180,
+                            "gep": 1080,
+                            "gen": 4800,
+                            "dow": "Sat"
+                        },
+                        {
+                            "yr": 2023,
+                            "mon": 5,
+                            "dom": 20,
+                            "hr": 4,
+                            "imp": 976140,
+                            "gep": 300,
+                            "gen": 1980,
+                            "dow": "Sat"
+                        },
+                        {
+                            "yr": 2023,
+                            "mon": 5,
+                            "dom": 20,
+                            "hr": 5,
+                            "imp": 576900,
+                            "gep": 415680,
+                            "gen": 1080,
+                            "dow": "Sat"
+                        },
+                        {
+                            "yr": 2023,
+                            "mon": 5,
+                            "dom": 20,
+                            "hr": 6,
+                            "imp": 3720360,
+                            "exp": 129720,
+                            "gep": 1577880,
+                            "dow": "Sat"
+                        },
+                        {
+                            "yr": 2023,
+                            "mon": 5,
+                            "dom": 20,
+                            "hr": 7,
+                            "imp": 3035040,
+                            "exp": 730320,
+                            "gep": 3446940,
+                            "h1d": 647220,
+                            "dow": "Sat"
+                        },
+                        {
+                            "yr": 2023,
+                            "mon": 5,
+                            "dom": 20,
+                            "hr": 8,
+                            "imp": 1100340,
+                            "exp": 530220,
+                            "gep": 4223940,
+                            "h1d": 2896740,
+                            "dow": "Sat"
+                        },
+                        {
+                            "yr": 2023,
+                            "mon": 5,
+                            "dom": 20,
+                            "hr": 9,
+                            "imp": 2297460,
+                            "exp": 437760,
+                            "gep": 4115580,
+                            "h1d": 3323640,
+                            "dow": "Sat"
+                        },
+                        {
+                            "yr": 2023,
+                            "mon": 5,
+                            "dom": 20,
+                            "hr": 10,
+                            "imp": 192600,
+                            "exp": 604860,
+                            "gep": 10543800,
+                            "h1d": 8153880,
+                            "dow": "Sat"
+                        },
+                        {
+                            "yr": 2023,
+                            "mon": 5,
+                            "dom": 20,
+                            "hr": 11,
+                            "imp": 1298700,
+                            "exp": 2353140,
+                            "gep": 7152840,
+                            "h1d": 1368180,
+                            "dow": "Sat"
+                        },
+                        {
+                            "yr": 2023,
+                            "mon": 5,
+                            "dom": 20,
+                            "hr": 12,
+                            "exp": 8722680,
+                            "gep": 10226340,
+                            "dow": "Sat"
+                        },
+                        {
+                            "yr": 2023,
+                            "mon": 5,
+                            "dom": 20,
+                            "hr": 13,
+                            "imp": 358080,
+                            "exp": 976320,
+                            "gep": 8334360,
+                            "h1d": 5715780,
+                            "dow": "Sat"
+                        },
+                        {
+                            "yr": 2023,
+                            "mon": 5,
+                            "dom": 20,
+                            "hr": 14,
+                            "imp": 887580,
+                            "exp": 418860,
+                            "gep": 5537220,
+                            "h1d": 2338200,
+                            "dow": "Sat"
+                        },
+                        {
+                            "yr": 2023,
+                            "mon": 5,
+                            "dom": 20,
+                            "hr": 15,
+                            "imp": 985860,
+                            "exp": 418200,
+                            "gep": 4686600,
+                            "h1d": 4025040,
+                            "dow": "Sat"
+                        },
+                        {
+                            "yr": 2023,
+                            "mon": 5,
+                            "dom": 20,
+                            "hr": 16,
+                            "imp": 1701600,
+                            "exp": 174660,
+                            "gep": 2464200,
+                            "h1d": 1048380,
+                            "dow": "Sat"
+                        },
+                        {
+                            "yr": 2023,
+                            "mon": 5,
+                            "dom": 20,
+                            "hr": 17,
+                            "imp": 1017900,
+                            "gep": 895920,
+                            "dow": "Sat"
+                        },
+                        {
+                            "yr": 2023,
+                            "mon": 5,
+                            "dom": 20,
+                            "hr": 18,
+                            "imp": 1460340,
+                            "gep": 764880,
+                            "dow": "Sat"
+                        },
+                        {
+                            "yr": 2023,
+                            "mon": 5,
+                            "dom": 20,
+                            "hr": 19,
+                            "imp": 3048660,
+                            "gep": 552540,
+                            "dow": "Sat"
+                        },
+                        {
+                            "yr": 2023,
+                            "mon": 5,
+                            "dom": 20,
+                            "hr": 20,
+                            "imp": 2626860,
+                            "gep": 10740,
+                            "dow": "Sat"
+                        },
+                        {
+                            "yr": 2023,
+                            "mon": 5,
+                            "dom": 20,
+                            "hr": 21,
+                            "imp": 4820220,
+                            "gep": 480,
+                            "gen": 1800,
+                            "dow": "Sat"
+                        },
+                        {
+                            "yr": 2023,
+                            "mon": 5,
+                            "dom": 20,
+                            "hr": 22,
+                            "imp": 21387900,
+                            "gep": 900,
+                            "gen": 1680,
+                            "h1b": 19815540,
+                            "dow": "Sat"
+                        },
+                        {
+                            "yr": 2023,
+                            "mon": 5,
+                            "dom": 20,
+                            "hr": 23,
+                            "imp": 28019520,
+                            "gep": 480,
+                            "gen": 3600,
+                            "h1b": 26640840,
+                            "dow": "Sat"
+                        }
+                    ]
+                }""";
     }
 }
