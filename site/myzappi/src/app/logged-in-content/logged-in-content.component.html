@@ -39,8 +39,12 @@
                     <table id="devicesTable" class="devicesTable">
                         <tbody>
                           <tr *ngFor="let row of devices; let i = index">
-                              <b>{{row.deviceClass}}</b>: {{row.serialNumber}}
+                            <div *ngIf="row.deviceClass === 'ZAPPI'">
+                                <app-zappi-panel [serialNumber]="row.serialNumber" [bearerToken]="bearerToken"></app-zappi-panel>
+                            </div>
                               <div *ngIf="row.deviceClass === 'EDDI'">
+                                <b>{{row.deviceClass}}</b>: {{row.serialNumber}}
+                                <br>
                                 Heater 1: {{row.tank1Name}}
                                 <br>
                                 Heater 2: {{row.tank2Name}}
