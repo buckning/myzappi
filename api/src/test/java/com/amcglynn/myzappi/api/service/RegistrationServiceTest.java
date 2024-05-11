@@ -47,14 +47,19 @@ class RegistrationServiceTest {
     @Mock
     private StatusResponse mockEddiStatusResponse;
     @Mock
+    private StatusResponse mockLibbiStatusResponse;
+    @Mock
     private MyEnergiDeviceStatus mockZappiDeviceStatus;
     @Mock
     private MyEnergiDeviceStatus mockEddiDeviceStatus;
+    @Mock
+    private MyEnergiDeviceStatus mockLibbiDeviceStatus;
     private RegistrationService service;
     private final String apiKey = "testApiKey";
     private final SerialNumber hubSerialNumber = SerialNumber.from("11223344");
-    private final SerialNumber zappiSerialNumber = SerialNumber.from("56781234");
-    private final SerialNumber eddiSerialNumber = SerialNumber.from("09876543");
+    private final SerialNumber zappiSerialNumber = SerialNumber.from("10000001");
+    private final SerialNumber eddiSerialNumber = SerialNumber.from("20000001");
+    private final SerialNumber libbiSerialNumber = SerialNumber.from("30000001");
     private final UserId userId = UserId.from("testUserId");
 
     @BeforeEach
@@ -62,11 +67,17 @@ class RegistrationServiceTest {
         when(mockMyEnergiClientFactory.newMyEnergiClient(hubSerialNumber.toString(), apiKey)).thenReturn(mockMyEnergiClient);
         when(mockZappiDeviceStatus.getSerialNumber()).thenReturn(zappiSerialNumber.toString());
         when(mockEddiDeviceStatus.getSerialNumber()).thenReturn(eddiSerialNumber.toString());
+        when(mockLibbiDeviceStatus.getSerialNumber()).thenReturn(libbiSerialNumber.toString());
         when(mockZappiStatusResponse.getZappi()).thenReturn(List.of(mockZappiDeviceStatus));
         when(mockZappiStatusResponse.getEddi()).thenReturn(null);
+        when(mockZappiStatusResponse.getLibbi()).thenReturn(null);
         when(mockEddiStatusResponse.getEddi()).thenReturn(List.of(mockEddiDeviceStatus));
         when(mockEddiStatusResponse.getZappi()).thenReturn(null);
-        when(mockMyEnergiClient.getStatus()).thenReturn(List.of(mockZappiStatusResponse, mockEddiStatusResponse));
+        when(mockEddiStatusResponse.getLibbi()).thenReturn(null);
+        when(mockLibbiStatusResponse.getLibbi()).thenReturn(List.of(mockLibbiDeviceStatus));
+        when(mockLibbiStatusResponse.getZappi()).thenReturn(null);
+        when(mockLibbiStatusResponse.getEddi()).thenReturn(null);
+        when(mockMyEnergiClient.getStatus()).thenReturn(List.of(mockZappiStatusResponse, mockEddiStatusResponse, mockLibbiStatusResponse));
         service = new RegistrationService(mockLoginService, mockDevicesRepository, mockMyEnergiClientFactory);
     }
 
@@ -110,7 +121,7 @@ class RegistrationServiceTest {
     }
 
     @Test
-    void registerWithZappiAndEddi() {
+    void registerWithZappiAndEddiAndLibbi() {
         var eddiDeviceCaptor = ArgumentCaptor.forClass(EddiDevice.class);
         when(mockEddiDeviceStatus.getTank1Name()).thenReturn("tank1");
         when(mockEddiDeviceStatus.getTank2Name()).thenReturn("tank2");

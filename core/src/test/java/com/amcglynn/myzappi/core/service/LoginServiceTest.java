@@ -4,6 +4,7 @@ import com.amcglynn.myzappi.core.dal.CredentialsRepository;
 import com.amcglynn.myzappi.core.dal.DevicesRepository;
 import com.amcglynn.myzappi.core.model.EddiDevice;
 import com.amcglynn.myzappi.core.model.HubCredentials;
+import com.amcglynn.myzappi.core.model.MyEnergiDevice;
 import com.amcglynn.myzappi.core.model.SerialNumber;
 import com.amcglynn.myzappi.core.model.MyEnergiDeployment;
 import com.amcglynn.myzappi.core.model.UserId;
@@ -18,6 +19,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -74,7 +76,9 @@ class LoginServiceTest {
     void testRegisterSavesDetailsToDb() {
         when(mockEncryptionService.encrypt(anyString())).thenReturn(encryptedApiKey);
 
-        loginService.register(userId, zappiSerialNumber, serialNumber, null, "apiKey");
+        var devices = new ArrayList<MyEnergiDevice>();
+        devices.add(new ZappiDevice(zappiSerialNumber));
+        loginService.register(userId, serialNumber, "apiKey", devices);
 
         verify(mockEncryptionService).encrypt("apiKey");
         verify(mockCredentialsRepository).write(credsCaptor.capture());
@@ -89,8 +93,10 @@ class LoginServiceTest {
     @Test
     void testRegisterWithEddiSavesDetailsToDb() {
         when(mockEncryptionService.encrypt(anyString())).thenReturn(encryptedApiKey);
-
-        loginService.register(userId, zappiSerialNumber, serialNumber, new EddiDevice(serialNumber, "t1", "t2"), "apiKey");
+        var devices = new ArrayList<MyEnergiDevice>();
+        devices.add(new EddiDevice(serialNumber, "t1", "t2"));
+        devices.add(new ZappiDevice(zappiSerialNumber));
+        loginService.register(userId, serialNumber, "apiKey", devices);
 
         verify(mockEncryptionService).encrypt("apiKey");
         verify(mockCredentialsRepository).write(credsCaptor.capture());
@@ -104,15 +110,19 @@ class LoginServiceTest {
 
     @Test
     void testRefreshDeploymentDetailsWithNoEddi() {
-        loginService.refreshDeploymentDetails(UserId.from(userId), zappiSerialNumber, null);
-        verify(mockDevicesRepository).write(UserId.from(userId), List.of(new ZappiDevice(zappiSerialNumber)));
+        var devices = new ArrayList<MyEnergiDevice>();
+        devices.add(new ZappiDevice(zappiSerialNumber));
+        loginService.refreshDeploymentDetails(UserId.from(userId), devices);
+        verify(mockDevicesRepository).write(UserId.from(userId), devices);
     }
 
     @Test
     void testRefreshDeploymentDetailsWithEddi() {
-        loginService.refreshDeploymentDetails(UserId.from(userId), zappiSerialNumber, new EddiDevice(zappiSerialNumber, "t1", "t2"));
-        verify(mockDevicesRepository).write(UserId.from(userId), List.of(new ZappiDevice(zappiSerialNumber),
-                new EddiDevice(zappiSerialNumber, "t1", "t2")));
+        var devices = new ArrayList<MyEnergiDevice>();
+        devices.add(new EddiDevice(zappiSerialNumber, "t1", "t2"));
+        devices.add(new ZappiDevice(zappiSerialNumber));
+        loginService.refreshDeploymentDetails(UserId.from(userId), devices);
+        verify(mockDevicesRepository).write(UserId.from(userId), devices);
     }
 
     @Test

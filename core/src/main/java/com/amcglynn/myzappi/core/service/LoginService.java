@@ -2,16 +2,13 @@ package com.amcglynn.myzappi.core.service;
 
 import com.amcglynn.myzappi.core.dal.CredentialsRepository;
 import com.amcglynn.myzappi.core.dal.DevicesRepository;
-import com.amcglynn.myzappi.core.model.EddiDevice;
 import com.amcglynn.myzappi.core.model.HubCredentials;
 import com.amcglynn.myzappi.core.model.MyEnergiDevice;
 import com.amcglynn.myzappi.core.model.SerialNumber;
 import com.amcglynn.myzappi.core.model.MyEnergiDeployment;
 import com.amcglynn.myzappi.core.model.UserId;
-import com.amcglynn.myzappi.core.model.ZappiDevice;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,7 +27,7 @@ public class LoginService {
         this.encryptionService = encryptionService;
     }
 
-    public void register(String userId, SerialNumber zappiSerialNumber, SerialNumber serialNumber, EddiDevice eddiDevice, String apiKey) {
+    public void register(String userId, SerialNumber serialNumber, String apiKey, List<MyEnergiDevice> devices) {
         var encryptedKey = encryptionService.encrypt(apiKey);
         var newCreds = new MyEnergiDeployment(userId,
                 serialNumber,
@@ -39,22 +36,10 @@ public class LoginService {
         credentialsRepository.delete(userId);
         credentialsRepository.write(newCreds);
 
-        saveDeploymentDetails(UserId.from(userId), zappiSerialNumber, eddiDevice);
+        devicesRepository.write(UserId.from(userId), devices);
     }
 
-    public void refreshDeploymentDetails(UserId userId, SerialNumber zappiSerialNumber, EddiDevice eddiDevice) {
-        saveDeploymentDetails(userId, zappiSerialNumber, eddiDevice);
-    }
-
-    private void saveDeploymentDetails(UserId userId, SerialNumber zappiSerialNumber, EddiDevice eddiDevice) {
-        var devices = new ArrayList<MyEnergiDevice>();
-        var zappi = new ZappiDevice(zappiSerialNumber);
-        if (zappiSerialNumber != null) {
-            devices.add(zappi);
-        }
-        if (eddiDevice != null) {
-            devices.add(eddiDevice);
-        }
+    public void refreshDeploymentDetails(UserId userId, List<MyEnergiDevice> devices) {
         devicesRepository.write(userId, devices);
     }
 

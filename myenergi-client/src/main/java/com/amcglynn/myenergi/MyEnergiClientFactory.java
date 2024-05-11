@@ -8,11 +8,4 @@ public class MyEnergiClientFactory {
         }
         return new MyEnergiClient(serialNumber, apiKey);
     }
-
-    public MyEnergiClient newMyEnergiClient(String hubSerialNumber, String zappiSerialNumber, String eddiSerialNumber, String apiKey) {
-        if ("12345678".equals(hubSerialNumber) && "myDemoApiKey".equals(apiKey)) {
-            return new MockMyEnergiClient();
-        }
-        return new MyEnergiClient(zappiSerialNumber, hubSerialNumber, eddiSerialNumber, apiKey);
-    }
 }
