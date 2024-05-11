@@ -1,8 +1,19 @@
 package com.amcglynn.myenergi;
 
-public class ZappiResponse {
+/**
+ * Hub: 12345678
+ * Zappis: 10000001, 10000002, 10000003
+ * Eddis: 20000001, 20000002, 20000003
+ * Libbis: 30000001, 30000002, 30000003
+ */
+public class MockMyEnergiResponses {
 
-    private ZappiResponse() {}
+    private static final String ZAPPI_SERIAL_NUMBER_1 = "10000001";
+    private static final String EDDI_SERIAL_NUMBER_1 = "20000001";
+    private static final String LIBBI_SERIAL_NUMBER_1 = "30000001";
+    private static final String HARVI_SERIAL_NUMBER_1 = "40000001";
+
+    private MockMyEnergiResponses() {}
 
     public static String getErrorResponse() {
         return "{\"status\":\"-14\",\"statustext\":\"\"}";
@@ -13,13 +24,13 @@ public class ZappiResponse {
     }
 
     public static String getExampleJStatusResponseWithZappiEddiAndLibbiButNoHarvi() {
-        return """ 
+        return String.format(""" 
                 [
                 {
                     "eddi": [
                         {
                             "deviceClass": "EDDI",
-                            "sno": 12341234,
+                            "sno": %s,
                             "dat": "10-05-2024",
                             "tim": "15:19:32",
                             "ectp1": 4,
@@ -72,7 +83,7 @@ public class ZappiResponse {
                     "libbi": [
                         {
                             "deviceClass": "LIBBI",
-                            "sno": 12342345,
+                            "sno": %s,
                             "dat": "10-05-2024",
                             "tim": "15:19:32",
                             "ectp1": 1936,
@@ -122,7 +133,7 @@ public class ZappiResponse {
                     "zappi": [
                         {
                             "deviceClass": "ZAPPI",
-                            "sno": 12321432,
+                            "sno": %s,
                             "dat": "10-05-2024",
                             "tim": "15:19:32",
                             "ectp1": 0,
@@ -180,15 +191,15 @@ public class ZappiResponse {
                     "vhub": 1
                 }
                 ]
-                """;
+                """, EDDI_SERIAL_NUMBER_1, LIBBI_SERIAL_NUMBER_1, ZAPPI_SERIAL_NUMBER_1);
     }
 
     public static String getExampleResponse() {
-        return """
+        return String.format("""
                 {
                     "zappi": [
                         {
-                            "sno": 12345678,
+                            "sno": %s,
                             "dat": "16-02-2023",
                             "tim": "11:47:14",
                             "ectp1": 0,
@@ -234,11 +245,11 @@ public class ZappiResponse {
                             "sbk": 5
                         }
                     ]
-                }""";
+                }""", ZAPPI_SERIAL_NUMBER_1);
     }
 
     public static String getExampleStatusResponse() {
-        return """
+        return String.format("""
                 [
                     {
                         "eddi":[\s
@@ -254,7 +265,7 @@ public class ZappiResponse {
                             "grd":4429,
                             "hno":1,
                             "pha":3,
-                            "sno":10088888,
+                            "sno":%s,
                             "sta":1,
                             "vol":0.0,
                             "ht1":"Tank 1",
@@ -272,7 +283,7 @@ public class ZappiResponse {
                     {
                         "zappi": [
                             {
-                                "sno": 12345678,
+                                "sno": %s,
                                 "dat": "08-07-2023",
                                 "tim": "08:51:48",
                                 "ectp1": 0,
@@ -322,7 +333,7 @@ public class ZappiResponse {
                     {
                         "harvi": [
                             {
-                                "sno": 10203040,
+                                "sno": %s,
                                 "dat": "08-07-2023",
                                 "tim": "08:51:48",
                                 "ectp1": 2254,
@@ -346,7 +357,7 @@ public class ZappiResponse {
                         "fwv": "3401S5.044",
                         "vhub": 1
                     }
-                ]""";
+                ]""", EDDI_SERIAL_NUMBER_1, ZAPPI_SERIAL_NUMBER_1, HARVI_SERIAL_NUMBER_1);
     }
 
     public static String getHistoryResponse() {

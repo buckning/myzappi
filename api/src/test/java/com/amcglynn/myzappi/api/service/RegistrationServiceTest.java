@@ -52,7 +52,7 @@ class RegistrationServiceTest {
     private MyEnergiDeviceStatus mockEddiDeviceStatus;
     private RegistrationService service;
     private final String apiKey = "testApiKey";
-    private final SerialNumber hubSerialNumber = SerialNumber.from("12345678");
+    private final SerialNumber hubSerialNumber = SerialNumber.from("11223344");
     private final SerialNumber zappiSerialNumber = SerialNumber.from("56781234");
     private final SerialNumber eddiSerialNumber = SerialNumber.from("09876543");
     private final UserId userId = UserId.from("testUserId");
@@ -160,28 +160,5 @@ class RegistrationServiceTest {
         verify(mockMyEnergiClientFactory).newMyEnergiClient(hubSerialNumber.toString(), apiKey);
         verify(mockMyEnergiClientFactory).newMyEnergiClient(hubSerialNumber.toString(), zappiSerialNumber.toString(),
                 null, apiKey);
-    }
-
-    @Test
-    void registerTestAccount() {
-        var eddiDeviceCaptor = ArgumentCaptor.forClass(EddiDevice.class);
-        when(mockMyEnergiClientFactory.newMyEnergiClient(zappiSerialNumber.toString(), hubSerialNumber.toString(), null, apiKey))
-                .thenReturn(mockMyEnergiClient);
-
-        when(mockEddiStatusResponse.getEddi()).thenReturn(List.of());
-        when(mockEddiStatusResponse.getZappi()).thenReturn(List.of());
-        when(mockMyEnergiClient.getStatus()).thenReturn(List.of(mockZappiStatusResponse, mockEddiStatusResponse));
-
-        service.register(userId, SerialNumber.from("12345678"), "myDemoApiKey");
-
-        verify(mockLoginService).register(eq(userId.toString()), eq(SerialNumber.from("12345678")),
-                eq(SerialNumber.from("12345678")), eddiDeviceCaptor.capture(), eq("myDemoApiKey"));
-        verify(mockMyEnergiClientFactory, never()).newMyEnergiClient(anyString(), anyString());
-        verify(mockMyEnergiClientFactory, never()).newMyEnergiClient(any(),
-                anyString(), anyString(), anyString());
-        assertThat(eddiDeviceCaptor.getAllValues()).hasSize(1);
-        assertThat(eddiDeviceCaptor.getValue().getSerialNumber()).isEqualTo(SerialNumber.from("09876543"));
-        assertThat(eddiDeviceCaptor.getValue().getTank1Name()).isEqualTo("tank1");
-        assertThat(eddiDeviceCaptor.getValue().getTank2Name()).isEqualTo("tank2");
     }
 }

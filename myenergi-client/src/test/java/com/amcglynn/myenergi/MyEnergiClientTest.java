@@ -42,13 +42,13 @@ class MyEnergiClientTest {
         var mockResponse = new MockResponse()
                 .setResponseCode(200)
                 .addHeader("x_myenergi-asn", mockWebServer.url("").uri())
-                .setBody(ZappiResponse.getExampleResponse());
+                .setBody(MockMyEnergiResponses.getExampleResponse());
         mockWebServer.enqueue(mockResponse);
         var response = client.getZappiStatus();
 
         assertThat(response.getZappi()).hasSize(1);
         var zappiResponse = response.getZappi().get(0);
-        assertThat(zappiResponse.getSerialNumber()).isEqualTo("12345678");
+        assertThat(zappiResponse.getSerialNumber()).isEqualTo("10000001");
         assertThat(zappiResponse.getSolarGeneration()).isEqualTo(594);
         assertThat(zappiResponse.getChargeAddedThisSessionKwh()).isEqualTo(21.39);
         assertThat(zappiResponse.getEvConnectionStatus()).isEqualTo("A");
@@ -62,7 +62,7 @@ class MyEnergiClientTest {
         var mockResponse = new MockResponse()
                 .setResponseCode(200)
                 .addHeader("x_myenergi-asn", mockWebServer.url("").uri())
-                .setBody(ZappiResponse.getExampleStatusResponse());
+                .setBody(MockMyEnergiResponses.getExampleStatusResponse());
         mockWebServer.enqueue(mockResponse);
         var response = client.getStatus();
 
@@ -81,17 +81,17 @@ class MyEnergiClientTest {
         assertThat(hub).isPresent();
 
         assertThat(zappis.get().getZappi()).hasSize(1);
-        assertThat(zappis.get().getZappi().get(0).getSerialNumber()).isEqualTo("12345678");
+        assertThat(zappis.get().getZappi().get(0).getSerialNumber()).isEqualTo("10000001");
 
         assertThat(libbis.get().getLibbi()).isEmpty();
 
         assertThat(eddis.get().getEddi()).hasSize(1);
-        assertThat(eddis.get().getEddi().get(0).getSerialNumber()).isEqualTo("10088888");
+        assertThat(eddis.get().getEddi().get(0).getSerialNumber()).isEqualTo("20000001");
         assertThat(eddis.get().getEddi().get(0).getTank1Name()).isEqualTo("Tank 1");
         assertThat(eddis.get().getEddi().get(0).getTank2Name()).isEqualTo("Tank 2");
 
         assertThat(harvis.get().getHarvi()).hasSize(1);
-        assertThat(harvis.get().getHarvi().get(0).getSerialNumber()).isEqualTo("10203040");
+        assertThat(harvis.get().getHarvi().get(0).getSerialNumber()).isEqualTo("40000001");
 
         assertThat(hub.get().getAsn()).isEqualTo("s18.myenergi.net");
         assertThat(hub.get().getVhub()).isEqualTo(1);
@@ -103,7 +103,7 @@ class MyEnergiClientTest {
         var mockResponse = new MockResponse()
                 .setResponseCode(200)
                 .addHeader("x_myenergi-asn", mockWebServer.url("").uri())
-                .setBody(ZappiResponse.getExampleJStatusResponseWithZappiEddiAndLibbiButNoHarvi());
+                .setBody(MockMyEnergiResponses.getExampleJStatusResponseWithZappiEddiAndLibbiButNoHarvi());
         mockWebServer.enqueue(mockResponse);
         var response = client.getStatus();
 
@@ -122,12 +122,12 @@ class MyEnergiClientTest {
         assertThat(hub).isPresent();
 
         assertThat(zappis.get().getZappi()).hasSize(1);
-        assertThat(zappis.get().getZappi().get(0).getSerialNumber()).isEqualTo("12321432");
+        assertThat(zappis.get().getZappi().get(0).getSerialNumber()).isEqualTo("10000001");
 
-        assertThat(libbis.get().getLibbi().get(0).getSerialNumber()).isEqualTo("12342345");
+        assertThat(libbis.get().getLibbi().get(0).getSerialNumber()).isEqualTo("30000001");
 
         assertThat(eddis.get().getEddi()).hasSize(1);
-        assertThat(eddis.get().getEddi().get(0).getSerialNumber()).isEqualTo("12341234");
+        assertThat(eddis.get().getEddi().get(0).getSerialNumber()).isEqualTo("20000001");
         assertThat(eddis.get().getEddi().get(0).getTank1Name()).isEqualTo("Tank 1");
         assertThat(eddis.get().getEddi().get(0).getTank2Name()).isEqualTo("Tank 2");
 
@@ -143,7 +143,7 @@ class MyEnergiClientTest {
         var mockResponse = new MockResponse()
                 .setResponseCode(401)
                 .addHeader("x_myenergi-asn", mockWebServer.url("").uri())
-                .setBody(ZappiResponse.getErrorResponse());
+                .setBody(MockMyEnergiResponses.getErrorResponse());
         mockWebServer.enqueue(mockResponse);
         var throwable = catchThrowable(() -> client.getZappiStatus());
 
@@ -155,7 +155,7 @@ class MyEnergiClientTest {
         var mockResponse = new MockResponse()
                 .setResponseCode(200)
                 .addHeader("x_myenergi-asn", mockWebServer.url("").uri())
-                .setBody(ZappiResponse.getExampleResponse().substring(10));
+                .setBody(MockMyEnergiResponses.getExampleResponse().substring(10));
         mockWebServer.enqueue(mockResponse);
         var response = catchThrowable(() -> client.getZappiStatus());
 
@@ -166,7 +166,7 @@ class MyEnergiClientTest {
     void testGetStatusWithNoChargeAddedThisSession() {
         var mockResponse = new MockResponse()
                 .setResponseCode(200)
-                .setBody(ZappiResponse.getExampleResponse()
+                .setBody(MockMyEnergiResponses.getExampleResponse()
                         .replace("            \"che\": 21.39,\n", ""));
         mockWebServer.enqueue(mockResponse);
 
@@ -174,7 +174,7 @@ class MyEnergiClientTest {
 
         assertThat(response.getZappi()).hasSize(1);
         var zappiResponse = response.getZappi().get(0);
-        assertThat(zappiResponse.getSerialNumber()).isEqualTo("12345678");
+        assertThat(zappiResponse.getSerialNumber()).isEqualTo("10000001");
         assertThat(zappiResponse.getSolarGeneration()).isEqualTo(594);
         assertThat(zappiResponse.getChargeAddedThisSessionKwh()).isEqualTo(0.0);
         assertThat(zappiResponse.getEvConnectionStatus()).isEqualTo("A");
@@ -186,7 +186,7 @@ class MyEnergiClientTest {
     void testGetStatusWithNoLockStatus() {
         var mockResponse = new MockResponse()
                 .setResponseCode(200)
-                .setBody(ZappiResponse.getExampleResponse()
+                .setBody(MockMyEnergiResponses.getExampleResponse()
                         .replace("            \"lck\": 7,\n", ""));
         mockWebServer.enqueue(mockResponse);
 
@@ -194,7 +194,7 @@ class MyEnergiClientTest {
 
         assertThat(response.getZappi()).hasSize(1);
         var zappiResponse = response.getZappi().get(0);
-        assertThat(zappiResponse.getSerialNumber()).isEqualTo("12345678");
+        assertThat(zappiResponse.getSerialNumber()).isEqualTo("10000001");
         assertThat(zappiResponse.getLockStatus()).isEqualTo(LockStatus.UNKNOWN.getCode());
 
     }
@@ -203,7 +203,7 @@ class MyEnergiClientTest {
     void testBoostModeThrowsInvalidRequestExceptionWhenMinuteIsNotDivisibleBy15() {
         var mockResponse = new MockResponse()
                 .setResponseCode(200)
-                .setBody(ZappiResponse.getErrorResponse());
+                .setBody(MockMyEnergiResponses.getErrorResponse());
         mockWebServer.enqueue(mockResponse);
         var endTime = LocalTime.now().withMinute(3);
         var kiloWattHour = new KiloWattHour(5);
@@ -216,7 +216,7 @@ class MyEnergiClientTest {
     void testSmartBoostUrlIsCorrectlyFormed() throws Exception {
         var mockResponse = new MockResponse()
                 .setResponseCode(200)
-                .setBody(ZappiResponse.getGenericResponse());
+                .setBody(MockMyEnergiResponses.getGenericResponse());
         mockWebServer.enqueue(mockResponse);
         var endTime = LocalTime.now().withHour(2).withMinute(15);
 
@@ -229,7 +229,7 @@ class MyEnergiClientTest {
     void testSmartBoostWithOnlyEndTimeSpecifiedChangesTheChargeAmountTo99Kwh() throws Exception {
         var mockResponse = new MockResponse()
                 .setResponseCode(200)
-                .setBody(ZappiResponse.getGenericResponse());
+                .setBody(MockMyEnergiResponses.getGenericResponse());
         mockWebServer.enqueue(mockResponse);
         var endTime = LocalTime.now().withHour(15).withMinute(45);
         client.boost(endTime);
@@ -241,7 +241,7 @@ class MyEnergiClientTest {
     void testBoostWithKiloWattHours() throws Exception {
         var mockResponse = new MockResponse()
                 .setResponseCode(200)
-                .setBody(ZappiResponse.getGenericResponse());
+                .setBody(MockMyEnergiResponses.getGenericResponse());
         mockWebServer.enqueue(mockResponse);
         client.boost(new KiloWattHour(34));
         var request = mockWebServer.takeRequest();
@@ -258,7 +258,7 @@ class MyEnergiClientTest {
     void testChangeModeBoostThrowsInvalidResponseFormatExceptionWhenServerRespondsWithUnexpectedResponse() {
         var mockResponse = new MockResponse()
                 .setResponseCode(200)
-                .setBody(ZappiResponse.getGenericResponse().substring(5));
+                .setBody(MockMyEnergiResponses.getGenericResponse().substring(5));
         mockWebServer.enqueue(mockResponse);
         var throwable = catchThrowable(() -> client.stopBoost());
         assertThat(throwable).isInstanceOf(InvalidResponseFormatException.class);
@@ -268,7 +268,7 @@ class MyEnergiClientTest {
     void testStopBoostMode() throws Exception {
         var mockResponse = new MockResponse()
                 .setResponseCode(200)
-                .setBody(ZappiResponse.getGenericResponse());
+                .setBody(MockMyEnergiResponses.getGenericResponse());
         mockWebServer.enqueue(mockResponse);
         client.stopBoost();
         var request = mockWebServer.takeRequest();
@@ -279,7 +279,7 @@ class MyEnergiClientTest {
     void testANon2xxCodeThrowsClientException() {
         var mockResponse = new MockResponse()
                 .setResponseCode(400)
-                .setBody(ZappiResponse.getErrorResponse());
+                .setBody(MockMyEnergiResponses.getErrorResponse());
         mockWebServer.enqueue(mockResponse);
         var response = catchThrowable(() -> client.stopBoost());
         assertThat(response).isInstanceOf(ClientException.class);
@@ -309,7 +309,7 @@ class MyEnergiClientTest {
     void testGetHourlyHistory() throws Exception {
         var mockResponse = new MockResponse()
                 .setResponseCode(200)
-                .setBody(ZappiResponse.getHourlyHistoryResponse());
+                .setBody(MockMyEnergiResponses.getHourlyHistoryResponse());
         mockWebServer.enqueue(mockResponse);
         var response = client.getZappiHourlyHistory(LocalDate.of(2023, Month.JANUARY, 20));
         var request = mockWebServer.takeRequest();
@@ -322,7 +322,7 @@ class MyEnergiClientTest {
     void testGetHourlyHistoryThrowsInvalidResponseFormatExceptionWhenServerRespondsWithMalformedData() {
         var mockResponse = new MockResponse()
                 .setResponseCode(200)
-                .setBody(ZappiResponse.getHourlyHistoryResponse().substring(8));
+                .setBody(MockMyEnergiResponses.getHourlyHistoryResponse().substring(8));
         mockWebServer.enqueue(mockResponse);
         var throwable = catchThrowable(() -> client.getZappiHourlyHistory(LocalDate.of(2023, Month.JANUARY, 20)));
         assertThat(throwable).isInstanceOf(InvalidResponseFormatException.class);
@@ -332,7 +332,7 @@ class MyEnergiClientTest {
     void testGetHistory() throws Exception {
         var mockResponse = new MockResponse()
                 .setResponseCode(200)
-                .setBody(ZappiResponse.getHistoryResponse());
+                .setBody(MockMyEnergiResponses.getHistoryResponse());
         mockWebServer.enqueue(mockResponse);
         var response = client.getZappiHistory(LocalDate.of(2023, Month.JANUARY, 20));
         var request = mockWebServer.takeRequest();
@@ -351,7 +351,7 @@ class MyEnergiClientTest {
     void testGetHistoryThrowsInvalidResponseFormatExceptionWhenServerRespondsWithMalformedData() {
         var mockResponse = new MockResponse()
                 .setResponseCode(200)
-                .setBody(ZappiResponse.getHistoryResponse().substring(8));
+                .setBody(MockMyEnergiResponses.getHistoryResponse().substring(8));
         mockWebServer.enqueue(mockResponse);
         var throwable = catchThrowable(() -> client.getZappiHistory(LocalDate.of(2023, Month.JANUARY, 20)));
         assertThat(throwable).isInstanceOf(InvalidResponseFormatException.class);
@@ -361,7 +361,7 @@ class MyEnergiClientTest {
     void testBoostEddi() throws Exception {
         var mockResponse = new MockResponse()
                 .setResponseCode(200)
-                .setBody(ZappiResponse.getGenericResponse());
+                .setBody(MockMyEnergiResponses.getGenericResponse());
         mockWebServer.enqueue(mockResponse);
         client.boostEddi(Duration.ofMinutes(35));
         var request = mockWebServer.takeRequest();
@@ -372,7 +372,7 @@ class MyEnergiClientTest {
     void testStopBoostEddi() throws Exception {
         var mockResponse = new MockResponse()
                 .setResponseCode(200)
-                .setBody(ZappiResponse.getGenericResponse());
+                .setBody(MockMyEnergiResponses.getGenericResponse());
         mockWebServer.enqueue(mockResponse);
         client.stopEddiBoost();
         var request = mockWebServer.takeRequest();
@@ -381,10 +381,10 @@ class MyEnergiClientTest {
 
     private static Stream<Arguments> chargeModesAndExpectedUrls() {
         return Stream.of(
-                Arguments.of(ZappiChargeMode.FAST, "/cgi-zappi-mode-Z56781234-1-0-0-0000", ZappiResponse.getGenericResponse()),
-                Arguments.of(ZappiChargeMode.ECO_PLUS, "/cgi-zappi-mode-Z56781234-3-0-0-0000", ZappiResponse.getGenericResponse()),
-                Arguments.of(ZappiChargeMode.ECO, "/cgi-zappi-mode-Z56781234-2-0-0-0000", ZappiResponse.getGenericResponse()),
-                Arguments.of(ZappiChargeMode.STOP, "/cgi-zappi-mode-Z56781234-4-0-0-0000", ZappiResponse.getGenericResponse())
+                Arguments.of(ZappiChargeMode.FAST, "/cgi-zappi-mode-Z56781234-1-0-0-0000", MockMyEnergiResponses.getGenericResponse()),
+                Arguments.of(ZappiChargeMode.ECO_PLUS, "/cgi-zappi-mode-Z56781234-3-0-0-0000", MockMyEnergiResponses.getGenericResponse()),
+                Arguments.of(ZappiChargeMode.ECO, "/cgi-zappi-mode-Z56781234-2-0-0-0000", MockMyEnergiResponses.getGenericResponse()),
+                Arguments.of(ZappiChargeMode.STOP, "/cgi-zappi-mode-Z56781234-4-0-0-0000", MockMyEnergiResponses.getGenericResponse())
         );
     }
 }
