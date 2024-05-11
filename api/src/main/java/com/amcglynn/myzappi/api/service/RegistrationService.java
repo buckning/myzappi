@@ -39,12 +39,6 @@ public class RegistrationService {
     }
 
     private void discoverAndRegisterDetails(UserId userId, SerialNumber serialNumber, String apiKey) {
-        if ("12345678".equals(serialNumber.toString()) && "myDemoApiKey".equals(apiKey)) {
-            loginService.register(userId.toString(), serialNumber, serialNumber,
-                    new EddiDevice(SerialNumber.from("09876543"), "tank1", "tank2"), apiKey);
-            return;
-        }
-
         var myEnergiDevices = discoverMyEnergiDevices(serialNumber, apiKey);
         var zappiSerialNumber = discoverZappi(serialNumber, apiKey, myEnergiDevices);
         var eddi = discoverEddi(myEnergiDevices);
