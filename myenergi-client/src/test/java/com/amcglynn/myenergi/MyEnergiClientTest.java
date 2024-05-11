@@ -121,8 +121,9 @@ class MyEnergiClientTest {
         assertThat(libbis).isPresent();
         assertThat(hub).isPresent();
 
-        assertThat(zappis.get().getZappi()).hasSize(1);
+        assertThat(zappis.get().getZappi()).hasSize(2);
         assertThat(zappis.get().getZappi().get(0).getSerialNumber()).isEqualTo("10000001");
+        assertThat(zappis.get().getZappi().get(1).getSerialNumber()).isEqualTo("10000002");
 
         assertThat(libbis.get().getLibbi().get(0).getSerialNumber()).isEqualTo("30000001");
 

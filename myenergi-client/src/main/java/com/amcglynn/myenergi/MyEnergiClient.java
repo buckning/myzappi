@@ -95,6 +95,10 @@ public class MyEnergiClient {
         return getZappiStatus(zappiSerialNumber);
     }
 
+    public void setLibbiMode(String libbiSerialNumber, LibbiMode mode) {
+        getRequest("/cgi-libbi-mode-L" + libbiSerialNumber + "-" + mode.getApiValue());
+    }
+
     public ZappiStatusResponse getZappiStatus(String zappiSerialNumber) {
         var response = getRequest("/cgi-jstatus-Z" + zappiSerialNumber);
         try {

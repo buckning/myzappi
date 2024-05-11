@@ -4,6 +4,7 @@ import com.amcglynn.myzappi.api.CompleteLoginRequest;
 import com.amcglynn.myzappi.api.rest.Request;
 import com.amcglynn.myzappi.api.rest.Response;
 import com.amcglynn.myzappi.api.rest.ServerException;
+import com.amcglynn.myzappi.api.rest.request.LibbiModeMapper;
 import com.amcglynn.myzappi.api.rest.request.SetModeRequest;
 import com.amcglynn.myzappi.api.rest.request.ZappiChargeModeMapper;
 import com.amcglynn.myzappi.api.rest.response.DeviceDiscoveryResponse;
@@ -111,13 +112,9 @@ public class DevicesController {
                     .orElseThrow(() -> new ServerException(404));
             var service = myEnergiServiceBuilder.build(() -> request.getUserId().toString());
             if (DeviceClass.ZAPPI == device.getDeviceClass()) {
-                var zappiMode = new ZappiChargeModeMapper().getZappiChargeMode(body.getMode().toLowerCase());
-                if (zappiMode.isEmpty()) {
-                    log.info("Invalid zappi mode requested");
-                    throw new ServerException(400);
-                }
-                service.getZappiService().get().setChargeMode(serialNumber, zappiMode.get());
-                return new Response(202);
+                return handleSetZappiMode(body, service, serialNumber);
+            } else if (DeviceClass.LIBBI == device.getDeviceClass()) {
+                return handleSetLibbiMode(body, service, serialNumber);
             } else {
                 throw new ServerException(404);
             }
@@ -125,6 +122,26 @@ public class DevicesController {
             log.info("Invalid request");
             throw new ServerException(400);
         }
+    }
+
+    private Response handleSetZappiMode(SetModeRequest body, MyEnergiService service, SerialNumber serialNumber) {
+        var zappiMode = new ZappiChargeModeMapper().getZappiChargeMode(body.getMode().toLowerCase());
+        if (zappiMode.isEmpty()) {
+            log.info("Invalid zappi mode requested");
+            throw new ServerException(400);
+        }
+        service.getZappiService().get().setChargeMode(serialNumber, zappiMode.get());
+        return new Response(202);
+    }
+
+    private Response handleSetLibbiMode(SetModeRequest body, MyEnergiService service, SerialNumber serialNumber) {
+        var libbiMode = new LibbiModeMapper().getLibbiMode(body.getMode().toLowerCase());
+        if (libbiMode.isEmpty()) {
+            log.info("Invalid libbi mode requested");
+            throw new ServerException(400);
+        }
+        service.getLibbiService().get().setMode(serialNumber, libbiMode.get());
+        return new Response(202);
     }
 
     @SneakyThrows

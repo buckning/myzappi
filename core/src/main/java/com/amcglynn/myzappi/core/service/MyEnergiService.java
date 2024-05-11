@@ -5,6 +5,7 @@ import com.amcglynn.myenergi.MyEnergiClient;
 import com.amcglynn.myzappi.core.exception.MissingDeviceException;
 import com.amcglynn.myzappi.core.exception.UserNotLoggedInException;
 import com.amcglynn.myzappi.core.model.EddiDevice;
+import com.amcglynn.myzappi.core.model.LibbiDevice;
 import com.amcglynn.myzappi.core.model.MyEnergiDevice;
 import com.amcglynn.myzappi.core.model.SerialNumber;
 import com.amcglynn.myzappi.core.model.UserId;
@@ -19,6 +20,7 @@ public class MyEnergiService {
 
     private ZappiService zappiService;
     private EddiService eddiService;
+    private LibbiService libbiService;
     private final MyEnergiClient client;
 
     private MyEnergiService(LoginService loginService, String user) {
@@ -34,6 +36,7 @@ public class MyEnergiService {
         // find zappi serial number from devices
         var zappiSerialNumber = getZappiSerialNumber(devices);
         var eddiSerialNumberOpt = getEddiSerialNumber(devices);
+        var libbiSerialNumberOpt = getLibbiSerialNumber(devices);
 
         if ("12345678".equals(hubSerialNumber) && "myDemoApiKey".equals(decryptedApiKey)) {
             client = new MockMyEnergiClient();
@@ -49,6 +52,8 @@ public class MyEnergiService {
                 .ifPresentOrElse(serialNumber -> eddiService = new EddiService(client), () -> eddiService = null);
         zappiSerialNumber
                 .ifPresentOrElse(serialNumber -> zappiService = new ZappiService(client), () -> zappiService = null);
+        libbiSerialNumberOpt
+                .ifPresentOrElse(serialNumber -> libbiService = new LibbiService(client), () -> libbiService = null);
     }
 
     private Optional<SerialNumber> getEddiSerialNumber(List<MyEnergiDevice> devices) {
@@ -65,8 +70,19 @@ public class MyEnergiService {
                 .map(MyEnergiDevice::getSerialNumber);
     }
 
+    private Optional<SerialNumber> getLibbiSerialNumber(List<MyEnergiDevice> devices) {
+        return devices.stream()
+                .filter(LibbiDevice.class::isInstance)
+                .findFirst()
+                .map(MyEnergiDevice::getSerialNumber);
+    }
+
     public Optional<ZappiService> getZappiService() {
         return Optional.ofNullable(zappiService);
+    }
+
+    public Optional<LibbiService> getLibbiService() {
+        return Optional.ofNullable(libbiService);
     }
 
     public ZappiService getZappiServiceOrThrow() {
