@@ -6,7 +6,10 @@ import com.amcglynn.myenergi.apiresponse.MyEnergiDeviceStatus;
 import com.amcglynn.myenergi.apiresponse.StatusResponse;
 import com.amcglynn.myzappi.api.rest.ServerException;
 import com.amcglynn.myzappi.core.dal.DevicesRepository;
+import com.amcglynn.myzappi.core.model.DeviceClass;
 import com.amcglynn.myzappi.core.model.EddiDevice;
+import com.amcglynn.myzappi.core.model.LibbiDevice;
+import com.amcglynn.myzappi.core.model.MyEnergiDevice;
 import com.amcglynn.myzappi.core.model.SerialNumber;
 import com.amcglynn.myzappi.core.model.UserId;
 import com.amcglynn.myzappi.core.model.ZappiDevice;
@@ -15,6 +18,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
@@ -23,10 +27,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowableOfType;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -54,6 +55,8 @@ class RegistrationServiceTest {
     private MyEnergiDeviceStatus mockEddiDeviceStatus;
     @Mock
     private MyEnergiDeviceStatus mockLibbiDeviceStatus;
+    @Captor
+    private ArgumentCaptor<List<MyEnergiDevice>> deviceCaptor;
     private RegistrationService service;
     private final String apiKey = "testApiKey";
     private final SerialNumber hubSerialNumber = SerialNumber.from("11223344");
@@ -122,44 +125,53 @@ class RegistrationServiceTest {
 
     @Test
     void registerWithZappiAndEddiAndLibbi() {
-        var eddiDeviceCaptor = ArgumentCaptor.forClass(EddiDevice.class);
         when(mockEddiDeviceStatus.getTank1Name()).thenReturn("tank1");
         when(mockEddiDeviceStatus.getTank2Name()).thenReturn("tank2");
-        when(mockMyEnergiClientFactory.newMyEnergiClient(hubSerialNumber.toString(), zappiSerialNumber.toString(), eddiSerialNumber.toString(), apiKey))
+        when(mockMyEnergiClientFactory.newMyEnergiClient(hubSerialNumber.toString(), apiKey))
                 .thenReturn(mockMyEnergiClient);
         service.register(userId, hubSerialNumber, apiKey);
         verify(mockMyEnergiClientFactory).newMyEnergiClient(hubSerialNumber.toString(), apiKey);
-        verify(mockMyEnergiClientFactory).newMyEnergiClient(hubSerialNumber.toString(), zappiSerialNumber.toString(),
-                eddiSerialNumber.toString(), apiKey);
-        verify(mockLoginService).register(eq(userId.toString()), eq(zappiSerialNumber), eq(hubSerialNumber),
-                eddiDeviceCaptor.capture(), eq(apiKey));
+        verify(mockMyEnergiClientFactory).newMyEnergiClient(hubSerialNumber.toString(), apiKey);
+        verify(mockLoginService).register(eq(userId.toString()), eq(hubSerialNumber),
+                eq(apiKey), deviceCaptor.capture());
 
-        assertThat(eddiDeviceCaptor.getAllValues()).hasSize(1);
-        assertThat(eddiDeviceCaptor.getValue().getSerialNumber()).isEqualTo(SerialNumber.from("09876543"));
-        assertThat(eddiDeviceCaptor.getValue().getTank1Name()).isEqualTo("tank1");
-        assertThat(eddiDeviceCaptor.getValue().getTank2Name()).isEqualTo("tank2");
+        assertThat(deviceCaptor.getValue()).hasSize(3);
+        assertThat(deviceCaptor.getValue().get(0)).isInstanceOf(ZappiDevice.class);
+        assertThat(deviceCaptor.getValue().get(0).getSerialNumber()).isEqualTo(zappiSerialNumber);
+        assertThat(deviceCaptor.getValue().get(0).getDeviceClass()).isEqualTo(DeviceClass.ZAPPI);
+
+        assertThat(deviceCaptor.getValue().get(1)).isInstanceOf(EddiDevice.class);
+        var eddiDevice = (EddiDevice) deviceCaptor.getValue().get(1);
+        assertThat(eddiDevice.getSerialNumber()).isEqualTo(eddiSerialNumber);
+        assertThat(eddiDevice.getTank1Name()).isEqualTo("tank1");
+        assertThat(eddiDevice.getTank2Name()).isEqualTo("tank2");
+
+        assertThat(deviceCaptor.getValue().get(2)).isInstanceOf(LibbiDevice.class);
+        assertThat(deviceCaptor.getValue().get(2).getSerialNumber()).isEqualTo(libbiSerialNumber);
+        assertThat(deviceCaptor.getValue().get(2).getDeviceClass()).isEqualTo(DeviceClass.LIBBI);
+
     }
 
     @Test
     void registerWithEddi() {
-        var eddiDeviceCaptor = ArgumentCaptor.forClass(EddiDevice.class);
         when(mockEddiDeviceStatus.getTank1Name()).thenReturn("tank1");
         when(mockEddiDeviceStatus.getTank2Name()).thenReturn("tank2");
         when(mockMyEnergiClient.getStatus()).thenReturn(List.of(mockEddiStatusResponse));
         service.register(userId, hubSerialNumber, apiKey);
         verify(mockMyEnergiClientFactory).newMyEnergiClient(hubSerialNumber.toString(), apiKey);
-        verify(mockLoginService).register(eq(userId.toString()), eq(null), eq(hubSerialNumber),
-                eddiDeviceCaptor.capture(), eq(apiKey));
+        verify(mockLoginService).register(eq(userId.toString()), eq(hubSerialNumber), eq(apiKey), deviceCaptor.capture());
 
-        assertThat(eddiDeviceCaptor.getAllValues()).hasSize(1);
-        assertThat(eddiDeviceCaptor.getValue().getSerialNumber()).isEqualTo(SerialNumber.from("09876543"));
-        assertThat(eddiDeviceCaptor.getValue().getTank1Name()).isEqualTo("tank1");
-        assertThat(eddiDeviceCaptor.getValue().getTank2Name()).isEqualTo("tank2");
+        assertThat(deviceCaptor.getValue()).hasSize(1);
+        assertThat(deviceCaptor.getValue().get(0)).isInstanceOf(EddiDevice.class);
+        var eddiDevice = (EddiDevice) deviceCaptor.getValue().get(0);
+        assertThat(eddiDevice.getSerialNumber()).isEqualTo(eddiSerialNumber);
+        assertThat(eddiDevice.getTank1Name()).isEqualTo("tank1");
+        assertThat(eddiDevice.getTank2Name()).isEqualTo("tank2");
     }
 
     @Test
     void registerWithZappi() {
-        when(mockMyEnergiClientFactory.newMyEnergiClient(hubSerialNumber.toString(), zappiSerialNumber.toString(), null, apiKey))
+        when(mockMyEnergiClientFactory.newMyEnergiClient(hubSerialNumber.toString(), apiKey))
                 .thenReturn(mockMyEnergiClient);
 
         when(mockEddiStatusResponse.getEddi()).thenReturn(null);
@@ -167,9 +179,12 @@ class RegistrationServiceTest {
 
         service.register(userId, hubSerialNumber, apiKey);
 
-        verify(mockLoginService).register(userId.toString(), zappiSerialNumber, hubSerialNumber, null, apiKey);
+        verify(mockLoginService).register(eq(userId.toString()), eq(hubSerialNumber), eq(apiKey), deviceCaptor.capture());
         verify(mockMyEnergiClientFactory).newMyEnergiClient(hubSerialNumber.toString(), apiKey);
-        verify(mockMyEnergiClientFactory).newMyEnergiClient(hubSerialNumber.toString(), zappiSerialNumber.toString(),
-                null, apiKey);
+
+        assertThat(deviceCaptor.getValue()).hasSize(1);
+        assertThat(deviceCaptor.getValue().get(0)).isInstanceOf(ZappiDevice.class);
+        assertThat(deviceCaptor.getValue().get(0).getSerialNumber()).isEqualTo(zappiSerialNumber);
+        assertThat(deviceCaptor.getValue().get(0).getDeviceClass()).isEqualTo(DeviceClass.ZAPPI);
     }
 }
