@@ -7,6 +7,7 @@ import com.amazonaws.services.dynamodbv2.model.GetItemResult;
 import com.amazonaws.services.dynamodbv2.model.PutItemRequest;
 import com.amcglynn.myzappi.core.model.DeviceClass;
 import com.amcglynn.myzappi.core.model.EddiDevice;
+import com.amcglynn.myzappi.core.model.LibbiDevice;
 import com.amcglynn.myzappi.core.model.SerialNumber;
 import com.amcglynn.myzappi.core.model.UserId;
 import com.amcglynn.myzappi.core.model.ZappiDevice;
@@ -71,6 +72,25 @@ class DevicesRepositoryTest {
             "        }\n" +
             "    ]";
 
+    private final String testZappiEddiAndLibbiString = """
+            [
+                {
+                    "serialNumber": "20000001",
+                    "deviceClass": "EDDI",
+                    "tank1Name": "Tank 1",
+                    "tank2Name": "Tank 2"
+                },
+                {
+                    "serialNumber": "30000001",
+                    "deviceClass": "LIBBI"
+                },
+                {
+                    "serialNumber": "10000001",
+                    "deviceClass": "ZAPPI"
+                }
+            ]
+            """;
+
     @BeforeEach
     void setUp() {
         repository = new DevicesRepository(mockDb);
@@ -131,6 +151,21 @@ class DevicesRepositoryTest {
         assertThat(result).hasSize(1);
         assertThat(result.get(0)).isInstanceOf(EddiDevice.class);
         assertThat(result.get(0).getSerialNumber()).isEqualTo(SerialNumber.from("09876543"));
+    }
+
+    @Test
+    void testReadForUserWhoHasZappiEddiAndLibbiEntryInDb() {
+        when(mockGetResult.getItem()).thenReturn(Map.of("user-id", new AttributeValue("testuser"),
+                "devices", new AttributeValue(testZappiEddiAndLibbiString)));
+        when(mockDb.getItem(any())).thenReturn(mockGetResult);
+        var result = repository.read(UserId.from("userid"));
+        assertThat(result).hasSize(3);
+        assertThat(result.get(0)).isInstanceOf(EddiDevice.class);
+        assertThat(result.get(0).getSerialNumber()).isEqualTo(SerialNumber.from("20000001"));
+        assertThat(result.get(1)).isInstanceOf(LibbiDevice.class);
+        assertThat(result.get(1).getSerialNumber()).isEqualTo(SerialNumber.from("30000001"));
+        assertThat(result.get(2)).isInstanceOf(ZappiDevice.class);
+        assertThat(result.get(2).getSerialNumber()).isEqualTo(SerialNumber.from("10000001"));
     }
 
     @Test

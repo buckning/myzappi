@@ -1,13 +1,17 @@
 package com.amcglynn.myzappi.api.service;
 
 import com.amcglynn.myenergi.MyEnergiClientFactory;
+import com.amcglynn.myenergi.apiresponse.MyEnergiDeviceStatus;
 import com.amcglynn.myenergi.apiresponse.StatusResponse;
 import com.amcglynn.myenergi.exception.ClientException;
 import com.amcglynn.myzappi.core.dal.DevicesRepository;
+import com.amcglynn.myzappi.core.model.DeviceClass;
 import com.amcglynn.myzappi.core.model.EddiDevice;
+import com.amcglynn.myzappi.core.model.LibbiDevice;
 import com.amcglynn.myzappi.core.model.MyEnergiDevice;
 import com.amcglynn.myzappi.core.model.SerialNumber;
 import com.amcglynn.myzappi.core.model.UserId;
+import com.amcglynn.myzappi.core.model.ZappiDevice;
 import com.amcglynn.myzappi.core.service.LoginService;
 import com.amcglynn.myzappi.api.rest.ServerException;
 import lombok.extern.slf4j.Slf4j;
@@ -40,37 +44,26 @@ public class RegistrationService {
 
     private void discoverAndRegisterDetails(UserId userId, SerialNumber serialNumber, String apiKey) {
         var myEnergiDevices = discoverMyEnergiDevices(serialNumber, apiKey);
-        var zappiSerialNumber = discoverZappi(serialNumber, apiKey, myEnergiDevices);
-        var eddi = discoverEddi(myEnergiDevices);
 
-        if (zappiSerialNumber.isPresent() || eddi.isPresent()) {
-            log.info("Registering zappi = {} hub = {} eddi = {} for user {}",
-                    zappiSerialNumber.orElse(null), serialNumber, eddi.orElse(null), userId);
-            loginService.register(userId.toString(),
-                    zappiSerialNumber.orElse(null), // zappi serial number may be different to gateway/hub
-                    serialNumber,
-                    eddi.orElse(null),
-                    apiKey);
-        } else {
+        var devices = getMyEnergiDevices(myEnergiDevices);
+
+        if (devices.isEmpty()) {
             log.warn("Could not find Zappi for system");
             throw new ServerException(409);
         }
+        log.info("Registering deployment details for user = {} hub = {} devices = {}", userId, serialNumber, devices);
+        loginService.register(userId.toString(),
+                serialNumber,
+                apiKey,
+                devices);
     }
 
     private void refreshDetails(UserId userId, SerialNumber serialNumber, String apiKey) {
         var myEnergiDevices = discoverMyEnergiDevices(serialNumber, apiKey);
-        var zappiSerialNumber = discoverZappi(serialNumber, apiKey, myEnergiDevices);
+        var devices = getMyEnergiDevices(myEnergiDevices);
 
-        if (zappiSerialNumber.isPresent()) {
-            var eddi = discoverEddi(myEnergiDevices).orElse(null);
-            log.info("Refreshing deployment details zappi = {} hub = {} eddi = {} for user {}", zappiSerialNumber.get(), serialNumber, eddi, userId);
-            loginService.refreshDeploymentDetails(userId,
-                    zappiSerialNumber.get(),
-                    eddi);
-        } else {
-            log.warn("Could not find Zappi for system when refreshing deployment details");
-            throw new ServerException(409);
-        }
+        log.info("Refreshing deployment details for user = {} devices = {}", userId, devices);
+        loginService.refreshDeploymentDetails(userId, devices);
     }
 
     private List<StatusResponse> discoverMyEnergiDevices(SerialNumber serialNumber, String apiKey) {
@@ -83,40 +76,45 @@ public class RegistrationService {
         return List.of();
     }
 
-    private Optional<SerialNumber> discoverZappi(SerialNumber hubSerialNumber, String apiKey, List<StatusResponse> myEnergiDevices) {
-        try {
-            var zappis = myEnergiDevices.stream()
-                    .filter(statusResponse -> statusResponse.getZappi() != null && !statusResponse.getZappi().isEmpty()).findFirst();
-            if (zappis.isPresent() && !zappis.get().getZappi().isEmpty()) {
-                var zappiSerialNumber = SerialNumber.from(zappis.get().getZappi().get(0).getSerialNumber());
-                var eddi = getEddi(myEnergiDevices).map(EddiDevice::getSerialNumber);
-                // Zappi pre-check - ensure Zappi can be controlled by my zappi
-                myEnergiClientFactory.newMyEnergiClient(hubSerialNumber.toString(), zappiSerialNumber.toString(),
-                        eddi.map(SerialNumber::toString).orElse(null), apiKey).getZappiStatus();
-                return Optional.of(zappiSerialNumber);
-            }
-            log.warn("Zappi device not found");
-        } catch (ClientException e) {
-            log.warn("Unexpected error " + e.getMessage(), e);
-        }
-        return Optional.empty();
+    private List<MyEnergiDevice> getMyEnergiDevices(List<StatusResponse> statusResponse) {
+        return statusResponse.stream()
+                .map(this::getDevices)
+                .flatMap(List::stream)
+                .toList();
     }
 
-    private Optional<EddiDevice> discoverEddi(List<StatusResponse> myEnergiDevices) {
-        return getEddi(myEnergiDevices);
+    private List<MyEnergiDevice> getDevices(StatusResponse statusResponse) {
+        if (statusResponse.getZappi() != null) {
+            return statusResponse.getZappi()
+                    .stream()
+                    .map(this::toZappiDevice)
+                    .toList();
+        }
+        if (statusResponse.getEddi() != null) {
+            return statusResponse.getEddi()
+                    .stream()
+                    .map(this::toEddiDevice)
+                    .toList();
+        }
+        if (statusResponse.getLibbi() != null) {
+            return statusResponse.getLibbi()
+                    .stream()
+                    .map(this::toLibbiDevice)
+                    .toList();
+        }
+        return List.of();
     }
 
-    private Optional<EddiDevice> getEddi(List<StatusResponse> statusResponses) {
-        var eddis = statusResponses.stream()
-                .filter(statusResponse -> statusResponse.getEddi() != null).findFirst();
+    private MyEnergiDevice toZappiDevice(MyEnergiDeviceStatus status) {
+        return new ZappiDevice(SerialNumber.from(status.getSerialNumber()));
+    }
 
-        if (eddis.isPresent() && !eddis.get().getEddi().isEmpty()) {
-            var serialNumber = SerialNumber.from(eddis.get().getEddi().get(0).getSerialNumber());
-            var tank1 = eddis.get().getEddi().get(0).getTank1Name();
-            var tank2 = eddis.get().getEddi().get(0).getTank2Name();
-            return Optional.of(new EddiDevice(serialNumber, tank1, tank2));
-        }
-        return Optional.empty();
+    private MyEnergiDevice toEddiDevice(MyEnergiDeviceStatus status) {
+        return new EddiDevice(SerialNumber.from(status.getSerialNumber()), status.getTank1Name(), status.getTank2Name());
+    }
+
+    private MyEnergiDevice toLibbiDevice(MyEnergiDeviceStatus status) {
+        return new LibbiDevice(SerialNumber.from(status.getSerialNumber()));
     }
 
     public List<MyEnergiDevice> readDevices(UserId userId) {

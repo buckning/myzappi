@@ -9,7 +9,8 @@ import lombok.NoArgsConstructor;
 
 @JsonSubTypes({
         @JsonSubTypes.Type(value = ZappiDevice.class, name = "ZAPPI"),
-        @JsonSubTypes.Type(value = EddiDevice.class, name = "EDDI")
+        @JsonSubTypes.Type(value = EddiDevice.class, name = "EDDI"),
+        @JsonSubTypes.Type(value = LibbiDevice.class, name = "LIBBI")
 })
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "deviceClass")
 @NoArgsConstructor
