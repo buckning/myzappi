@@ -9,6 +9,7 @@ package com.amcglynn.myenergi;
 public class MockMyEnergiResponses {
 
     private static final String ZAPPI_SERIAL_NUMBER_1 = "10000001";
+    private static final String ZAPPI_SERIAL_NUMBER_2 = "10000002";
     private static final String EDDI_SERIAL_NUMBER_1 = "20000001";
     private static final String LIBBI_SERIAL_NUMBER_1 = "30000001";
     private static final String HARVI_SERIAL_NUMBER_1 = "40000001";
@@ -181,6 +182,57 @@ public class MockMyEnergiResponses {
                             "newAppAvailable": false,
                             "newBootloaderAvailable": false,
                             "productCode": "3562"
+                        },
+                        {
+                            "deviceClass": "ZAPPI",
+                            "sno": %s,
+                            "dat": "10-05-2024",
+                            "tim": "15:19:32",
+                            "ectp1": 0,
+                            "ectp2": 6,
+                            "ectp3": 0,
+                            "ectt1": "Internal Load",
+                            "ectt2": "Monitor",
+                            "ectt3": "None",
+                            "bsm": 0,
+                            "bst": 0,
+                            "dst": 1,
+                            "div": 50000,
+                            "frq": 50.02,
+                            "gen": 572003,
+                            "grd": -76000,
+                            "pha": 1,
+                            "pri": 1,
+                            "sta": 0,
+                            "tz": 0,
+                            "vol": 2442,
+                            "che": 50.1,
+                            "isVHubEnabled": false,
+                            "bss": 0,
+                            "lck": 16,
+                            "pst": "A",
+                            "zmo": 1,
+                            "pwm": 5297,
+                            "zs": 256,
+                            "rdc": -6,
+                            "rac": -3,
+                            "rrac": -6,
+                            "zsh": 1,
+                            "ectt4": "None",
+                            "ectt5": "None",
+                            "ectt6": "None",
+                            "beingTamperedWith": false,
+                            "batteryDischargeEnabled": true,
+                            "g100LockoutState": "NONE",
+                            "phaseSetting": "SINGLE_PHASE",
+                            "mgl": 100,
+                            "sbh": 6,
+                            "sbk": 99,
+                            "fwv": "3562S5.434",
+                            "cmt": 254,
+                            "newAppAvailable": false,
+                            "newBootloaderAvailable": false,
+                            "productCode": "3562"
                         }
                     ]
                 }
@@ -191,7 +243,7 @@ public class MockMyEnergiResponses {
                     "vhub": 1
                 }
                 ]
-                """, EDDI_SERIAL_NUMBER_1, LIBBI_SERIAL_NUMBER_1, ZAPPI_SERIAL_NUMBER_1);
+                """, EDDI_SERIAL_NUMBER_1, LIBBI_SERIAL_NUMBER_1, ZAPPI_SERIAL_NUMBER_1, ZAPPI_SERIAL_NUMBER_2);
     }
 
     public static String getExampleResponse() {

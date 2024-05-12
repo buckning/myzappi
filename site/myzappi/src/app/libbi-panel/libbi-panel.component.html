@@ -1,0 +1,11 @@
+<h2>Libbi</h2>
+<br>
+
+<div class="chargeMode">
+    <button class="toggleButton" (click)="changeMode('Off')" [disabled]="!isChangeModeEnabled()">
+        Off
+    </button>
+    <button class="toggleButton" (click)="changeMode('On')" [disabled]="!isChangeModeEnabled()">
+        On
+    </button>
+</div>

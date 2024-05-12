@@ -69,6 +69,15 @@ public class MockMyEnergiClient extends MyEnergiClient {
     }
 
     @Override
+    public void setLibbiMode(String serialNumber, LibbiMode libbiMode) {
+        var mockResponse = new MockResponse()
+                .setResponseCode(200)
+                .setBody(MockMyEnergiResponses.getGenericResponse());
+        mockWebServer.enqueue(mockResponse);
+        super.setLibbiMode(serialNumber, libbiMode);
+    }
+
+    @Override
     public void boost(KiloWattHour kiloWattHour) {
         var mockResponse = new MockResponse()
                 .setResponseCode(200)

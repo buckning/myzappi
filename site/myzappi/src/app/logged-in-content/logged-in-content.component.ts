@@ -55,6 +55,8 @@ export class LoggedInContentComponent implements OnInit {
             this.hubDetails.zappiSerialNumber = device.serialNumber;
           } else if (device.deviceClass === "EDDI") {
             this.hubDetails.eddiSerialNumber = device.serialNumber;
+          } else if (device.getClass === "LIBBI") {
+            this.hubDetails.libbiSerialNumber = device.serialNumber;
           }
         }
       },

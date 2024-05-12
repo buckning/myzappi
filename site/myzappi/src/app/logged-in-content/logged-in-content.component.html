@@ -42,6 +42,9 @@
                             <div *ngIf="row.deviceClass === 'ZAPPI'">
                                 <app-zappi-panel [serialNumber]="row.serialNumber" [bearerToken]="bearerToken"></app-zappi-panel>
                             </div>
+                            <div *ngIf="row.deviceClass === 'LIBBI'">
+                                <app-libbi-panel [serialNumber]="row.serialNumber" [bearerToken]="bearerToken"></app-libbi-panel>
+                            </div>
                               <div *ngIf="row.deviceClass === 'EDDI'">
                                 <b>{{row.deviceClass}}</b>: {{row.serialNumber}}
                                 <br>

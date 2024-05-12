@@ -4,7 +4,8 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum DeviceType {
     ZAPPI("zappi"),
-    EDDI("eddi");
+    EDDI("eddi"),
+    LIBBI("libbi");
 
     private final String type;
 
