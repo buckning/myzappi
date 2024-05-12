@@ -14,6 +14,7 @@ import { CreateOnetimeSchedulePanelComponent } from './create-onetime-schedule-p
 import { EnergyCostPanelComponent } from './energy-cost-panel/energy-cost-panel.component';
 import { HelpPanelComponent } from './help-panel/help-panel.component';
 import { ZappiPanelComponent } from './zappi-panel/zappi-panel.component';
+import { LibbiPanelComponent } from './libbi-panel/libbi-panel.component';
 
 @NgModule({
   declarations: [
@@ -27,7 +28,8 @@ import { ZappiPanelComponent } from './zappi-panel/zappi-panel.component';
     CreateOnetimeSchedulePanelComponent,
     EnergyCostPanelComponent,
     HelpPanelComponent,
-    ZappiPanelComponent
+    ZappiPanelComponent,
+    LibbiPanelComponent
   ],
   imports: [
     BrowserModule,
