@@ -29,6 +29,12 @@ public class MyEnergiOAuthClient {
         return getRequest("/api/PersonalDetails/UserDetails");
     }
 
+    public String getUserHubsAndDevices() {
+        var response = getRequest("/api/Product/UserHubsAndDevices");
+        log.info("Got response from myenergi {}", response);
+        return response;
+    }
+
     public String setChargeFromGrid(String serialNumber, boolean chargeFromGrid) {
         return putRequest("/api/AccountAccess/LibbiMode?chargeFromGrid=" + chargeFromGrid + "&serialNo=" + serialNumber);
     }

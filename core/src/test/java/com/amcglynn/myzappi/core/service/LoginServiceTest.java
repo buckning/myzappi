@@ -2,8 +2,11 @@ package com.amcglynn.myzappi.core.service;
 
 import com.amcglynn.myzappi.core.dal.CredentialsRepository;
 import com.amcglynn.myzappi.core.dal.DevicesRepository;
+import com.amcglynn.myzappi.core.dal.MyEnergiAccountCredentialsRepository;
 import com.amcglynn.myzappi.core.model.EddiDevice;
+import com.amcglynn.myzappi.core.model.EmailAddress;
 import com.amcglynn.myzappi.core.model.HubCredentials;
+import com.amcglynn.myzappi.core.model.MyEnergiAccountCredentials;
 import com.amcglynn.myzappi.core.model.MyEnergiDevice;
 import com.amcglynn.myzappi.core.model.SerialNumber;
 import com.amcglynn.myzappi.core.model.MyEnergiDeployment;
@@ -38,21 +41,28 @@ class LoginServiceTest {
     @Mock
     private DevicesRepository mockDevicesRepository;
     @Mock
+    private MyEnergiAccountCredentialsRepository mockMyEnergiAccountCredentialsRepository;
+    @Mock
     private EncryptionService mockEncryptionService;
 
     private LoginService loginService;
     private final ByteBuffer encryptedApiKey = ByteBuffer.wrap(new byte[]{0x01, 0x02, 0x03});
+    private final ByteBuffer encryptedPassword = ByteBuffer.wrap(new byte[]{0x03, 0x04, 0x05});
+    private final ByteBuffer encryptedEmailAddress = ByteBuffer.wrap(new byte[]{0x06, 0x07, 0x08});
     private final SerialNumber zappiSerialNumber = SerialNumber.from("56781234");
     private final SerialNumber serialNumber = SerialNumber.from("12345678");
     private final String userId = "userid";
     private MyEnergiDeployment zappiCredentials;
     @Captor
     private ArgumentCaptor<MyEnergiDeployment> credsCaptor;
+    @Captor
+    private ArgumentCaptor<MyEnergiAccountCredentials> myenergiCredsCaptor;
 
     @BeforeEach
     void setUp() {
         zappiCredentials = new MyEnergiDeployment(userId, serialNumber, encryptedApiKey);
-        loginService = new LoginService(mockCredentialsRepository, mockDevicesRepository, mockEncryptionService);
+        loginService = new LoginService(mockCredentialsRepository, mockDevicesRepository,
+                mockMyEnergiAccountCredentialsRepository, mockEncryptionService);
         when(mockEncryptionService.decrypt(encryptedApiKey)).thenReturn("decryptedKey");
     }
 
@@ -70,6 +80,21 @@ class LoginServiceTest {
         when(mockCredentialsRepository.read(userId)).thenReturn(Optional.empty());
         var creds = loginService.readCredentials(UserId.from(userId));
         assertThat(creds).isEmpty();
+    }
+
+    @Test
+    void testRegisterMyEnergiCredentials() {
+        when(mockEncryptionService.encrypt("password")).thenReturn(encryptedPassword);
+        when(mockEncryptionService.encrypt("user@test.com")).thenReturn(encryptedEmailAddress);
+
+        loginService.register(userId, EmailAddress.from("user@test.com"), "password");
+
+        verify(mockMyEnergiAccountCredentialsRepository).write(myenergiCredsCaptor.capture());
+        var credsInDb = myenergiCredsCaptor.getValue();
+
+        assertThat(credsInDb.getUserId()).isEqualTo(userId);
+        assertThat(credsInDb.getEncryptedEmailAddress()).isEqualTo(encryptedEmailAddress);
+        assertThat(credsInDb.getEncryptedPassword()).isEqualTo(encryptedPassword);
     }
 
     @Test

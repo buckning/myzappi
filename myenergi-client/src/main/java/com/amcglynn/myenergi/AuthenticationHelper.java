@@ -4,6 +4,7 @@ package com.amcglynn.myenergi;
 // https://github.com/aws-samples/aws-cognito-java-desktop-app/blob/master/src/main/java/com/amazonaws/sample/cognitoui/AuthenticationHelper.java
 
 
+import com.amcglynn.myenergi.exception.ClientException;
 import lombok.extern.slf4j.Slf4j;
 import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
@@ -158,8 +159,8 @@ class AuthenticationHelper {
                 authresult = response.authenticationResult().idToken();
             }
         } catch (final Exception ex) {
-            log.error("Exception received when performing SRP auth " + ex.getMessage(), ex);
-
+            log.error("Exception received when performing SRP auth " + ex.getMessage());
+            throw new ClientException(400);
         }
         return authresult;
     }

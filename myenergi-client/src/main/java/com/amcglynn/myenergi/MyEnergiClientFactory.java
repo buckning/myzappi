@@ -8,4 +8,8 @@ public class MyEnergiClientFactory {
         }
         return new MyEnergiClient(serialNumber, apiKey);
     }
+
+    public MyEnergiOAuthClient newMyEnergiOAuthClient(String email, String password) {
+        return new MyEnergiOAuthClient(email, password);
+    }
 }

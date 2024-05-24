@@ -2,12 +2,14 @@ package com.amcglynn.myzappi.api.service;
 
 import com.amcglynn.myenergi.MyEnergiClient;
 import com.amcglynn.myenergi.MyEnergiClientFactory;
+import com.amcglynn.myenergi.MyEnergiOAuthClient;
 import com.amcglynn.myenergi.apiresponse.MyEnergiDeviceStatus;
 import com.amcglynn.myenergi.apiresponse.StatusResponse;
 import com.amcglynn.myzappi.api.rest.ServerException;
 import com.amcglynn.myzappi.core.dal.DevicesRepository;
 import com.amcglynn.myzappi.core.model.DeviceClass;
 import com.amcglynn.myzappi.core.model.EddiDevice;
+import com.amcglynn.myzappi.core.model.EmailAddress;
 import com.amcglynn.myzappi.core.model.LibbiDevice;
 import com.amcglynn.myzappi.core.model.MyEnergiDevice;
 import com.amcglynn.myzappi.core.model.SerialNumber;
@@ -27,7 +29,9 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowableOfType;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -41,6 +45,8 @@ class RegistrationServiceTest {
     private DevicesRepository mockDevicesRepository;
     @Mock
     private MyEnergiClient mockMyEnergiClient;
+    @Mock
+    private MyEnergiOAuthClient mockMyEnergiOAuthClient;
     @Mock
     private MyEnergiClientFactory mockMyEnergiClientFactory;
     @Mock
@@ -68,6 +74,7 @@ class RegistrationServiceTest {
     @BeforeEach
     void setUp() {
         when(mockMyEnergiClientFactory.newMyEnergiClient(hubSerialNumber.toString(), apiKey)).thenReturn(mockMyEnergiClient);
+        when(mockMyEnergiClientFactory.newMyEnergiOAuthClient("user@test.com", "password")).thenReturn(mockMyEnergiOAuthClient);
         when(mockZappiDeviceStatus.getSerialNumber()).thenReturn(zappiSerialNumber.toString());
         when(mockEddiDeviceStatus.getSerialNumber()).thenReturn(eddiSerialNumber.toString());
         when(mockLibbiDeviceStatus.getSerialNumber()).thenReturn(libbiSerialNumber.toString());
@@ -186,5 +193,23 @@ class RegistrationServiceTest {
         assertThat(deviceCaptor.getValue().get(0)).isInstanceOf(ZappiDevice.class);
         assertThat(deviceCaptor.getValue().get(0).getSerialNumber()).isEqualTo(zappiSerialNumber);
         assertThat(deviceCaptor.getValue().get(0).getDeviceClass()).isEqualTo(DeviceClass.ZAPPI);
+    }
+
+    @Test
+    void registerMyEnergiAccountCredentials() {
+        service.register(userId, EmailAddress.from("user@test.com"), "password");
+        verify(mockLoginService).register(userId.toString(), EmailAddress.from("user@test.com"), "password");
+        verify(mockMyEnergiClientFactory).newMyEnergiOAuthClient("user@test.com", "password");
+        verify(mockMyEnergiOAuthClient).getUserHubsAndDevices();
+    }
+
+    @Test
+    void registerThrows400WhenCredentialsAreNotAcceptedByCognito() {
+        when(mockMyEnergiClientFactory.newMyEnergiOAuthClient("user@test.com", "password"))
+                .thenThrow(RuntimeException.class);
+        var exception = catchThrowableOfType(() -> service.register(userId, EmailAddress.from("user@test.com"), "password"),
+                ServerException.class);
+        assertThat(exception.getStatus()).isEqualTo(400);
+        verify(mockLoginService, never()).register(any(), any(EmailAddress.class), any());
     }
 }
