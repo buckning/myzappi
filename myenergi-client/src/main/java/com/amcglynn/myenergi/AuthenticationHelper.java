@@ -4,6 +4,7 @@ package com.amcglynn.myenergi;
 // https://github.com/aws-samples/aws-cognito-java-desktop-app/blob/master/src/main/java/com/amazonaws/sample/cognitoui/AuthenticationHelper.java
 
 
+import lombok.extern.slf4j.Slf4j;
 import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.cognitoidentityprovider.CognitoIdentityProviderClient;
@@ -26,6 +27,7 @@ import java.util.*;
 /**
  * Private class for SRP client side math.
  */
+@Slf4j
 class AuthenticationHelper {
     private static final String HEX_N =
             "FFFFFFFFFFFFFFFFC90FDAA22168C234C4C6628B80DC1CD1"
@@ -51,16 +53,13 @@ class AuthenticationHelper {
     private static final int DERIVED_KEY_SIZE = 16;
     private static final String DERIVED_KEY_INFO = "Caldera Derived Key";
     private static final ThreadLocal<MessageDigest> THREAD_MESSAGE_DIGEST =
-            new ThreadLocal<>() {
-                @Override
-                protected MessageDigest initialValue() {
-                    try {
-                        return MessageDigest.getInstance("SHA-256");
-                    } catch (NoSuchAlgorithmException e) {
-                        throw new SecurityException("Exception in authentication", e);
-                    }
+            ThreadLocal.withInitial(() -> {
+                try {
+                    return MessageDigest.getInstance("SHA-256");
+                } catch (NoSuchAlgorithmException e) {
+                    throw new SecurityException("Exception in authentication", e);
                 }
-            };
+            });
     private static final SecureRandom SECURE_RANDOM;
 
     private CognitoIdentityProviderClient cognitoClient;
@@ -82,7 +81,6 @@ class AuthenticationHelper {
     private BigInteger a;
     private BigInteger A;
     private String userPoolID;
-    private String secretKey;
 
     AuthenticationHelper(String userPoolID) {
         do {
@@ -158,10 +156,9 @@ class AuthenticationHelper {
 
                 var response = cognitoClient.respondToAuthChallenge(challengeRequest);
                 authresult = response.authenticationResult().idToken();
-                System.out.println("auth response = " + authresult);
             }
         } catch (final Exception ex) {
-            System.out.println("Exception" + ex);
+            log.error("Exception received when performing SRP auth " + ex.getMessage(), ex);
 
         }
         return authresult;
@@ -295,13 +292,6 @@ class AuthenticationHelper {
         private static Hkdf getInstance(String algorithm) throws NoSuchAlgorithmException {
 
             return new Hkdf(algorithm);
-        }
-
-        /**
-         * @param ikm REQUIRED: The input key material.
-         */
-        public void init(byte[] ikm) {
-            this.init(ikm, (byte[]) null);
         }
 
         /**

@@ -9,3 +9,21 @@
         On
     </button>
 </div>
+
+<div class="chargeFromGrid">
+    <div>
+        <label for="myenergiAccountEmail">myenergi account email address:</label>
+        <input type="text" [(ngModel)]="myenergiAccountEmail" name="myenergiAccountEmail" autocomplete="off" required>
+    </div>
+    <div>
+        <label for="myenergiAccountPassword">myenergi account password:</label>
+        <input type="password" [(ngModel)]="myenergiAccountPassword" name="myenergiAccountPassword" autocomplete="off" required>
+    </div>
+    <button class="toggleButton" (click)="disableChargeFromGrid()">
+        Disable charge from grid
+    </button>
+    <button class="toggleButton" (click)="enableChargeFromGrid()">
+        Enable charge from grid
+    </button>
+
+</div>
