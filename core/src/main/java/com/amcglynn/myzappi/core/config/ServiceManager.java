@@ -5,6 +5,7 @@ import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 import com.amcglynn.myzappi.core.dal.CredentialsRepository;
 import com.amcglynn.myzappi.core.dal.DevicesRepository;
+import com.amcglynn.myzappi.core.dal.MyEnergiAccountCredentialsRepository;
 import com.amcglynn.myzappi.core.dal.ScheduleDetailsRepository;
 import com.amcglynn.myzappi.core.dal.TariffRepository;
 import com.amcglynn.myzappi.core.dal.UserScheduleRepository;
@@ -22,6 +23,7 @@ public class ServiceManager {
 
     private final EncryptionService encryptionService;
     private final CredentialsRepository credentialsRepository;
+    private final MyEnergiAccountCredentialsRepository myEnergiAccountCredentialsRepository;
     @Getter
     private final DevicesRepository devicesRepository;
     private MyEnergiService.Builder zappiServiceBuilder;
@@ -40,6 +42,7 @@ public class ServiceManager {
         encryptionService = new EncryptionService(properties.getKmsKeyArn());
         credentialsRepository = new CredentialsRepository(amazonDynamoDB);
         devicesRepository = new DevicesRepository(amazonDynamoDB);
+        myEnergiAccountCredentialsRepository = new MyEnergiAccountCredentialsRepository(amazonDynamoDB);
 
         tariffService = new TariffService(new TariffRepository(amazonDynamoDB));
         this.properties = properties;
@@ -82,7 +85,8 @@ public class ServiceManager {
 
     public LoginService getLoginService() {
         if (loginService == null) {
-            loginService = new LoginService(credentialsRepository, devicesRepository, encryptionService);
+            loginService = new LoginService(credentialsRepository, devicesRepository,
+                    myEnergiAccountCredentialsRepository, encryptionService);
         }
         return loginService;
     }

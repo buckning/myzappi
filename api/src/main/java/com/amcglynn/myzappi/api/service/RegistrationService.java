@@ -1,12 +1,15 @@
 package com.amcglynn.myzappi.api.service;
 
 import com.amcglynn.myenergi.MyEnergiClientFactory;
+import com.amcglynn.myenergi.MyEnergiOAuthClient;
 import com.amcglynn.myenergi.apiresponse.MyEnergiDeviceStatus;
 import com.amcglynn.myenergi.apiresponse.StatusResponse;
 import com.amcglynn.myenergi.exception.ClientException;
+import com.amcglynn.myzappi.api.rest.response.AccountSummaryResponse;
 import com.amcglynn.myzappi.core.dal.DevicesRepository;
 import com.amcglynn.myzappi.core.model.DeviceClass;
 import com.amcglynn.myzappi.core.model.EddiDevice;
+import com.amcglynn.myzappi.core.model.EmailAddress;
 import com.amcglynn.myzappi.core.model.LibbiDevice;
 import com.amcglynn.myzappi.core.model.MyEnergiDevice;
 import com.amcglynn.myzappi.core.model.SerialNumber;
@@ -34,6 +37,29 @@ public class RegistrationService {
 
     public void register(UserId userId, SerialNumber serialNumber, String apiKey) {
         discoverAndRegisterDetails(userId, serialNumber, apiKey);
+    }
+
+    /**
+     * Register a user's myenergi myaccount with the myzappi account. This is an optional step needed for
+     * oauth authentication, used for libbi control and other future features.
+     * @param userId
+     * @param emailAddress
+     * @param password
+     */
+    public void register(UserId userId, EmailAddress emailAddress, String password) {
+        validateMyEnergiAccountCredentials(emailAddress, password);
+        loginService.register(userId.toString(), emailAddress, password);
+    }
+
+    private void validateMyEnergiAccountCredentials(EmailAddress emailAddress, String password) {
+        MyEnergiOAuthClient oauthClient;
+        try {
+            oauthClient = myEnergiClientFactory.newMyEnergiOAuthClient(emailAddress.toString(), password);
+            oauthClient.getUserHubsAndDevices();
+        } catch (Exception e) {
+            log.info("Invalid username or password");
+            throw new ServerException(400);
+        }
     }
 
     public void delete(UserId userId) {
@@ -135,5 +161,14 @@ public class RegistrationService {
             throw new ServerException(404);
         }
         refreshDetails(userId, creds.get().getSerialNumber(), creds.get().getApiKey());
+    }
+
+    public AccountSummaryResponse getAccountSummary(UserId userId) {
+        var creds = loginService.readCredentials(userId);
+        var myEnergiAccount = loginService.readMyEnergiAccountCredentials(userId);
+        return AccountSummaryResponse.builder()
+                .hubRegistered(creds.isPresent())
+                .myaccountRegistered(myEnergiAccount.isPresent())
+                .build();
     }
 }

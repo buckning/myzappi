@@ -2,6 +2,7 @@ package com.amcglynn.myzappi.api.rest;
 
 import com.amcglynn.myzappi.api.Session;
 import com.amcglynn.myzappi.api.SessionId;
+import com.amcglynn.myzappi.api.rest.controller.AccountController;
 import com.amcglynn.myzappi.api.rest.controller.DevicesController;
 import com.amcglynn.myzappi.api.rest.controller.EnergyCostController;
 import com.amcglynn.myzappi.api.rest.controller.LogoutController;
@@ -48,6 +49,8 @@ class EndpointRouterTest {
     @Mock
     private DevicesController mockDevicesController;
     @Mock
+    private AccountController mockAccountController;
+    @Mock
     private LogoutController mockLogoutController;
     @Mock
     private Properties mockProperties;
@@ -57,7 +60,7 @@ class EndpointRouterTest {
     @BeforeEach
     void setUp() {
         router = new EndpointRouter(mockHubController, mockDevicesController, mockTariffController, mockAuthController,
-                mockScheduleController, mockEnergyCostController, mockLogoutController, mockProperties);
+                mockScheduleController, mockEnergyCostController, mockLogoutController, mockAccountController, mockProperties);
         when(mockResponse.getStatus()).thenReturn(200);
         when(mockResponse.getHeaders()).thenReturn(new HashMap<>());
         when(mockProperties.getAdminUser()).thenReturn("regularUser");
@@ -75,6 +78,8 @@ class EndpointRouterTest {
         when(mockHubController.get(any())).thenReturn(mockResponse);
         when(mockHubController.register(any())).thenReturn(mockResponse);
         when(mockEnergyCostController.getEnergyCost(any())).thenReturn(mockResponse);
+        when(mockAccountController.register(any())).thenReturn(mockResponse);
+        when(mockAccountController.getAccountSummary(any())).thenReturn(mockResponse);
         when(mockAuthController.authenticate(any())).thenReturn(Optional.of(new Session(SessionId.from("1234"), UserId.from("userId"), 3600L)));
     }
 
@@ -105,6 +110,15 @@ class EndpointRouterTest {
         var response = router.route(request);
         assertThat(response.getStatus()).isEqualTo(200);
         verify(mockScheduleController).getSchedules(request);
+    }
+
+    @Test
+    void getAccountSummaryGetsRoutedToAccountController() {
+        var request = new Request(RequestMethod.GET, "/account/summary", null, Map.of("Authorization", "Bearer 1234"), Map.of());
+        request.setUserId("regularUser");
+        var response = router.route(request);
+        assertThat(response.getStatus()).isEqualTo(200);
+        verify(mockAccountController).getAccountSummary(request);
     }
 
     @Test
@@ -159,6 +173,15 @@ class EndpointRouterTest {
         var response = router.route(request);
         assertThat(response.getStatus()).isEqualTo(200);
         verify(mockEnergyCostController).getEnergyCost(request);
+    }
+
+    @Test
+    void postRegisterAccountGetsRoutedToAccountController() {
+        var request = new Request(RequestMethod.POST, "/account/register", "{}", Map.of("Authorization", "Bearer 1234"), Map.of());
+        request.setUserId("regularUser");
+        var response = router.route(request);
+        assertThat(response.getStatus()).isEqualTo(200);
+        verify(mockAccountController).register(request);
     }
 
     @Test

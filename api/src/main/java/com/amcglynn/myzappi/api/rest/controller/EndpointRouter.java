@@ -33,17 +33,20 @@ public class EndpointRouter {
                         new RegistrationService(serviceManager.getLoginService(), serviceManager.getDevicesRepository(), new MyEnergiClientFactory())),
                 new DevicesController(new RegistrationService(serviceManager.getLoginService(), serviceManager.getDevicesRepository(), new MyEnergiClientFactory()), serviceManager.getMyEnergiServiceBuilder()),
                 new TariffController(serviceManager.getTariffService()),
+                new AccountController(new RegistrationService(serviceManager.getLoginService(), serviceManager.getDevicesRepository(), new MyEnergiClientFactory())),
                 new LwaClientFactory());
     }
 
     public EndpointRouter(ServiceManager serviceManager, HubController hubController, DevicesController devicesController,
                           TariffController tariffController,
+                          AccountController accountController,
                           LwaClientFactory lwaClientFactory) {
-        this(hubController, devicesController, tariffController, lwaClientFactory,
+        this(hubController, devicesController, tariffController, accountController, lwaClientFactory,
                 new ScheduleController(serviceManager.getScheduleService()), serviceManager);
     }
 
     public EndpointRouter(HubController hubController, DevicesController devicesController, TariffController tariffController,
+                          AccountController accountController,
                           LwaClientFactory lwaClientFactory,
                           ScheduleController scheduleController, ServiceManager serviceManager) {
         this(hubController, devicesController, tariffController,
@@ -51,14 +54,17 @@ public class EndpointRouter {
                         new SessionService(new SessionRepository(serviceManager.getAmazonDynamoDB()))),
                 scheduleController,
                 new EnergyCostController(serviceManager.getMyEnergiServiceBuilder(), serviceManager.getTariffService()),
+                accountController,
                 serviceManager.getProperties());
     }
 
     public EndpointRouter(HubController hubController, DevicesController devicesController, TariffController tariffController,
                           AuthenticationService authenticationService,
                           ScheduleController scheduleController, EnergyCostController energyCostController,
+                          AccountController accountController,
                           Properties properties) {
-        this(hubController, devicesController, tariffController, authenticationService, scheduleController, energyCostController, new LogoutController(authenticationService), properties);
+        this(hubController, devicesController, tariffController, authenticationService, scheduleController, energyCostController,
+                new LogoutController(authenticationService), accountController, properties);
     }
 
     public EndpointRouter(HubController hubController, DevicesController devicesController,
@@ -66,6 +72,7 @@ public class EndpointRouter {
                           AuthenticationService authenticationService,
                           ScheduleController scheduleController, EnergyCostController energyCostController,
                           LogoutController logoutController,
+                          AccountController accountController,
                           Properties properties) {
 
         handlers = new HashMap<>();
@@ -85,7 +92,10 @@ public class EndpointRouter {
         handlers.put("GET /devices/{deviceId}", devicesController::getDevice);
         handlers.put("GET /devices/{deviceId}/status", devicesController::getDeviceStatus);
         handlers.put("PUT /devices/{deviceId}/mode", devicesController::setMode);
+        handlers.put("PUT /devices/{deviceId}/charge-from-grid", devicesController::setLibbiChargeFromGrid);
         handlers.put("GET /energy-cost", energyCostController::getEnergyCost);
+        handlers.put("POST /account/register", accountController::register);
+        handlers.put("GET /account/summary", accountController::getAccountSummary);
 
         this.authenticationService = authenticationService;
         this.properties = properties;

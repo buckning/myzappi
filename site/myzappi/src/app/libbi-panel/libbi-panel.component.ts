@@ -5,6 +5,12 @@ interface SetChargeMode {
   mode: string;
 }
 
+interface SetChargeFromGrid {
+  email: string;
+  password: string;
+  chargeFromGrid: boolean;
+}
+
 @Component({
   selector: 'app-libbi-panel',
   templateUrl: './libbi-panel.component.html',
@@ -16,6 +22,9 @@ export class LibbiPanelComponent {
 
   mode: any;
   changeModeEnabled = true;
+  myenergiAccountEmail: string = '';
+  myenergiAccountPassword: string = '';
+  chargeFromGrid = false;
 
   constructor(private http: HttpClient) {}
 
@@ -30,6 +39,36 @@ export class LibbiPanelComponent {
     this.mode = newMode; // Update the mode based on the button clicked
     // Optionally, you can also make an API call to update the mode on the server
     this.updateDeviceMode(newMode);
+  }
+
+  enableChargeFromGrid() {
+    this.setChargeFromGrid(true);
+  }
+
+  disableChargeFromGrid() {
+    this.setChargeFromGrid(false);
+  }
+
+  setChargeFromGrid(_chargeFromGrid: boolean) {
+    let request: SetChargeFromGrid = {
+      chargeFromGrid: _chargeFromGrid,
+      email: this.myenergiAccountEmail,
+      password: this.myenergiAccountPassword
+    };
+
+    var requestBody = JSON.stringify(request);
+
+    let headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': this.bearerToken });
+    let options = { headers: headers, withCredentials: true };
+    this.http.put<void>('https://api.myzappiunofficial.com/devices/' + this.serialNumber + '/charge-from-grid', requestBody, options)
+      .subscribe(data => {
+        console.log("Switched charge from grid to : " + _chargeFromGrid);
+      },
+      error => {
+        console.log("failed to switch charge from grid " + error.status);
+      });
   }
 
   updateDeviceMode(newMode: string) {
