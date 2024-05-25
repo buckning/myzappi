@@ -1,6 +1,31 @@
 <h2>Libbi</h2>
 <br>
 
+<div *ngIf="registrationComplete === false">
+    <p>
+        Unlock more Libbi functionality by entering your myenergi myaccount details. 
+        These are the credentials you use to access https://myaccount.myenergi.com
+    </p>
+</div>
+<form id="loginCodeForm" *ngIf="registrationComplete === false">
+    <div>
+        <label for="emailAddress">myenergi account email address:</label>
+        <input type="text" [(ngModel)]="emailAddressText" name="emailAddress" autocomplete="off" required>
+    </div>
+    <div>
+        <label for="password">myenergi account passsword:</label>
+        <input type="password" [(ngModel)]="passwordText" name="password" autocomplete="off" required>
+    </div>
+    <div>
+        <button class="confirmButton" (click)="registerMyEnergiAccount()" [disabled]="registerButtonDisabled" type="button"
+            id="submitBtn">Submit</button>
+    </div>
+</form>
+
+<div id="messageContainer" *ngIf="messageText !== '' && registrationComplete === false">
+    <div class="errorMessage">{{messageText}}</div>
+</div>
+
 <div class="chargeMode">
     <button class="toggleButton" (click)="changeMode('Off')" [disabled]="!isChangeModeEnabled()">
         Off

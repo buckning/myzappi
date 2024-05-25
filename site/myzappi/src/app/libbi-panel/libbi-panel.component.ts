@@ -5,6 +5,11 @@ interface SetChargeMode {
   mode: string;
 }
 
+interface AccountSummary {
+  hubRegistered: boolean,
+  myaccountRegistered: boolean
+}
+
 @Component({
   selector: 'app-libbi-panel',
   templateUrl: './libbi-panel.component.html',
@@ -13,11 +18,55 @@ interface SetChargeMode {
 export class LibbiPanelComponent {
   @Input() public serialNumber: any;
   @Input() public bearerToken: any;
+  registrationComplete = false;
+  emailAddressText: string = '';
+  passwordText: string = '';
+  registerButtonDisabled:boolean = false;
+  messageText = '';
 
   mode: any;
   changeModeEnabled = true;
 
   constructor(private http: HttpClient) {}
+
+  ngOnInit(): void {
+    this.readAccountSettings();
+  }
+
+  readAccountSettings() {
+    let headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': this.bearerToken });
+    let options = { headers: headers, withCredentials: true };
+    this.http.get<AccountSummary>('https://api.myzappiunofficial.com/account/summary', options)
+      .subscribe(data => {
+        this.registrationComplete = data.myaccountRegistered;
+      });
+  }
+
+  registerMyEnergiAccount() {
+    this.registerButtonDisabled = true;
+    
+    let headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': this.bearerToken });
+
+    let options = { headers: headers, withCredentials: true };
+
+    let requestBody = {
+      email: this.emailAddressText,
+      password: this.passwordText
+    }
+
+    this.http.post('https://api.myzappiunofficial.com/account/register', requestBody, options)
+      .subscribe(data => {
+        this.registrationComplete = true;
+      },
+      error => {
+        this.registerButtonDisabled = false;
+        this.messageText = "Something went wrong. Please check you entered the correct email and password.";
+      });
+  }
 
   isChangeModeEnabled(): boolean {
     return this.changeModeEnabled;
