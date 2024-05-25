@@ -34,6 +34,7 @@ export class ZappiPanelComponent {
   chargeRate = '';
   mode: any;
   changeModeEnabled = true;
+  refreshInterval = 15000;
 
   constructor(private http: HttpClient) {}
 
@@ -53,13 +54,13 @@ export class ZappiPanelComponent {
         this.mode = data.mode;
         setTimeout(() => {
           this.loadDeviceStatus();
-        }, 5000);
+        }, this.refreshInterval);
       },
       error => {
         console.log("failed to get device details " + error.status);
         setTimeout(() => {
           this.loadDeviceStatus();
-        }, 5000);
+        }, this.refreshInterval);
       });
   }
 

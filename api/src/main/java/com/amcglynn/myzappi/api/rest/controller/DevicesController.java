@@ -116,8 +116,8 @@ public class DevicesController {
                     });
             var service = myEnergiServiceBuilder.build(() -> request.getUserId().toString());
             if (DeviceClass.LIBBI == device.getDeviceClass()) {
-                log.info("Setting chargefromgrid to {} for device {}", body.getChargeFromGrid(), serialNumber);
-                service.getLibbiService().get().setChargeFromGrid(serialNumber, body.getEmail(), body.getPassword(), body.getChargeFromGrid());
+                log.info("Setting charge-from-grid to {} for device {}", body.isChargeFromGrid(), serialNumber);
+                service.getLibbiService().get().setChargeFromGrid(request.getUserId(), serialNumber, body.isChargeFromGrid());
                 return new Response(202);
             } else {
                 log.info("Device is not a libbi");

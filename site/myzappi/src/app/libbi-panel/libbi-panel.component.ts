@@ -11,8 +11,6 @@ interface AccountSummary {
 }
 
 interface SetChargeFromGrid {
-  email: string;
-  password: string;
   chargeFromGrid: boolean;
 }
 
@@ -100,9 +98,7 @@ export class LibbiPanelComponent {
 
   setChargeFromGrid(_chargeFromGrid: boolean) {
     let request: SetChargeFromGrid = {
-      chargeFromGrid: _chargeFromGrid,
-      email: this.myenergiAccountEmail,
-      password: this.myenergiAccountPassword
+      chargeFromGrid: _chargeFromGrid
     };
 
     var requestBody = JSON.stringify(request);
