@@ -5,8 +5,7 @@ import com.amcglynn.myzappi.core.dal.DevicesRepository;
 import com.amcglynn.myzappi.core.dal.MyEnergiAccountCredentialsRepository;
 import com.amcglynn.myzappi.core.model.EddiDevice;
 import com.amcglynn.myzappi.core.model.EmailAddress;
-import com.amcglynn.myzappi.core.model.HubCredentials;
-import com.amcglynn.myzappi.core.model.MyEnergiAccountCredentials;
+import com.amcglynn.myzappi.core.model.MyEnergiAccountCredentialsEncrypted;
 import com.amcglynn.myzappi.core.model.MyEnergiDevice;
 import com.amcglynn.myzappi.core.model.SerialNumber;
 import com.amcglynn.myzappi.core.model.MyEnergiDeployment;
@@ -23,12 +22,10 @@ import org.mockito.junit.jupiter.MockitoSettings;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -56,7 +53,7 @@ class LoginServiceTest {
     @Captor
     private ArgumentCaptor<MyEnergiDeployment> credsCaptor;
     @Captor
-    private ArgumentCaptor<MyEnergiAccountCredentials> myenergiCredsCaptor;
+    private ArgumentCaptor<MyEnergiAccountCredentialsEncrypted> myenergiCredsCaptor;
 
     @BeforeEach
     void setUp() {
@@ -64,6 +61,8 @@ class LoginServiceTest {
         loginService = new LoginService(mockCredentialsRepository, mockDevicesRepository,
                 mockMyEnergiAccountCredentialsRepository, mockEncryptionService);
         when(mockEncryptionService.decrypt(encryptedApiKey)).thenReturn("decryptedKey");
+        when(mockEncryptionService.decrypt(encryptedEmailAddress)).thenReturn("user@test.com");
+        when(mockEncryptionService.decrypt(encryptedPassword)).thenReturn("password");
     }
 
     @Test
@@ -154,5 +153,24 @@ class LoginServiceTest {
     void testDelete() {
         loginService.delete(userId);
         verify(mockCredentialsRepository).delete(userId);
+    }
+
+    @Test
+    void readMyEnergiAccountCredentials() {
+        when(mockMyEnergiAccountCredentialsRepository.read(userId))
+                .thenReturn(Optional.of(new MyEnergiAccountCredentialsEncrypted(userId, encryptedEmailAddress, encryptedPassword)));
+        var creds = loginService.readMyEnergiAccountCredentials(UserId.from(userId));
+        assertThat(creds).isPresent();
+        assertThat(creds.get().getUserId()).isEqualTo(userId);
+        assertThat(creds.get().getEmailAddress()).isEqualTo("user@test.com");
+        assertThat(creds.get().getPassword()).isEqualTo("password");
+    }
+
+    @Test
+    void readMyEnergiAccountCredentialsWhereCredentialsNotInDb() {
+        when(mockMyEnergiAccountCredentialsRepository.read(userId))
+                .thenReturn(Optional.empty());
+        var creds = loginService.readMyEnergiAccountCredentials(UserId.from(userId));
+        assertThat(creds).isEmpty();
     }
 }

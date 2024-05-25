@@ -5,6 +5,7 @@ import com.amcglynn.myenergi.MyEnergiOAuthClient;
 import com.amcglynn.myenergi.apiresponse.MyEnergiDeviceStatus;
 import com.amcglynn.myenergi.apiresponse.StatusResponse;
 import com.amcglynn.myenergi.exception.ClientException;
+import com.amcglynn.myzappi.api.rest.response.AccountSummaryResponse;
 import com.amcglynn.myzappi.core.dal.DevicesRepository;
 import com.amcglynn.myzappi.core.model.DeviceClass;
 import com.amcglynn.myzappi.core.model.EddiDevice;
@@ -160,5 +161,14 @@ public class RegistrationService {
             throw new ServerException(404);
         }
         refreshDetails(userId, creds.get().getSerialNumber(), creds.get().getApiKey());
+    }
+
+    public AccountSummaryResponse getAccountSummary(UserId userId) {
+        var creds = loginService.readCredentials(userId);
+        var myEnergiAccount = loginService.readMyEnergiAccountCredentials(userId);
+        return AccountSummaryResponse.builder()
+                .hubRegistered(creds.isPresent())
+                .myaccountRegistered(myEnergiAccount.isPresent())
+                .build();
     }
 }

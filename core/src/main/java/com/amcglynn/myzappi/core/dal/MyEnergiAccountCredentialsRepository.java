@@ -2,14 +2,12 @@ package com.amcglynn.myzappi.core.dal;
 
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
-import com.amazonaws.services.dynamodbv2.model.DeleteItemRequest;
 import com.amazonaws.services.dynamodbv2.model.GetItemRequest;
 import com.amazonaws.services.dynamodbv2.model.PutItemRequest;
-import com.amcglynn.myzappi.core.model.MyEnergiAccountCredentials;
-import com.amcglynn.myzappi.core.model.MyEnergiDeployment;
-import com.amcglynn.myzappi.core.model.SerialNumber;
+import com.amcglynn.myzappi.core.model.MyEnergiAccountCredentialsEncrypted;
 import lombok.extern.slf4j.Slf4j;
 
+import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Optional;
 
@@ -26,7 +24,7 @@ public class MyEnergiAccountCredentialsRepository {
         this.dbClient = dbClient;
     }
 
-    public Optional<MyEnergiAccountCredentials> read(String userId) {
+    public Optional<MyEnergiAccountCredentialsEncrypted> read(String userId) {
         var request = new GetItemRequest()
                 .withTableName(TABLE_NAME)
                 .addKeyEntry(USER_ID_COLUMN, new AttributeValue(userId));
@@ -36,12 +34,12 @@ public class MyEnergiAccountCredentialsRepository {
             return Optional.empty();
         }
 
-        return Optional.of(new MyEnergiAccountCredentials(userId,
+        return Optional.of(new MyEnergiAccountCredentialsEncrypted(userId,
                 result.getItem().get(ENCRYPTED_EMAIL_COLUMN).getB(),
                 result.getItem().get(ENCRYPTED_PASSWORD_COLUMN).getB()));
     }
 
-    public void write(MyEnergiAccountCredentials creds) {
+    public void write(MyEnergiAccountCredentialsEncrypted creds) {
         var item = new HashMap<String, AttributeValue>();
         item.put(USER_ID_COLUMN, new AttributeValue(creds.getUserId()));
         item.put(ENCRYPTED_EMAIL_COLUMN, new AttributeValue().withB(creds.getEncryptedEmailAddress()));

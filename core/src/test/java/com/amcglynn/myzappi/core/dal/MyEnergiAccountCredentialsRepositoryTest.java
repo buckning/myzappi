@@ -4,7 +4,7 @@ import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.amazonaws.services.dynamodbv2.model.GetItemResult;
 import com.amazonaws.services.dynamodbv2.model.PutItemRequest;
-import com.amcglynn.myzappi.core.model.MyEnergiAccountCredentials;
+import com.amcglynn.myzappi.core.model.MyEnergiAccountCredentialsEncrypted;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,6 +18,7 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -53,7 +54,7 @@ class MyEnergiAccountCredentialsRepositoryTest {
 
     @Test
     void testWriteCredentials() {
-        var creds = new MyEnergiAccountCredentials("userid", encryptedEmailAddress, encryptedPassword);
+        var creds = new MyEnergiAccountCredentialsEncrypted("userid", encryptedEmailAddress, encryptedPassword);
         credentialsRepository.write(creds);
         verify(mockDb).putItem(putItemCaptor.capture());
         assertThat(putItemCaptor.getValue()).isNotNull();
@@ -63,7 +64,6 @@ class MyEnergiAccountCredentialsRepositoryTest {
         assertThat(putItemCaptor.getValue().getItem().get("encrypted-email-address").getB()).isEqualTo(encryptedEmailAddress);
         assertThat(putItemCaptor.getValue().getItem().get("encrypted-password").getB()).isEqualTo(encryptedPassword);
     }
-
 
     @Test
     void testReadCredentials() {

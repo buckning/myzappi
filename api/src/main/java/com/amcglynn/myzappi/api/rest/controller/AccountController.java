@@ -51,4 +51,14 @@ public class AccountController {
             throw new ServerException(400);
         }
     }
+
+    public Response getAccountSummary(Request request) {
+        try {
+            return new Response(200, objectMapper.writeValueAsString(
+                    registrationService.getAccountSummary(request.getUserId())));
+        } catch (JsonProcessingException e) {
+            log.error("Error serializing account to JSON", e);
+            throw new ServerException(500);
+        }
+    }
 }

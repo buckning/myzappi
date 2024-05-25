@@ -95,6 +95,7 @@ public class EndpointRouter {
         handlers.put("PUT /devices/{deviceId}/charge-from-grid", devicesController::setLibbiChargeFromGrid);
         handlers.put("GET /energy-cost", energyCostController::getEnergyCost);
         handlers.put("POST /account/register", accountController::register);
+        handlers.put("GET /account/summary", accountController::getAccountSummary);
 
         this.authenticationService = authenticationService;
         this.properties = properties;

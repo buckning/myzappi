@@ -79,6 +79,7 @@ class EndpointRouterTest {
         when(mockHubController.register(any())).thenReturn(mockResponse);
         when(mockEnergyCostController.getEnergyCost(any())).thenReturn(mockResponse);
         when(mockAccountController.register(any())).thenReturn(mockResponse);
+        when(mockAccountController.getAccountSummary(any())).thenReturn(mockResponse);
         when(mockAuthController.authenticate(any())).thenReturn(Optional.of(new Session(SessionId.from("1234"), UserId.from("userId"), 3600L)));
     }
 
@@ -109,6 +110,15 @@ class EndpointRouterTest {
         var response = router.route(request);
         assertThat(response.getStatus()).isEqualTo(200);
         verify(mockScheduleController).getSchedules(request);
+    }
+
+    @Test
+    void getAccountSummaryGetsRoutedToAccountController() {
+        var request = new Request(RequestMethod.GET, "/account/summary", null, Map.of("Authorization", "Bearer 1234"), Map.of());
+        request.setUserId("regularUser");
+        var response = router.route(request);
+        assertThat(response.getStatus()).isEqualTo(200);
+        verify(mockAccountController).getAccountSummary(request);
     }
 
     @Test

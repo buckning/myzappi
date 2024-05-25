@@ -2,47 +2,6 @@
 
 ## Next Features
 * Libbi Support
-* GET /account/summary API
-```
-{
-    "hubRegistered": true,  // hub is registered and s18 server is configured
-    "myaccountRegistered": false    // oauth configured
-}
-```
-
-POST /account/register
-```
-{
-    "email": "email",
-    "password": "password"
-}
-```
-response 200 OK
-```
-{
-    "email": "email"
-}
-```
-
-This API reads the email and password from the body and confirms the details are correct by calling the hubs and devices API
-https://myaccount.myenergi.com/api/Product/UserHubsAndDevices using the oauth client and the response should have a 200 OK 
-and a JSON body with the following contents. "content" may or may not be set.
-```
-{"status":true,"message":"","field":"","content":[]}
-```
-If this is successful, the email address and password are stored in a new table (myenergi_creds) in DynamoDB. It stores 
-the amazon user id as the primary key and the email and password as attributes. The email and password are encrypted using
-KMS keys.
-
-
-** Need to accept myenergi email and password via API
-* ** Call the myenergi API to get Locations
-* ** Need API to get if myenergi email and password are set
-* Front end calls the API to get the vehicle details https://myaccount.myenergi.com/api/Vehicle/UserVehicles 
-** Response should have a 200 OK and a JSON body with the following contents. "content" may or may not be set
-```
-{"status":true,"message":"","field":"","content":[]}
-```
 
 
 * Reminder if your car is plugged in but no schedule is set

@@ -6,6 +6,7 @@ import com.amcglynn.myzappi.core.dal.MyEnergiAccountCredentialsRepository;
 import com.amcglynn.myzappi.core.model.EmailAddress;
 import com.amcglynn.myzappi.core.model.HubCredentials;
 import com.amcglynn.myzappi.core.model.MyEnergiAccountCredentials;
+import com.amcglynn.myzappi.core.model.MyEnergiAccountCredentialsEncrypted;
 import com.amcglynn.myzappi.core.model.MyEnergiDevice;
 import com.amcglynn.myzappi.core.model.SerialNumber;
 import com.amcglynn.myzappi.core.model.MyEnergiDeployment;
@@ -64,8 +65,16 @@ public class LoginService {
         var encryptedPassword = encryptionService.encrypt(password);
         var encryptedEmail = encryptionService.encrypt(emailAddress.toString());
 
-        var creds = new MyEnergiAccountCredentials(userId, encryptedEmail, encryptedPassword);
+        var creds = new MyEnergiAccountCredentialsEncrypted(userId, encryptedEmail, encryptedPassword);
         myEnergiAccountCredentialsRepository.write(creds);
+    }
+
+    public Optional<MyEnergiAccountCredentials> readMyEnergiAccountCredentials(UserId userId) {
+        var creds = myEnergiAccountCredentialsRepository.read(userId.toString());
+
+        return creds.map(c -> new MyEnergiAccountCredentials(userId.toString(),
+                encryptionService.decrypt(c.getEncryptedEmailAddress()),
+                encryptionService.decrypt(c.getEncryptedPassword())));
     }
 
     public void refreshDeploymentDetails(UserId userId, List<MyEnergiDevice> devices) {
