@@ -53,7 +53,7 @@ public class MyEnergiService {
         zappiSerialNumber
                 .ifPresentOrElse(serialNumber -> zappiService = new ZappiService(client), () -> zappiService = null);
         libbiSerialNumberOpt
-                .ifPresentOrElse(serialNumber -> libbiService = new LibbiService(client), () -> libbiService = null);
+                .ifPresentOrElse(serialNumber -> libbiService = new LibbiService(client, loginService), () -> libbiService = null);
     }
 
     private Optional<SerialNumber> getEddiSerialNumber(List<MyEnergiDevice> devices) {
