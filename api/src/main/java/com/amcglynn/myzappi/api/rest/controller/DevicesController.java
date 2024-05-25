@@ -5,6 +5,7 @@ import com.amcglynn.myzappi.api.rest.Request;
 import com.amcglynn.myzappi.api.rest.Response;
 import com.amcglynn.myzappi.api.rest.ServerException;
 import com.amcglynn.myzappi.api.rest.request.LibbiModeMapper;
+import com.amcglynn.myzappi.api.rest.request.SetLibbiChargeFromGridRequest;
 import com.amcglynn.myzappi.api.rest.request.SetModeRequest;
 import com.amcglynn.myzappi.api.rest.request.ZappiChargeModeMapper;
 import com.amcglynn.myzappi.api.rest.response.DeviceDiscoveryResponse;
@@ -92,6 +93,36 @@ public class DevicesController {
                     .writeValueAsString(DeviceDiscoveryResponse.builder()
                             .serialNumber(serialNumber)
                             .build()));
+        } catch (JsonProcessingException e) {
+            log.info("Invalid request");
+            throw new ServerException(400);
+        }
+    }
+
+    public Response setLibbiChargeFromGrid(Request request) {
+        if (request.getBody() == null) {
+            log.info("Null body in set libbi charge from grid request");
+            throw new ServerException(400);
+        }
+        try {
+            var body = new ObjectMapper().readValue(request.getBody(), new TypeReference<SetLibbiChargeFromGridRequest>() {
+            });
+            var deviceId = request.getPath().split("/devices/")[1].split("/charge-from-grid")[0];
+            var serialNumber = SerialNumber.from(deviceId);
+            var device = registrationService.getDevice(request.getUserId(), serialNumber)
+                    .orElseThrow(() -> {
+                        log.info("Device not found");
+                        return new ServerException(404);
+                    });
+            var service = myEnergiServiceBuilder.build(() -> request.getUserId().toString());
+            if (DeviceClass.LIBBI == device.getDeviceClass()) {
+                log.info("Setting chargefromgrid to {} for device {}", body.getChargeFromGrid(), serialNumber);
+                service.getLibbiService().get().setChargeFromGrid(serialNumber, body.getEmail(), body.getPassword(), body.getChargeFromGrid());
+                return new Response(202);
+            } else {
+                log.info("Device is not a libbi");
+                throw new ServerException(404);
+            }
         } catch (JsonProcessingException e) {
             log.info("Invalid request");
             throw new ServerException(400);

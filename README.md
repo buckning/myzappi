@@ -1,6 +1,9 @@
 # Welcome to MyZappi!
 
 ## Next Features
+* Libbi Support
+
+
 * Reminder if your car is plugged in but no schedule is set
 * Remove dependencies on APIs from devices in credentials table
 * Remove devices from credential table
@@ -112,6 +115,12 @@ aws dynamodb create-table \
   --table-name session \
   --attribute-definitions AttributeName=session-id,AttributeType=S \
   --key-schema AttributeName=session-id,KeyType=HASH \
+  --provisioned-throughput ReadCapacityUnits=1,WriteCapacityUnits=1
+
+aws dynamodb create-table \
+  --table-name myenergi-creds \
+  --attribute-definitions AttributeName=amazon-user-id,AttributeType=S \
+  --key-schema AttributeName=amazon-user-id,KeyType=HASH \
   --provisioned-throughput ReadCapacityUnits=1,WriteCapacityUnits=1
 
 aws dynamodb update-time-to-live \

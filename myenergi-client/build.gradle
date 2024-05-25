@@ -2,4 +2,5 @@ dependencies {
     implementation "com.squareup.okhttp3:mockwebserver:${okhttpVersion}"
     implementation "io.github.rburgst:okhttp-digest:${okhttpDigestVersion}"
     implementation "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}"
+    implementation 'software.amazon.awssdk:cognitoidentityprovider:2.16.0'
 }
