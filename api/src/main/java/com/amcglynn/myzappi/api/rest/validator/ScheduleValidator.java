@@ -27,7 +27,23 @@ public class ScheduleValidator {
             "setBoostUntil", ScheduleValidator::isValidChargeLocalTime,
             "setBoostFor", ScheduleValidator::isValidChargeDuration,
             "setEddiMode", ScheduleValidator::isValidEddiMode,
-            "setEddiBoostFor", ScheduleValidator::isValidEddiBoostDuration);
+            "setEddiBoostFor", ScheduleValidator::isValidEddiBoostDuration,
+            "setLibbiEnabled", ScheduleValidator::isValidBoolean,
+            "setLibbiChargeFromGrid", ScheduleValidator::isValidBoolean,
+            "setLibbiEnergyTarget", ScheduleValidator::isValidTargetSoc);
+
+    private static boolean isValidTargetSoc(String s) {
+        try {
+            var value = Integer.parseInt(s);
+            return value <= 100 && value >= 0;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
+
+    private static boolean isValidBoolean(String s) {
+        return "true".equalsIgnoreCase(s) || "false".equalsIgnoreCase(s);
+    }
 
     private static boolean isValidEddiBoostDuration(String s) {
         try {

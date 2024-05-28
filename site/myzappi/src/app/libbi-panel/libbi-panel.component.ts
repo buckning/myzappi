@@ -27,6 +27,7 @@ export class LibbiPanelComponent {
   passwordText: string = '';
   registerButtonDisabled:boolean = false;
   messageText = '';
+  debugText = '';
 
   mode: any;
   changeModeEnabled = true;
@@ -38,6 +39,18 @@ export class LibbiPanelComponent {
 
   ngOnInit(): void {
     this.readAccountSettings();
+  }
+
+  getStatus() {
+    let headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': this.bearerToken });
+    let options = { headers: headers, withCredentials: true };
+    this.http.get<string>('https://api.myzappiunofficial.com/devices/' + this.serialNumber + '/status', options)
+      .subscribe(data => {
+        console.log('Got status ' + JSON.stringify(data));
+        this.debugText = JSON.stringify(data);
+      });
   }
 
   readAccountSettings() {

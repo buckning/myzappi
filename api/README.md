@@ -162,6 +162,13 @@ DELETE /devices/{serialNumber}/boost
 Response 204
 ```
 
+#### Set Libbi Target Energy
+```
+PUT /devices/{serialNumber}/target-energy
+{
+    "targetEnergyWh": "10"
+}
+```
 
 
 Schedule APIs

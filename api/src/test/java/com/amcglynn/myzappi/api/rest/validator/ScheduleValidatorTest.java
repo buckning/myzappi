@@ -180,7 +180,9 @@ class ScheduleValidatorTest {
                 Arguments.of("setEddiMode", "NORMAL"),
                 Arguments.of("setEddiBoostFor", "PT1H"),
                 Arguments.of("setEddiBoostFor", "PT45M;tank=1"),
-                Arguments.of("setEddiBoostFor", "PT45M;tank=2")
+                Arguments.of("setEddiBoostFor", "PT45M;tank=2"),
+                Arguments.of("setLibbiChargeFromGrid", "true"),
+                Arguments.of("setLibbiChargeFromGrid", "false")
         );
     }
 
@@ -205,7 +207,8 @@ class ScheduleValidatorTest {
                 Arguments.of("setEddiBoostFor", "PT45M;tank=1.5"),    // invalid tank number, only 1 and 2 are allowed
                 Arguments.of("setEddiBoostFor", "PT45M;tank=abc"),
                 Arguments.of("setEddiBoostFor", "PT45M;=1"),
-                Arguments.of("setEddiMode", "Unknown")
+                Arguments.of("setEddiMode", "Unknown"),
+                Arguments.of("setLibbiChargeFromGrid", "_false")
         );
     }
 

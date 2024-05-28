@@ -11,6 +11,7 @@ import com.amcglynn.myzappi.core.model.UserId;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import lombok.SneakyThrows;
 
 import java.util.HashMap;
@@ -28,6 +29,7 @@ public class UserScheduleRepository {
     public UserScheduleRepository(AmazonDynamoDB dbClient) {
         this.dbClient = dbClient;
         this.objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new Jdk8Module());
         this.objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
     }
 

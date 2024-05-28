@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.amcglynn.myenergi.apiresponse.GenericResponse;
+import com.amcglynn.myenergi.apiresponse.LibbiStatusResponse;
 import com.amcglynn.myenergi.apiresponse.StatusResponse;
 import com.amcglynn.myenergi.apiresponse.ZappiDayHistory;
 import com.amcglynn.myenergi.apiresponse.ZappiHourlyDayHistory;
@@ -101,6 +102,15 @@ public class MyEnergiClient {
 
     public ZappiStatusResponse getZappiStatus(String zappiSerialNumber) {
         var response = getRequest("/cgi-jstatus-Z" + zappiSerialNumber);
+        try {
+            return new ObjectMapper().readValue(response, new TypeReference<>(){});
+        } catch (JsonProcessingException e) {
+            throw new InvalidResponseFormatException();
+        }
+    }
+
+    public LibbiStatusResponse getLibbiStatus(String zappiSerialNumber) {
+        var response = getRequest("/cgi-jstatus-L" + zappiSerialNumber);
         try {
             return new ObjectMapper().readValue(response, new TypeReference<>(){});
         } catch (JsonProcessingException e) {

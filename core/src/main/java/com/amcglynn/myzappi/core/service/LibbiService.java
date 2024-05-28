@@ -2,20 +2,28 @@ package com.amcglynn.myzappi.core.service;
 
 import com.amcglynn.myenergi.LibbiMode;
 import com.amcglynn.myenergi.MyEnergiClient;
+import com.amcglynn.myenergi.MyEnergiClientFactory;
 import com.amcglynn.myenergi.MyEnergiOAuthClient;
+import com.amcglynn.myenergi.units.KiloWattHour;
+import com.amcglynn.myzappi.core.model.LibbiStatus;
+import com.amcglynn.myzappi.core.model.MyEnergiAccountCredentials;
 import com.amcglynn.myzappi.core.model.SerialNumber;
 import com.amcglynn.myzappi.core.model.UserId;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.Optional;
 
 @Slf4j
 public class LibbiService {
 
     private final MyEnergiClient client;
     private final LoginService loginService;
+    private final MyEnergiClientFactory clientFactory;
 
-    public LibbiService(MyEnergiClient client, LoginService loginService) {
+    public LibbiService(MyEnergiClient client, MyEnergiClientFactory clientFactory, LoginService loginService) {
         this.client = client;
         this.loginService = loginService;
+        this.clientFactory = clientFactory;
     }
 
     public void setMode(SerialNumber serialNumber, LibbiMode mode) {
@@ -27,16 +35,59 @@ public class LibbiService {
         var creds = loginService.readMyEnergiAccountCredentials(userId);
         creds.ifPresent(cred -> {
             log.info("Setting charge from grid for serial number {} to {}", serialNumber, chargeFromGrid);
-                    new MyEnergiOAuthClient(cred.getEmailAddress(), cred.getPassword())
+            clientFactory.newMyEnergiOAuthClient(cred.getEmailAddress(), cred.getPassword())
                             .setChargeFromGrid(serialNumber.toString(), chargeFromGrid);
+        });
+    }
+
+    public void setChargeTarget(UserId userId, SerialNumber serialNumber, int targetEnergy) {
+        var creds = loginService.readMyEnergiAccountCredentials(userId);
+        creds.ifPresent(cred -> {
+            log.info("Setting target energy for serial number {} to {}", serialNumber, targetEnergy);
+            clientFactory.newMyEnergiOAuthClient(cred.getEmailAddress(), cred.getPassword())
+                            .setTargetEnergy(serialNumber.toString(), targetEnergy);
             });
     }
-}
 
-//Got response from myenergi
-//        {
-//        "status": true,
-//        "message": "",
-//        "field": "",
-//        "content": "Libbi mode flag successfully updated!"
-//        }
+    public LibbiStatus getStatus(UserId userId, SerialNumber serialNumber) {
+        var creds = loginService.readMyEnergiAccountCredentials(userId);
+        Boolean chargeFromGrid = null;
+        KiloWattHour energyTarget = null;
+
+        var libbiStatus = client.getLibbiStatus(serialNumber.toString()).getLibbi().get(0);
+
+        if (creds.isPresent()) {
+            var cred = creds.get();
+
+            var libbiChargeSetup = getLibbiChargeSetup(cred, serialNumber);
+
+            if (libbiChargeSetup.isPresent()) {
+                chargeFromGrid = libbiChargeSetup.get().getChargeFromGridEnabled();
+                energyTarget = libbiChargeSetup.get().getEnergyTargetKWh();
+            }
+        }
+        return LibbiStatus.builder()
+                .stateOfChargePercentage(libbiStatus.getStateOfCharge())
+                .batterySizeKWh(new KiloWattHour(libbiStatus.getBatterySizeWh() / 1000.0))
+                .serialNumber(serialNumber)
+                .energyTargetKWh(energyTarget)
+                .chargeFromGridEnabled(chargeFromGrid)
+                .build();
+    }
+
+    private Optional<LibbiStatus> getLibbiChargeSetup(MyEnergiAccountCredentials cred, SerialNumber serialNumber) {
+        try {
+            log.info("Getting Libbi status for serial number {}", serialNumber);
+            var response = clientFactory.newMyEnergiOAuthClient(cred.getEmailAddress(), cred.getPassword())
+                    .getLibbiChargeSetup(serialNumber.toString());
+
+            return Optional.of(LibbiStatus.builder()
+                    .chargeFromGridEnabled(response.isChargeFromGrid())
+                    .energyTargetKWh(new KiloWattHour(response.getEnergyTarget() / 1000.0))
+                    .build());
+        } catch (Exception e) {
+            log.error("Error getting libbi charge setup for serial number {}", serialNumber, e);
+            return Optional.empty();
+        }
+    }
+}

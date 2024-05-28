@@ -2,6 +2,7 @@ package com.amcglynn.myzappi.core.service;
 
 import com.amcglynn.myenergi.MockMyEnergiClient;
 import com.amcglynn.myenergi.MyEnergiClient;
+import com.amcglynn.myenergi.MyEnergiClientFactory;
 import com.amcglynn.myzappi.core.exception.MissingDeviceException;
 import com.amcglynn.myzappi.core.exception.UserNotLoggedInException;
 import com.amcglynn.myzappi.core.model.EddiDevice;
@@ -53,7 +54,7 @@ public class MyEnergiService {
         zappiSerialNumber
                 .ifPresentOrElse(serialNumber -> zappiService = new ZappiService(client), () -> zappiService = null);
         libbiSerialNumberOpt
-                .ifPresentOrElse(serialNumber -> libbiService = new LibbiService(client, loginService), () -> libbiService = null);
+                .ifPresentOrElse(serialNumber -> libbiService = new LibbiService(client, new MyEnergiClientFactory(), loginService), () -> libbiService = null);
     }
 
     private Optional<SerialNumber> getEddiSerialNumber(List<MyEnergiDevice> devices) {

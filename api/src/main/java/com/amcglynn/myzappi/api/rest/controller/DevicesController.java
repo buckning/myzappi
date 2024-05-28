@@ -6,6 +6,7 @@ import com.amcglynn.myzappi.api.rest.Response;
 import com.amcglynn.myzappi.api.rest.ServerException;
 import com.amcglynn.myzappi.api.rest.request.LibbiModeMapper;
 import com.amcglynn.myzappi.api.rest.request.SetLibbiChargeFromGridRequest;
+import com.amcglynn.myzappi.api.rest.request.SetLibbiTargetEnergyRequest;
 import com.amcglynn.myzappi.api.rest.request.SetModeRequest;
 import com.amcglynn.myzappi.api.rest.request.ZappiChargeModeMapper;
 import com.amcglynn.myzappi.api.rest.response.DeviceDiscoveryResponse;
@@ -99,6 +100,36 @@ public class DevicesController {
         }
     }
 
+    public Response setLibbiTargetEnergy(Request request) {
+        if (request.getBody() == null) {
+            log.info("Null body in set libbi target energy request");
+            throw new ServerException(400);
+        }
+        try {
+            var body = new ObjectMapper().readValue(request.getBody(), new TypeReference<SetLibbiTargetEnergyRequest>() {
+            });
+            var deviceId = request.getPath().split("/devices/")[1].split("/target-energy")[0];
+            var serialNumber = SerialNumber.from(deviceId);
+            var device = registrationService.getDevice(request.getUserId(), serialNumber)
+                    .orElseThrow(() -> {
+                        log.info("Device not found");
+                        return new ServerException(404);
+                    });
+            var service = myEnergiServiceBuilder.build(() -> request.getUserId().toString());
+            if (DeviceClass.LIBBI == device.getDeviceClass()) {
+                log.info("Setting target energy to {} for device {}", body.getTargetEnergyWh(), serialNumber);
+                service.getLibbiService().get().setChargeTarget(request.getUserId(), serialNumber, body.getTargetEnergyWh());
+                return new Response(202);
+            } else {
+                log.info("Device is not a libbi");
+                throw new ServerException(404);
+            }
+        } catch (JsonProcessingException e) {
+            log.info("Invalid request");
+            throw new ServerException(400);
+        }
+    }
+
     public Response setLibbiChargeFromGrid(Request request) {
         if (request.getBody() == null) {
             log.info("Null body in set libbi charge from grid request");
@@ -177,18 +208,21 @@ public class DevicesController {
 
     @SneakyThrows
     public Response getDeviceStatus(Request request) {
+        var mapper = new ObjectMapper();
         var deviceId = request.getPath().split("/devices/")[1].split("/status")[0];
         var serialNumber = SerialNumber.from(deviceId);
         var device = registrationService.getDevice(request.getUserId(), serialNumber)
                 .orElseThrow(() -> new ServerException(404));
         var service = myEnergiServiceBuilder.build(() -> request.getUserId().toString());
         if (DeviceClass.ZAPPI == device.getDeviceClass()) {
-            ObjectMapper mapper = new ObjectMapper();
-
             return new Response(200, mapper
                     .writeValueAsString(new MyEnergiDeviceStatusResponse(service.getZappiService()
                     .get()  // safe to call get() as we have already checked the zappi device is owned by the user
                     .getStatusSummary(serialNumber))));
+        } else if (DeviceClass.LIBBI == device.getDeviceClass()) {
+            return new Response(200, mapper.writeValueAsString(service.getLibbiService()
+                    .get()
+                    .getStatus(request.getUserId(), serialNumber)));
         } else {
             throw new ServerException(404);
         }

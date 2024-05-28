@@ -10,6 +10,13 @@
 </div>
 
 <br>
+    <button class="toggleButton" (click)="getStatus()" [disabled]="!isChangeModeEnabled()">
+        Get info
+    </button>
+    <p>
+        {{debugText}}
+    </p>
+<br>
 
 <div class="chargeFromGrid" *ngIf="registrationComplete === true">
     <p>

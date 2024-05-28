@@ -300,6 +300,60 @@ public class MockMyEnergiResponses {
                 }""", ZAPPI_SERIAL_NUMBER_1);
     }
 
+    public static String getExampleLibbiResponse() {
+        return String.format("""
+                {
+                    "libbi": [
+                        {
+                            "deviceClass": "LIBBI",
+                            "sno": %s,
+                            "dat": "10-05-2024",
+                            "tim": "15:19:32",
+                            "ectp1": 1936,
+                            "ectp2": 70,
+                            "ectp3": 1734,
+                            "ectt1": "Internal Load",
+                            "ectt2": "Grid",
+                            "ectt3": "Generation",
+                            "ectp4": 58,
+                            "ectp5": 1027,
+                            "ectt4": "Monitor",
+                            "ectt5": "DCPV",
+                            "ectt6": "None",
+                            "dst": 1,
+                            "tz": 0,
+                            "lmo": "BALANCE",
+                            "sta": 5,
+                            "frq": 50.02,
+                            "pri": 2,
+                            "soc": 90,
+                            "isp": true,
+                            "pha": 1,
+                            "vol": 2396,
+                            "mbc": 10200,
+                            "mic": 5000,
+                            "gen": 2723,
+                            "grd": -76,
+                            "div": 1936,
+                            "ect1p": 1,
+                            "ect2p": 1,
+                            "ect3p": 1,
+                            "batteryDischargingBoost": false,
+                            "pvDirectlyConnected": true,
+                            "g100LockoutState": "NONE",
+                            "countryCode": "GBR",
+                            "isVHubEnabled": true,
+                            "cmt": 254,
+                            "fwv": "3702S5.433",
+                            "newAppAvailable": false,
+                            "newBootloaderAvailable": false,
+                            "productCode": "3702"
+                        }
+                    ]
+                }
+                """, LIBBI_SERIAL_NUMBER_1);
+    }
+
     public static String getExampleStatusResponse() {
         return String.format("""
                 [

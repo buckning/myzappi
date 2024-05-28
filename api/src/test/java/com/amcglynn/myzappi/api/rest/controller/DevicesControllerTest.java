@@ -5,14 +5,18 @@ import com.amcglynn.myenergi.EvConnectionStatus;
 import com.amcglynn.myenergi.ZappiChargeMode;
 import com.amcglynn.myenergi.ZappiStatusSummary;
 import com.amcglynn.myenergi.apiresponse.ZappiStatus;
+import com.amcglynn.myenergi.units.KiloWattHour;
 import com.amcglynn.myzappi.api.rest.Request;
 import com.amcglynn.myzappi.api.rest.RequestMethod;
 import com.amcglynn.myzappi.api.rest.ServerException;
 import com.amcglynn.myzappi.api.service.RegistrationService;
 import com.amcglynn.myzappi.core.model.EddiDevice;
+import com.amcglynn.myzappi.core.model.LibbiDevice;
+import com.amcglynn.myzappi.core.model.LibbiStatus;
 import com.amcglynn.myzappi.core.model.SerialNumber;
 import com.amcglynn.myzappi.core.model.UserId;
 import com.amcglynn.myzappi.core.model.ZappiDevice;
+import com.amcglynn.myzappi.core.service.LibbiService;
 import com.amcglynn.myzappi.core.service.MyEnergiService;
 import com.amcglynn.myzappi.core.service.ZappiService;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,6 +32,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowableOfType;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -40,10 +45,16 @@ class DevicesControllerTest {
     private MyEnergiService mockMyEnergiService;
     @Mock
     private ZappiService mockZappiService;
+    @Mock
+    private LibbiService mockLibbiService;
     private DevicesController controller;
+    private UserId userId;
+    private SerialNumber libbiSerialNumber;
 
     @BeforeEach
     void setUp() {
+        userId = UserId.from("userId");
+        libbiSerialNumber = SerialNumber.from("30000001");
         controller = new DevicesController(mockRegistrationService, mockMyEnergiServiceBuilder);
     }
 
@@ -103,9 +114,9 @@ class DevicesControllerTest {
 
     @Test
     void testGetDevicesReturns404WhenDeviceNotFound() {
-        when(mockRegistrationService.getDevice(UserId.from("userId"), SerialNumber.from("12345678")))
+        when(mockRegistrationService.getDevice(userId, SerialNumber.from("12345678")))
                 .thenReturn(Optional.empty());
-        var exception = catchThrowableOfType(() -> controller.getDevice(new Request(UserId.from("userId"),
+        var exception = catchThrowableOfType(() -> controller.getDevice(new Request(userId,
                 RequestMethod.GET, "/devices/12345678", null)), ServerException.class);
         assertThat(exception.getStatus()).isEqualTo(404);
     }
@@ -163,5 +174,123 @@ class DevicesControllerTest {
                 "mode":"Eco+","chargeAddedKwh":"24.3","connectionStatus":"CHARGING","chargeStatus":"DIVERTING",\
                 "chargeRateKw":"1.4","lockStatus":"CHARGE_ALLOWED"}\
                 """));
+    }
+
+    @Test
+    void testGetLibbiStatus() {
+        when(mockRegistrationService.getDevice(UserId.from("userId"), libbiSerialNumber))
+                .thenReturn(Optional.of(new LibbiDevice(libbiSerialNumber)));
+        when(mockMyEnergiServiceBuilder.build(any()))
+                .thenReturn(mockMyEnergiService);
+        when(mockMyEnergiService.getLibbiService()).thenReturn(Optional.of(mockLibbiService));
+        when(mockLibbiService.getStatus(userId, libbiSerialNumber))
+                .thenReturn(new LibbiStatus(libbiSerialNumber, 60, true, new KiloWattHour(5.520), new KiloWattHour(10.200)));
+
+        var response = controller.getDeviceStatus(new Request(UserId.from("userId"), RequestMethod.GET, "/devices/30000001/status", null));
+        assertThat(response.getStatus()).isEqualTo(200);
+        assertThat(response.getBody()).isEqualTo(Optional.of("""
+                {\
+                "serialNumber":"30000001",\
+                "stateOfChargePercentage":60,\
+                "chargeFromGridEnabled":true,\
+                "energyTargetKWh":"5.5",\
+                "batterySizeKWh":"10.2"}\
+                """));
+    }
+
+    @Test
+    void setLibbiTargetEnergy() {
+        var body = """
+                {"targetEnergyWh":5500}
+                """;
+        when(mockRegistrationService.getDevice(UserId.from("userId"), libbiSerialNumber))
+                .thenReturn(Optional.of(new LibbiDevice(libbiSerialNumber)));
+        when(mockMyEnergiServiceBuilder.build(any()))
+                .thenReturn(mockMyEnergiService);
+        when(mockMyEnergiService.getLibbiService()).thenReturn(Optional.of(mockLibbiService));
+
+        var response = controller.setLibbiTargetEnergy(new Request(UserId.from("userId"), RequestMethod.POST, "/devices/30000001/target-energy", body));
+        assertThat(response.getStatus()).isEqualTo(202);
+        verify(mockLibbiService).setChargeTarget(userId, libbiSerialNumber, 5500);
+    }
+
+    @Test
+    void setLibbiTargetEnergyReturns404WhenDeviceClassIsNotLibbi() {
+        var body = """
+                {"targetEnergyWh":5500}
+                """;
+        when(mockRegistrationService.getDevice(UserId.from("userId"), libbiSerialNumber))
+                .thenReturn(Optional.of(new ZappiDevice(libbiSerialNumber)));
+        when(mockMyEnergiServiceBuilder.build(any()))
+                .thenReturn(mockMyEnergiService);
+
+        var exception = catchThrowableOfType(() ->
+                controller.setLibbiTargetEnergy(new Request(UserId.from("userId"), RequestMethod.POST, "/devices/30000001/target-energy", body)), ServerException.class);
+        assertThat(exception.getStatus()).isEqualTo(404);
+    }
+
+    @Test
+    void setLibbiTargetEnergyReturns400WhenNoBodyIsInTheRequest() {
+        var exception = catchThrowableOfType(() ->
+                controller.setLibbiTargetEnergy(new Request(UserId.from("userId"), RequestMethod.POST, "/devices/30000001/target-energy", null)), ServerException.class);
+        assertThat(exception.getStatus()).isEqualTo(400);
+    }
+
+    @Test
+    void setLibbiTargetEnergyReturns400WhenBodyIsInvalid() {
+        var invalidBody = """
+                {"ta1rgetEnergyWh":5500}
+                """;
+        var exception = catchThrowableOfType(() ->
+                controller.setLibbiTargetEnergy(new Request(UserId.from("userId"), RequestMethod.POST, "/devices/30000001/target-energy", invalidBody)), ServerException.class);
+        assertThat(exception.getStatus()).isEqualTo(400);
+    }
+
+    @Test
+    void setLibbiChargeFromGrid() {
+        var body = """
+                {"chargeFromGrid":true}
+                """;
+        when(mockRegistrationService.getDevice(UserId.from("userId"), libbiSerialNumber))
+                .thenReturn(Optional.of(new LibbiDevice(libbiSerialNumber)));
+        when(mockMyEnergiServiceBuilder.build(any()))
+                .thenReturn(mockMyEnergiService);
+        when(mockMyEnergiService.getLibbiService()).thenReturn(Optional.of(mockLibbiService));
+
+        var response = controller.setLibbiChargeFromGrid(new Request(UserId.from("userId"), RequestMethod.POST, "/devices/30000001/charge-from-grid", body));
+        assertThat(response.getStatus()).isEqualTo(202);
+        verify(mockLibbiService).setChargeFromGrid(userId, libbiSerialNumber, true);
+    }
+
+    @Test
+    void setLibbiChargeFromGridReturns404WhenDeviceClassIsNotLibbi() {
+        var body = """
+                {"chargeFromGrid":true}
+                """;
+        when(mockRegistrationService.getDevice(UserId.from("userId"), libbiSerialNumber))
+                .thenReturn(Optional.of(new ZappiDevice(libbiSerialNumber)));
+        when(mockMyEnergiServiceBuilder.build(any()))
+                .thenReturn(mockMyEnergiService);
+
+        var exception = catchThrowableOfType(() ->
+                controller.setLibbiChargeFromGrid(new Request(UserId.from("userId"), RequestMethod.POST, "/devices/30000001/charge-from-grid", body)), ServerException.class);
+        assertThat(exception.getStatus()).isEqualTo(404);
+    }
+
+    @Test
+    void setLibbiChargeFromGridReturns400WhenNoBodyIsInTheRequest() {
+        var exception = catchThrowableOfType(() ->
+                controller.setLibbiChargeFromGrid(new Request(UserId.from("userId"), RequestMethod.POST, "/devices/30000001/charge-from-grid", null)), ServerException.class);
+        assertThat(exception.getStatus()).isEqualTo(400);
+    }
+
+    @Test
+    void setLibbiChargeFromGridReturns400WhenBodyIsInvalid() {
+        var invalidBody = """
+                {"targetEnergyWh":5500}
+                """;
+        var exception = catchThrowableOfType(() ->
+                controller.setLibbiChargeFromGrid(new Request(UserId.from("userId"), RequestMethod.POST, "/devices/30000001/charge-from-grid", invalidBody)), ServerException.class);
+        assertThat(exception.getStatus()).isEqualTo(400);
     }
 }
