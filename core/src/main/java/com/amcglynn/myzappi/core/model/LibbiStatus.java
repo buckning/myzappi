@@ -19,8 +19,8 @@ public class LibbiStatus {
     @JsonSerialize(using = SerialNumberSerializer.class)
     private SerialNumber serialNumber;
     private int stateOfChargePercentage;
+    private KiloWattHour batterySizeKWh;
     // below fields are optional
     private Boolean chargeFromGridEnabled;
     private KiloWattHour energyTargetKWh;
-    private KiloWattHour batterySizeKWh;
 }

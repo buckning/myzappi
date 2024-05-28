@@ -1,36 +1,12 @@
 <h2>Libbi</h2>
-<br>
-<div class="chargeMode">
-    <button class="toggleButton" (click)="changeMode('Off')" [disabled]="!isChangeModeEnabled()">
-        Off
-    </button>
-    <button class="toggleButton" (click)="changeMode('On')" [disabled]="!isChangeModeEnabled()">
-        On
-    </button>
+State of charge: {{stateOfCharge}}%
+<div *ngIf="registrationComplete === true">
+    Charge from grid: {{chargeFromGrid}}
+    Charge target: {{energyTargetKWh}}kWh
 </div>
 
 <br>
-    <button class="toggleButton" (click)="getStatus()" [disabled]="!isChangeModeEnabled()">
-        Get info
-    </button>
-    <p>
-        {{debugText}}
-    </p>
-<br>
-
-<div class="chargeFromGrid" *ngIf="registrationComplete === true">
-    <p>
-        Set charge from grid
-    </p>
-    <button class="toggleButton" (click)="disableChargeFromGrid()" [disabled]="!isChangeModeEnabled()">
-        Off
-    </button>
-    <button class="toggleButton" (click)="enableChargeFromGrid()" [disabled]="!isChangeModeEnabled()">
-        On
-    </button>
-</div>
-
-<br>
+<h3>Enter myenergi credentials</h3>
 <div *ngIf="registrationComplete === false">
     <p>
         Unlock more Libbi functionality by entering your myenergi myaccount details. 

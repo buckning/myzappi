@@ -14,6 +14,14 @@ interface SetChargeFromGrid {
   chargeFromGrid: boolean;
 }
 
+interface LibbiSummary {
+  serialNumber: string,
+  stateOfChargePercentage: number,
+  batterySizeKWh: string,
+  chargeFromGridEnabled: boolean,
+  energyTargetKWh: string;
+}
+
 @Component({
   selector: 'app-libbi-panel',
   templateUrl: './libbi-panel.component.html',
@@ -27,7 +35,9 @@ export class LibbiPanelComponent {
   passwordText: string = '';
   registerButtonDisabled:boolean = false;
   messageText = '';
-  debugText = '';
+  stateOfCharge: number = -1;
+  batterySize = '';
+  energyTargetKWh = '';
 
   mode: any;
   changeModeEnabled = true;
@@ -39,6 +49,7 @@ export class LibbiPanelComponent {
 
   ngOnInit(): void {
     this.readAccountSettings();
+    this.getStatus();
   }
 
   getStatus() {
@@ -46,10 +57,12 @@ export class LibbiPanelComponent {
       'Content-Type': 'application/json',
       'Authorization': this.bearerToken });
     let options = { headers: headers, withCredentials: true };
-    this.http.get<string>('https://api.myzappiunofficial.com/devices/' + this.serialNumber + '/status', options)
+    this.http.get<LibbiSummary>('https://api.myzappiunofficial.com/devices/' + this.serialNumber + '/status', options)
       .subscribe(data => {
-        console.log('Got status ' + JSON.stringify(data));
-        this.debugText = JSON.stringify(data);
+        this.chargeFromGrid = data.chargeFromGridEnabled;
+        this.batterySize = data.batterySizeKWh;
+        this.stateOfCharge = data.stateOfChargePercentage;
+        this.energyTargetKWh = data.energyTargetKWh;
       });
   }
 
