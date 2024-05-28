@@ -1,5 +1,6 @@
 package com.amcglynn.myenergi;
 
+import com.amcglynn.myenergi.apiresponse.LibbiStatusResponse;
 import com.amcglynn.myenergi.apiresponse.StatusResponse;
 import com.amcglynn.myenergi.apiresponse.ZappiDayHistory;
 import com.amcglynn.myenergi.apiresponse.ZappiHourlyDayHistory;
@@ -57,6 +58,16 @@ public class MockMyEnergiClient extends MyEnergiClient {
                 .setBody(MockMyEnergiResponses.getExampleResponse());
         mockWebServer.enqueue(mockResponse);
         return super.getZappiStatus(zappiSerialNumber);
+    }
+
+    @Override
+    public LibbiStatusResponse getLibbiStatus(String libbiSerialNumber) {
+        var mockResponse = new MockResponse()
+                .setResponseCode(200)
+                .addHeader("x_myenergi-asn", mockWebServer.url("").uri())
+                .setBody(MockMyEnergiResponses.getExampleLibbiResponse());
+        mockWebServer.enqueue(mockResponse);
+        return super.getLibbiStatus(libbiSerialNumber);
     }
 
     @Override

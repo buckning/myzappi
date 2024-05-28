@@ -2,4 +2,5 @@ dependencies {
     implementation "com.amazonaws:aws-java-sdk-dynamodb:${dynamodbVersion}"
     implementation "software.amazon.awssdk:scheduler:${awsSchedulerVersion}"
     implementation project(":myenergi-client")
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.13.3'
 }

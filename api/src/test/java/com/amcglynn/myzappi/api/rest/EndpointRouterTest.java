@@ -73,6 +73,7 @@ class EndpointRouterTest {
         when(mockDevicesController.listDevices(any())).thenReturn(mockResponse);
         when(mockDevicesController.deleteDevices(any())).thenReturn(mockResponse);
         when(mockDevicesController.setMode(any())).thenReturn(mockResponse);
+        when(mockDevicesController.setLibbiTargetEnergy(any())).thenReturn(mockResponse);
         when(mockHubController.delete(any())).thenReturn(mockResponse);
         when(mockHubController.refresh(any())).thenReturn(mockResponse);
         when(mockHubController.get(any())).thenReturn(mockResponse);
@@ -164,6 +165,15 @@ class EndpointRouterTest {
         var response = router.route(request);
         assertThat(response.getStatus()).isEqualTo(200);
         verify(mockDevicesController).setMode(request);
+    }
+
+    @Test
+    void setTargetEnergyGetsRoutedToDevicesController() {
+        var request = new Request(RequestMethod.PUT, "/devices/12345678/target-energy", null, Map.of("Authorization", "Bearer 1234"), Map.of());
+        request.setUserId("regularUser");
+        var response = router.route(request);
+        assertThat(response.getStatus()).isEqualTo(200);
+        verify(mockDevicesController).setLibbiTargetEnergy(request);
     }
 
     @Test

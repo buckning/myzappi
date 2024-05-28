@@ -6,4 +6,5 @@ dependencies {
     implementation project(":core")
     implementation project(":login-with-amazon")
     implementation project(":myenergi-client")
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.13.3'
 }
