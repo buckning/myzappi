@@ -4,8 +4,11 @@ import com.amcglynn.myzappi.core.dal.ScheduleDetailsRepository;
 import com.amcglynn.myzappi.core.dal.UserScheduleRepository;
 import com.amcglynn.myzappi.core.exception.MissingDeviceException;
 import com.amcglynn.myzappi.core.model.EddiDevice;
+import com.amcglynn.myzappi.core.model.MyEnergiDevice;
 import com.amcglynn.myzappi.core.model.Schedule;
+import com.amcglynn.myzappi.core.model.ScheduleActionType;
 import com.amcglynn.myzappi.core.model.ScheduleRecurrence;
+import com.amcglynn.myzappi.core.model.SerialNumber;
 import com.amcglynn.myzappi.core.model.UserId;
 import lombok.extern.slf4j.Slf4j;
 import software.amazon.awssdk.services.scheduler.SchedulerClient;
@@ -80,12 +83,41 @@ public class ScheduleService {
     }
 
     private void validate(UserId userId, Schedule schedule) {
-        if (schedule.getAction().getType().toLowerCase().contains("eddi")) {
-            if (loginService.readDevices(userId).stream().noneMatch(EddiDevice.class::isInstance)) {
-                log.info("Eddi not found for user {}", userId);
-                throw new MissingDeviceException("Eddi not available");
-            }
+        var devices = loginService.readDevices(userId);
+
+        // check that the user owns the target device
+        validateUserOwnsTheTargetDevice(userId, devices, schedule);
+        validateRequestedDeviceIsTheCorrectType(userId, devices, schedule);
+    }
+
+    private void validateUserOwnsTheTargetDevice(UserId userId, List<MyEnergiDevice> devices, Schedule schedule) {
+        var target = schedule.getAction().getTarget().orElse(null);
+        var scheduleType = schedule.getAction().getType();
+        var deviceClassOfSchedule = ScheduleActionType.from(scheduleType).getDeviceClass();
+        if (target != null) {
+            devices.stream()
+                    .filter(d -> d.getSerialNumber().equals(SerialNumber.from(target)))
+                    .filter(d -> d.getDeviceClass().equals(deviceClassOfSchedule))
+                    .findFirst()
+                    .orElseThrow(() -> {
+                        log.info("User {} does not own the target device {} or the device class is incorrect. Device class = {}",
+                                userId, target, deviceClassOfSchedule);
+                        return new MissingDeviceException("Target device class is incorrect or user does not own requested device");
+                    });
+
         }
+    }
+
+    private void validateRequestedDeviceIsTheCorrectType(UserId userId, List<MyEnergiDevice> devices, Schedule schedule) {
+        var scheduleType = schedule.getAction().getType();
+        var deviceClassOfSchedule = ScheduleActionType.from(scheduleType).getDeviceClass();
+        devices.stream()
+                .filter(device -> device.getDeviceClass().equals(deviceClassOfSchedule))
+                .findFirst()
+                .orElseThrow(() -> {
+                    log.info("User {} does not have the required device for schedule type {}", userId, scheduleType);
+                    return new MissingDeviceException("Device not found");
+                });
     }
 
     private void createAwsSchedule(UserId userId, Schedule schedule) {

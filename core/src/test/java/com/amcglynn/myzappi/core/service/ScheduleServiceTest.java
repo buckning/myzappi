@@ -3,13 +3,15 @@ package com.amcglynn.myzappi.core.service;
 import com.amcglynn.myzappi.core.dal.ScheduleDetailsRepository;
 import com.amcglynn.myzappi.core.dal.UserScheduleRepository;
 import com.amcglynn.myzappi.core.exception.MissingDeviceException;
-import com.amcglynn.myzappi.core.model.MyEnergiDeployment;
+import com.amcglynn.myzappi.core.model.EddiDevice;
+import com.amcglynn.myzappi.core.model.LibbiDevice;
 import com.amcglynn.myzappi.core.model.Schedule;
 import com.amcglynn.myzappi.core.model.ScheduleAction;
 import com.amcglynn.myzappi.core.model.ScheduleDetails;
 import com.amcglynn.myzappi.core.model.ScheduleRecurrence;
 import com.amcglynn.myzappi.core.model.SerialNumber;
 import com.amcglynn.myzappi.core.model.UserId;
+import com.amcglynn.myzappi.core.model.ZappiDevice;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -57,7 +59,10 @@ class ScheduleServiceTest {
     private LoginService mockLoginService;
     @Captor
     private ArgumentCaptor<CreateScheduleRequest> createScheduleRequestArgumentCaptor;
-    private UserId userId = UserId.from("mockUserId");
+    private final UserId userId = UserId.from("mockUserId");
+    private final SerialNumber zappiSerialNumber = SerialNumber.from("10000001");
+    private final SerialNumber eddiSerialNumber = SerialNumber.from("20000001");
+    private final SerialNumber libbiSerialNumber = SerialNumber.from("30000001");
     private final CreateScheduleResponse createScheduleResponse = CreateScheduleResponse.builder().scheduleArn("mockScheduleArn").build();
     @Captor
     private ArgumentCaptor<DeleteScheduleRequest> deleteScheduleRequestCapture;
@@ -67,6 +72,8 @@ class ScheduleServiceTest {
         when(mockSchedulerClient.createSchedule(any(CreateScheduleRequest.class))).thenReturn(createScheduleResponse);
         service = new ScheduleService(mockRepository, mockScheduleDetailsRepository, mockSchedulerClient,
                 mockLoginService, "mockExecutionArn", "mockLambdaArn");
+        when(mockLoginService.readDevices(userId)).thenReturn(List.of(new ZappiDevice(zappiSerialNumber),
+                new EddiDevice(eddiSerialNumber, "tank1", "tank2"), new LibbiDevice(libbiSerialNumber)));
     }
 
     @Test
@@ -94,7 +101,33 @@ class ScheduleServiceTest {
     }
 
     @Test
-    void createThrows409WhenCreatingEddiScheduleButEddiDoesNotExistForUser() {
+    void createScheduleWithTargetDevice() {
+        var schedule = Schedule.builder()
+                .startDateTime(LocalDateTime.of(2023, 9, 10, 14, 0))
+                .zoneId(ZoneId.of("Europe/Dublin"))
+                .action(ScheduleAction.builder()
+                        .target("10000001")
+                        .type("setChargeMode")
+                        .value("ECO+")
+                        .build())
+                .build();
+        var response = service.createSchedule(UserId.from("mockUserId"), schedule);
+        verify(mockRepository).write(UserId.from("mockUserId"), List.of(response));
+        verify(mockScheduleDetailsRepository).write(response.getId(), UserId.from("mockUserId"));
+        verify(mockSchedulerClient).createSchedule(createScheduleRequestArgumentCaptor.capture());
+        assertThat(response.getId()).isNotNull();
+        assertThat(createScheduleRequestArgumentCaptor.getValue().name()).isEqualTo(response.getId());
+        assertThat(createScheduleRequestArgumentCaptor.getValue().scheduleExpression()).isEqualTo("at(2023-09-10T14:00)");
+        assertThat(createScheduleRequestArgumentCaptor.getValue().target().input()).isEqualTo("{\n" +
+                "\"scheduleId\": \"" + response.getId() + "\",\n" +
+                "\"lwaUserId\": \"mockUserId\"\n" +
+                "}");
+    }
+
+    @Test
+    void createThrowsMissingDeviceExceptionWhenCreatingScheduleButTargetDeviceClassIsIncorrect() {
+        when(mockLoginService.readDevices(userId)).thenReturn(List.of(new ZappiDevice(zappiSerialNumber),
+                new LibbiDevice(libbiSerialNumber)));
         var schedule = Schedule.builder()
                 .startDateTime(LocalDateTime.of(2023, 9, 10, 14, 0))
                 .zoneId(ZoneId.of("Europe/Dublin"))
@@ -104,7 +137,41 @@ class ScheduleServiceTest {
                         .build())
                 .build();
         var serverException = catchThrowableOfType(() -> service.createSchedule(UserId.from("mockUserId"), schedule), MissingDeviceException.class);
-        assertThat(serverException).isNotNull();
+        assertThat(serverException).isNotNull().hasMessage("Device not found");
+    }
+
+    @Test
+    void createThrowsMissingDeviceExceptionWhenUserDoesNotOwnTheTargettedDevice() {
+        when(mockLoginService.readDevices(userId)).thenReturn(List.of(new ZappiDevice(zappiSerialNumber),
+                new LibbiDevice(libbiSerialNumber)));
+        var schedule = Schedule.builder()
+                .startDateTime(LocalDateTime.of(2023, 9, 10, 14, 0))
+                .zoneId(ZoneId.of("Europe/Dublin"))
+                .action(ScheduleAction.builder()
+                        .type("setChargeMode")
+                        .target("10000002")
+                        .value("Eco+")
+                        .build())
+                .build();
+        var serverException = catchThrowableOfType(() -> service.createSchedule(UserId.from("mockUserId"), schedule), MissingDeviceException.class);
+        assertThat(serverException).isNotNull().hasMessage("Target device class is incorrect or user does not own requested device");
+    }
+
+    @Test
+    void createThrowsMissingDeviceExceptionWhenUserOwnsTheDeviceButTheRequestedScheduleTypeIsIncorrectForTheTargetDeviceType() {
+        when(mockLoginService.readDevices(userId)).thenReturn(List.of(new ZappiDevice(zappiSerialNumber),
+                new LibbiDevice(libbiSerialNumber)));
+        var schedule = Schedule.builder()
+                .startDateTime(LocalDateTime.of(2023, 9, 10, 14, 0))
+                .zoneId(ZoneId.of("Europe/Dublin"))
+                .action(ScheduleAction.builder()
+                        .type("setChargeMode")
+                        .target("30000001")
+                        .value("Eco+")
+                        .build())
+                .build();
+        var serverException = catchThrowableOfType(() -> service.createSchedule(UserId.from("mockUserId"), schedule), MissingDeviceException.class);
+        assertThat(serverException).isNotNull().hasMessage("Target device class is incorrect or user does not own requested device");
     }
 
     @Test
@@ -124,6 +191,7 @@ class ScheduleServiceTest {
         verify(mockRepository).write(UserId.from("mockUserId"), List.of(response));
         verify(mockScheduleDetailsRepository).write(response.getId(), UserId.from("mockUserId"));
         verify(mockSchedulerClient).createSchedule(createScheduleRequestArgumentCaptor.capture());
+
         assertThat(response.getId()).isNotNull();
         assertThat(createScheduleRequestArgumentCaptor.getValue().name()).isEqualTo(response.getId());
         assertThat(createScheduleRequestArgumentCaptor.getValue().scheduleExpression()).startsWith("cron(0 14 ? * 1,4,6 *)");

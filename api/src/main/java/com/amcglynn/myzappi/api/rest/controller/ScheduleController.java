@@ -50,7 +50,7 @@ public class ScheduleController {
             var newSchedule = service.createSchedule(request.getUserId(), schedulerRequest);
             return new Response(200, objectMapper.writeValueAsString(newSchedule));
         } catch (MissingDeviceException e) {
-            log.info("User {} requested eddi schedule but does not have an eddi", request.getUserId());
+            log.info("User {} requested schedule for device which they don't own", request.getUserId());
             throw new ServerException(409);
         } catch (JsonProcessingException e) {
             log.info("Failed to deserialise object", e);
