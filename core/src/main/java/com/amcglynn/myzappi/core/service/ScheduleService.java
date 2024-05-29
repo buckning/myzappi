@@ -3,7 +3,6 @@ package com.amcglynn.myzappi.core.service;
 import com.amcglynn.myzappi.core.dal.ScheduleDetailsRepository;
 import com.amcglynn.myzappi.core.dal.UserScheduleRepository;
 import com.amcglynn.myzappi.core.exception.MissingDeviceException;
-import com.amcglynn.myzappi.core.model.EddiDevice;
 import com.amcglynn.myzappi.core.model.MyEnergiDevice;
 import com.amcglynn.myzappi.core.model.Schedule;
 import com.amcglynn.myzappi.core.model.ScheduleActionType;

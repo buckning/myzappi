@@ -30,7 +30,7 @@ public class ScheduleValidator {
             "setEddiBoostFor", ScheduleValidator::isValidEddiBoostDuration,
             "setLibbiEnabled", ScheduleValidator::isValidBoolean,
             "setLibbiChargeFromGrid", ScheduleValidator::isValidBoolean,
-            "setLibbiEnergyTarget", ScheduleValidator::isValidTargetSoc);
+            "setLibbiChargeTarget", ScheduleValidator::isValidTargetSoc);
 
     private static boolean isValidTargetSoc(String s) {
         try {

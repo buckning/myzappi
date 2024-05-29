@@ -45,17 +45,32 @@ class UserScheduleRepositoryTest {
 
     private UserScheduleRepository repository;
 
-    private final String testScheduleString = "[\n" +
-            "        {\n" +
-            "            \"id\": \"1234567890\",\n" +
-            "            \"startDateTime\": \"2023-09-08T14:00\",\n" +
-            "            \"zoneId\": \"Europe/Dublin\",\n" +
-            "            \"action\": {\n" +
-            "                \"type\": \"chargeMode\",\n" +
-            "                \"value\": \"ECO+\"\n" +
-            "            }\n" +
-            "        }\n" +
-            "    ]";
+    private final String testScheduleString = """
+            [
+                {
+                    "id": "1234567890",
+                    "startDateTime": "2023-09-08T14:00",
+                    "zoneId": "Europe/Dublin",
+                    "action": {
+                        "type": "chargeMode",
+                        "value": "ECO+"
+                    }
+                }
+            ]""";
+
+    private final String testScheduleWithTargetString = """
+            [
+                {
+                    "id": "1234567890",
+                    "startDateTime": "2023-09-08T14:00",
+                    "zoneId": "Europe/Dublin",
+                    "action": {
+                        "type": "chargeMode",
+                        "target": "10000001",
+                        "value": "ECO+"
+                    }
+                }
+            ]""";
 
     @BeforeEach
     void setUp() {
@@ -83,6 +98,22 @@ class UserScheduleRepositoryTest {
     void testReadForUserWhoHasEntryInDb() {
         when(mockGetResult.getItem()).thenReturn(Map.of("user-id", new AttributeValue("testuser"),
                 "schedules", new AttributeValue(testScheduleString)));
+        when(mockDb.getItem(any())).thenReturn(mockGetResult);
+        var result = repository.read(UserId.from("userid"));
+        assertThat(result).hasSize(1);
+        verifySchedulesAreEqual(result.get(0), Schedule.builder().id("1234567890")
+                .startDateTime(LocalDateTime.of(2023, 9, 8, 14, 0))
+                .zoneId(ZoneId.of("Europe/Dublin"))
+                .action(ScheduleAction.builder()
+                        .type("chargeMode")
+                        .value("ECO+").build())
+                .build());
+    }
+
+    @Test
+    void testReadForUserWhoHasEntryInDbWithScheduleActionTarget() {
+        when(mockGetResult.getItem()).thenReturn(Map.of("user-id", new AttributeValue("testuser"),
+                "schedules", new AttributeValue(testScheduleWithTargetString)));
         when(mockDb.getItem(any())).thenReturn(mockGetResult);
         var result = repository.read(UserId.from("userid"));
         assertThat(result).hasSize(1);
