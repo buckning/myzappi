@@ -11,6 +11,7 @@ import com.amcglynn.myzappi.core.model.MyEnergiDevice;
 import com.amcglynn.myzappi.core.model.SerialNumber;
 import com.amcglynn.myzappi.core.model.UserId;
 import com.amcglynn.myzappi.core.model.ZappiDevice;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
@@ -23,9 +24,11 @@ public class MyEnergiService {
     private EddiService eddiService;
     private LibbiService libbiService;
     private final MyEnergiClient client;
+    @Getter
+    private final UserId userId;
 
     private MyEnergiService(LoginService loginService, String user) {
-        var userId = UserId.from(user);
+        userId = UserId.from(user);
         var creds = loginService.readCredentials(userId);
         var devices = loginService.readDevices(userId);
         if (creds.isEmpty()) {

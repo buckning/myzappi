@@ -4,6 +4,7 @@ import com.amcglynn.myenergi.EddiMode;
 import com.amcglynn.myenergi.ZappiChargeMode;
 import com.amcglynn.myenergi.units.KiloWattHour;
 import com.amcglynn.myzappi.core.model.ScheduleAction;
+import com.amcglynn.myzappi.core.model.SerialNumber;
 import com.amcglynn.myzappi.core.service.MyEnergiService;
 import com.amcglynn.myzappi.core.service.ScheduleService;
 import com.amcglynn.myzappi.core.service.ZappiService;
@@ -27,18 +28,22 @@ public class MyZappiScheduleHandler {
         this.scheduleService = scheduleService;
 
         handlers = Map.of(
-                "setChargeMode",    (zappiService, scheduleAction) -> zappiService.getZappiServiceOrThrow()
+                "setChargeMode",    (myEnergiService, scheduleAction) -> myEnergiService.getZappiServiceOrThrow()
                         .setChargeMode(ZappiChargeMode.valueOf(scheduleAction.getValue())),
-                "setBoostKwh",      (zappiService, scheduleAction) -> zappiService.getZappiServiceOrThrow()
+                "setBoostKwh",      (myEnergiService, scheduleAction) -> myEnergiService.getZappiServiceOrThrow()
                         .startBoost(new KiloWattHour(Double.parseDouble(scheduleAction.getValue()))),
-                "setBoostUntil",    (zappiService, scheduleAction) -> zappiService.getZappiServiceOrThrow()
+                "setBoostUntil",    (myEnergiService, scheduleAction) -> myEnergiService.getZappiServiceOrThrow()
                         .startSmartBoost(LocalTime.parse(scheduleAction.getValue())),
-                "setBoostFor",      (zappiService, scheduleAction) -> zappiService.getZappiServiceOrThrow()
+                "setBoostFor",      (myEnergiService, scheduleAction) -> myEnergiService.getZappiServiceOrThrow()
                         .startSmartBoost(Duration.parse(scheduleAction.getValue())),
-                "setEddiMode",      (zappiService, scheduleAction) -> zappiService.getEddiServiceOrThrow()
+                "setEddiMode",      (myEnergiService, scheduleAction) -> myEnergiService.getEddiServiceOrThrow()
                         .setEddiMode(EddiMode.valueOf(scheduleAction.getValue())),
-                "setEddiBoostFor",  (zappiService, scheduleAction) -> zappiService.getEddiServiceOrThrow()
-                        .boostEddi(parseHeater(scheduleAction.getValue()), parseDuration(scheduleAction.getValue()))
+                "setEddiBoostFor",  (myEnergiService, scheduleAction) -> myEnergiService.getEddiServiceOrThrow()
+                        .boostEddi(parseHeater(scheduleAction.getValue()), parseDuration(scheduleAction.getValue())),
+                "setLibbiChargeFromGrid", (myEnergiService, scheduleAction) -> myEnergiService.getLibbiService()
+                        .get().setChargeFromGrid(myEnergiService.getUserId(), SerialNumber.from(scheduleAction.getTarget().get()), Boolean.parseBoolean(scheduleAction.getValue())),
+                "setLibbiChargeTarget", (myEnergiService, scheduleAction) -> myEnergiService.getLibbiService()
+                        .get().setChargeTarget(myEnergiService.getUserId(), SerialNumber.from(scheduleAction.getTarget().get()), Integer.parseInt(scheduleAction.getValue()))
         );
     }
 

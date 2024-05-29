@@ -184,7 +184,13 @@ class DevicesControllerTest {
                 .thenReturn(mockMyEnergiService);
         when(mockMyEnergiService.getLibbiService()).thenReturn(Optional.of(mockLibbiService));
         when(mockLibbiService.getStatus(userId, libbiSerialNumber))
-                .thenReturn(new LibbiStatus(libbiSerialNumber, 60, true, new KiloWattHour(5.520), new KiloWattHour(10.200)));
+                .thenReturn(LibbiStatus.builder()
+                        .serialNumber(libbiSerialNumber)
+                        .stateOfChargePercentage(60)
+                        .energyTargetKWh(new KiloWattHour(5.520))
+                        .chargeFromGridEnabled(true)
+                        .batterySizeKWh(new KiloWattHour(10.200))
+                        .build());
 
         var response = controller.getDeviceStatus(new Request(UserId.from("userId"), RequestMethod.GET, "/devices/30000001/status", null));
         assertThat(response.getStatus()).isEqualTo(200);
@@ -192,9 +198,9 @@ class DevicesControllerTest {
                 {\
                 "serialNumber":"30000001",\
                 "stateOfChargePercentage":60,\
+                "batterySizeKWh":"10.2",\
                 "chargeFromGridEnabled":true,\
-                "energyTargetKWh":"5.5",\
-                "batterySizeKWh":"10.2"}\
+                "energyTargetKWh":"5.5"}\
                 """));
     }
 
