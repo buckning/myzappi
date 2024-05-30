@@ -21,7 +21,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -226,6 +228,79 @@ class ScheduleControllerTest {
         assertThat(response.getStatus()).isEqualTo(200);
         assertThat(response.getBody()).isEqualTo(Optional.of("{\"schedules\":[{\"id\":\"1234567890\"," +
                 "\"startDateTime\":\"2023-09-13T14:00\",\"zoneId\":\"Europe/Dublin\",\"action\":{\"type\":\"chargeMode\",\"value\":\"ECO+\"}}]}"));
+    }
+
+    @Test
+    void getSchedulesWithTargetFilterButTargetNotFoundReturnsEmptyList() {
+        when(mockService.listSchedules(com.amcglynn.myzappi.core.model.UserId.from("mockUserId"))).thenReturn(List.of(Schedule.builder().id("1234567890")
+                .startDateTime(LocalDateTime.of(2023, 9, 13, 14, 0))
+                .zoneId(ZoneId.of("Europe/Dublin"))
+                .action(ScheduleAction.builder()
+                        .type("chargeMode")
+                        .target("10000001")
+                        .value("ECO+").build())
+                .build()));
+        var request = new Request(RequestMethod.GET, "/schedule", null, Map.of(), Map.of("target", "20000001"));
+        request.setUserId("mockUserId");
+        var response = controller.getSchedules(request);
+        assertThat(response.getStatus()).isEqualTo(200);
+        assertThat(response.getBody()).isEqualTo(Optional.of("{\"schedules\":[]}"));
+    }
+
+    @Test
+    void getSchedulesWithTargetFilterReturnsTargetDevice() {
+        var schedule1 = Schedule.builder().id("1234567890")
+                .startDateTime(LocalDateTime.of(2023, 9, 13, 14, 0))
+                .zoneId(ZoneId.of("Europe/Dublin"))
+                .action(ScheduleAction.builder()
+                        .type("chargeMode")
+                        .target("10000001")
+                        .value("ECO+").build())
+                .build();
+        var schedule2 = Schedule.builder().id("0987654321")
+                .startDateTime(LocalDateTime.of(2023, 9, 13, 14, 1))
+                .zoneId(ZoneId.of("Europe/Dublin"))
+                .action(ScheduleAction.builder()
+                        .type("chargeMode")
+                        .target("10000002")
+                        .value("FAST").build())
+                .build();
+        when(mockService.listSchedules(com.amcglynn.myzappi.core.model.UserId.from("mockUserId")))
+                .thenReturn(List.of(schedule1, schedule2));
+        var request = new Request(RequestMethod.GET, "/schedule", null, Map.of(), Map.of("target", "10000001"));
+        request.setUserId("mockUserId");
+        var response = controller.getSchedules(request);
+        assertThat(response.getStatus()).isEqualTo(200);
+        assertThat(response.getBody()).isEqualTo(Optional.of("""
+                {"schedules":[{"id":"1234567890","startDateTime":"2023-09-13T14:00",\
+                "zoneId":"Europe/Dublin",\
+                "action":{"type":"chargeMode","value":"ECO+","target":"10000001"}}]}\
+                """));
+    }
+
+    @Test
+    void getSchedulesWithTargetFilterDoesNotReturnsAnyScheduleIfTheyDoNotHaveScheduleTargetDefined() {
+        var schedule1 = Schedule.builder().id("1234567890")
+                .startDateTime(LocalDateTime.of(2023, 9, 13, 14, 0))
+                .zoneId(ZoneId.of("Europe/Dublin"))
+                .action(ScheduleAction.builder()
+                        .type("chargeMode")
+                        .value("ECO+").build())
+                .build();
+        var schedule2 = Schedule.builder().id("0987654321")
+                .startDateTime(LocalDateTime.of(2023, 9, 13, 14, 1))
+                .zoneId(ZoneId.of("Europe/Dublin"))
+                .action(ScheduleAction.builder()
+                        .type("chargeMode")
+                        .value("FAST").build())
+                .build();
+        when(mockService.listSchedules(com.amcglynn.myzappi.core.model.UserId.from("mockUserId")))
+                .thenReturn(List.of(schedule1, schedule2));
+        var request = new Request(RequestMethod.GET, "/schedule", null, Map.of(), Map.of("target", "10000001"));
+        request.setUserId("mockUserId");
+        var response = controller.getSchedules(request);
+        assertThat(response.getStatus()).isEqualTo(200);
+        assertThat(response.getBody()).isEqualTo(Optional.of("{\"schedules\":[]}"));
     }
 
     @Test
