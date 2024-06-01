@@ -13,8 +13,7 @@ export class LibbiSetChargeFromGridActionPanelComponent implements ScheduleActio
   getScheduleAction() {
     return {
       "type": "setLibbiChargeFromGrid",
-      "value": this.chargeFromGrid,
-      "target": "30000001"
+      "value": this.chargeFromGrid
     };
   }
 

@@ -12,6 +12,7 @@ export class InlineSchedulePanelComponent implements OnInit {
   @ViewChild('actionContainer', { read: ViewContainerRef, static: true }) actionContainer!: ViewContainerRef;
   @Input() actionComponentType: any;
   @Input() public bearerToken: any;
+  @Input() serialNumber: any;
 
   actionComponent!: ScheduleActionComponent;
   schedulePanelExpanded = true;
@@ -83,22 +84,26 @@ export class InlineSchedulePanelComponent implements OnInit {
   }
 
   getOneTimeScheduleBody(): object {
+    let action = this.actionComponent.getScheduleAction();
+    action.target = this.serialNumber;
     let newSchedule: Schedule = {
       zoneId: this.getZoneId(),
       startDateTime: this.startDateTime,
-      action: this.actionComponent.getScheduleAction()
+      action: action
     }
     return newSchedule;
   }
 
   getRecurringScheduleBody(): object {
+    let action = this.actionComponent.getScheduleAction();
+    action.target = this.serialNumber;
     let newSchedule: RecurringSchedule = {
       zoneId: this.getZoneId(),
       recurrence: {
         timeOfDay: this.recurringTime,
         daysOfWeek: this.convertDaysOfWeekToNumbers()
       },
-      action: this.actionComponent.getScheduleAction()
+      action: action
     };
     return newSchedule;
   }
