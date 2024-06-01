@@ -1,6 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-
+import { LibbiSetChargeTargetActionPanelComponent } from '../libbi-set-charge-target-action-panel/libbi-set-charge-target-action-panel.component';
+import { LibbiSetChargeFromGridActionPanelComponent } from '../libbi-set-charge-from-grid-action-panel/libbi-set-charge-from-grid-action-panel.component';
 interface SetChargeMode {
   mode: string;
 }
@@ -30,6 +31,9 @@ interface LibbiSummary {
 export class LibbiPanelComponent {
   @Input() public serialNumber: any;
   @Input() public bearerToken: any;
+
+  libbiSetChargeTargetActionPanelComponent = LibbiSetChargeTargetActionPanelComponent;
+  libbiSetChargeFromGridActionPanelComponent = LibbiSetChargeFromGridActionPanelComponent;
   registrationComplete = false;
   emailAddressText: string = '';
   passwordText: string = '';

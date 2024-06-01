@@ -1,0 +1,8 @@
+<h3>Target Charge kWh</h3>
+<mat-slider
+    class="example-margin"
+    [disabled]="disabled">
+    <input matSliderThumb [(ngModel)]="chargeTarget" #slider>
+</mat-slider>
+
+<button class="confirmButton" (click)="saveChargeTarget()">Save</button>

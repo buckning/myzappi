@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-
+import { ZappiSetChargeModeActionPanelComponent } from '../zappi-set-charge-mode-action-panel/zappi-set-charge-mode-action-panel.component';
 interface DeviceStatus {
   type: string;
   firmware: string;
@@ -30,6 +30,7 @@ interface SetChargeMode {
 export class ZappiPanelComponent {
   @Input() public serialNumber: any;
   @Input() public bearerToken: any;
+  zappiSetChargeModeActionPanelComponent = ZappiSetChargeModeActionPanelComponent;
   chargeAddedKwh = '';
   chargeRate = '';
   mode: any;

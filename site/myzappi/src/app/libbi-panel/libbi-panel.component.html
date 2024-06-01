@@ -1,35 +1,41 @@
-<h2>Libbi</h2>
-State of charge: {{stateOfCharge}}%
-<div *ngIf="registrationComplete === true">
-    Charge from grid: {{chargeFromGrid}}
+<div class="deviceTile">
+    <h2>Libbi</h2>
+    State of charge: {{stateOfCharge}}%
+    <div *ngIf="registrationComplete === true">
+        Charge from grid: {{chargeFromGrid}}
+        <br>
+        Charge target: {{energyTargetKWh}}kWh
+    </div>
+    
+    <h3>Schedules</h3>
+    <app-inline-schedule-panel [bearerToken]="bearerToken" [actionComponentType]="libbiSetChargeFromGridActionPanelComponent"></app-inline-schedule-panel>
+    
     <br>
-    Charge target: {{energyTargetKWh}}kWh
-</div>
-
-<br>
-<div *ngIf="registrationComplete === false">
-    <h3>Enter myenergi credentials</h3>
-    <p>
-        Unlock more Libbi functionality by entering your myenergi myaccount details. 
-        These are the credentials you use to access https://myaccount.myenergi.com
-    </p>
-</div>
-<form id="loginCodeForm" *ngIf="registrationComplete === false">
-    <div>
-        <label for="emailAddress">myenergi account email address:</label>
-        <input type="text" [(ngModel)]="emailAddressText" name="emailAddress" autocomplete="off" required>
+    <div *ngIf="registrationComplete === false">
+        <h3>Enter myenergi credentials</h3>
+        <p>
+            Unlock more Libbi functionality by entering your myenergi myaccount details. 
+            These are the credentials you use to access https://myaccount.myenergi.com
+        </p>
     </div>
-    <div>
-        <label for="password">myenergi account passsword:</label>
-        <input type="password" [(ngModel)]="passwordText" name="password" autocomplete="off" required>
+    <form id="loginCodeForm" *ngIf="registrationComplete === false">
+        <div>
+            <label for="emailAddress">myenergi account email address:</label>
+            <input type="text" [(ngModel)]="emailAddressText" name="emailAddress" autocomplete="off" required>
+        </div>
+        <div>
+            <label for="password">myenergi account passsword:</label>
+            <input type="password" [(ngModel)]="passwordText" name="password" autocomplete="off" required>
+        </div>
+        <div>
+            <button class="confirmButton" (click)="registerMyEnergiAccount()" [disabled]="registerButtonDisabled" type="button"
+                id="submitBtn">Submit</button>
+        </div>
+    </form>
+    
+    <div id="messageContainer" *ngIf="messageText !== '' && registrationComplete === false">
+        <div class="errorMessage">{{messageText}}</div>
     </div>
-    <div>
-        <button class="confirmButton" (click)="registerMyEnergiAccount()" [disabled]="registerButtonDisabled" type="button"
-            id="submitBtn">Submit</button>
-    </div>
-</form>
-
-<div id="messageContainer" *ngIf="messageText !== '' && registrationComplete === false">
-    <div class="errorMessage">{{messageText}}</div>
+    <!-- <app-inline-schedule-panel [actionComponentType]="libbiSetChargeTargetActionPanelComponent"></app-inline-schedule-panel> -->
+    
 </div>
-
