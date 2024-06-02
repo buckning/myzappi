@@ -96,6 +96,16 @@ export class SchedulesPanelComponent {
     this.readSchedules();
   }
 
+  isDaySet(scheduleRecurrenceDaysOfWeek: number[], day: string): boolean {
+    let indexOfDay = this.daysOfWeek.indexOf(day) + 1;
+
+    if (indexOfDay === -1) {
+        return false;
+    }
+
+    return scheduleRecurrenceDaysOfWeek.indexOf(indexOfDay) !== -1;
+}
+
   createSchedule() {
     if (this.selectedOption === 'recurring') {
       this.createRecurringScheduleVisible = true;
@@ -283,7 +293,7 @@ export class SchedulesPanelComponent {
             }
           }
         });
-        
+
         this.loaded = true;
         this.listSchedulesVisible = true;
       },

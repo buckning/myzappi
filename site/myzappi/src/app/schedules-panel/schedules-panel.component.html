@@ -114,8 +114,14 @@
               [ngModel]="convertLibbiChargeFromGrid(row.action.value)" readonly>
           </td>
           <td>
-            <input type="text" name="repeat" class="repeatDays" [ngModel]="calculateDisplayString(row)" readonly>
+            <div class="days-of-week">
+              <button *ngFor="let day of daysOfWeek" class="toggleButton" [ngClass]="{ selected: isDaySet(row.recurrence.daysOfWeek, day)}"
+                  disabled="true">
+                  {{ day[0] }}
+              </button>
+          </div>
           </td>
+
           <td>
             <button type="button" class="destructiveButton" (click)="deleteSchedule(row)">Delete</button>
           </td>

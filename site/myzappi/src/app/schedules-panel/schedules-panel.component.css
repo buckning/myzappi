@@ -47,3 +47,22 @@ input[type="string"] {
         width: 55px;
     }
 }
+
+.toggleButton:disabled {   
+    border: 1px solid #ccc;
+    cursor: not-allowed; /* Correct cursor for disabled buttons */
+    font-size: 16px;
+    padding: 5px;
+    width: 30px;
+    text-align: center;
+    background-color: lightgray; /* Optional: default background for disabled */
+    color: gray; /* Optional: default color for disabled */
+}
+
+/* Styles for selected and disabled buttons */
+.toggleButton.selected:disabled {
+    font-weight: bold;
+    background-color: #64a0ff;
+    color: white;
+    border-color: #333;
+}
