@@ -20,7 +20,7 @@
   </div>
 
   <div *ngIf="loaded && listSchedulesVisible && selectedOption === 'recurring'">
-    <p *ngIf="recurringScheduleRows.length === 0 && recurringScheduleEddiRows.length === 0">
+    <p *ngIf="recurringScheduleRows.length === 0 && recurringScheduleEddiRows.length === 0 && recurringScheduleLibbiRows.length === 0">
       You have no schedules. Create a new schedule below.
     </p>
 
@@ -88,10 +88,45 @@
 
     </table>
 
+    <h2 *ngIf="recurringScheduleLibbiRows.length > 0">Libbi Schedules</h2>
+
+    <table id="scheduleTable" *ngIf="recurringScheduleLibbiRows.length > 0" class="scheduleTable">
+      <thead>
+        <tr>
+          <th>Time</th>
+          <th>Type</th>
+          <th>Mode</th>
+          <th>Repeat</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let row of recurringScheduleLibbiRows; let i = index">
+          <td>
+            <input type="string" name="time" class="scheduleTime" [(ngModel)]="row.recurrence.timeOfDay" readonly>
+          </td>
+          <td>
+            <input type="text" name="time" class="scheduleType" [ngModel]="convertScheduleType(row)" readonly>
+          </td>
+
+          <td>
+            <input type="text" name="repeat" class="chargeMode" placeholder="Mode"
+              [ngModel]="convertLibbiChargeFromGrid(row.action.value)" readonly>
+          </td>
+          <td>
+            <input type="text" name="repeat" class="repeatDays" [ngModel]="calculateDisplayString(row)" readonly>
+          </td>
+          <td>
+            <button type="button" class="destructiveButton" (click)="deleteSchedule(row)">Delete</button>
+          </td>
+        </tr>
+      </tbody>
+
+    </table>
   </div>
 
   <div *ngIf="loaded && listSchedulesVisible && selectedOption === 'one-time'">
-    <p *ngIf="oneTimeScheduleRows.length === 0 && oneTimeScheduleEddiRows.length === 0">
+    <p *ngIf="oneTimeScheduleRows.length === 0 && oneTimeScheduleEddiRows.length === 0 && oneTimeScheduleLibbiRows.length === 0">
       You have no schedules. Create a new schedule below.
     </p>
 
@@ -137,6 +172,37 @@
       </thead>
       <tbody>
         <tr *ngFor="let row of oneTimeScheduleEddiRows; let i = index">
+          <td>
+            <input type="text" name="time" class="scheduleDateTime" [ngModel]="convertDateTime(row.startDateTime)" readonly>
+          </td>
+          <td>
+            <input type="text" name="time" class="scheduleType" [ngModel]="convertScheduleType(row)" readonly>
+          </td>
+          <td>
+            <input type="text" name="repeat" class="chargeMode" placeholder="Charge Mode"
+              [ngModel]="convertOneTimeScheduleValue(row)" readonly>
+          </td>
+          <td>
+            <button type="button" class="destructiveButton" (click)="deleteSchedule(row)">Delete</button>
+          </td>
+        </tr>
+      </tbody>
+
+    </table>
+
+
+    <h2 *ngIf="oneTimeScheduleLibbiRows.length > 0">Libbi Schedules</h2>
+    <table id="scheduleTable" *ngIf="oneTimeScheduleLibbiRows.length > 0" class="scheduleTable">
+      <thead>
+        <tr>
+          <th>Start Date & Time</th>
+          <th>Type</th>
+          <th>Value</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let row of oneTimeScheduleLibbiRows; let i = index">
           <td>
             <input type="text" name="time" class="scheduleDateTime" [ngModel]="convertDateTime(row.startDateTime)" readonly>
           </td>

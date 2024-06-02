@@ -11,13 +11,14 @@ export class LibbiSetChargeTargetActionPanelComponent implements ScheduleActionC
   chargeTarget = 100;
   disabled = false;
 
+  batteryCapacityWh = -1;
+
 
   getScheduleAction() {
-    return `{
+    return {
       "type": "setLibbiChargeTarget",
-      "value": "100",
-      "target": "30000001"
-    }`;
+      "value": "100"
+    };
   }
 
   saveChargeTarget() {
