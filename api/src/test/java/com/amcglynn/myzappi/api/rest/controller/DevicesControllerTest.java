@@ -2,6 +2,7 @@ package com.amcglynn.myzappi.api.rest.controller;
 
 import com.amcglynn.myenergi.ChargeStatus;
 import com.amcglynn.myenergi.EvConnectionStatus;
+import com.amcglynn.myenergi.LibbiState;
 import com.amcglynn.myenergi.ZappiChargeMode;
 import com.amcglynn.myenergi.ZappiStatusSummary;
 import com.amcglynn.myenergi.apiresponse.ZappiStatus;
@@ -186,6 +187,7 @@ class DevicesControllerTest {
         when(mockLibbiService.getStatus(userId, libbiSerialNumber))
                 .thenReturn(LibbiStatus.builder()
                         .serialNumber(libbiSerialNumber)
+                        .state(LibbiState.OFF)
                         .stateOfChargePercentage(60)
                         .energyTargetKWh(new KiloWattHour(5.520))
                         .chargeFromGridEnabled(true)
@@ -197,6 +199,7 @@ class DevicesControllerTest {
         assertThat(response.getBody()).isEqualTo(Optional.of("""
                 {\
                 "serialNumber":"30000001",\
+                "state":"OFF",\
                 "stateOfChargePercentage":60,\
                 "batterySizeKWh":"10.2",\
                 "chargeFromGridEnabled":true,\

@@ -5,4 +5,7 @@
     <input matSliderThumb [(ngModel)]="chargeTarget" #slider>
 </mat-slider>
 
-<button class="confirmButton" (click)="saveChargeTarget()">Save</button>
+<div class="example-label-container">
+    <label id="example-name-label" class="example-name-label">Charge Target: </label>
+    <label class="example-value-label">{{chargeTarget}}%</label>
+</div>

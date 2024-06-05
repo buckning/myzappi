@@ -24,6 +24,7 @@ import { InlineSchedulePanelComponent } from './inline-schedule-panel/inline-sch
 import { ZappiSetChargeModeActionPanelComponent } from './zappi-set-charge-mode-action-panel/zappi-set-charge-mode-action-panel.component';
 import { LibbiSetChargeTargetActionPanelComponent } from './libbi-set-charge-target-action-panel/libbi-set-charge-target-action-panel.component';
 import { LibbiSetChargeFromGridActionPanelComponent } from './libbi-set-charge-from-grid-action-panel/libbi-set-charge-from-grid-action-panel.component';
+import { LibbiSetEnabledActionPanelComponent } from './libbi-set-enabled-action-panel/libbi-set-enabled-action-panel.component';
 
 @NgModule({
   declarations: [
@@ -42,7 +43,8 @@ import { LibbiSetChargeFromGridActionPanelComponent } from './libbi-set-charge-f
     InlineSchedulePanelComponent,
     ZappiSetChargeModeActionPanelComponent,
     LibbiSetChargeTargetActionPanelComponent,
-    LibbiSetChargeFromGridActionPanelComponent
+    LibbiSetChargeFromGridActionPanelComponent,
+    LibbiSetEnabledActionPanelComponent
   ],
   imports: [
     MatSlideToggleModule,

@@ -15,7 +15,7 @@ export class InlineSchedulePanelComponent implements OnInit {
   @Input() serialNumber: any;
 
   actionComponent!: ScheduleActionComponent;
-  schedulePanelExpanded = true;
+  schedulePanelExpanded = false;
   startDateTime: string = '';
   createScheduleButtonEnabled = false;
   selectedScheduleOption: 'one-time' | 'recurring' = 'recurring';

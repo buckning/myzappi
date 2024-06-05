@@ -1,9 +1,9 @@
+<button class="scheduleButton" (click)="toggleShowScheduling()">Schedule</button>
 <div>
-    <ng-container #actionContainer></ng-container>
-    <!-- <button class="scheduleButton" (click)="toggleShowScheduling()">Schedule</button> -->
-</div>
-<mat-expansion-panel class="deviceTile" [expanded]="schedulePanelExpanded" (opened)="schedulePanelExpanded = true"
+    <mat-expansion-panel class="deviceTile" [expanded]="schedulePanelExpanded" (opened)="schedulePanelExpanded = true"
                        (closed)="schedulePanelExpanded = false">
+    <h3>Action</h3>
+    <ng-container #actionContainer></ng-container>
     <h3>Schedule Type</h3>
       <mat-button-toggle-group [(ngModel)]="selectedScheduleOption">
         <mat-button-toggle value="recurring">Recurring</mat-button-toggle>
@@ -30,4 +30,5 @@
     </mat-action-row>
     
 </mat-expansion-panel>
+</div>
 

@@ -17,12 +17,8 @@ export class LibbiSetChargeTargetActionPanelComponent implements ScheduleActionC
   getScheduleAction() {
     return {
       "type": "setLibbiChargeTarget",
-      "value": "100"
+      "value": this.chargeTarget
     };
-  }
-
-  saveChargeTarget() {
-    console.log("Saving charge target to " + this.chargeTarget);
   }
 
   scheduleConfigurationStarted() {

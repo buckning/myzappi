@@ -1,6 +1,7 @@
 package com.amcglynn.myzappi.core.service;
 
 import com.amcglynn.myenergi.LibbiMode;
+import com.amcglynn.myenergi.LibbiState;
 import com.amcglynn.myenergi.MyEnergiClient;
 import com.amcglynn.myenergi.MyEnergiClientFactory;
 import com.amcglynn.myenergi.MyEnergiOAuthClient;
@@ -42,10 +43,15 @@ public class LibbiService {
 
     public void setChargeTarget(UserId userId, SerialNumber serialNumber, int targetEnergy) {
         var creds = loginService.readMyEnergiAccountCredentials(userId);
+
         creds.ifPresent(cred -> {
-            log.info("Setting target energy for serial number {} to {}", serialNumber, targetEnergy);
+            var libbiStatus = client.getLibbiStatus(serialNumber.toString()).getLibbi().get(0);
+            var batterySize = libbiStatus.getBatterySizeWh();
+            var targetEnergyWh = batterySize * targetEnergy / 100;
+
+            log.info("Setting target energy for serial number {} to {}% {}/{}", serialNumber, targetEnergy, targetEnergyWh, batterySize);
             clientFactory.newMyEnergiOAuthClient(cred.getEmailAddress(), cred.getPassword())
-                            .setTargetEnergy(serialNumber.toString(), targetEnergy);
+                            .setTargetEnergy(serialNumber.toString(), targetEnergyWh);
             });
     }
 
@@ -72,6 +78,7 @@ public class LibbiService {
                 .serialNumber(serialNumber)
                 .energyTargetKWh(energyTarget)
                 .chargeFromGridEnabled(chargeFromGrid)
+                .state(LibbiState.from(libbiStatus.getStatus()))
                 .build();
     }
 
