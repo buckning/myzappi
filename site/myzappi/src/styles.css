@@ -33,7 +33,7 @@ footer a {
 }
 
 .scheduleButton {
-    background-color: #888888;
+    background-color: #b8b8b8;
     color: #fff;
     padding: 10px 20px;
     font-size: 16px;
@@ -133,3 +133,6 @@ input {
         max-width: auto;
     }
 }
+
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }

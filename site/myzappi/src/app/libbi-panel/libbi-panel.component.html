@@ -1,11 +1,14 @@
 <div class="deviceTile">
     <h2>Libbi</h2>
-    State of charge: {{stateOfCharge}}%
+    <div>
+        Enabled: {{libbiEnabled}} <app-inline-schedule-panel [bearerToken]="bearerToken" [serialNumber]="serialNumber" [actionComponentType]="libbiSetEnabledActionPanelComponent"></app-inline-schedule-panel>
+    </div>
+    <br>
+    <div>
+        State of charge: {{stateOfCharge}}%
+    </div>
+    <br>
     <div *ngIf="registrationComplete === true">
-        <div>
-            Enabled: {{libbiEnabled}} <app-inline-schedule-panel [bearerToken]="bearerToken" [serialNumber]="serialNumber" [actionComponentType]="libbiSetEnabledActionPanelComponent"></app-inline-schedule-panel>
-        </div>
-        <br>
         <div>
             Charge from grid: {{chargeFromGrid}} <app-inline-schedule-panel [bearerToken]="bearerToken" [serialNumber]="serialNumber" [actionComponentType]="libbiSetChargeFromGridActionPanelComponent"></app-inline-schedule-panel>
         </div>
@@ -24,14 +27,16 @@
         </p>
     </div>
     <form id="loginCodeForm" *ngIf="registrationComplete === false">
-        <div>
+        <div class="myenergiInputPanel">
             <label for="emailAddress">myenergi account email address:</label>
-            <input type="text" [(ngModel)]="emailAddressText" name="emailAddress" autocomplete="off" required>
+            <input class="myenergiEmailInput" type="text" [(ngModel)]="emailAddressText" name="emailAddress" autocomplete="off" required>
         </div>
-        <div>
+        <br>
+        <div class="myenergiInputPanel">
             <label for="password">myenergi account passsword:</label>
-            <input type="password" [(ngModel)]="passwordText" name="password" autocomplete="off" required>
+            <input class="myenergiEmailInput" type="password" [(ngModel)]="passwordText" name="password" autocomplete="off" required>
         </div>
+        <br>
         <div>
             <button class="confirmButton" (click)="registerMyEnergiAccount()" [disabled]="registerButtonDisabled" type="button"
                 id="submitBtn">Submit</button>

@@ -1,8 +1,9 @@
 <button class="scheduleButton" (click)="toggleShowScheduling()">Schedule</button>
+<br>
 <div>
-    <mat-expansion-panel class="deviceTile" [expanded]="schedulePanelExpanded" (opened)="schedulePanelExpanded = true"
+    <mat-expansion-panel  [expanded]="schedulePanelExpanded" (opened)="schedulePanelExpanded = true"
                        (closed)="schedulePanelExpanded = false">
-    <h3>Action</h3>
+    <h3>Schedule Action</h3>
     <ng-container #actionContainer></ng-container>
     <h3>Schedule Type</h3>
       <mat-button-toggle-group [(ngModel)]="selectedScheduleOption">
