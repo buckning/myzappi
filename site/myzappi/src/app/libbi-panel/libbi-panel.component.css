@@ -17,3 +17,12 @@
     background-color: #f8d7da;
     color: #721c24;
 }
+
+.myenergiInputPanel {
+    margin-bottom: 10px;
+}
+
+.myenergiEmailInput {
+    float: right;
+    width: 300px;
+}

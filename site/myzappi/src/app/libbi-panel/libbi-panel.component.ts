@@ -1,6 +1,8 @@
 import { Component, Input } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-
+import { LibbiSetChargeTargetActionPanelComponent } from '../libbi-set-charge-target-action-panel/libbi-set-charge-target-action-panel.component';
+import { LibbiSetChargeFromGridActionPanelComponent } from '../libbi-set-charge-from-grid-action-panel/libbi-set-charge-from-grid-action-panel.component';
+import { LibbiSetEnabledActionPanelComponent } from '../libbi-set-enabled-action-panel/libbi-set-enabled-action-panel.component';
 interface SetChargeMode {
   mode: string;
 }
@@ -20,6 +22,7 @@ interface LibbiSummary {
   batterySizeKWh: string,
   chargeFromGridEnabled: boolean,
   energyTargetKWh: string;
+  state: string
 }
 
 @Component({
@@ -30,6 +33,10 @@ interface LibbiSummary {
 export class LibbiPanelComponent {
   @Input() public serialNumber: any;
   @Input() public bearerToken: any;
+
+  libbiSetChargeTargetActionPanelComponent = LibbiSetChargeTargetActionPanelComponent;
+  libbiSetChargeFromGridActionPanelComponent = LibbiSetChargeFromGridActionPanelComponent;
+  libbiSetEnabledActionPanelComponent = LibbiSetEnabledActionPanelComponent;
   registrationComplete = false;
   emailAddressText: string = '';
   passwordText: string = '';
@@ -38,6 +45,7 @@ export class LibbiPanelComponent {
   stateOfCharge: number = -1;
   batterySize = '';
   energyTargetKWh = '';
+  libbiEnabled = false;
 
   mode: any;
   changeModeEnabled = true;
@@ -63,6 +71,11 @@ export class LibbiPanelComponent {
         this.batterySize = data.batterySizeKWh;
         this.stateOfCharge = data.stateOfChargePercentage;
         this.energyTargetKWh = data.energyTargetKWh;
+        if (data.state === 'OFF') {
+          this.libbiEnabled = false;
+        } else {
+          this.libbiEnabled = true;
+        }
       });
   }
 

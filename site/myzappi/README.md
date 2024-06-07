@@ -3,6 +3,7 @@
 Install dependencies
 ```
 npm install ngx-cookie-service
+ng add @angular/material
 ```
 ## Development server
 

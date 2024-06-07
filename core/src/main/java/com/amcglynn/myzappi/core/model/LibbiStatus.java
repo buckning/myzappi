@@ -1,5 +1,6 @@
 package com.amcglynn.myzappi.core.model;
 
+import com.amcglynn.myenergi.LibbiState;
 import com.amcglynn.myenergi.units.KiloWattHour;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -18,6 +19,7 @@ public class LibbiStatus {
     @JsonDeserialize(using = SerialNumberDeserializer.class)
     @JsonSerialize(using = SerialNumberSerializer.class)
     private SerialNumber serialNumber;
+    private LibbiState state;
     private int stateOfChargePercentage;
     private KiloWattHour batterySizeKWh;
     // below fields are optional

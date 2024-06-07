@@ -35,8 +35,10 @@ export class SchedulesPanelComponent {
   screenWidth: number = 1024;
   recurringScheduleRows: any[] = [];
   recurringScheduleEddiRows: any[] = [];
+  recurringScheduleLibbiRows: any[] = [];
   oneTimeScheduleRows: any[] = [];
   oneTimeScheduleEddiRows: any[] = [];
+  oneTimeScheduleLibbiRows: any[] = [];
   tanks: any[] = [];
   daysOfWeek: string[] = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
@@ -52,13 +54,33 @@ export class SchedulesPanelComponent {
     'NORMAL': 'Normal'
   };
 
+  libbiChargeFromGridMapping: { [key: string]: string } = {
+    'true': 'On',
+    'false': 'Off'
+  };
+
   scheduleTypeMapping: { [key: string]: string } = {
     'setBoostKwh': 'Boosting kWh',
     'setBoostFor': 'Boost for hours',
     'setBoostUntil': 'Boosting until time',
     'setChargeMode': 'Set charge mode',
     'setEddiMode': 'Set Eddi mode',
-    'setEddiBoostFor': 'Boost Eddi'
+    'setEddiBoostFor': 'Boost Eddi',
+    'setLibbiEnabled': 'Enable Libbi',
+    'setLibbiChargeFromGrid': 'Set charge from grid',
+    'setLibbiChargeTarget': 'Set charge target'
+  };
+
+  scheduleTypeDeviceClassMapping: { [key: string] : string } = {
+    'setBoostKwh': 'ZAPPI',
+    'setBoostFor': 'ZAPPI',
+    'setBoostUntil': 'ZAPPI',
+    'setChargeMode': 'ZAPPI',
+    'setEddiMode': 'EDDI',
+    'setEddiBoostFor': 'EDDI',
+    'setLibbiEnabled': 'LIBBI',
+    'setLibbiChargeFromGrid': 'LIBBI',
+    'setLibbiChargeTarget': 'LIBBI'
   };
 
   constructor(private http: HttpClient) { }
@@ -73,6 +95,16 @@ export class SchedulesPanelComponent {
     this.screenWidth = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
     this.readSchedules();
   }
+
+  isDaySet(scheduleRecurrenceDaysOfWeek: number[], day: string): boolean {
+    let indexOfDay = this.daysOfWeek.indexOf(day) + 1;
+
+    if (indexOfDay === -1) {
+        return false;
+    }
+
+    return scheduleRecurrenceDaysOfWeek.indexOf(indexOfDay) !== -1;
+}
 
   createSchedule() {
     if (this.selectedOption === 'recurring') {
@@ -133,6 +165,14 @@ export class SchedulesPanelComponent {
     return input;
   }
 
+  convertLibbiChargeFromGrid(input: string): string {
+    if (input in this.libbiChargeFromGridMapping) {
+      return this.libbiChargeFromGridMapping[input];
+    }
+    
+    return input;
+  }
+
   convertScheduleType(input: any): string {
     if (input.action.type in this.scheduleTypeMapping) {
       if (input.action.type === 'setEddiBoostFor') {
@@ -162,6 +202,9 @@ export class SchedulesPanelComponent {
     }
     if (input.action.type === 'setEddiMode') {
       return this.convertEddiMode(input.action.value);
+    }
+    if (input.action.type === 'setLibbiChargeFromGrid') {
+      return this.convertLibbiChargeFromGrid(input.action.value);
     }
     if (input.action.type === 'setEddiBoostFor') {
       return this.convertDuration(input.action.value);
@@ -213,22 +256,44 @@ export class SchedulesPanelComponent {
     let options = { headers: headers, withCredentials: true };
     this.http.get<Schedules>('https://api.myzappiunofficial.com/schedules', options)
       .subscribe(data => {
-        this.recurringScheduleRows = data.schedules.filter(schedule => 
-          schedule.recurrence !== undefined && schedule.recurrence !== null && schedule.action.type !== 'setEddiMode'
-        );
+        this.recurringScheduleRows = [];
+        this.recurringScheduleEddiRows = [];
+        this.recurringScheduleLibbiRows = [];
 
-        this.recurringScheduleEddiRows = data.schedules.filter(schedule => 
-          schedule.recurrence !== undefined && schedule.recurrence !== null && schedule.action.type === 'setEddiMode'
-        );
+        this.oneTimeScheduleRows = [];
+        this.oneTimeScheduleEddiRows = [];
+        this.oneTimeScheduleLibbiRows = [];
 
-        this.oneTimeScheduleRows = data.schedules.filter(schedule => 
-          schedule.startDateTime !== undefined && schedule.startDateTime !== null && schedule.action.type.indexOf("Eddi") === -1
-        );
+        data.schedules.forEach(schedule => {
+          var deviceClass = this.scheduleTypeDeviceClassMapping[schedule.action.type];
 
-        this.oneTimeScheduleEddiRows = data.schedules.filter(schedule => 
-          schedule.startDateTime !== undefined && schedule.startDateTime !== null && schedule.action.type.indexOf("Eddi") !== -1
-        );
-        
+          var isRecurring = schedule.recurrence !== undefined && schedule.recurrence !== null;
+
+          console.log("Found device class " + deviceClass + " for " + schedule.action.type + " recurring = " + isRecurring);
+
+          if (deviceClass === 'ZAPPI') {
+            if (isRecurring) {
+              this.recurringScheduleRows.push(schedule);
+            } else {
+              this.oneTimeScheduleRows.push(schedule);
+            }
+          }
+          if (deviceClass === 'EDDI') {
+            if (isRecurring) {
+              this.recurringScheduleEddiRows.push(schedule);
+            } else {
+              this.oneTimeScheduleEddiRows.push(schedule);
+            }
+          }
+          if (deviceClass === 'LIBBI') {
+            if (isRecurring) {
+              this.recurringScheduleLibbiRows.push(schedule);
+            } else {
+              this.oneTimeScheduleLibbiRows.push(schedule);
+            }
+          }
+        });
+
         this.loaded = true;
         this.listSchedulesVisible = true;
       },

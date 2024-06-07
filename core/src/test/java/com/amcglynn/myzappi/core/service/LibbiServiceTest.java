@@ -127,8 +127,16 @@ class LibbiServiceTest {
     void setChargeTarget() {
         when(mockLoginService.readMyEnergiAccountCredentials(userId))
                 .thenReturn(Optional.of(new MyEnergiAccountCredentials(userId.toString(), "user@test.com", "password")));
-        service.setChargeTarget(userId, SerialNumber.from("30000001"), 5520);
-        verify(mockMyEnergiOAuthClient).setTargetEnergy("30000001", 5520);
+        service.setChargeTarget(userId, SerialNumber.from("30000001"), 100);
+        verify(mockMyEnergiOAuthClient).setTargetEnergy("30000001", 10200);
+    }
+
+    @Test
+    void setChargeTargetTo50Percent() {
+        when(mockLoginService.readMyEnergiAccountCredentials(userId))
+                .thenReturn(Optional.of(new MyEnergiAccountCredentials(userId.toString(), "user@test.com", "password")));
+        service.setChargeTarget(userId, SerialNumber.from("30000001"), 50);
+        verify(mockMyEnergiOAuthClient).setTargetEnergy("30000001", 5100);
     }
 
     @Test

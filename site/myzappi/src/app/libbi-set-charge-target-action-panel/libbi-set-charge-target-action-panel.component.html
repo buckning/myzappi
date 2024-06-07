@@ -1,0 +1,11 @@
+<h3>Target Charge kWh</h3>
+<mat-slider
+    class="example-margin"
+    [disabled]="disabled">
+    <input matSliderThumb [(ngModel)]="chargeTarget" #slider>
+</mat-slider>
+
+<div class="example-label-container">
+    <label id="example-name-label" class="example-name-label">Charge Target: </label>
+    <label class="example-value-label">{{chargeTarget}}%</label>
+</div>

@@ -19,6 +19,8 @@ import lombok.Setter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.stream.Collectors;
+
 @Slf4j
 public class ScheduleController {
 
@@ -60,8 +62,21 @@ public class ScheduleController {
 
     @SneakyThrows
     public Response getSchedules(Request request) {
+        var targetFilter = request.getQueryStringParameters().get("target");
         var schedules = service.listSchedules(UserId.from(request.getUserId().toString()));
-        var body = objectMapper.writeValueAsString(new ScheduleResponse(schedules));
+        var filteredSchedules = schedules.stream()
+                .filter(target -> isTarget(target, targetFilter))
+                .collect(Collectors.toList());
+        var body = objectMapper.writeValueAsString(new ScheduleResponse(filteredSchedules));
         return new Response(200, body);
+    }
+
+    private boolean isTarget(Schedule schedule, String targetSerialNumber) {
+        if (targetSerialNumber == null) {
+            return true;
+        }
+
+        return schedule.getAction().getTarget()
+                .map(targetSerialNumber::equals).orElse(false);
     }
 }
