@@ -1,7 +1,8 @@
-import { Component, ComponentFactoryResolver, Input, OnInit, ViewChild, ViewContainerRef } from '@angular/core';
+import { Component, ComponentFactoryResolver, EventEmitter, Input, OnInit, Output, ViewChild, ViewContainerRef } from '@angular/core';
 import { ScheduleActionComponent } from '../schedule-action.interface';
 import { RecurringSchedule, Schedule } from '../schedule.interface';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { SchedulerService } from '../scheduler.service';
 
 @Component({
   selector: 'app-inline-schedule-panel',
@@ -24,7 +25,7 @@ export class InlineSchedulePanelComponent implements OnInit {
   recurringTime: string = '';
   selectedDays: { [key: string]: boolean } = {};
 
-  constructor(private componentFactoryResolver: ComponentFactoryResolver, private http: HttpClient) {}
+  constructor(private componentFactoryResolver: ComponentFactoryResolver, private http: HttpClient, private schedulerService: SchedulerService) {}
 
   ngOnInit() {
     const componentFactory = this.componentFactoryResolver.resolveComponentFactory(this.actionComponentType);
@@ -65,6 +66,7 @@ export class InlineSchedulePanelComponent implements OnInit {
         // TODO set logged-in-content registered = true
         console.log("Success saving schedule");
         this.schedulePanelExpanded = false;
+        this.schedulerService.reloadSchedulePanel('');
       },
         error => {
           console.log("error saving schedule " + JSON.stringify(requestBody));

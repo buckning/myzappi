@@ -1,5 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { SchedulerService } from '../scheduler.service';
 
 interface Schedules {
   schedules: {
@@ -83,7 +84,7 @@ export class SchedulesPanelComponent {
     'setLibbiChargeTarget': 'LIBBI'
   };
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient, private schedulerService: SchedulerService) { }
 
   ngOnInit(): void {
       for (let device of Object.values(this.hubDetails.devices) as any[]) {
@@ -94,6 +95,10 @@ export class SchedulesPanelComponent {
     // make rest call to schedules api
     this.screenWidth = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
     this.readSchedules();
+
+    this.schedulerService.reloadSchedulePanelEvent$.subscribe((message) => {
+      this.viewListSchedulesScreen();
+    });
   }
 
   isDaySet(scheduleRecurrenceDaysOfWeek: number[], day: string): boolean {
