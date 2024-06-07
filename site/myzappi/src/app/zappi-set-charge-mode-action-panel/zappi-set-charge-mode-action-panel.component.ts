@@ -8,12 +8,21 @@ import { ScheduleActionComponent } from '../schedule-action.interface';
 })
 export class ZappiSetChargeModeActionPanelComponent implements ScheduleActionComponent {
 
+  chargeMode = "ECO_PLUS";
   getScheduleAction() {
-    return `{
+    return {
       "type": "setChargeMode",
-      "value": "ECO_PLUS",
+      "value": this.chargeMode,
       "target": "10000001"
-    }`;
+    };
+  }
+
+  changeMode(mode: string) {
+    this.chargeMode = mode;
+  }
+
+  isModeActive(mode: string): boolean {
+    return this.chargeMode === mode;
   }
   
   scheduleConfigurationStarted() {

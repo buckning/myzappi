@@ -20,5 +20,6 @@
     <button class="toggleButton" [class.selected]="isModeActive('Stop')" (click)="changeMode('Stop')" [disabled]="!isChangeModeEnabled()">
         Stop
     </button>    
+    <app-inline-schedule-panel [bearerToken]="bearerToken" [serialNumber]="serialNumber" [actionComponentType]="zappiSetChargeModeActionPanelComponent"></app-inline-schedule-panel>
 </div>
   

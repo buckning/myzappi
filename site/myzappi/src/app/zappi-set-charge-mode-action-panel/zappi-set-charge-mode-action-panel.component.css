@@ -1,0 +1,9 @@
+.toggleButton {
+    border: 1px solid #ccc;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 5px;
+    width: 70px;
+    text-align: center;
+    margin-right: 5px;
+}
