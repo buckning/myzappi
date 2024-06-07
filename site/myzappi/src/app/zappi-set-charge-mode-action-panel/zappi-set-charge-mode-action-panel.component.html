@@ -1,1 +1,12 @@
-<p>zappi-set-charge-mode-action-panel works!</p>
+<button class="toggleButton" [class.selected]="isModeActive('ECO_PLUS')" (click)="changeMode('ECO_PLUS')">
+    Eco+
+</button>
+<button class="toggleButton" [class.selected]="isModeActive('ECO')" (click)="changeMode('ECO')">
+    Eco
+</button>
+<button class="toggleButton" [class.selected]="isModeActive('FAST')" (click)="changeMode('FAST')">
+    Fast
+</button>
+<button class="toggleButton" [class.selected]="isModeActive('STOP')" (click)="changeMode('STOP')">
+    Stop
+</button>   
