@@ -1,12 +1,12 @@
 <div>
-    <div *ngIf="hubDetails.eddiSerialNumber !== null">
+    <div *ngIf="hasMultipleDeviceClasses()">
         <div>
-            <label>
+            <label *ngIf="hasDevice('ZAPPI')">
                 <input type="radio" name="radioGroup" value="zappi" [(ngModel)]="target" (click)="zappiSelected()"
                     checked>Zappi
             </label>
 
-            <label>
+            <label *ngIf="hasDevice('EDDI')">
                 <input type="radio" name="radioGroup" value="eddi" [(ngModel)]="target" (click)="eddiSelected()">Eddi
             </label>
         </div>

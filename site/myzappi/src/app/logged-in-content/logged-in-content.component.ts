@@ -1,13 +1,9 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { CookieService } from 'ngx-cookie-service';
+import { Device } from '../device.interface';
 
 declare const amazon: any;
-
-interface Device {
-  serialNumber: string;
-  deviceClass: string;
-}
 
 @Component({
   selector: 'app-logged-in-content',
@@ -18,7 +14,7 @@ export class LoggedInContentComponent implements OnInit {
   @Input() public bearerToken: any;
   hubDetails: any;
   registered: any;
-  devices: any[] = [];
+  devices: Device[] = [];
   loadingDevices = true;
   registeredThisSession = false;
   tariffsRegistered = false;
@@ -47,15 +43,14 @@ export class LoggedInContentComponent implements OnInit {
         this.devices = data;
         this.registered = this.devices.length > 0;
         this.hubDetails = {};
-        this.hubDetails.eddiSerialNumber = null;
-        this.hubDetails.devices = this.devices;
+        this.hubDetails = this.devices;
         
         for (const device of this.devices) {
           if (device.deviceClass === "ZAPPI") {
             this.hubDetails.zappiSerialNumber = device.serialNumber;
           } else if (device.deviceClass === "EDDI") {
             this.hubDetails.eddiSerialNumber = device.serialNumber;
-          } else if (device.getClass === "LIBBI") {
+          } else if (device.deviceClass === "LIBBI") {
             this.hubDetails.libbiSerialNumber = device.serialNumber;
           }
         }

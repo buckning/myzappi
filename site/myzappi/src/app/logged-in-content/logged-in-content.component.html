@@ -46,7 +46,7 @@
                                 <app-libbi-panel [serialNumber]="row.serialNumber" [bearerToken]="bearerToken"></app-libbi-panel>
                             </div>
                               <div *ngIf="row.deviceClass === 'EDDI'">
-                                <b>{{row.deviceClass}}</b>: {{row.serialNumber}}
+                                <b><img class="headerIconImage" src="assets/images/heater.png" alt="Eddi"> {{row.deviceClass}}</b>: {{row.serialNumber}}
                                 <br>
                                 Heater 1: {{row.tank1Name}}
                                 <br>
