@@ -87,7 +87,7 @@ export class SchedulesPanelComponent {
   constructor(private http: HttpClient, private schedulerService: SchedulerService) { }
 
   ngOnInit(): void {
-      for (let device of Object.values(this.hubDetails.devices) as any[]) {
+      for (let device of Object.values(this.hubDetails) as any[]) {
         if (device.deviceClass === 'EDDI') {
           this.tanks = [device.tank1Name, device.tank2Name];
         }

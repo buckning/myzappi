@@ -1,5 +1,6 @@
 import { Component, Output, Input, EventEmitter } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Device } from '../device.interface';
 
 interface Schedule {
 
@@ -19,8 +20,10 @@ interface Schedule {
 })
 export class CreateOnetimeSchedulePanelComponent {
   @Input() public bearerToken: any;
-  @Input() public hubDetails: any;
+  @Input() public hubDetails: Device[] = [];
   @Output() public viewListSchedulesScreen = new EventEmitter();
+
+  deviceTypes = new Set<string>();
   startDateTime: string = '';
   scheduleType: string = 'setBoostKwh';
   scheduleActionValue: string = '';
@@ -29,7 +32,7 @@ export class CreateOnetimeSchedulePanelComponent {
   cancelButtonVisible = true;
   saveButtonDisabled = false;
   eddiTanks: any[] = [];
-  target: 'zappi' | 'eddi' = 'zappi';
+  target: string = "unknown";
 
   zappiOptions: { value: string, label: string }[] = [
     { value: 'setBoostKwh', label: 'Boost until kilowatt hours reached' },
@@ -47,16 +50,42 @@ export class CreateOnetimeSchedulePanelComponent {
 
   constructor(private http: HttpClient) { }
 
+  ngOnInit() {
+    this.hubDetails.forEach(device => {
+      if (!this.deviceTypes.has(device.deviceClass)) {
+        this.deviceTypes.add(device.deviceClass);
+      }
+    });
+    this.deviceSelected(this.hubDetails[0].deviceClass);
+    this.target = this.hubDetails[0].deviceClass.toLowerCase();
+  }
+
+  hasMultipleDeviceClasses() : boolean {
+    return this.deviceTypes.size > 1;
+  }
+
+  hasDevice(deviceClass: string) {
+    return this.deviceTypes.has(deviceClass);
+  }
+
   cancel() {
     // TODO set logged-in-content registered = true
     console.log("Cancel clicked");
     this.viewListSchedulesScreen.emit('');
   }
 
+  deviceSelected(deviceType: string) {
+    if (deviceType === "EDDI") {
+      this.eddiSelected();
+    } else if (deviceType === "ZAPPI") {
+      this.zappiSelected();
+    }
+  }
+
   eddiSelected() {
     this.scheduleType = 'setEddiMode';
 
-    for (let device of Object.values(this.hubDetails.devices) as any[]) {
+    for (let device of Object.values(this.hubDetails) as any[]) {
       if (device.deviceClass === 'EDDI') {
         this.eddiTanks = [device.tank1Name, device.tank2Name];
         this.selectedTank = this.eddiTanks[0];

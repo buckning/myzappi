@@ -1,5 +1,5 @@
 <div class="tile">
-  <h1>Schedules</h1>
+  <h1><img src="assets/images/schedule.png" alt="Schedules" width="25px" height="25px"> Schedules</h1>
 
   <div *ngIf="!loaded">
     <p>
@@ -24,7 +24,7 @@
       You have no schedules. Create a new schedule below.
     </p>
 
-    <h2 *ngIf="hubDetails.eddiSerialNumber !== null && recurringScheduleRows.length > 0">Zappi Schedules</h2>
+    <h2 *ngIf="hubDetails.eddiSerialNumber !== null && recurringScheduleRows.length > 0"><img class="iconButtonImage" src="assets/images/car.png" alt="Zappi"> Zappi Schedules</h2>
 
     <table id="scheduleTable" *ngIf="recurringScheduleRows.length > 0" class="scheduleTable">
       <thead>
@@ -49,14 +49,14 @@
             <input type="text" name="repeat" class="repeatDays" [ngModel]="calculateDisplayString(row)" readonly>
           </td>
           <td>
-            <button type="button" class="destructiveButton" (click)="deleteSchedule(row)">Delete</button>
+            <button type="button" class="destructiveButton" (click)="deleteSchedule(row)"><img class="iconButtonImage" src="assets/images/delete.png" alt="Schedules"></button>
           </td>
         </tr>
       </tbody>
 
     </table>
 
-    <h2 *ngIf="recurringScheduleEddiRows.length > 0">Eddi Schedules</h2>
+    <h2 *ngIf="recurringScheduleEddiRows.length > 0"><img class="iconButtonImage" src="assets/images/heater.png" alt="Eddi"> Eddi Schedules</h2>
 
     <table id="scheduleTable" *ngIf="recurringScheduleEddiRows.length > 0" class="scheduleTable">
       <thead>
@@ -81,14 +81,14 @@
             <input type="text" name="repeat" class="repeatDays" [ngModel]="calculateDisplayString(row)" readonly>
           </td>
           <td>
-            <button type="button" class="destructiveButton" (click)="deleteSchedule(row)">Delete</button>
+            <button type="button" class="destructiveButton" (click)="deleteSchedule(row)"><img class="iconButtonImage" src="assets/images/delete.png" alt="Schedules"></button>
           </td>
         </tr>
       </tbody>
 
     </table>
 
-    <h2 *ngIf="recurringScheduleLibbiRows.length > 0">Libbi Schedules</h2>
+    <h2 *ngIf="recurringScheduleLibbiRows.length > 0"><img class="iconButtonImage" src="assets/images/batteryFull.png" alt="Libbi"> Libbi Schedules</h2>
 
     <table id="scheduleTable" *ngIf="recurringScheduleLibbiRows.length > 0" class="scheduleTable">
       <thead>
@@ -123,7 +123,7 @@
           </td>
 
           <td>
-            <button type="button" class="destructiveButton" (click)="deleteSchedule(row)">Delete</button>
+            <button type="button" class="destructiveButton" (click)="deleteSchedule(row)"><img class="iconButtonImage" src="assets/images/delete.png" alt="Schedules"></button>
           </td>
         </tr>
       </tbody>
@@ -136,7 +136,7 @@
       You have no schedules. Create a new schedule below.
     </p>
 
-    <h2 *ngIf="oneTimeScheduleRows.length > 0 && hubDetails.eddiSerialNumber !== null">Zappi Schedules</h2>
+    <h2 *ngIf="oneTimeScheduleRows.length > 0 && hubDetails.eddiSerialNumber !== null"><img class="iconButtonImage" src="assets/images/car.png" alt="Zappi"> Zappi Schedules</h2>
     <table id="scheduleTable" *ngIf="oneTimeScheduleRows.length > 0" class="scheduleTable">
       <thead>
         <tr>
@@ -159,14 +159,14 @@
               [ngModel]="convertOneTimeScheduleValue(row)" readonly>
           </td>
           <td>
-            <button type="button" class="destructiveButton" (click)="deleteSchedule(row)">Delete</button>
+            <button type="button" class="destructiveButton" (click)="deleteSchedule(row)"><img class="iconButtonImage" src="assets/images/delete.png" alt="Schedules"></button>
           </td>
         </tr>
       </tbody>
 
     </table>
 
-    <h2 *ngIf="oneTimeScheduleEddiRows.length > 0">Eddi Schedules</h2>
+    <h2 *ngIf="oneTimeScheduleEddiRows.length > 0"><img class="iconButtonImage" src="assets/images/heater.png" alt="Eddi"> Eddi Schedules</h2>
     <table id="scheduleTable" *ngIf="oneTimeScheduleEddiRows.length > 0" class="scheduleTable">
       <thead>
         <tr>
@@ -189,7 +189,7 @@
               [ngModel]="convertOneTimeScheduleValue(row)" readonly>
           </td>
           <td>
-            <button type="button" class="destructiveButton" (click)="deleteSchedule(row)">Delete</button>
+            <button type="button" class="destructiveButton" (click)="deleteSchedule(row)"><img class="iconButtonImage" src="assets/images/delete.png" alt="Delete"></button>
           </td>
         </tr>
       </tbody>
@@ -197,7 +197,7 @@
     </table>
 
 
-    <h2 *ngIf="oneTimeScheduleLibbiRows.length > 0">Libbi Schedules</h2>
+    <h2 *ngIf="oneTimeScheduleLibbiRows.length > 0"><img class="iconButtonImage" src="assets/images/batteryFull.png" alt="Libbi"> Libbi Schedules</h2>
     <table id="scheduleTable" *ngIf="oneTimeScheduleLibbiRows.length > 0" class="scheduleTable">
       <thead>
         <tr>
@@ -220,7 +220,7 @@
               [ngModel]="convertOneTimeScheduleValue(row)" readonly>
           </td>
           <td>
-            <button type="button" class="destructiveButton" (click)="deleteSchedule(row)">Delete</button>
+            <button type="button" class="destructiveButton" (click)="deleteSchedule(row)"><img class="iconButtonImage" src="assets/images/delete.png" alt="Delete"></button>
           </td>
         </tr>
       </tbody>
@@ -233,7 +233,7 @@
 
   <div>
     <button type="submit" *ngIf="listSchedulesVisible" class="confirmButton"
-      (click)="createSchedule()">New Schedule</button>
+      (click)="createSchedule()"><img src="assets/images/add.png" alt="Schedules" width="25px" height="25px"></button>
   </div>
   <!-- Content for Recurring -->
   <div *ngIf="createRecurringScheduleVisible">

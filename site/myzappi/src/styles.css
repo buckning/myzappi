@@ -115,6 +115,16 @@ input {
     margin-bottom: 5px;
 }
 
+.iconButtonImage {
+    width: 25px;
+    height: 25px;
+}
+
+.headerIconImage {
+    width: 25px;
+    height: 25px;
+}
+
 .deviceTile {
     background-color: #3672af;
     padding: 10px;
