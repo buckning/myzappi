@@ -55,7 +55,7 @@ public class MockMyEnergiClient extends MyEnergiClient {
         var mockResponse = new MockResponse()
                 .setResponseCode(200)
                 .addHeader("x_myenergi-asn", mockWebServer.url("").uri())
-                .setBody(MockMyEnergiResponses.getExampleResponse());
+                .setBody(MockMyEnergiResponses.getExampleResponse(zappiSerialNumber));
         mockWebServer.enqueue(mockResponse);
         return super.getZappiStatus(zappiSerialNumber);
     }

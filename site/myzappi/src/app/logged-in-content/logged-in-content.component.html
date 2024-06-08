@@ -20,7 +20,9 @@
     </div>
     <app-tariff-panel [bearerToken]="bearerToken" (tariffChangeEvent)="tariffChangeEvent()"></app-tariff-panel>
     <br>
-    <app-schedules-panel [bearerToken]="bearerToken" [hubDetails]="hubDetails"></app-schedules-panel>
+    <div class="tile" *ngIf="hubDetails != null">
+        <app-energy-stats-panel></app-energy-stats-panel>
+    </div>
     <br>
     <div *ngIf="hubDetails != null">
         <div class="tile">
@@ -65,6 +67,8 @@
             </div>
         </div>
     </div>
+    <br>
+    <app-schedules-panel [bearerToken]="bearerToken" [hubDetails]="hubDetails"></app-schedules-panel>
     <br>
     <div *ngIf="registeredThisSession !== true">
         <app-help-panel></app-help-panel>
