@@ -32,7 +32,7 @@ export class CreateOnetimeSchedulePanelComponent {
   cancelButtonVisible = true;
   saveButtonDisabled = false;
   eddiTanks: any[] = [];
-  target: 'zappi' | 'eddi' = 'zappi';
+  target: string = "unknown";
 
   zappiOptions: { value: string, label: string }[] = [
     { value: 'setBoostKwh', label: 'Boost until kilowatt hours reached' },
@@ -57,6 +57,7 @@ export class CreateOnetimeSchedulePanelComponent {
       }
     });
     this.deviceSelected(this.hubDetails[0].deviceClass);
+    this.target = this.hubDetails[0].deviceClass.toLowerCase();
   }
 
   hasMultipleDeviceClasses() : boolean {
