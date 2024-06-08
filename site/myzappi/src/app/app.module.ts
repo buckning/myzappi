@@ -25,6 +25,7 @@ import { ZappiSetChargeModeActionPanelComponent } from './zappi-set-charge-mode-
 import { LibbiSetChargeTargetActionPanelComponent } from './libbi-set-charge-target-action-panel/libbi-set-charge-target-action-panel.component';
 import { LibbiSetChargeFromGridActionPanelComponent } from './libbi-set-charge-from-grid-action-panel/libbi-set-charge-from-grid-action-panel.component';
 import { LibbiSetEnabledActionPanelComponent } from './libbi-set-enabled-action-panel/libbi-set-enabled-action-panel.component';
+import { EnergyStatsPanelComponent } from './energy-stats-panel/energy-stats-panel.component';
 
 @NgModule({
   declarations: [
@@ -44,7 +45,8 @@ import { LibbiSetEnabledActionPanelComponent } from './libbi-set-enabled-action-
     ZappiSetChargeModeActionPanelComponent,
     LibbiSetChargeTargetActionPanelComponent,
     LibbiSetChargeFromGridActionPanelComponent,
-    LibbiSetEnabledActionPanelComponent
+    LibbiSetEnabledActionPanelComponent,
+    EnergyStatsPanelComponent
   ],
   imports: [
     MatSlideToggleModule,

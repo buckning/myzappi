@@ -1,20 +1,23 @@
 import { Component, Input } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { ZappiSetChargeModeActionPanelComponent } from '../zappi-set-charge-mode-action-panel/zappi-set-charge-mode-action-panel.component';
+import { EnergyOverviewService } from '../energy-overview.service';
+import { EnergySummary, DeviceEnergyUsage } from '../energySummary.interface';
 interface DeviceStatus {
+  serialNumber: string;
   type: string;
   firmware: string;
   energy: {
-    solarGenerationKW: string;
-    consumingKW: string;
-    importingKW: string;
+    solarGenerationKW: number;
+    consumingKW: number;
+    importingKW: number;
     exportingKW: number;
   };
   mode: string;
   chargeAddedKwh: string;
   connectionStatus: string;
   chargeStatus: string;
-  chargeRateKw: string;
+  chargeRateKw: number;
   lockStatus: string;
 }
 
@@ -32,12 +35,12 @@ export class ZappiPanelComponent {
   @Input() public bearerToken: any;
   zappiSetChargeModeActionPanelComponent = ZappiSetChargeModeActionPanelComponent;
   chargeAddedKwh = '';
-  chargeRate = '';
+  chargeRate = 0;
   mode: any;
   changeModeEnabled = true;
   refreshInterval = 15000;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private energyOverviewService: EnergyOverviewService) {}
 
   ngOnInit(): void {
     this.loadDeviceStatus();
@@ -53,6 +56,7 @@ export class ZappiPanelComponent {
         this.chargeAddedKwh = data.chargeAddedKwh;
         this.chargeRate = data.chargeRateKw;
         this.mode = data.mode;
+        this.pushEnergySummary(data);
         setTimeout(() => {
           this.loadDeviceStatus();
         }, this.refreshInterval);
@@ -63,6 +67,26 @@ export class ZappiPanelComponent {
           this.loadDeviceStatus();
         }, this.refreshInterval);
       });
+  }
+
+  pushEnergySummary(deviceStatus: DeviceStatus) {
+    const deviceEnergyUsage: DeviceEnergyUsage[] = [];
+    const device: DeviceEnergyUsage = {
+      deviceClass: deviceStatus.type,
+      serialNumber: deviceStatus.serialNumber,
+      usageRateKW: deviceStatus.chargeRateKw
+    };
+    deviceEnergyUsage.push(device);
+    const energySummary: EnergySummary = {
+      solarGenerationKW: deviceStatus.energy.solarGenerationKW,
+      consumingKW: deviceStatus.energy.consumingKW,
+      importingKW: deviceStatus.energy.importingKW,
+      exportingKW: deviceStatus.energy.exportingKW,
+      zappiChargeRate: deviceStatus.chargeRateKw,
+      deviceUsage: deviceEnergyUsage
+    };
+
+    this.energyOverviewService.updateEnergy(energySummary);
   }
 
   updateDeviceMode(newMode: string) {

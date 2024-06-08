@@ -247,6 +247,10 @@ public class MockMyEnergiResponses {
     }
 
     public static String getExampleResponse() {
+        return getExampleResponse(ZAPPI_SERIAL_NUMBER_1);
+    }
+
+    public static String getExampleResponse(String serialNumber) {
         return String.format("""
                 {
                     "zappi": [
@@ -264,7 +268,7 @@ public class MockMyEnergiResponses {
                             "bst": 0,
                             "cmt": 254,
                             "dst": 1,
-                            "div": 0,
+                            "div": %s,
                             "frq": 50.01,
                             "fwv": "3562S4.525",
                             "gen": 594,
@@ -297,7 +301,7 @@ public class MockMyEnergiResponses {
                             "sbk": 5
                         }
                     ]
-                }""", ZAPPI_SERIAL_NUMBER_1);
+                }""", serialNumber, Math.random() * 7200);
     }
 
     public static String getExampleLibbiResponse() {
