@@ -1,12 +1,15 @@
 package com.amcglynn.sqs;
 
 import com.amcglynn.myenergi.EddiMode;
+import com.amcglynn.myenergi.LibbiMode;
 import com.amcglynn.myenergi.ZappiChargeMode;
 import com.amcglynn.myenergi.units.KiloWattHour;
 import com.amcglynn.myzappi.core.model.Schedule;
 import com.amcglynn.myzappi.core.model.ScheduleAction;
 import com.amcglynn.myzappi.core.model.ScheduleRecurrence;
+import com.amcglynn.myzappi.core.model.SerialNumber;
 import com.amcglynn.myzappi.core.service.EddiService;
+import com.amcglynn.myzappi.core.service.LibbiService;
 import com.amcglynn.myzappi.core.service.MyEnergiService;
 import com.amcglynn.myzappi.core.service.ScheduleService;
 import com.amcglynn.myzappi.core.service.ZappiService;
@@ -46,6 +49,8 @@ class MyZappiScheduleHandlerTest {
     @Mock
     private ZappiService mockZappiService;
     @Mock
+    private LibbiService mockLibbiService;
+    @Mock
     private EddiService mockEddiService;
 
     @BeforeEach
@@ -53,6 +58,7 @@ class MyZappiScheduleHandlerTest {
         when(mockMyEnergiService.getZappiServiceOrThrow()).thenReturn(mockZappiService);
         when(mockMyEnergiService.getEddiServiceOrThrow()).thenReturn(mockEddiService);
         when(mockMyEnergiServiceBuilder.build(any())).thenReturn(mockMyEnergiService);
+        when(mockMyEnergiService.getLibbiService()).thenReturn(Optional.of(mockLibbiService));
         handler = new MyZappiScheduleHandler(mockScheduleService, mockMyEnergiServiceBuilder);
     }
 
@@ -202,6 +208,27 @@ class MyZappiScheduleHandlerTest {
                 .build()));
         handler.handle(new MyZappiScheduleEvent(input));
         verify(mockEddiService).boostEddi(2, Duration.ofMinutes(45));
+    }
+
+    @Test
+    void testSetLibbiEnabled() {
+        var input = new LinkedHashMap<String, String>();
+        input.put("setLibbiEnabled", "unknownType");
+        var scheduleId = UUID.randomUUID().toString();
+        input.put("scheduleId", scheduleId);
+        input.put("lwaUserId", "mockLwaUserId");
+        when(mockScheduleService.getSchedule(scheduleId)).thenReturn(Optional.of(Schedule.builder()
+                .id(scheduleId)
+                .startDateTime(LocalDateTime.of(2023, 9, 13, 14, 0))
+                .zoneId(ZoneId.of("Europe/Dublin"))
+                .action(ScheduleAction.builder()
+                        .type("setLibbiEnabled")
+                        .value("true")
+                        .target("30000001")
+                        .build())
+                .build()));
+        handler.handle(new MyZappiScheduleEvent(input));
+        verify(mockLibbiService).setMode(SerialNumber.from("30000001"), LibbiMode.ON);
     }
 
     @Test
