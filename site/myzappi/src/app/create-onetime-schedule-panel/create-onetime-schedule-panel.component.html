@@ -2,14 +2,19 @@
     <div *ngIf="hasMultipleDeviceClasses()">
         <div>
             <label *ngIf="hasDevice('ZAPPI')">
-                <input type="radio" name="radioGroup" value="zappi" [(ngModel)]="target" (click)="zappiSelected()"
+                <input type="radio" name="radioGroup" value="zappi" [(ngModel)]="targetDeviceClass" (click)="zappiSelected()"
                     checked>Zappi
             </label>
 
             <label *ngIf="hasDevice('EDDI')">
-                <input type="radio" name="radioGroup" value="eddi" [(ngModel)]="target" (click)="eddiSelected()">Eddi
+                <input type="radio" name="radioGroup" value="eddi" [(ngModel)]="targetDeviceClass" (click)="eddiSelected()">Eddi
             </label>
         </div>
+    </div>
+    <div *ngIf="getDevices(targetDeviceClass).length > 1">
+        Target Device: {{getDevices(targetDeviceClass)}} <select [(ngModel)]="targetSerialNumber">
+            <option *ngFor="let serialNumber of getSerialNumbers()">{{ serialNumber }}</option>
+        </select>
     </div>
     <div>
         Schedule time: <input type="datetime-local" [(ngModel)]="startDateTime" />

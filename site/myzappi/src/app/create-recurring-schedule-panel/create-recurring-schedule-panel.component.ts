@@ -1,19 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-
-interface Schedule {
-
-  id?: string;
-  zoneId: string;
-  recurrence: {
-    timeOfDay: string;
-    daysOfWeek: number[];
-  }
-  action: {
-    type: string;
-    value: string;
-  }
-}
+import { Device } from '../device.interface';
+import { RecurringSchedule } from '../schedule.interface';
 
 @Component({
   selector: 'app-create-recurring-schedule-panel',
@@ -23,7 +11,7 @@ interface Schedule {
 export class CreateRecurringSchedulePanelComponent {
   @Input() public bearerToken: any;
   @Input() public eddiEnabled: any;
-  @Input() public hubDetails: any;
+  @Input() public hubDetails: Device[] = [];
   @Output() public viewListSchedulesScreen = new EventEmitter();
   recurringTime: string = '';
   selectedDays: { [key: string]: boolean } = {};
@@ -32,9 +20,46 @@ export class CreateRecurringSchedulePanelComponent {
   daysOfWeek: string[] = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   saveButtonDisabled = false;
   cancelButtonVisible = true;
-  target: 'zappi' | 'eddi' = 'zappi';
+  targetDeviceClass: string = "unknown";
+  targetSerialNumber: string = "unknown";
+  deviceTypes = new Set<string>();
 
   constructor(private http: HttpClient) { }
+
+  ngOnInit() {
+    this.hubDetails.forEach(device => {
+      if (!this.deviceTypes.has(device.deviceClass)) {
+        this.deviceTypes.add(device.deviceClass);
+      }
+    });
+    this.deviceSelected(this.hubDetails[0].deviceClass);
+    this.targetDeviceClass = this.hubDetails[0].deviceClass.toLowerCase();
+    this.targetSerialNumber = this.hubDetails[0].serialNumber;
+  }
+
+  deviceSelected(deviceType: string) {
+    if (deviceType === "EDDI") {
+      this.eddiSelected();
+    } else if (deviceType === "ZAPPI") {
+      this.zappiSelected();
+    }
+  }
+
+  hasMultipleDeviceClasses() : boolean {
+    return this.deviceTypes.size > 1;
+  }
+
+  getSerialNumbers() {
+    return this.getDevices(this.targetDeviceClass).map(device => device.serialNumber);
+  }
+
+  getDevices(targetDeviceClass: string) {
+    return this.hubDetails.filter(device => device.deviceClass.toLowerCase() === targetDeviceClass.toLowerCase());
+  }
+
+  hasDevice(deviceClass: string) {
+    return this.deviceTypes.has(deviceClass);
+  }
 
   toggleDay(day: string) {
     this.selectedDays[day] = !this.selectedDays[day];
@@ -42,16 +67,20 @@ export class CreateRecurringSchedulePanelComponent {
 
   eddiSelected() {
     this.recurringValue = "NORMAL";
+    this.targetDeviceClass = "eddi";
+    this.targetSerialNumber = this.getSerialNumbers()[0];
   }
 
   zappiSelected() {
     this.recurringValue = "ECO_PLUS";
+    this.targetDeviceClass = "zappi";
+    this.targetSerialNumber = this.getSerialNumbers()[0];
   }
 
   saveSchedule() {
     this.saveButtonDisabled = true;
     this.cancelButtonVisible = false;
-    let newSchedule: Schedule = {
+    let newSchedule: RecurringSchedule = {
       zoneId: this.getZoneId(),
       recurrence: {
         timeOfDay: this.recurringTime,
@@ -59,6 +88,7 @@ export class CreateRecurringSchedulePanelComponent {
       },
       action: {
         type: this.getRecurringAction(),
+        target: this.targetSerialNumber,
         value: this.recurringValue
       }
     };
@@ -86,7 +116,7 @@ export class CreateRecurringSchedulePanelComponent {
   }
 
   getRecurringAction(): string {
-    return this.target === 'zappi' ? this.recurringAction : 'setEddiMode';
+    return this.targetDeviceClass === 'zappi' ? this.recurringAction : 'setEddiMode';
   }
 
   cancel() {

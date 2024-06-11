@@ -7,6 +7,7 @@ export interface RecurringSchedule {
     }
     action: {
         type: string;
+        target: string;
         value: string;
     }
 }
@@ -17,6 +18,7 @@ export interface Schedule {
     startDateTime: string;
     action: {
         type: string;
+        target: string;
         value: string;
     }
 }

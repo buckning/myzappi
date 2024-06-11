@@ -1,18 +1,23 @@
 <div>
-    <div *ngIf="hubDetails.eddiSerialNumber !== null">
+    <div *ngIf="hasMultipleDeviceClasses()">
         <div>
-            <label>
-                <input type="radio" name="radioGroup" value="zappi" [(ngModel)]="target" (click)="zappiSelected()"
+            <label *ngIf="hasDevice('ZAPPI')">
+                <input type="radio" name="radioGroup" value="zappi" [(ngModel)]="targetDeviceClass" (click)="zappiSelected()"
                     checked>Zappi
             </label>
 
-            <label>
-                <input type="radio" name="radioGroup" value="eddi" [(ngModel)]="target" (click)="eddiSelected()">Eddi
+            <label *ngIf="hasDevice('EDDI')">
+                <input type="radio" name="radioGroup" value="eddi" [(ngModel)]="targetDeviceClass" (click)="eddiSelected()">Eddi
             </label>
         </div>
     </div>
+    <div *ngIf="getDevices(targetDeviceClass).length > 1">
+        Target Device: {{getDevices(targetDeviceClass)}} <select [(ngModel)]="targetSerialNumber">
+            <option *ngFor="let serialNumber of getSerialNumbers()">{{ serialNumber }}</option>
+        </select>
+    </div>
     <div>
-        <div *ngIf="target === 'zappi'">
+        <div *ngIf="targetDeviceClass === 'zappi'">
             Set charge mode to: <select [(ngModel)]="recurringValue">
                 <option value="ECO_PLUS">Eco+</option>
                 <option value="ECO">Eco</option>
@@ -21,7 +26,7 @@
             </select>
         </div>
 
-        <div *ngIf="target === 'eddi'">
+        <div *ngIf="targetDeviceClass === 'eddi'">
             Set mode to: <select [(ngModel)]="recurringValue">
                 <option value="STOPPED">Stopped</option>
                 <option value="NORMAL">Normal</option>

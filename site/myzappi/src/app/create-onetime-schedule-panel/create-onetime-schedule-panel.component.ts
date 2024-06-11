@@ -1,17 +1,7 @@
 import { Component, Output, Input, EventEmitter } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Device } from '../device.interface';
-
-interface Schedule {
-
-  id?: string;
-  zoneId: string;
-  startDateTime: string;
-  action: {
-    type: string;
-    value: string;
-  }
-}
+import { Schedule } from '../schedule.interface';
 
 @Component({
   selector: 'app-create-onetime-schedule-panel',
@@ -32,7 +22,8 @@ export class CreateOnetimeSchedulePanelComponent {
   cancelButtonVisible = true;
   saveButtonDisabled = false;
   eddiTanks: any[] = [];
-  target: string = "unknown";
+  targetDeviceClass: string = "unknown";
+  targetSerialNumber: string = "unknown";
 
   zappiOptions: { value: string, label: string }[] = [
     { value: 'setBoostKwh', label: 'Boost until kilowatt hours reached' },
@@ -57,7 +48,8 @@ export class CreateOnetimeSchedulePanelComponent {
       }
     });
     this.deviceSelected(this.hubDetails[0].deviceClass);
-    this.target = this.hubDetails[0].deviceClass.toLowerCase();
+    this.targetDeviceClass = this.hubDetails[0].deviceClass.toLowerCase();
+    this.targetSerialNumber = this.hubDetails[0].serialNumber;
   }
 
   hasMultipleDeviceClasses() : boolean {
@@ -66,6 +58,14 @@ export class CreateOnetimeSchedulePanelComponent {
 
   hasDevice(deviceClass: string) {
     return this.deviceTypes.has(deviceClass);
+  }
+
+  getSerialNumbers() {
+    return this.getDevices(this.targetDeviceClass).map(device => device.serialNumber);
+  }
+
+  getDevices(targetDeviceClass: string) {
+    return this.hubDetails.filter(device => device.deviceClass.toLowerCase() === targetDeviceClass.toLowerCase());
   }
 
   cancel() {
@@ -93,11 +93,15 @@ export class CreateOnetimeSchedulePanelComponent {
     }
 
     this.options = this.eddiOptions;
+    this.targetDeviceClass = "eddi";
+    this.targetSerialNumber = this.getSerialNumbers()[0];
   }
 
   zappiSelected() {
     this.scheduleType = 'setBoostKwh';
     this.options = this.zappiOptions;
+    this.targetDeviceClass = "zappi";
+    this.targetSerialNumber = this.getSerialNumbers()[0];
   }
 
   saveSchedule() {
@@ -108,6 +112,7 @@ export class CreateOnetimeSchedulePanelComponent {
       startDateTime: this.startDateTime,
       action: {
         type: this.scheduleType,
+        target: this.targetSerialNumber,
         value: this.transformActionValue()
       }
     };
