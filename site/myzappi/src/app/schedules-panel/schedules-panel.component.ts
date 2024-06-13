@@ -226,6 +226,9 @@ export class SchedulesPanelComponent {
     if (input.action.type === 'setEddiBoostFor') {
       return this.convertDuration(input.action.value);
     }
+    if (input.action.type === 'setLibbiChargeTarget') {
+      return input.action.value + "%";
+    }
     return input.action.value;
   }
 

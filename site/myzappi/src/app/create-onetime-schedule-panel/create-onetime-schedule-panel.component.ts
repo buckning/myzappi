@@ -3,6 +3,12 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Device } from '../device.interface';
 import { Schedule } from '../schedule.interface';
 
+
+interface AccountSummary {
+  hubRegistered: boolean,
+  myaccountRegistered: boolean
+}
+
 @Component({
   selector: 'app-create-onetime-schedule-panel',
   templateUrl: './create-onetime-schedule-panel.component.html',
@@ -38,9 +44,7 @@ export class CreateOnetimeSchedulePanelComponent {
   ];
 
   libbiOptions: { value: string, label: string }[] = [
-    { value: 'setLibbiEnabled', label: 'Enable Libbi' },
-    { value: 'setLibbiChargeTarget', label: 'Set charge target %' },
-    { value: 'setLibbiChargeFromGrid', label: 'Set charge from grid' }
+    { value: 'setLibbiEnabled', label: 'Enable Libbi' }
   ];
 
   options: { value: string, label: string }[] = this.zappiOptions;
@@ -61,6 +65,24 @@ export class CreateOnetimeSchedulePanelComponent {
     this.deviceSelected(this.hubDetails[0].deviceClass);
     this.targetDeviceClass = this.hubDetails[0].deviceClass.toLowerCase();
     this.targetSerialNumber = this.hubDetails[0].serialNumber;
+    this.readAccountSettings();
+  }
+
+  readAccountSettings() {
+    let headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': this.bearerToken });
+    let options = { headers: headers, withCredentials: true };
+    this.http.get<AccountSummary>('https://api.myzappiunofficial.com/account/summary', options)
+      .subscribe(data => {
+        if (data.myaccountRegistered === true) {
+          this.libbiOptions = [
+            { value: 'setLibbiEnabled', label: 'Enable Libbi' },
+            { value: 'setLibbiChargeTarget', label: 'Set charge target %' },
+            { value: 'setLibbiChargeFromGrid', label: 'Set charge from grid' }
+          ];
+        }
+      });
   }
 
   hasMultipleDeviceClasses() : boolean {
@@ -116,7 +138,7 @@ export class CreateOnetimeSchedulePanelComponent {
   }
 
   libbiSelected() {
-    this.scheduleType = 'setLibbiChargeTarget';
+    this.scheduleType = 'setLibbiEnabled';
     this.options = this.libbiOptions;
     this.targetDeviceClass = "libbi";
     this.targetSerialNumber = this.getSerialNumbers()[0];
