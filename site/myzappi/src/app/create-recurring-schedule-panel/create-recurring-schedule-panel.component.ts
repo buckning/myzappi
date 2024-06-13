@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Device } from '../device.interface';
-import { RecurringSchedule } from '../schedule.interface';
+import { Schedule } from '../schedule.interface';
 
 @Component({
   selector: 'app-create-recurring-schedule-panel',
@@ -80,7 +80,7 @@ export class CreateRecurringSchedulePanelComponent {
   saveSchedule() {
     this.saveButtonDisabled = true;
     this.cancelButtonVisible = false;
-    let newSchedule: RecurringSchedule = {
+    let newSchedule: Schedule = {
       zoneId: this.getZoneId(),
       recurrence: {
         timeOfDay: this.recurringTime,

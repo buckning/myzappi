@@ -12,7 +12,7 @@
         </div>
     </div>
     <div *ngIf="getDevices(targetDeviceClass).length > 1">
-        Target Device: {{getDevices(targetDeviceClass)}} <select [(ngModel)]="targetSerialNumber">
+        Target Device: <select [(ngModel)]="targetSerialNumber">
             <option *ngFor="let serialNumber of getSerialNumbers()">{{ serialNumber }}</option>
         </select>
     </div>

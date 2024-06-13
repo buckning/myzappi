@@ -1,6 +1,6 @@
 import { Component, ComponentFactoryResolver, EventEmitter, Input, OnInit, Output, ViewChild, ViewContainerRef } from '@angular/core';
 import { ScheduleActionComponent } from '../schedule-action.interface';
-import { RecurringSchedule, Schedule } from '../schedule.interface';
+import { Schedule } from '../schedule.interface';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { SchedulerService } from '../scheduler.service';
 
@@ -99,7 +99,7 @@ export class InlineSchedulePanelComponent implements OnInit {
   getRecurringScheduleBody(): object {
     let action = this.actionComponent.getScheduleAction();
     action.target = this.serialNumber;
-    let newSchedule: RecurringSchedule = {
+    let newSchedule: Schedule = {
       zoneId: this.getZoneId(),
       recurrence: {
         timeOfDay: this.recurringTime,
