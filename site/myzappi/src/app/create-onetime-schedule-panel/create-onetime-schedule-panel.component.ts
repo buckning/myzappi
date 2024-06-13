@@ -22,14 +22,25 @@ export class CreateOnetimeSchedulePanelComponent {
   cancelButtonVisible = true;
   saveButtonDisabled = false;
   eddiTanks: any[] = [];
+  selectedScheduleOption: 'one-time' | 'recurring' = 'recurring';
   targetDeviceClass: string = "unknown";
   targetSerialNumber: string = "unknown";
+
+  daysOfWeek: string[] = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  recurringTime: string = '';
+  selectedDays: { [key: string]: boolean } = {};
 
   zappiOptions: { value: string, label: string }[] = [
     { value: 'setBoostKwh', label: 'Boost until kilowatt hours reached' },
     { value: 'setBoostFor', label: 'Boost for duration (hours)' },
     { value: 'setBoostUntil', label: 'Boost until time' },
     { value: 'setChargeMode', label: 'Set charge mode' }
+  ];
+
+  libbiOptions: { value: string, label: string }[] = [
+    { value: 'setLibbiEnabled', label: 'Enable Libbi' },
+    { value: 'setLibbiChargeTarget', label: 'Set charge target %' },
+    { value: 'setLibbiChargeFromGrid', label: 'Set charge from grid' }
   ];
 
   options: { value: string, label: string }[] = this.zappiOptions;
@@ -104,20 +115,22 @@ export class CreateOnetimeSchedulePanelComponent {
     this.targetSerialNumber = this.getSerialNumbers()[0];
   }
 
+  libbiSelected() {
+    this.scheduleType = 'setLibbiChargeTarget';
+    this.options = this.libbiOptions;
+    this.targetDeviceClass = "libbi";
+    this.targetSerialNumber = this.getSerialNumbers()[0];
+  }
+
+  toggleDay(day: string) {
+    this.selectedDays[day] = !this.selectedDays[day];
+  }
+
   saveSchedule() {
     this.saveButtonDisabled = true;
     this.cancelButtonVisible = false;
-    let newSchedule: Schedule = {
-      zoneId: this.getZoneId(),
-      startDateTime: this.startDateTime,
-      action: {
-        type: this.scheduleType,
-        target: this.targetSerialNumber,
-        value: this.transformActionValue()
-      }
-    };
 
-    var requestBody = JSON.stringify(newSchedule);
+    var requestBody = JSON.stringify(this.getRequestBody());
     console.log("Creating new schedule: " + requestBody);
 
     let headers = new HttpHeaders({
@@ -137,6 +150,43 @@ export class CreateOnetimeSchedulePanelComponent {
           this.cancelButtonVisible = true;
           this.saveButtonDisabled = false;
         });
+  }
+
+  getRequestBody() {
+    if (this.selectedScheduleOption === 'recurring') {
+      return this.getRecurringScheduleBody();
+    } else {
+      return this.getOneTimeScheduleBody();
+    }
+  }
+
+  getOneTimeScheduleBody(): object {
+    let newSchedule: Schedule = {
+      zoneId: this.getZoneId(),
+      startDateTime: this.startDateTime,
+      action: {
+        type: this.scheduleType,
+        target: this.targetSerialNumber,
+        value: this.transformActionValue()
+      }
+    };
+    return newSchedule;
+  }
+
+  getRecurringScheduleBody(): object {
+    let newSchedule: Schedule = {
+      zoneId: this.getZoneId(),
+      recurrence: {
+        timeOfDay: this.recurringTime,
+        daysOfWeek: this.convertDaysOfWeekToNumbers()
+      },
+      action: {
+        type: this.scheduleType,
+        target: this.targetSerialNumber,
+        value: this.transformActionValue()
+      }
+    };
+    return newSchedule;
   }
 
   transformActionValue(): string {
@@ -165,7 +215,28 @@ export class CreateOnetimeSchedulePanelComponent {
   }
 
   isScheduleValid(): boolean {
-    return this.startDateTime !== '' && this.isDateTimeValid() && this.isValidActionValue();
+    if (this.selectedScheduleOption === 'recurring') {
+      return this.isValidRecurringSchedule();
+    }
+    return this.isValidOneTimeSchedule();
+  }
+
+  isValidOneTimeSchedule(): boolean {
+    return this.startDateTime !== '' && this.isDateTimeValid();
+  }
+
+  isValidRecurringSchedule(): boolean {
+    return this.convertDaysOfWeekToNumbers().length > 0 && this.recurringTime !== '';
+  }
+
+  convertDaysOfWeekToNumbers(): number[] {
+    let selectedDaysArray: number[] = [];
+    for (let day in this.selectedDays) {
+      if (this.selectedDays[day]) {
+        selectedDaysArray.push(this.daysOfWeek.indexOf(day) + 1);
+      }
+    }
+    return selectedDaysArray;
   }
 
   isValidActionValue(): boolean {

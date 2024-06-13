@@ -12,8 +12,7 @@ import { Device } from '../device.interface';
 export class SchedulesPanelComponent {
   @Input() public bearerToken: any;
   @Input() public hubDetails: Device[] = [];
-  // selectedOption: 'one-time' | 'recurring' = 'one-time';
-  selectedOption: 'one-time' | 'recurring' = 'recurring';
+  selectedOption: 'one-time' | 'recurring' = 'one-time';
   createRecurringScheduleVisible = false;
   createOneTimeScheduleVisible = false;
   listSchedulesVisible = false;
