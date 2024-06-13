@@ -18,6 +18,27 @@ input[type="string"] {
     width: 80px;
 }
 
+.filterIconButtonImage {
+    height: 25px;
+    width: 25px;
+    padding-bottom: 15px;
+}
+
+.scheduleRow {
+    background-color: #3672af;
+    padding: 10px;
+    border-bottom: 10px;
+}
+
+.secondCell {
+    padding-left: 20px;
+    vertical-align: top;
+}
+.destructiveButton {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
 @media (max-width: 768px) {
     input[type="string"] {
         width: 40px;
@@ -65,4 +86,10 @@ input[type="string"] {
     background-color: #64a0ff;
     color: white;
     border-color: #333;
+}
+
+.mat-button-toggle-appearance-standard {
+    /* background-color: #64a0ff; */
+    width: 90px;
+    height: 35px;
 }

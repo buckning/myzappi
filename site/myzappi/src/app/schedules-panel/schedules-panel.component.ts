@@ -1,23 +1,8 @@
 import { Component, Input } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { SchedulerService } from '../scheduler.service';
-
-interface Schedules {
-  schedules: {
-
-    id?: string;
-    startDateTime: string;
-    zoneId: string;
-    recurrence?: {
-      timeOfDay: string;
-      daysOfWeek: number[];
-    }
-    action: {
-      type: string;
-      value: string;
-    }
-  }[];
-}
+import { Schedule, Schedules } from '../schedule.interface';
+import { Device } from '../device.interface';
 
 @Component({
   selector: 'app-schedules-panel',
@@ -26,21 +11,18 @@ interface Schedules {
 })
 export class SchedulesPanelComponent {
   @Input() public bearerToken: any;
-  @Input() public hubDetails: any;
-  // selectedOption: 'one-time' | 'recurring' = 'one-time';
-  selectedOption: 'one-time' | 'recurring' = 'recurring';
+  @Input() public hubDetails: Device[] = [];
+  selectedOption: 'one-time' | 'recurring' = 'one-time';
   createRecurringScheduleVisible = false;
   createOneTimeScheduleVisible = false;
   listSchedulesVisible = false;
+  deviceFilter = "undefined";
   loaded: boolean = false;
   screenWidth: number = 1024;
-  recurringScheduleRows: any[] = [];
-  recurringScheduleEddiRows: any[] = [];
-  recurringScheduleLibbiRows: any[] = [];
-  oneTimeScheduleRows: any[] = [];
-  oneTimeScheduleEddiRows: any[] = [];
-  oneTimeScheduleLibbiRows: any[] = [];
+  scheduleRows: Schedule[] = [];
+  filteredScheduleRows: Schedule[] = [];
   tanks: any[] = [];
+  deviceTypes = new Set<string>();
   daysOfWeek: string[] = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
   chargeModeMapping: { [key: string]: string } = {
@@ -87,11 +69,20 @@ export class SchedulesPanelComponent {
   constructor(private http: HttpClient, private schedulerService: SchedulerService) { }
 
   ngOnInit(): void {
+
       for (let device of Object.values(this.hubDetails) as any[]) {
         if (device.deviceClass === 'EDDI') {
           this.tanks = [device.tank1Name, device.tank2Name];
         }
       }
+
+      this.hubDetails.forEach(device => {
+        console.log("deviceTypes = " + JSON.stringify(this.deviceTypes) + " deviceType=" + device.deviceClass);
+        if (!this.deviceTypes.has(device.deviceClass)) {
+          this.deviceTypes.add(device.deviceClass);
+        }
+      });
+
     // make rest call to schedules api
     this.screenWidth = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
     this.readSchedules();
@@ -101,6 +92,20 @@ export class SchedulesPanelComponent {
     });
   }
 
+  hasMultipleDeviceClasses() : boolean {
+    console.log("devices = " + JSON.stringify(this.deviceTypes));
+    return this.deviceTypes.size > 1;
+  }
+
+  onValChange(value: any) {
+    console.log(value);
+    if (this.deviceFilter !== "undefined") {
+      this.filteredScheduleRows = this.scheduleRows.filter(schedule => this.getDeviceClass(schedule) === this.deviceFilter);
+    } else {
+      this.filteredScheduleRows = this.scheduleRows;
+    }
+}
+
   isDaySet(scheduleRecurrenceDaysOfWeek: number[], day: string): boolean {
     let indexOfDay = this.daysOfWeek.indexOf(day) + 1;
 
@@ -109,7 +114,11 @@ export class SchedulesPanelComponent {
     }
 
     return scheduleRecurrenceDaysOfWeek.indexOf(indexOfDay) !== -1;
-}
+  }
+
+  hasDevice(deviceClass: string) {
+    return this.deviceTypes.has(deviceClass);
+  }
 
   createSchedule() {
     if (this.selectedOption === 'recurring') {
@@ -211,8 +220,14 @@ export class SchedulesPanelComponent {
     if (input.action.type === 'setLibbiChargeFromGrid') {
       return this.convertLibbiChargeFromGrid(input.action.value);
     }
+    if (input.action.type === 'setLibbiEnabled') {
+      return this.convertLibbiChargeFromGrid(input.action.value);
+    }
     if (input.action.type === 'setEddiBoostFor') {
       return this.convertDuration(input.action.value);
+    }
+    if (input.action.type === 'setLibbiChargeTarget') {
+      return input.action.value + "%";
     }
     return input.action.value;
   }
@@ -253,6 +268,26 @@ export class SchedulesPanelComponent {
     return this.convertScheduleType(input.action.type);
   }
 
+  isRecurringSchedule(schedule: Schedule) {
+    return schedule.startDateTime == null;
+  }
+
+  getDeviceClass(schedule: Schedule) {
+    return this.scheduleTypeDeviceClassMapping[schedule.action.type];
+  }
+
+  getStartTime(schedule: Schedule) {
+    return schedule?.startDateTime?.substring(0, 10);
+  }
+
+  getStartDate(schedule: Schedule) {
+    return schedule?.startDateTime?.substring(11);
+  }
+
+  getValue(schedule: Schedule) {
+    return this.convertOneTimeScheduleValue(schedule);
+  }
+
   readSchedules() {
     let headers = new HttpHeaders({
       'Content-Type': 'application/json',
@@ -261,43 +296,44 @@ export class SchedulesPanelComponent {
     let options = { headers: headers, withCredentials: true };
     this.http.get<Schedules>('https://api.myzappiunofficial.com/schedules', options)
       .subscribe(data => {
-        this.recurringScheduleRows = [];
-        this.recurringScheduleEddiRows = [];
-        this.recurringScheduleLibbiRows = [];
 
-        this.oneTimeScheduleRows = [];
-        this.oneTimeScheduleEddiRows = [];
-        this.oneTimeScheduleLibbiRows = [];
+        this.scheduleRows = data.schedules;
+        if (this.deviceFilter !== "undefined") {
+          this.filteredScheduleRows = this.scheduleRows.filter(schedule => this.getDeviceClass(schedule) === this.deviceFilter);
+        } else {
+          this.filteredScheduleRows = this.scheduleRows;
+        }
+        
 
-        data.schedules.forEach(schedule => {
-          var deviceClass = this.scheduleTypeDeviceClassMapping[schedule.action.type];
+        // data.schedules.forEach(schedule => {
+        //   var deviceClass = this.scheduleTypeDeviceClassMapping[schedule.action.type];
 
-          var isRecurring = schedule.recurrence !== undefined && schedule.recurrence !== null;
+        //   var isRecurring = schedule.recurrence !== undefined && schedule.recurrence !== null;
 
-          console.log("Found device class " + deviceClass + " for " + schedule.action.type + " recurring = " + isRecurring);
+        //   console.log("Found device class " + deviceClass + " for " + schedule.action.type + " recurring = " + isRecurring);
 
-          if (deviceClass === 'ZAPPI') {
-            if (isRecurring) {
-              this.recurringScheduleRows.push(schedule);
-            } else {
-              this.oneTimeScheduleRows.push(schedule);
-            }
-          }
-          if (deviceClass === 'EDDI') {
-            if (isRecurring) {
-              this.recurringScheduleEddiRows.push(schedule);
-            } else {
-              this.oneTimeScheduleEddiRows.push(schedule);
-            }
-          }
-          if (deviceClass === 'LIBBI') {
-            if (isRecurring) {
-              this.recurringScheduleLibbiRows.push(schedule);
-            } else {
-              this.oneTimeScheduleLibbiRows.push(schedule);
-            }
-          }
-        });
+        //   if (deviceClass === 'ZAPPI') {
+        //     if (isRecurring) {
+        //       this.recurringScheduleRows.push(schedule);
+        //     } else {
+        //       this.oneTimeScheduleRows.push(schedule);
+        //     }
+        //   }
+        //   if (deviceClass === 'EDDI') {
+        //     if (isRecurring) {
+        //       this.recurringScheduleEddiRows.push(schedule);
+        //     } else {
+        //       this.oneTimeScheduleEddiRows.push(schedule);
+        //     }
+        //   }
+        //   if (deviceClass === 'LIBBI') {
+        //     if (isRecurring) {
+        //       this.recurringScheduleLibbiRows.push(schedule);
+        //     } else {
+        //       this.oneTimeScheduleLibbiRows.push(schedule);
+        //     }
+        //   }
+        // });
 
         this.loaded = true;
         this.listSchedulesVisible = true;
