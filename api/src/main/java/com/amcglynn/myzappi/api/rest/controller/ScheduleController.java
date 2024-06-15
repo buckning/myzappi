@@ -1,6 +1,7 @@
 package com.amcglynn.myzappi.api.rest.controller;
 
 import com.amcglynn.myzappi.api.rest.validator.ScheduleValidator;
+import com.amcglynn.myzappi.core.exception.CapacityReachedException;
 import com.amcglynn.myzappi.core.exception.MissingDeviceException;
 import com.amcglynn.myzappi.core.model.Schedule;
 import com.amcglynn.myzappi.core.model.UserId;
@@ -54,7 +55,11 @@ public class ScheduleController {
         } catch (MissingDeviceException e) {
             log.info("User {} requested schedule for device which they don't own", request.getUserId());
             throw new ServerException(409);
-        } catch (JsonProcessingException e) {
+        } catch (CapacityReachedException e) {
+            log.info("User {} has reached the maximum number of schedules", request.getUserId());
+            throw new ServerException(429);
+        }
+        catch (JsonProcessingException e) {
             log.info("Failed to deserialise object", e);
             throw new ServerException(400);
         }

@@ -2,6 +2,7 @@ package com.amcglynn.myzappi.core.service;
 
 import com.amcglynn.myzappi.core.dal.ScheduleDetailsRepository;
 import com.amcglynn.myzappi.core.dal.UserScheduleRepository;
+import com.amcglynn.myzappi.core.exception.CapacityReachedException;
 import com.amcglynn.myzappi.core.exception.MissingDeviceException;
 import com.amcglynn.myzappi.core.model.EddiDevice;
 import com.amcglynn.myzappi.core.model.LibbiDevice;
@@ -30,6 +31,7 @@ import software.amazon.awssdk.services.scheduler.model.SchedulerException;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -98,6 +100,27 @@ class ScheduleServiceTest {
                 "\"scheduleId\": \"" + response.getId() + "\",\n" +
                 "\"lwaUserId\": \"mockUserId\"\n" +
                 "}");
+    }
+
+    @Test
+    void createScheduleRejectsRequestWithCapacityReachedExceptionWhenTheUserHasMoreThan20Schedules() {
+        var schedule = Schedule.builder()
+                .startDateTime(LocalDateTime.of(2023, 9, 10, 14, 0))
+                .zoneId(ZoneId.of("Europe/Dublin"))
+                .action(ScheduleAction.builder()
+                        .type("setChargeMode")
+                        .value("ECO+")
+                        .build())
+                .build();
+        var schedule1 = Schedule.builder().id("mockScheduleId").build();
+        var schedulesInDb = new ArrayList<Schedule>();
+        for (int i = 0; i < 21; i++) {
+            schedulesInDb.add(schedule1);
+        }
+        when(mockRepository.read(userId)).thenReturn(schedulesInDb);
+
+        var capacityReachedException = catchThrowableOfType(() -> service.createSchedule(UserId.from("mockUserId"), schedule), CapacityReachedException.class);
+        assertThat(capacityReachedException).isNotNull().hasMessage("User has reached the maximum number of schedules");
     }
 
     @Test

@@ -83,12 +83,7 @@
   </div>
   <div>
     <button type="submit" *ngIf="listSchedulesVisible" class="confirmButton"
-      (click)="createSchedule()"><img src="assets/images/add.png" alt="Schedules" width="25px" height="25px"></button>
-  </div>
-  <!-- Content for Recurring -->
-  <div *ngIf="createRecurringScheduleVisible">
-    <app-create-recurring-schedule-panel [bearerToken]="bearerToken" [hubDetails]="hubDetails"
-      (viewListSchedulesScreen)="viewListSchedulesScreen()"></app-create-recurring-schedule-panel>
+      (click)="createSchedule()" [disabled]="createScheuleButtonDisabled"><img src="assets/images/add.png" alt="Schedules" width="25px" height="25px"></button>
   </div>
 
   <div *ngIf="createOneTimeScheduleVisible">

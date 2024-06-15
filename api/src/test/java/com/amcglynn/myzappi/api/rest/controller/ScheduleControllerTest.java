@@ -1,6 +1,7 @@
 package com.amcglynn.myzappi.api.rest.controller;
 
 import com.amcglynn.myzappi.api.rest.validator.ScheduleValidator;
+import com.amcglynn.myzappi.core.exception.CapacityReachedException;
 import com.amcglynn.myzappi.core.exception.MissingDeviceException;
 import com.amcglynn.myzappi.core.model.Schedule;
 import com.amcglynn.myzappi.core.model.ScheduleAction;
@@ -213,6 +214,26 @@ class ScheduleControllerTest {
         var serverException = catchThrowableOfType(() -> controller.createSchedule(new Request(UserId.from("mockUserId"), RequestMethod.POST, "/schedule", body)), ServerException.class);
         assertThat(serverException).isNotNull();
         assertThat(serverException.getStatus()).isEqualTo(409);
+    }
+
+    @Test
+    void postReturns429WhenTheyHaveReachedTheirMaximumNumberOfSchedules() {
+        String body = "{\n" +
+                "    \"zoneId\": \"Europe/Dublin\",\n" +
+                "    \"action\": {\n" +
+                "        \"type\": \"setEddiBoostFor\",\n" +
+                "        \"value\": \"PT45M;tank=2\"\n" +
+                "    },\n" +
+                "    \"recurrence\": {\n" +
+                "        \"daysOfWeek\": [1, 2, 4, 7],\n" +
+                "        \"timeOfDay\": \"09:30\"\n" +
+                "    }\n" +
+                "}";
+
+        when(mockService.createSchedule(eq(UserId.from("mockUserId")), any())).thenThrow(new CapacityReachedException("User has reached the maximum number of schedules"));
+        var serverException = catchThrowableOfType(() -> controller.createSchedule(new Request(UserId.from("mockUserId"), RequestMethod.POST, "/schedule", body)), ServerException.class);
+        assertThat(serverException).isNotNull();
+        assertThat(serverException.getStatus()).isEqualTo(429);
     }
 
     @Test
