@@ -2,6 +2,7 @@ package com.amcglynn.myzappi.core.service;
 
 import com.amcglynn.myzappi.core.dal.ScheduleDetailsRepository;
 import com.amcglynn.myzappi.core.dal.UserScheduleRepository;
+import com.amcglynn.myzappi.core.exception.CapacityReachedException;
 import com.amcglynn.myzappi.core.exception.MissingDeviceException;
 import com.amcglynn.myzappi.core.model.MyEnergiDevice;
 import com.amcglynn.myzappi.core.model.Schedule;
@@ -72,6 +73,9 @@ public class ScheduleService {
     public Schedule createSchedule(UserId userId, Schedule schedule) {
         validate(userId, schedule);
         var schedulesFromDb = repository.read(userId);
+        if (schedulesFromDb.size() > 20) {
+            throw new CapacityReachedException("User has reached the maximum number of schedules");
+        }
         var schedules = new ArrayList<>(schedulesFromDb);
         var scheduleWithId = newSchedule(schedule);
         schedules.add(scheduleWithId);

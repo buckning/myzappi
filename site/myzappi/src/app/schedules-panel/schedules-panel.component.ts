@@ -15,6 +15,7 @@ export class SchedulesPanelComponent {
   selectedOption: 'one-time' | 'recurring' = 'one-time';
   createRecurringScheduleVisible = false;
   createOneTimeScheduleVisible = false;
+  createScheuleButtonDisabled = true;
   listSchedulesVisible = false;
   deviceFilter = "undefined";
   loaded: boolean = false;
@@ -298,6 +299,14 @@ export class SchedulesPanelComponent {
       .subscribe(data => {
 
         this.scheduleRows = data.schedules;
+
+        if (data.schedules.length > 20) {
+          this.createScheuleButtonDisabled = true;
+        } else {
+          this.createScheuleButtonDisabled = false;
+        }
+
+
         if (this.deviceFilter !== "undefined") {
           this.filteredScheduleRows = this.scheduleRows.filter(schedule => this.getDeviceClass(schedule) === this.deviceFilter);
         } else {
