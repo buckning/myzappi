@@ -300,12 +300,7 @@ export class SchedulesPanelComponent {
 
         this.scheduleRows = data.schedules;
 
-        if (data.schedules.length > 20) {
-          this.createScheuleButtonDisabled = true;
-        } else {
-          this.createScheuleButtonDisabled = false;
-        }
-
+        this.createScheuleButtonDisabled = data.schedules.length > 20;
 
         if (this.deviceFilter !== "undefined") {
           this.filteredScheduleRows = this.scheduleRows.filter(schedule => this.getDeviceClass(schedule) === this.deviceFilter);
