@@ -329,6 +329,75 @@
             "get a solar report",
             "solar report"
           ]
+        },
+        {
+          "name": "GetChargeRate",
+          "slots": [],
+          "samples": [
+            "how fast is my car charging",
+            "What's the charge rate"
+          ]
+        },
+        {
+          "name": "GetLibbiStateOfCharge",
+          "slots": [],
+          "samples": [
+            "What's the state of charge",
+            "State of charge on battery",
+            "Tell me my battery percentage",
+            "What's my battery percent",
+            "How much on my battery",
+            "What is the charge like on my battery",
+            "How much charge is left on my battery",
+            "How much is left on my battery",
+            "What's the batter charge",
+            "What's the battery level",
+            "battery level",
+            "What's the battery state of charge",
+            "What's my battery percentage"
+          ]
+        },
+        {
+          "name": "GetLibbiEnabled",
+          "slots": [],
+          "samples": [
+            "is battery disabled",
+            "is battery enabled",
+            "is battery on",
+            "is battery off",
+            "is the battery off",
+            "is the battery on",
+            "Is my battery off",
+            "Is my battery on",
+            "Is my battery disabled",
+            "Is my battery enabled"
+          ]
+        },
+        {
+          "name": "GetLibbiChargeTarget",
+          "slots": [],
+          "samples": [
+            "give me the battery target",
+            "give me my battery target",
+            "What's the battery target",
+            "What's the charge target",
+            "what's my battery charge target"
+          ]
+        },
+        {
+          "name": "GetLibbiChargeFromGridEnabled",
+          "slots": [],
+          "samples": [
+            "Is charging from the grid turned on",
+            "Is charging from the grid turned off",
+            "Is charge from grid disabled for my battery",
+            "Is charge from grid disabled",
+            "Is my battery boosting",
+            "Is charging from the grid enabled from my battery",
+            "Is it charging from the grid",
+            "Is charging from grid enabled",
+            "Is my battery charging from the grid"
+          ]
         }
       ],
       "types": [
