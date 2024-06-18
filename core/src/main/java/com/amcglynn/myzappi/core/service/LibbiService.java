@@ -34,6 +34,10 @@ public class LibbiService {
         this.targetDeviceResolver = new AscendingOrderTargetDeviceResolver();
     }
 
+    public void setMode(LibbiMode libbiMode) {
+        setMode(targetDeviceResolver.resolveTargetDevice(serialNumbers), libbiMode);
+    }
+
     public void setMode(SerialNumber serialNumber, LibbiMode mode) {
         log.info("Setting libbi mode for serial number {} to {}", serialNumber, mode);
         client.setLibbiMode(serialNumber.toString(), mode);
@@ -60,6 +64,11 @@ public class LibbiService {
             clientFactory.newMyEnergiOAuthClient(cred.getEmailAddress(), cred.getPassword())
                             .setTargetEnergy(serialNumber.toString(), targetEnergyWh);
             });
+    }
+
+    public void setChargeTarget(UserId userId, int targetEnergy) {
+        var serialNumber = targetDeviceResolver.resolveTargetDevice(serialNumbers);
+        setChargeTarget(userId, serialNumber, targetEnergy);
     }
 
     public void validateMyEnergiAccountIsConfigured(UserId userId) {

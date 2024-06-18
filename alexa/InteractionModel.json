@@ -398,6 +398,44 @@
             "Is charging from grid enabled",
             "Is my battery charging from the grid"
           ]
+        },
+        {
+          "name": "SetLibbiEnabled",
+          "slots": [],
+          "samples": [
+            "Enable the battery",
+            "Power on the battery",
+            "Turn on the battery",
+            "Power on my battery",
+            "Enable my battery",
+            "Turn on my battery"
+          ]
+        },
+        {
+          "name": "SetLibbiDisabled",
+          "slots": [],
+          "samples": [
+            "Disable the battery",
+            "Power off the battery",
+            "Turn off the battery",
+            "Power off my battery",
+            "Disable my battery",
+            "Turn off my battery"
+          ]
+        },
+        {
+          "name": "SetLibbiChargeTarget",
+          "slots": [
+            {
+              "name": "ChargeTargetPercent",
+              "type": "AMAZON.NUMBER"
+            }
+          ],
+          "samples": [
+            "set battery target to {ChargeTargetPercent} percent",
+            "set battery charge target to {ChargeTargetPercent} percent",
+            "set charge target to {ChargeTargetPercent} percent"
+          ]
         }
       ],
       "types": [
