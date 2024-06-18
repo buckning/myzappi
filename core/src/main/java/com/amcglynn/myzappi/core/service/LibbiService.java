@@ -6,12 +6,14 @@ import com.amcglynn.myenergi.MyEnergiClient;
 import com.amcglynn.myenergi.MyEnergiClientFactory;
 import com.amcglynn.myenergi.MyEnergiOAuthClient;
 import com.amcglynn.myenergi.units.KiloWattHour;
+import com.amcglynn.myzappi.core.exception.MyEnergiCredentialsNotConfiguredException;
 import com.amcglynn.myzappi.core.model.LibbiStatus;
 import com.amcglynn.myzappi.core.model.MyEnergiAccountCredentials;
 import com.amcglynn.myzappi.core.model.SerialNumber;
 import com.amcglynn.myzappi.core.model.UserId;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -20,11 +22,16 @@ public class LibbiService {
     private final MyEnergiClient client;
     private final LoginService loginService;
     private final MyEnergiClientFactory clientFactory;
+    private final List<SerialNumber> serialNumbers;
+    private final TargetDeviceResolver targetDeviceResolver;
 
-    public LibbiService(MyEnergiClient client, MyEnergiClientFactory clientFactory, LoginService loginService) {
+    public LibbiService(MyEnergiClient client, MyEnergiClientFactory clientFactory, LoginService loginService,
+                        List<SerialNumber> serialNumbers) {
         this.client = client;
         this.loginService = loginService;
         this.clientFactory = clientFactory;
+        this.serialNumbers = serialNumbers;
+        this.targetDeviceResolver = new AscendingOrderTargetDeviceResolver();
     }
 
     public void setMode(SerialNumber serialNumber, LibbiMode mode) {
@@ -53,6 +60,17 @@ public class LibbiService {
             clientFactory.newMyEnergiOAuthClient(cred.getEmailAddress(), cred.getPassword())
                             .setTargetEnergy(serialNumber.toString(), targetEnergyWh);
             });
+    }
+
+    public void validateMyEnergiAccountIsConfigured(UserId userId) {
+        var creds = loginService.readMyEnergiAccountCredentials(userId);
+        if (creds.isEmpty()) {
+            throw new MyEnergiCredentialsNotConfiguredException("No MyEnergi account configured");
+        }
+    }
+
+    public LibbiStatus getStatus(UserId userId) {
+        return getStatus(userId, targetDeviceResolver.resolveTargetDevice(serialNumbers));
     }
 
     public LibbiStatus getStatus(UserId userId, SerialNumber serialNumber) {

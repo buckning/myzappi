@@ -13,6 +13,10 @@ import com.amcglynn.myzappi.handlers.FallbackHandler;
 import com.amcglynn.myzappi.handlers.GetChargeRateHandler;
 import com.amcglynn.myzappi.handlers.GetEnergyCostHandler;
 import com.amcglynn.myzappi.handlers.GetEnergyUsageHandler;
+import com.amcglynn.myzappi.handlers.GetLibbiChargeFromGridEnabledHandler;
+import com.amcglynn.myzappi.handlers.GetLibbiChargeTargetHandler;
+import com.amcglynn.myzappi.handlers.GetLibbiEnabledHandler;
+import com.amcglynn.myzappi.handlers.GetLibbiStateOfChargeHandler;
 import com.amcglynn.myzappi.handlers.GetPlugStatusHandler;
 import com.amcglynn.myzappi.handlers.GetSolarReportHandler;
 import com.amcglynn.myzappi.handlers.GoGreenHandler;
@@ -25,6 +29,9 @@ import com.amcglynn.myzappi.handlers.ScheduleJobHandler;
 import com.amcglynn.myzappi.handlers.SetChargeModeHandler;
 import com.amcglynn.myzappi.handlers.SetEddiModeToNormalHandler;
 import com.amcglynn.myzappi.handlers.SetEddiModeToStoppedHandler;
+import com.amcglynn.myzappi.handlers.SetLibbiChargeFromGridHandler;
+import com.amcglynn.myzappi.handlers.SetLibbiChargeTargetHandler;
+import com.amcglynn.myzappi.handlers.SetLibbiEnabledHandler;
 import com.amcglynn.myzappi.handlers.SetReminderHandler;
 import com.amcglynn.myzappi.handlers.StartBoostHandler;
 import com.amcglynn.myzappi.handlers.StatusSummaryHandler;
@@ -76,6 +83,17 @@ public class MyZappiSkillStreamHandler extends SkillStreamHandler {
                         new AlexaToLwaLookUpRepository(serviceManager.getAmazonDynamoDB())))
                 .addRequestHandler(new QuitHandler())
                 .addRequestHandler(new ScheduleJobHandler(serviceManager.getScheduleService(), userIdResolverFactory, userZoneResolver, new Clock()))
+                .addRequestHandler(new GetLibbiChargeFromGridEnabledHandler(serviceManager.getMyEnergiServiceBuilder(),
+                        userIdResolverFactory))
+                .addRequestHandler(new GetLibbiChargeTargetHandler(serviceManager.getMyEnergiServiceBuilder(),
+                        userIdResolverFactory))
+                .addRequestHandler(new GetLibbiEnabledHandler(serviceManager.getMyEnergiServiceBuilder(),
+                        userIdResolverFactory))
+                .addRequestHandler(new GetLibbiStateOfChargeHandler(serviceManager.getMyEnergiServiceBuilder(),
+                        userIdResolverFactory))
+                .addRequestHandler(new SetLibbiChargeFromGridHandler())
+                .addRequestHandler(new SetLibbiChargeTargetHandler())
+                .addRequestHandler(new SetLibbiEnabledHandler())
                 .addExceptionHandler(new MyZappiExceptionHandler())
                 .build());
     }

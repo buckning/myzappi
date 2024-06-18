@@ -57,7 +57,8 @@ public class MyEnergiService {
         zappiSerialNumber
                 .ifPresentOrElse(serialNumber -> zappiService = new ZappiService(client), () -> zappiService = null);
         libbiSerialNumberOpt
-                .ifPresentOrElse(serialNumber -> libbiService = new LibbiService(client, new MyEnergiClientFactory(), loginService), () -> libbiService = null);
+                .ifPresentOrElse(serialNumber -> libbiService = new LibbiService(client, new MyEnergiClientFactory(),
+                        loginService, getLibbiSerialNumbers(devices)), () -> libbiService = null);
     }
 
     private Optional<SerialNumber> getEddiSerialNumber(List<MyEnergiDevice> devices) {
@@ -81,6 +82,13 @@ public class MyEnergiService {
                 .map(MyEnergiDevice::getSerialNumber);
     }
 
+    private List<SerialNumber> getLibbiSerialNumbers(List<MyEnergiDevice> devices) {
+        return devices.stream()
+                .filter(LibbiDevice.class::isInstance)
+                .map(MyEnergiDevice::getSerialNumber)
+                .toList();
+    }
+
     public Optional<ZappiService> getZappiService() {
         return Optional.ofNullable(zappiService);
     }
@@ -94,6 +102,13 @@ public class MyEnergiService {
             throw new MissingDeviceException("Zappi service not available");
         }
         return zappiService;
+    }
+
+    public LibbiService getLibbiServiceOrThrow() {
+        if (libbiService == null) {
+            throw new MissingDeviceException("Libbi service not available");
+        }
+        return libbiService;
     }
 
     public EddiService getEddiServiceOrThrow() {
