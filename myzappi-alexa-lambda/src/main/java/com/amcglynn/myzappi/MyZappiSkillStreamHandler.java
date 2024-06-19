@@ -29,7 +29,7 @@ import com.amcglynn.myzappi.handlers.ScheduleJobHandler;
 import com.amcglynn.myzappi.handlers.SetChargeModeHandler;
 import com.amcglynn.myzappi.handlers.SetEddiModeToNormalHandler;
 import com.amcglynn.myzappi.handlers.SetEddiModeToStoppedHandler;
-import com.amcglynn.myzappi.handlers.SetLibbiChargeFromGridHandler;
+import com.amcglynn.myzappi.handlers.SetLibbiChargeFromGridEnabledHandler;
 import com.amcglynn.myzappi.handlers.SetLibbiChargeTargetHandler;
 import com.amcglynn.myzappi.handlers.SetLibbiDisabledHandler;
 import com.amcglynn.myzappi.handlers.SetLibbiEnabledHandler;
@@ -92,7 +92,8 @@ public class MyZappiSkillStreamHandler extends SkillStreamHandler {
                         userIdResolverFactory))
                 .addRequestHandler(new GetLibbiStateOfChargeHandler(serviceManager.getMyEnergiServiceBuilder(),
                         userIdResolverFactory))
-                .addRequestHandler(new SetLibbiChargeFromGridHandler())
+                .addRequestHandler(new SetLibbiChargeFromGridEnabledHandler(serviceManager.getMyEnergiServiceBuilder(),
+                        userIdResolverFactory))
                 .addRequestHandler(new SetLibbiChargeTargetHandler(serviceManager.getMyEnergiServiceBuilder(),
                         userIdResolverFactory))
                 .addRequestHandler(new SetLibbiEnabledHandler(serviceManager.getMyEnergiServiceBuilder(),

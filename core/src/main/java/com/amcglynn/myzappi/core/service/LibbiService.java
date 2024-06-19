@@ -4,7 +4,6 @@ import com.amcglynn.myenergi.LibbiMode;
 import com.amcglynn.myenergi.LibbiState;
 import com.amcglynn.myenergi.MyEnergiClient;
 import com.amcglynn.myenergi.MyEnergiClientFactory;
-import com.amcglynn.myenergi.MyEnergiOAuthClient;
 import com.amcglynn.myenergi.units.KiloWattHour;
 import com.amcglynn.myzappi.core.exception.MyEnergiCredentialsNotConfiguredException;
 import com.amcglynn.myzappi.core.model.LibbiStatus;
@@ -52,6 +51,15 @@ public class LibbiService {
         });
     }
 
+    public void setChargeFromGrid(MyEnergiAccountCredentials creds, boolean chargeFromGrid) {
+        var serialNumber = targetDeviceResolver.resolveTargetDevice(serialNumbers);
+
+
+        log.info("Setting charge from grid for serial number {} to {}", serialNumber, chargeFromGrid);
+        clientFactory.newMyEnergiOAuthClient(creds.getEmailAddress(), creds.getPassword())
+                .setChargeFromGrid(serialNumber.toString(), chargeFromGrid);
+    }
+
     public void setChargeTarget(UserId userId, SerialNumber serialNumber, int targetEnergy) {
         var creds = loginService.readMyEnergiAccountCredentials(userId);
 
@@ -71,11 +79,12 @@ public class LibbiService {
         setChargeTarget(userId, serialNumber, targetEnergy);
     }
 
-    public void validateMyEnergiAccountIsConfigured(UserId userId) {
+    public MyEnergiAccountCredentials validateMyEnergiAccountIsConfigured(UserId userId) {
         var creds = loginService.readMyEnergiAccountCredentials(userId);
         if (creds.isEmpty()) {
             throw new MyEnergiCredentialsNotConfiguredException("No MyEnergi account configured");
         }
+        return creds.get();
     }
 
     public LibbiStatus getStatus(UserId userId) {

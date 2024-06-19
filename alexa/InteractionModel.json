@@ -436,6 +436,19 @@
             "set battery charge target to {ChargeTargetPercent} percent",
             "set charge target to {ChargeTargetPercent} percent"
           ]
+        },
+        {
+          "name": "SetLibbiChargeFromGridEnabled",
+          "slots": [],
+          "samples": [
+            "Enable battery charge from grid",
+            "Turn on battery charge from grid",
+            "Boost my battery",
+            "Turn on charge from grid",
+            "Enable charging from grid",
+            "Please charge from grid",
+            "Enable charge from grid"
+          ]
         }
       ],
       "types": [
