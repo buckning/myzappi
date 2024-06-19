@@ -449,6 +449,18 @@
             "Please charge from grid",
             "Enable charge from grid"
           ]
+        },
+        {
+          "name": "SetLibbiChargeFromGridDisabled",
+          "slots": [],
+          "samples": [
+            "Disable battery charge from grid",
+            "Turn off battery charge from grid",
+            "Turn off charge from grid",
+            "Disable charging from grid",
+            "Please turn off charge from grid",
+            "Disable charge from grid"
+          ]
         }
       ],
       "types": [

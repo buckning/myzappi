@@ -31,7 +31,7 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
-class SetLibbiChargeFromGridHandlerEnabledTest {
+class SetLibbiChargeFromGridHandlerDisabledTest {
 
     @Mock
     private MyEnergiService.Builder mockMyEnergiServiceBuilder;
@@ -43,20 +43,20 @@ class SetLibbiChargeFromGridHandlerEnabledTest {
     private UserIdResolverFactory mockUserIdResolverFactory;
     @Mock
     private UserIdResolver mockUserIdResolver;
-    private SetLibbiChargeFromGridEnabledHandler handler;
+    private SetLibbiChargeFromGridDisabledHandler handler;
 
     @BeforeEach
     void setUp() {
         when(mockMyEnergiServiceBuilder.build(any())).thenReturn(mockMyEnergiService);
         when(mockMyEnergiService.getLibbiServiceOrThrow()).thenReturn(mockLibbiService);
         when(mockUserIdResolverFactory.newUserIdResolver(any())).thenReturn(mockUserIdResolver);
-        handler = new SetLibbiChargeFromGridEnabledHandler(mockMyEnergiServiceBuilder, mockUserIdResolverFactory);
+        handler = new SetLibbiChargeFromGridDisabledHandler(mockMyEnergiServiceBuilder, mockUserIdResolverFactory);
         when(mockUserIdResolver.getUserId()).thenReturn("mockUserId");
     }
 
     @Test
     void testCanHandleOnlyTriggersForTheIntent() {
-        assertThat(handler.canHandle(handlerInputBuilder("SetLibbiChargeFromGridEnabled").build())).isTrue();
+        assertThat(handler.canHandle(handlerInputBuilder("SetLibbiChargeFromGridDisabled").build())).isTrue();
     }
 
     @Test
@@ -67,17 +67,17 @@ class SetLibbiChargeFromGridHandlerEnabledTest {
     @Test
     void testHandleThrowsMissingDeviceExceptionWhenLibbiDeviceNotFoundForUser() {
         when(mockMyEnergiService.getLibbiServiceOrThrow()).thenThrow(MissingDeviceException.class);
-        var throwable = catchThrowable(() -> handler.handle(handlerInputBuilder("SetLibbiChargeFromGridEnabled").build()));
+        var throwable = catchThrowable(() -> handler.handle(handlerInputBuilder("SetLibbiChargeFromGridDisabled").build()));
         assertThat(throwable).isNotNull().isInstanceOf(MissingDeviceException.class);
     }
 
     @Test
     void testHandleGetLibbiChargeFromGridEnabled() {
-        var response = handler.handle(handlerInputBuilder("SetLibbiChargeFromGridEnabled").build());
-        verify(mockLibbiService).setChargeFromGrid(any(), eq(true));
+        var response = handler.handle(handlerInputBuilder("SetLibbiChargeFromGridDisabled").build());
+        verify(mockLibbiService).setChargeFromGrid(any(), eq(false));
         assertThat(response).isPresent();
-        verifySpeechInResponse(response.get(), "<speak>Enabling charge from grid, this may take a few minutes</speak>");
-        verifySimpleCardInResponse(response.get(), "My Zappi", "Enabling charge from grid, this may take a few minutes.");
+        verifySpeechInResponse(response.get(), "<speak>Disabling charge from grid, this may take a few minutes</speak>");
+        verifySimpleCardInResponse(response.get(), "My Zappi", "Disabling charge from grid, this may take a few minutes.");
     }
 
     @Test
