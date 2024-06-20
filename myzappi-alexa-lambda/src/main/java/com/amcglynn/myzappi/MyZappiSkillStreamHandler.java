@@ -57,7 +57,6 @@ public class MyZappiSkillStreamHandler extends SkillStreamHandler {
     public MyZappiSkillStreamHandler(ServiceManager serviceManager, UserIdResolverFactory userIdResolverFactory,
                                      UserZoneResolver userZoneResolver, ReminderServiceFactory reminderServiceFactory) {
         super(Skills.standard()
-                .withSkillId(serviceManager.getSkillId())
                 .addRequestHandler(new LaunchHandler())
                 .addRequestHandler(new HelpHandler())
                 .addRequestHandler(new FallbackHandler())

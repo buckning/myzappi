@@ -40,6 +40,10 @@ public class Properties {
         return getOrThrow("skillId");
     }
 
+    public String getEddiSkillId() {
+        return getOrThrow("eddiSkillId");
+    }
+
     public String getSchedulerExecutionRoleArn() {
         return getOrThrow("schedulerExecutionRoleArn");
     }

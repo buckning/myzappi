@@ -1,6 +1,7 @@
 package com.amcglynn.myzappi.handlers;
 
 import com.amazon.ask.dispatcher.request.handler.HandlerInput;
+import com.amazon.ask.model.Application;
 import com.amazon.ask.model.Intent;
 import com.amazon.ask.model.IntentRequest;
 import com.amazon.ask.model.LaunchRequest;
@@ -10,18 +11,26 @@ import com.amazon.ask.model.User;
 import com.amazon.ask.model.ui.SimpleCard;
 import com.amazon.ask.model.ui.SsmlOutputSpeech;
 import com.amcglynn.myzappi.core.Brand;
+import com.amcglynn.myzappi.core.config.Properties;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 class LaunchIntentHandlerTest {
 
     private LaunchHandler handler;
+    @Mock
+    private Properties mockProperties;
 
     @BeforeEach
     void setUp() {
-        handler = new LaunchHandler();
+        handler = new LaunchHandler(mockProperties);
     }
 
     @Test
@@ -50,9 +59,28 @@ class LaunchIntentHandlerTest {
     }
 
     @Test
+    void testHandleSpeechResponseForEddiSkill() {
+        when(mockProperties.getEddiSkillId()).thenReturn("appId");
+        var requestEnvelop = RequestEnvelope.builder()
+                .withRequest(initIntentRequest())
+                .withSession(Session.builder().withUser(User.builder().withUserId("test").build())
+                        .withApplication(Application.builder().withApplicationId("appId").build()).build()).build();
+        var response = handler.handle(HandlerInput.builder().withRequestEnvelope(requestEnvelop).build());
+        assertThat(response).isPresent();
+        assertThat(response.get().getOutputSpeech()).isInstanceOf(SsmlOutputSpeech.class);
+
+        var outputSpeech = (SsmlOutputSpeech) response.get().getOutputSpeech();
+        assertThat(outputSpeech.getSsml()).isEqualTo("<speak>I can control your water heater for you. " +
+                "Ask me to boost your hot water for a specific duration or to enable or disable the water heater.</speak>");
+    }
+
+    @Test
     void testHandleSpeechResponseItalian() {
         var response = handler.handle(HandlerInput.builder().withRequestEnvelope(RequestEnvelope.builder()
-                .withRequest(LaunchRequest.builder().withLocale("it-IT").build()).build()).build());
+                .withRequest(LaunchRequest.builder().withLocale("it-IT").build())
+                .withSession(Session.builder()
+                        .withApplication(Application.builder().withApplicationId("appId").build()).build())
+                .build()).build());
         assertThat(response).isPresent();
         assertThat(response.get().getOutputSpeech()).isInstanceOf(SsmlOutputSpeech.class);
 
@@ -77,7 +105,8 @@ class LaunchIntentHandlerTest {
     private RequestEnvelope.Builder requestEnvelopeBuilder() {
         return RequestEnvelope.builder()
                 .withRequest(initIntentRequest())
-                .withSession(Session.builder().withUser(User.builder().withUserId("test").build()).build());
+                .withSession(Session.builder().withUser(User.builder().withUserId("test").build())
+                        .withApplication(Application.builder().withApplicationId("appId").build()).build());
     }
 
     private LaunchRequest initIntentRequest() {

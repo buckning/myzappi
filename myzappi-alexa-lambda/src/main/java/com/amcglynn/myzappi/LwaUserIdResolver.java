@@ -11,7 +11,8 @@ public class LwaUserIdResolver implements UserIdResolver {
     public LwaUserIdResolver(LwaClient lwaClient, HandlerInput handlerInput) {
         var accessToken = handlerInput.getRequestEnvelope().getSession().getUser().getAccessToken();
         userId = lwaClient.getUserId(accessToken)
-                .orElseThrow(() -> new UserNotLinkedException(handlerInput.getRequestEnvelope().getSession().getUser().getUserId()));
+                .orElseThrow(() -> new UserNotLinkedException(handlerInput.getRequestEnvelope().getSession().getUser().getUserId(),
+                        handlerInput.getRequestEnvelope().getSession().getApplication().getApplicationId()));
     }
 
     @Override
