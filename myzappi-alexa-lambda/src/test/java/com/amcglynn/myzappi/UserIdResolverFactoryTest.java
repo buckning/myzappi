@@ -1,6 +1,7 @@
 package com.amcglynn.myzappi;
 
 import com.amazon.ask.dispatcher.request.handler.HandlerInput;
+import com.amazon.ask.model.Application;
 import com.amazon.ask.model.Intent;
 import com.amazon.ask.model.IntentRequest;
 import com.amazon.ask.model.RequestEnvelope;
@@ -50,6 +51,9 @@ class UserIdResolverFactoryTest {
                 .withSession(Session.builder().withUser(User.builder()
                                 .withUserId("test")
                                 .withAccessToken("mockAccessToken").build())
+                        .withApplication(Application.builder()
+                                .withApplicationId("appId")
+                                .build())
                         .build());
 
         when(mockLwaClient.getUserId("mockAccessToken"))
@@ -74,7 +78,8 @@ class UserIdResolverFactoryTest {
     private RequestEnvelope.Builder requestEnvelopeBuilder() {
         return RequestEnvelope.builder()
                 .withRequest(initIntentRequest())
-                .withSession(Session.builder().withUser(User.builder().withUserId("test").build()).build());
+                .withSession(Session.builder().withUser(User.builder().withUserId("test").build())
+                        .withApplication(Application.builder().withApplicationId("appId").build()).build());
     }
 
     private IntentRequest initIntentRequest() {
