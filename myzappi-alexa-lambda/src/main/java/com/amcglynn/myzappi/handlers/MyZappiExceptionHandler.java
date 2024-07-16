@@ -29,7 +29,7 @@ public class MyZappiExceptionHandler implements ExceptionHandler {
                 .withSimpleCard(Brand.NAME, getCardResponse(handlerInput, throwable))
                 .withShouldEndSession(false);
 
-        if (throwable instanceof UserNotLinkedException) {
+        if (throwable instanceof UserNotLinkedException e) {
             responseBuilder = responseBuilder.withLinkAccountCard();
         }
 

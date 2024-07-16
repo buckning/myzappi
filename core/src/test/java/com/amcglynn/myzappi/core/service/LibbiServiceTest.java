@@ -77,7 +77,7 @@ class LibbiServiceTest {
         when(mockMyEnergiClient.getLibbiStatus("30000001"))
                 .thenReturn(libbiStatusResponse);
 
-        service = new LibbiService(mockMyEnergiClient, mockMyEnergiClientFactory, mockLoginService);
+        service = new LibbiService(mockMyEnergiClient, mockMyEnergiClientFactory, mockLoginService, List.of(SerialNumber.from("30000001")));
     }
 
     @Test

@@ -14,7 +14,8 @@ public class UserIdResolverFactory {
     public UserIdResolver newUserIdResolver(HandlerInput handlerInput) {
         var accessToken = handlerInput.getRequestEnvelope().getSession().getUser().getAccessToken();
         if (accessToken == null) {
-            throw new UserNotLinkedException(handlerInput.getRequestEnvelope().getSession().getUser().getUserId());
+            throw new UserNotLinkedException(handlerInput.getRequestEnvelope().getSession().getUser().getUserId(),
+                    handlerInput.getRequestEnvelope().getSession().getApplication().getApplicationId());
         }
         return new LwaUserIdResolver(lwaClient, handlerInput);
     }

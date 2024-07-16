@@ -74,7 +74,7 @@ class MyZappiExceptionHandlerTest {
     @Test
     void testUserNotLinkedExceptionHasLinkAccountCardInResponse() {
         var response = handler.handle(HandlerInput.builder()
-                .withRequestEnvelope(requestEnvelopeBuilder().build()).build(), new UserNotLinkedException("userId"));
+                .withRequestEnvelope(requestEnvelopeBuilder().build()).build(), new UserNotLinkedException("userId", "appId"));
         assertThat(response).isPresent();
 
         assertThat(response.get().getCard()).isInstanceOf(LinkAccountCard.class);
@@ -93,7 +93,7 @@ class MyZappiExceptionHandlerTest {
     private static Stream<Arguments> exceptionVoiceSource() {
         return Stream.of(
                 Arguments.of(new UserNotLoggedInException("test"), "<speak>You are not registered. Please register on my zappi unofficial dot com with your my energy API key and serial number.</speak>"),
-                Arguments.of(new UserNotLinkedException("test"), "<speak>Welcome to the My Zappi skill. To be able to use the skill, you have to link it to your Amazon account. Please go to the Alexa App and sign in with your Amazon login credentials under settings. A Link Account card was delivered to your Alexa App.</speak>"),
+                Arguments.of(new UserNotLinkedException("test", "appId"), "<speak>Welcome to the My Zappi skill. To be able to use the skill, you have to link it to your Amazon account. Please go to the Alexa App and sign in with your Amazon login credentials under settings. A Link Account card was delivered to your Alexa App.</speak>"),
                 Arguments.of(new ClientException(404), "<speak>Could not authenticate with my energy APIs. Your API key may no longer be valid. Please register again on my zappi unofficial dot com</speak>"),
                 Arguments.of(new ServerCommunicationException(), "<speak>I couldn't communicate with my energy servers.</speak>"),
                 Arguments.of(new NullPointerException("unexpectedException"), "<speak>There was an unexpected error.</speak>"),

@@ -94,6 +94,7 @@ public class ScheduleValidator {
         validateRecurringSchedule(schedule);
         rejectIfTrue(() -> !SUPPORTED_TYPES.containsKey(schedule.getAction().getType()));
         rejectIfTrue(() -> !SUPPORTED_TYPES.get(schedule.getAction().getType()).test(schedule.getAction().getValue()));
+        rejectIfTrue(() -> schedule.getAction().getTarget().isEmpty());
     }
 
     private void validateRecurringSchedule(Schedule schedule) {

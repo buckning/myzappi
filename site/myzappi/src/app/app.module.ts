@@ -19,6 +19,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatSliderModule } from '@angular/material/slider';
+import { MatDividerModule } from '@angular/material/divider';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { InlineSchedulePanelComponent } from './inline-schedule-panel/inline-schedule-panel.component';
 import { ZappiSetChargeModeActionPanelComponent } from './zappi-set-charge-mode-action-panel/zappi-set-charge-mode-action-panel.component';
@@ -53,6 +54,7 @@ import { EnergyStatsPanelComponent } from './energy-stats-panel/energy-stats-pan
     MatExpansionModule,
     MatSliderModule,
     MatButtonToggleModule,
+    MatDividerModule,
     BrowserModule,
     HttpClientModule,
     FormsModule,

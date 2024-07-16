@@ -9,6 +9,7 @@ import com.amcglynn.myenergi.units.KiloWattHour;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
@@ -158,5 +159,50 @@ public class MockMyEnergiClient extends MyEnergiClient {
                 .setBody(MockMyEnergiResponses.getGenericResponse());
         mockWebServer.enqueue(mockResponse);
         super.unlockZappi();
+    }
+
+    @Override
+    public void setEddiMode(EddiMode mode) {
+        var mockResponse = new MockResponse()
+                .setResponseCode(200)
+                .setBody(MockMyEnergiResponses.getGenericResponse());
+        mockWebServer.enqueue(mockResponse);
+        super.setEddiMode(mode);
+    }
+
+    @Override
+    public void boostEddi(Duration duration) {
+        var mockResponse = new MockResponse()
+                .setResponseCode(200)
+                .setBody(MockMyEnergiResponses.getGenericResponse());
+        mockWebServer.enqueue(mockResponse);
+        super.boostEddi(duration);
+    }
+
+    @Override
+    public void boostEddi(Duration duration, int heaterNumber) {
+        var mockResponse = new MockResponse()
+                .setResponseCode(200)
+                .setBody(MockMyEnergiResponses.getGenericResponse());
+        mockWebServer.enqueue(mockResponse);
+        super.boostEddi(duration, heaterNumber);
+    }
+
+    @Override
+    public void stopEddiBoost() {
+        var mockResponse = new MockResponse()
+                .setResponseCode(200)
+                .setBody(MockMyEnergiResponses.getGenericResponse());
+        mockWebServer.enqueue(mockResponse);
+        super.stopEddiBoost();
+    }
+
+    @Override
+    public void stopEddiBoost(int heaterNumber) {
+        var mockResponse = new MockResponse()
+                .setResponseCode(200)
+                .setBody(MockMyEnergiResponses.getGenericResponse());
+        mockWebServer.enqueue(mockResponse);
+        super.stopEddiBoost(heaterNumber);
     }
 }

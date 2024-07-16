@@ -1,6 +1,7 @@
 package com.amcglynn.sqs;
 
 import com.amcglynn.myenergi.EddiMode;
+import com.amcglynn.myenergi.LibbiMode;
 import com.amcglynn.myenergi.ZappiChargeMode;
 import com.amcglynn.myenergi.units.KiloWattHour;
 import com.amcglynn.myzappi.core.model.ScheduleAction;
@@ -43,8 +44,18 @@ public class MyZappiScheduleHandler {
                 "setLibbiChargeFromGrid", (myEnergiService, scheduleAction) -> myEnergiService.getLibbiService()
                         .get().setChargeFromGrid(myEnergiService.getUserId(), SerialNumber.from(scheduleAction.getTarget().get()), Boolean.parseBoolean(scheduleAction.getValue())),
                 "setLibbiChargeTarget", (myEnergiService, scheduleAction) -> myEnergiService.getLibbiService()
-                        .get().setChargeTarget(myEnergiService.getUserId(), SerialNumber.from(scheduleAction.getTarget().get()), Integer.parseInt(scheduleAction.getValue()))
+                        .get().setChargeTarget(myEnergiService.getUserId(), SerialNumber.from(scheduleAction.getTarget().get()), Integer.parseInt(scheduleAction.getValue())),
+                "setLibbiEnabled", (myEnergiService, scheduleAction) -> myEnergiService.getLibbiService()
+                        .get().setMode(SerialNumber.from(scheduleAction.getTarget().get()), parseLibbiMode(scheduleAction))
         );
+    }
+
+    private LibbiMode parseLibbiMode(ScheduleAction scheduleAction) {
+        var enabled = Boolean.parseBoolean(scheduleAction.getValue());
+        if (enabled) {
+            return LibbiMode.ON;
+        }
+        return LibbiMode.OFF;
     }
 
     public void handle(MyZappiScheduleEvent event) {

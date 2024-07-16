@@ -95,6 +95,7 @@ class ScheduleValidatorTest {
                 .action(ScheduleAction.builder()
                         .type(actionType)
                         .value(actionValue)
+                        .target("10000001")
                         .build())
                 .build();
         var serverException = catchThrowableOfType(() -> scheduleValidator.validate(schedule), ServerException.class);
@@ -119,6 +120,7 @@ class ScheduleValidatorTest {
         var schedule = getScheduleBuilder()
                 .action(ScheduleAction.builder()
                         .type("invalidType")
+                        .target("10000001")
                         .value("ECO_PLUS")
                         .build())
                 .build();
@@ -143,6 +145,18 @@ class ScheduleValidatorTest {
     @Test
     void validateRecurringScheduleThrows400WhenDaysOfWeekIsNull() {
         var schedule = getRecurringScheduleBuilder((Set<Integer>) null).build();
+        var serverException = catchThrowableOfType(() -> scheduleValidator.validate(schedule), ServerException.class);
+        assertThat(serverException.getStatus()).isEqualTo(400);
+    }
+
+    @Test
+    void validateScheduleThrowsExceptionWhenTargetIsNull() {
+        var schedule = getScheduleBuilder()
+                .action(ScheduleAction.builder()
+                        .type("setChargeMode")
+                        .value("ECO_PLUS")
+                        .build())
+                .build();
         var serverException = catchThrowableOfType(() -> scheduleValidator.validate(schedule), ServerException.class);
         assertThat(serverException.getStatus()).isEqualTo(400);
     }
@@ -218,6 +232,7 @@ class ScheduleValidatorTest {
                 .startDateTime(LocalDateTime.of(2023, 9, 14, 23, 6))
                 .action(ScheduleAction.builder()
                         .type("setChargeMode")
+                        .target("10000001")
                         .value("ECO_PLUS")
                         .build());
     }
@@ -240,6 +255,7 @@ class ScheduleValidatorTest {
                 .action(ScheduleAction.builder()
                         .type("setChargeMode")
                         .value("ECO_PLUS")
+                        .target("10000001")
                         .build())
                 .recurrence(ScheduleRecurrence.builder()
                         .daysOfWeek(daysOfWeek)
