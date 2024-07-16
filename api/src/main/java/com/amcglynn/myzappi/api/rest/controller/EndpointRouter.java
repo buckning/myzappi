@@ -53,14 +53,14 @@ public class EndpointRouter {
                 new AuthenticationService(new TokenService(lwaClientFactory),
                         new SessionService(new SessionRepository(serviceManager.getAmazonDynamoDB()))),
                 scheduleController,
-                new EnergyCostController(serviceManager.getMyEnergiServiceBuilder(), serviceManager.getTariffService()),
+                new EnergyController(serviceManager.getMyEnergiServiceBuilder(), serviceManager.getTariffService()),
                 accountController,
                 serviceManager.getProperties());
     }
 
     public EndpointRouter(HubController hubController, DevicesController devicesController, TariffController tariffController,
                           AuthenticationService authenticationService,
-                          ScheduleController scheduleController, EnergyCostController energyCostController,
+                          ScheduleController scheduleController, EnergyController energyCostController,
                           AccountController accountController,
                           Properties properties) {
         this(hubController, devicesController, tariffController, authenticationService, scheduleController, energyCostController,
@@ -70,7 +70,7 @@ public class EndpointRouter {
     public EndpointRouter(HubController hubController, DevicesController devicesController,
                           TariffController tariffController,
                           AuthenticationService authenticationService,
-                          ScheduleController scheduleController, EnergyCostController energyCostController,
+                          ScheduleController scheduleController, EnergyController energyController,
                           LogoutController logoutController,
                           AccountController accountController,
                           Properties properties) {
@@ -94,7 +94,8 @@ public class EndpointRouter {
         handlers.put("PUT /devices/{deviceId}/mode", devicesController::setMode);
         handlers.put("PUT /devices/{deviceId}/charge-from-grid", devicesController::setLibbiChargeFromGrid);
         handlers.put("PUT /devices/{deviceId}/target-energy", devicesController::setLibbiTargetEnergy);
-        handlers.put("GET /energy-cost", energyCostController::getEnergyCost);
+        handlers.put("GET /energy-cost", energyController::getEnergyCost);
+        handlers.put("GET /energy-summary", energyController::getEnergySummary);
         handlers.put("POST /account/register", accountController::register);
         handlers.put("GET /account/summary", accountController::getAccountSummary);
 

@@ -21,7 +21,7 @@
     <app-tariff-panel [bearerToken]="bearerToken" (tariffChangeEvent)="tariffChangeEvent()"></app-tariff-panel>
     <br>
     <div class="tile" *ngIf="hubDetails != null">
-        <app-energy-stats-panel></app-energy-stats-panel>
+        <app-energy-stats-panel [bearerToken]="bearerToken"></app-energy-stats-panel>
     </div>
     <br>
     <div *ngIf="hubDetails != null">

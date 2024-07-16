@@ -31,6 +31,17 @@ If this is successful, the email address and password are stored in a new table 
 the amazon user id as the primary key and the email and password as attributes. The email and password are encrypted using
 KMS keys.
 
+
+### Get energy summary
+```
+{
+    "solarGenerationKW": "0.0",
+    "consumingKW": "3.2",
+    "importingKW": "3.2",
+    "exportingKW": "0.0"
+}
+```
+
 ### Get summary of connected accounts
 ```
 GET /account/summary API

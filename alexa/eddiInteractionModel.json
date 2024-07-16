@@ -1,0 +1,111 @@
+{
+  "interactionModel": {
+    "languageModel": {
+      "invocationName": "my water heater",
+      "intents": [
+        {
+          "name": "AMAZON.CancelIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.HelpIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.StopIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.NavigateHomeIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.FallbackIntent",
+          "samples": []
+        },
+        {
+          "name": "SetEddiModeToNormal",
+          "slots": [],
+          "samples": [
+            "turn on",
+            "Give me hot water",
+            "Heat up the water water",
+            "turn on normal mode",
+            "Change to normal mode",
+            "Switch on",
+            "Start heating",
+            "Activate hot water",
+            "Begin heating the water",
+            "Turn on water heating",
+            "Enable hot water",
+            "Heat water now",
+            "Start hot water mode",
+            "Turn on the heater",
+            "Power up the water heater",
+            "Make the water hot",
+            "Turn on hot water",
+            "Switch to hot water mode",
+            "Enable normal mode",
+            "Switch to heating mode",
+            "Warm up the water",
+            "Initiate water heating",
+            "Turn on the boiler",
+            "Heat the water",
+            "Start the water heater",
+            "Turn on water boiler",
+            "Enable the heater",
+            "Switch on hot water",
+            "Activate heating mode",
+            "Turn on hot mode",
+            "Heat the water now"
+          ]
+        },
+        {
+          "name": "SetEddiModeToStopped",
+          "slots": [],
+          "samples": [
+            "I don't want hot water",
+            "Water heater off",
+            "Turn my water heater off",
+            "Turn the water heater off",
+            "Turn off the water heater",
+            "Stop the water heater",
+            "Disable the water heater",
+            "Turn off my water heater",
+            "Disable my water heater",
+            "Stop my water heater"
+          ]
+        },
+        {
+          "name": "BoostEddi",
+          "slots": [
+            {
+              "name": "Duration",
+              "type": "AMAZON.DURATION"
+            }
+          ],
+          "samples": [
+            "Boost my water heater for {Duration}",
+            "Boost the hot water for {Duration}",
+            "Boost the water heater for {Duration}",
+            "Boost my hot water for {Duration}"
+          ]
+        },
+        {
+          "name": "StopEddiBoost",
+          "slots": [],
+          "samples": [
+            "Stop boosting the hot water",
+            "Cancel boosting the the hot water",
+            "Cancel boosting the water heater",
+            "Stop boosting the water heater",
+            "Stop boosting my heater",
+            "Cancel boosting the hot water",
+            "Stop boosting my hot water"
+          ]
+        }
+      ],
+      "types": []
+    }
+  }
+}

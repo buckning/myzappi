@@ -7,10 +7,7 @@ import com.amcglynn.myzappi.api.rest.ServerException;
 import com.amcglynn.myzappi.core.model.DayCost;
 import com.amcglynn.myzappi.core.model.DayTariff;
 import com.amcglynn.myzappi.core.model.Schedule;
-import com.amcglynn.myzappi.core.model.ScheduleAction;
-import com.amcglynn.myzappi.core.model.ScheduleRecurrence;
 import com.amcglynn.myzappi.core.model.Tariff;
-import com.amcglynn.myzappi.core.model.UserId;
 import com.amcglynn.myzappi.core.service.EnergyCostHourSummary;
 import com.amcglynn.myzappi.core.service.MyEnergiService;
 import com.amcglynn.myzappi.core.service.TariffService;
@@ -25,17 +22,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.assertj.core.api.Assertions.catchThrowableOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -55,7 +48,7 @@ class EnergyCostControllerTest {
     private TariffService mockTariffService;
     @Captor
     private ArgumentCaptor<Schedule> scheduleCaptor;
-    private EnergyCostController controller;
+    private EnergyController controller;
     @Mock
     private ZappiService mockZappiService;
 
@@ -70,7 +63,7 @@ class EnergyCostControllerTest {
 
         when(mockTariffService.get(anyString())).thenReturn(Optional.of(new DayTariff("EUR", List.of(tariff))));
         when(mockTariffService.calculateCost(any(), any(), any(), any())).thenReturn(dayCost);
-        controller = new EnergyCostController(mockMyEnergiServiceBuilder, mockTariffService);
+        controller = new EnergyController(mockMyEnergiServiceBuilder, mockTariffService);
     }
 
     @Test
