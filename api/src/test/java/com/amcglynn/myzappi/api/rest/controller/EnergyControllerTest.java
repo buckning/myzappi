@@ -1,11 +1,14 @@
 package com.amcglynn.myzappi.api.rest.controller;
 
 import com.amcglynn.myenergi.apiresponse.ZappiHistory;
+import com.amcglynn.myenergi.units.KiloWatt;
+import com.amcglynn.myenergi.units.Watt;
 import com.amcglynn.myzappi.api.rest.Request;
 import com.amcglynn.myzappi.api.rest.RequestMethod;
 import com.amcglynn.myzappi.api.rest.ServerException;
 import com.amcglynn.myzappi.core.model.DayCost;
 import com.amcglynn.myzappi.core.model.DayTariff;
+import com.amcglynn.myzappi.core.model.EnergyStatus;
 import com.amcglynn.myzappi.core.model.Schedule;
 import com.amcglynn.myzappi.core.model.Tariff;
 import com.amcglynn.myzappi.core.service.EnergyCostHourSummary;
@@ -38,7 +41,7 @@ import static org.mockito.Mockito.when;
 
 @MockitoSettings(strictness = org.mockito.quality.Strictness.LENIENT)
 @ExtendWith(MockitoExtension.class)
-class EnergyCostControllerTest {
+class EnergyControllerTest {
 
     @Mock
     private MyEnergiService mockMyEnergiService;
@@ -63,6 +66,12 @@ class EnergyCostControllerTest {
 
         when(mockTariffService.get(anyString())).thenReturn(Optional.of(new DayTariff("EUR", List.of(tariff))));
         when(mockTariffService.calculateCost(any(), any(), any(), any())).thenReturn(dayCost);
+        when(mockMyEnergiService.getEnergyStatus()).thenReturn(EnergyStatus.builder()
+                        .consumingKW(new KiloWatt(new Watt(3500L)))
+                .importingKW(new KiloWatt(new Watt(0L)))
+                .exportingKW(new KiloWatt(new Watt(3700L)))
+                .solarGenerationKW(new KiloWatt(new Watt(7200L)))
+                .build());
         controller = new EnergyController(mockMyEnergiServiceBuilder, mockTariffService);
     }
 
@@ -85,6 +94,18 @@ class EnergyCostControllerTest {
         assertThat(response.getStatus()).isEqualTo(200);
         assertThat(response.getBody()).isEqualTo(Optional.of("{\"currency\":\"EUR\",\"importCost\":1.0," +
                 "\"exportCost\":2.0,\"solarConsumed\":-1.0,\"totalCost\":-1.0}"));
+    }
+
+    @Test
+    void getEnergySummary() {
+        when(mockMyEnergiServiceBuilder.build(any())).thenReturn(mockMyEnergiService);
+        Request request = new Request(RequestMethod.GET, "/energy-summary", null, Map.of(), null);
+        request.setUserId("mockUserId");
+        var response = controller.getEnergySummary(request);
+        assertThat(response.getStatus()).isEqualTo(200);
+        assertThat(response.getBody()).isEqualTo(Optional.of("""
+                {"solarGenerationKW":"7.2","consumingKW":"3.5","importingKW":"0.0","exportingKW":"3.7"}\
+                """));
     }
 
     @Test

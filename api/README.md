@@ -34,6 +34,7 @@ KMS keys.
 
 ### Get energy summary
 ```
+GET /energy-summary
 {
     "solarGenerationKW": "0.0",
     "consumingKW": "3.2",
