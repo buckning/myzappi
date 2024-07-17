@@ -3,9 +3,12 @@ package com.amcglynn.myzappi.core.service;
 import com.amcglynn.myenergi.MockMyEnergiClient;
 import com.amcglynn.myenergi.MyEnergiClient;
 import com.amcglynn.myenergi.MyEnergiClientFactory;
+import com.amcglynn.myenergi.apiresponse.MyEnergiDeviceStatus;
+import com.amcglynn.myenergi.apiresponse.StatusResponse;
 import com.amcglynn.myzappi.core.exception.MissingDeviceException;
 import com.amcglynn.myzappi.core.exception.UserNotLoggedInException;
 import com.amcglynn.myzappi.core.model.EddiDevice;
+import com.amcglynn.myzappi.core.model.EnergyStatus;
 import com.amcglynn.myzappi.core.model.LibbiDevice;
 import com.amcglynn.myzappi.core.model.MyEnergiDevice;
 import com.amcglynn.myzappi.core.model.SerialNumber;
@@ -14,6 +17,7 @@ import com.amcglynn.myzappi.core.model.ZappiDevice;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -59,6 +63,46 @@ public class MyEnergiService {
         libbiSerialNumberOpt
                 .ifPresentOrElse(serialNumber -> libbiService = new LibbiService(client, new MyEnergiClientFactory(),
                         loginService, getLibbiSerialNumbers(devices)), () -> libbiService = null);
+    }
+
+    public EnergyStatus getEnergyStatus() {
+        var status = client.getStatus();
+        var allDeviceStatuses = mapToDeviceStatusList(status);
+        var deviceStatus = allDeviceStatuses.stream()
+                .findFirst()
+                .orElseThrow(this::missingDeviceException);
+        return new EnergyStatus(deviceStatus);
+    }
+
+    private MissingDeviceException missingDeviceException() {
+        log.info("No Zappi, Eddi or Libbi device found");
+        return new MissingDeviceException("No Zappi, Eddi or Libbi device found");
+    }
+
+    private List<MyEnergiDeviceStatus> mapToDeviceStatusList(List<StatusResponse> statusResponses) {
+        var deviceStatus = new ArrayList<MyEnergiDeviceStatus>();
+        var devices = statusResponses.stream()
+                .filter(this::isZappiEddiOrLibbi)
+                .toList();
+
+        devices.forEach(sr -> addDeviceStatuses(sr, deviceStatus));
+        return deviceStatus;
+    }
+
+    private void addDeviceStatuses(StatusResponse statusResponse, List<MyEnergiDeviceStatus> deviceStatuses) {
+        if (statusResponse.getZappi() != null) {
+            deviceStatuses.addAll(statusResponse.getZappi());
+        }
+        if (statusResponse.getEddi() != null) {
+            deviceStatuses.addAll(statusResponse.getEddi());
+        }
+        if (statusResponse.getLibbi() != null) {
+            deviceStatuses.addAll(statusResponse.getLibbi());
+        }
+    }
+
+    private boolean isZappiEddiOrLibbi(StatusResponse sr) {
+        return sr.getZappi() != null || sr.getEddi() != null || sr.getLibbi() != null;
     }
 
     private Optional<SerialNumber> getEddiSerialNumber(List<MyEnergiDevice> devices) {

@@ -17,13 +17,13 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 
 @Slf4j
-public class EnergyCostController {
+public class EnergyController {
 
     private final TariffService tariffService;
     private final MyEnergiService.Builder myEnergiServiceBuilder;
     private final Clock clock;
 
-    public EnergyCostController(MyEnergiService.Builder myEnergiServiceBuilder, TariffService tariffService) {
+    public EnergyController(MyEnergiService.Builder myEnergiServiceBuilder, TariffService tariffService) {
         this.tariffService = tariffService;
         this.myEnergiServiceBuilder = myEnergiServiceBuilder;
         this.clock = new Clock();
@@ -53,6 +53,15 @@ public class EnergyCostController {
                 .solarConsumed(cost.getSolarSavings())
 
                 .build());
+
+        return new Response(200, responseBody);
+    }
+
+    @SneakyThrows
+    public Response getEnergySummary(Request request) {
+        var myEnergiService = myEnergiServiceBuilder.build(() -> request.getUserId().toString());
+        var energySummary = myEnergiService.getEnergyStatus();
+        var responseBody = new ObjectMapper().writeValueAsString(energySummary);
 
         return new Response(200, responseBody);
     }

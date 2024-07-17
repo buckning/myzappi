@@ -19,14 +19,14 @@
           <mat-button-toggle *ngIf="hasDevice('ZAPPI')" value="ZAPPI"><img class="filterIconButtonImage" src="assets/images/carBlack.png" alt="Zappi">Zappi</mat-button-toggle>
           <mat-button-toggle *ngIf="hasDevice('EDDI')" value="EDDI"><img class="filterIconButtonImage" src="assets/images/heaterBlack.png" alt="Eddi"> Eddi</mat-button-toggle>
           <mat-button-toggle *ngIf="hasDevice('LIBBI')" value="LIBBI"><img class="filterIconButtonImage" src="assets/images/batteryFullBlack.png" alt="Libbi"> Libbi</mat-button-toggle>
-        </mat-button-toggle-group> 
+        </mat-button-toggle-group>
       </div>
       <p *ngIf="filteredScheduleRows.length === 0">
         No schedules found.
       </p>
     </div>
     <div id="scheduleTable" *ngIf="filteredScheduleRows.length > 0" class="scheduleTable">
-      
+
       <div *ngFor="let row of filteredScheduleRows; let i = index">
         <div class="scheduleRow">
           <table>
@@ -46,7 +46,7 @@
                 <div>
                   {{convertScheduleType(row)}}
                   <br>
-                  {{getValue(row)}} 
+                  {{getValue(row)}}
                 </div>
                 <button type="button" class="destructiveButton" (click)="deleteSchedule(row)"><img class="iconButtonImage" src="assets/images/delete.png" alt="Schedules"></button>
               </td>
@@ -65,29 +65,29 @@
                   <br>
                 </div>
               </td>
-              
-              
-              
-              
+
+
+
+
             </tr>
-            
+
           </table>
-          
+
           <mat-divider></mat-divider>
 
         </div>
       </div>
     </div>
 
-    
+
   </div>
   <div>
     <button type="submit" *ngIf="listSchedulesVisible" class="confirmButton"
-      (click)="createSchedule()" [disabled]="createScheuleButtonDisabled"><img src="assets/images/add.png" alt="Schedules" width="25px" height="25px"></button>
+            (click)="createSchedule()" [disabled]="createScheuleButtonDisabled"><img src="assets/images/add.png" alt="Schedules" width="25px" height="25px"></button>
   </div>
 
   <div *ngIf="createOneTimeScheduleVisible">
     <app-create-onetime-schedule-panel [bearerToken]="bearerToken" [hubDetails]="hubDetails"
-      (viewListSchedulesScreen)="viewListSchedulesScreen()"></app-create-onetime-schedule-panel>
+                                       (viewListSchedulesScreen)="viewListSchedulesScreen()"></app-create-onetime-schedule-panel>
   </div>
 </div>

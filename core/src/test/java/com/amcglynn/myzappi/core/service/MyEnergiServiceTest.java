@@ -1,5 +1,7 @@
 package com.amcglynn.myzappi.core.service;
 
+import com.amcglynn.myenergi.units.KiloWatt;
+import com.amcglynn.myenergi.units.KiloWattHour;
 import com.amcglynn.myzappi.core.exception.UserNotLoggedInException;
 import com.amcglynn.myzappi.core.model.HubCredentials;
 import com.amcglynn.myzappi.core.model.SerialNumber;
@@ -33,7 +35,7 @@ class MyEnergiServiceTest {
 
     @BeforeEach
     void setUp() {
-        when(mockLoginService.readCredentials(UserId.from(userId))).thenReturn(Optional.of(new HubCredentials(serialNumber, "myApiKey")));
+        when(mockLoginService.readCredentials(UserId.from(userId))).thenReturn(Optional.of(new HubCredentials(serialNumber, "myDemoApiKey")));
         when(mockLoginService.readDevices(UserId.from(userId))).thenReturn(List.of(new ZappiDevice(zappiSerialNumber)));
         when(mockUserIdResolver.getUserId()).thenReturn(userId);
     }
@@ -44,5 +46,16 @@ class MyEnergiServiceTest {
         var throwable = catchThrowable(() -> new MyEnergiService.Builder(mockLoginService).build(mockUserIdResolver));
         assertThat(throwable).isInstanceOf(UserNotLoggedInException.class);
         assertThat(throwable.getMessage()).isEqualTo("User not logged in - userId");
+    }
+
+    @Test
+    void getEnergyStatus() {
+        myEnergiService = new MyEnergiService.Builder(mockLoginService).build(mockUserIdResolver);
+        var energyStatus = myEnergiService.getEnergyStatus();
+        assertThat(energyStatus.getSolarGenerationKW().getDouble()).isEqualTo(2.723);
+        assertThat(energyStatus.getConsumingKW().getDouble()).isEqualTo(2.647);
+        assertThat(energyStatus.getImportingKW().getDouble()).isEqualTo(0.0);
+        assertThat(energyStatus.getExportingKW().getDouble()).isEqualTo(0.076);
+        assertThat(energyStatus).isNotNull();
     }
 }

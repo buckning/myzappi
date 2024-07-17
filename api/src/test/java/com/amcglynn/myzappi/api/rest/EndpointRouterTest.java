@@ -4,7 +4,7 @@ import com.amcglynn.myzappi.api.Session;
 import com.amcglynn.myzappi.api.SessionId;
 import com.amcglynn.myzappi.api.rest.controller.AccountController;
 import com.amcglynn.myzappi.api.rest.controller.DevicesController;
-import com.amcglynn.myzappi.api.rest.controller.EnergyCostController;
+import com.amcglynn.myzappi.api.rest.controller.EnergyController;
 import com.amcglynn.myzappi.api.rest.controller.LogoutController;
 import com.amcglynn.myzappi.core.config.Properties;
 import com.amcglynn.myzappi.api.service.AuthenticationService;
@@ -27,7 +27,6 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -45,7 +44,7 @@ class EndpointRouterTest {
     @Mock
     private ScheduleController mockScheduleController;
     @Mock
-    private EnergyCostController mockEnergyCostController;
+    private EnergyController mockEnergyController;
     @Mock
     private DevicesController mockDevicesController;
     @Mock
@@ -60,7 +59,7 @@ class EndpointRouterTest {
     @BeforeEach
     void setUp() {
         router = new EndpointRouter(mockHubController, mockDevicesController, mockTariffController, mockAuthController,
-                mockScheduleController, mockEnergyCostController, mockLogoutController, mockAccountController, mockProperties);
+                mockScheduleController, mockEnergyController, mockLogoutController, mockAccountController, mockProperties);
         when(mockResponse.getStatus()).thenReturn(200);
         when(mockResponse.getHeaders()).thenReturn(new HashMap<>());
         when(mockProperties.getAdminUser()).thenReturn("regularUser");
@@ -78,7 +77,8 @@ class EndpointRouterTest {
         when(mockHubController.refresh(any())).thenReturn(mockResponse);
         when(mockHubController.get(any())).thenReturn(mockResponse);
         when(mockHubController.register(any())).thenReturn(mockResponse);
-        when(mockEnergyCostController.getEnergyCost(any())).thenReturn(mockResponse);
+        when(mockEnergyController.getEnergyCost(any())).thenReturn(mockResponse);
+        when(mockEnergyController.getEnergySummary(any())).thenReturn(mockResponse);
         when(mockAccountController.register(any())).thenReturn(mockResponse);
         when(mockAccountController.getAccountSummary(any())).thenReturn(mockResponse);
         when(mockAuthController.authenticate(any())).thenReturn(Optional.of(new Session(SessionId.from("1234"), UserId.from("userId"), 3600L)));
@@ -182,7 +182,16 @@ class EndpointRouterTest {
         request.setUserId("regularUser");
         var response = router.route(request);
         assertThat(response.getStatus()).isEqualTo(200);
-        verify(mockEnergyCostController).getEnergyCost(request);
+        verify(mockEnergyController).getEnergyCost(request);
+    }
+
+    @Test
+    void getEnergySummaryGetsRoutedToEnergyController() {
+        var request = new Request(RequestMethod.GET, "/energy-summary", null, Map.of("Authorization", "Bearer 1234"), Map.of());
+        request.setUserId("regularUser");
+        var response = router.route(request);
+        assertThat(response.getStatus()).isEqualTo(200);
+        verify(mockEnergyController).getEnergySummary(request);
     }
 
     @Test
@@ -201,7 +210,7 @@ class EndpointRouterTest {
         request.setUserId("AdminUser");
         router.route(request);
         assertThat(request.getUserId()).hasToString("AdminUser");
-        verify(mockEnergyCostController).getEnergyCost(request);
+        verify(mockEnergyController).getEnergyCost(request);
     }
 
     @Test
@@ -212,7 +221,7 @@ class EndpointRouterTest {
         request.setUserId("AdminUser");
         router.route(request);
         assertThat(request.getUserId()).hasToString("RandomUser");
-        verify(mockEnergyCostController).getEnergyCost(request);
+        verify(mockEnergyController).getEnergyCost(request);
     }
 
     @Test
@@ -234,7 +243,7 @@ class EndpointRouterTest {
         request.setUserId("randomUser");
         router.route(request);
         assertThat(request.getUserId()).hasToString("randomUser");
-        verify(mockEnergyCostController).getEnergyCost(request);
+        verify(mockEnergyController).getEnergyCost(request);
     }
 
     @Test

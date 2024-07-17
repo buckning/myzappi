@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { EnergyOverviewService } from '../energy-overview.service';
 import { DeviceEnergyUsage, EnergySummary } from '../energySummary.interface';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 @Component({
   selector: 'app-energy-stats-panel',
@@ -9,6 +10,7 @@ import { DeviceEnergyUsage, EnergySummary } from '../energySummary.interface';
 })
 export class EnergyStatsPanelComponent {
 
+  @Input() public bearerToken: any;
   solarGenerationKW = 0;
   consumingKW = 0;
   importingKW = 0;
@@ -16,21 +18,43 @@ export class EnergyStatsPanelComponent {
   zappis: DeviceEnergyUsage[] = [];
   eddis: DeviceEnergyUsage[] = [];
   libbis: DeviceEnergyUsage[] = [];
+  refreshInterval = 15000;
 
-  constructor(private energyOverviewService: EnergyOverviewService) {}
+  constructor(private http: HttpClient, private energyOverviewService: EnergyOverviewService) {}
 
   ngOnInit() {
     this.energyOverviewService.updateEnergySummaryEvent$.subscribe((energySummary) => {
       this.refresh(energySummary);
-    })
+    });
+
+    this.loadEnergySummary();
+  }
+
+  loadEnergySummary() {
+    let headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': this.bearerToken });
+    let options = { headers: headers, withCredentials: true };
+    this.http.get<EnergySummary>('https://api.myzappiunofficial.com/energy-summary', options)
+      .subscribe(data => {
+        this.solarGenerationKW = data.solarGenerationKW;
+        this.consumingKW = data.consumingKW;
+        this.importingKW = data.importingKW;
+        this.exportingKW = data.exportingKW;
+
+        setTimeout(() => {
+          this.loadEnergySummary();
+        }, this.refreshInterval);
+      },
+      error => {
+        console.log("failed to get device details " + error.status);
+        setTimeout(() => {
+          this.loadEnergySummary();
+        }, this.refreshInterval);
+      });
   }
 
   refresh(energySummary: EnergySummary) {
-    this.solarGenerationKW = energySummary.solarGenerationKW;
-    this.consumingKW = energySummary.consumingKW;
-    this.importingKW = energySummary.importingKW;
-    this.exportingKW = energySummary.exportingKW;
-
     energySummary.deviceUsage.forEach(device => {
       if (device.deviceClass === "zappi") {
         this.zappis = this.zappis.filter(zappi => zappi.serialNumber !== device.serialNumber);

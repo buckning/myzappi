@@ -14,6 +14,12 @@ public class MyEnergiDeviceStatus {
     @JsonProperty("ht2")
     private String tank2Name;
 
+    @JsonProperty("grd")
+    private Long gridWatts = 0L; // minus means pushing back to grid, positive means importing
+
+    @JsonProperty("gen")
+    private Long solarGeneration = 0L;
+
 //    {
 //        "zappi": [
 //        {
