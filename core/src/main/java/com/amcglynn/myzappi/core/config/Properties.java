@@ -44,6 +44,10 @@ public class Properties {
         return getOrThrow("eddiSkillId");
     }
 
+    public String getLibbiSkillId() {
+        return getOrThrow("libbiSkillId");
+    }
+
     public String getSchedulerExecutionRoleArn() {
         return getOrThrow("schedulerExecutionRoleArn");
     }

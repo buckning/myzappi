@@ -43,6 +43,15 @@ public class LaunchHandler implements LaunchRequestHandler {
                     .build();
         }
 
+        if (handlerInput.getRequestEnvelope().getSession()
+                .getApplication().getApplicationId().equals(properties.getLibbiSkillId())) {
+            return handlerInput.getResponseBuilder()
+                    .withSpeech(voiceResponse(handlerInput, "libbi-help"))
+                    .withSimpleCard(Brand.NAME, cardResponse(handlerInput, "libbi-help"))
+                    .withShouldEndSession(false)
+                    .build();
+        }
+
         return handlerInput.getResponseBuilder()
                 .withSpeech(voiceResponse(handlerInput, "help"))
                 .withSimpleCard(Brand.NAME, cardResponse(handlerInput, "help"))
