@@ -1,8 +1,6 @@
 # Welcome to MyZappi!
 
 ## Next Features
-* Libbi Support
-
 
 * Reminder if your car is plugged in but no schedule is set
 * Remove dependencies on APIs from devices in credentials table

@@ -66,6 +66,7 @@ public class RegistrationService {
         log.info("Deleting hub details for user = {}", userId);
         loginService.delete(userId.toString());
         devicesRepository.delete(userId);
+        loginService.deleteMyEnergiAccountCredentials(userId);
     }
 
     private void discoverAndRegisterDetails(UserId userId, SerialNumber serialNumber, String apiKey) {

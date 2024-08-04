@@ -251,4 +251,12 @@ class RegistrationServiceTest {
         assertThat(response.isHubRegistered()).isFalse();
         assertThat(response.isMyaccountRegistered()).isTrue();
     }
+
+    @Test
+    void delete() {
+        service.delete(userId);
+        verify(mockLoginService).delete(userId.toString());
+        verify(mockDevicesRepository).delete(userId);
+        verify(mockLoginService).deleteMyEnergiAccountCredentials(userId);
+    }
 }

@@ -2,6 +2,7 @@ package com.amcglynn.myzappi.core.dal;
 
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
+import com.amazonaws.services.dynamodbv2.model.DeleteItemRequest;
 import com.amazonaws.services.dynamodbv2.model.GetItemResult;
 import com.amazonaws.services.dynamodbv2.model.PutItemRequest;
 import com.amcglynn.myzappi.core.model.MyEnergiAccountCredentialsEncrypted;
@@ -32,6 +33,8 @@ class MyEnergiAccountCredentialsRepositoryTest {
 
     @Captor
     private ArgumentCaptor<PutItemRequest> putItemCaptor;
+    @Captor
+    private ArgumentCaptor<DeleteItemRequest> deleteItemCaptor;
 
     private MyEnergiAccountCredentialsRepository credentialsRepository;
     private ByteBuffer encryptedEmailAddress;
@@ -76,5 +79,14 @@ class MyEnergiAccountCredentialsRepositoryTest {
         assertThat(result.get().getUserId()).isEqualTo("userid");
         assertThat(result.get().getEncryptedEmailAddress()).isEqualTo(encryptedEmailAddress);
         assertThat(result.get().getEncryptedPassword()).isEqualTo(encryptedPassword);
+    }
+
+    @Test
+    void testDeleteSchedule() {
+        credentialsRepository.delete("userId");
+        verify(mockDb).deleteItem(deleteItemCaptor.capture());
+        assertThat(deleteItemCaptor.getValue()).isNotNull();
+        assertThat(deleteItemCaptor.getValue().getTableName()).isEqualTo("myenergi-creds");
+        assertThat(deleteItemCaptor.getValue().getKey().get("amazon-user-id").getS()).isEqualTo("userId");
     }
 }
