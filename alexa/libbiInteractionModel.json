@@ -1,0 +1,156 @@
+{
+  "interactionModel": {
+    "languageModel": {
+      "invocationName": "my battery",
+      "intents": [
+        {
+          "name": "AMAZON.CancelIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.HelpIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.StopIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.NavigateHomeIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.FallbackIntent",
+          "samples": []
+        },
+        {
+          "name": "GetLibbiStateOfCharge",
+          "slots": [],
+          "samples": [
+            "What's the state of charge",
+            "State of charge",
+            "Tell me charge percentage",
+            "What's the percent",
+            "The battery level",
+            "What is the charge",
+            "get the charge",
+            "tell me the charge",
+            "How much charge is left",
+            "what's left on it",
+            "the remaining charge",
+            "How much charge is left"
+          ]
+        },
+        {
+          "name": "GetLibbiEnabled",
+          "slots": [],
+          "samples": [
+            "is it turned on",
+            "is it enabled",
+            "is it switched on",
+            "is it switched off",
+            "is it disabled",
+            "is it turned off",
+            "is it on",
+            "Is it off"
+          ]
+        },
+        {
+          "name": "GetLibbiChargeTarget",
+          "slots": [],
+          "samples": [
+            "give me the charge target",
+            "give me the target",
+            "What's the target",
+            "for the charge target",
+            "what's the char"
+          ]
+        },
+        {
+          "name": "GetLibbiChargeFromGridEnabled",
+          "slots": [],
+          "samples": [
+            "Is charging from the grid turned on",
+            "Is charging from the grid turned off",
+            "Is charge from grid disabled",
+            "Is boosting enabled",
+            "Is charging from the grid enabled",
+            "Is it charging from the grid",
+            "Is charging from grid enabled",
+            "Is my battery charging from the grid"
+          ]
+        },
+        {
+          "name": "SetLibbiEnabled",
+          "slots": [],
+          "samples": [
+            "Enable",
+            "to enabled",
+            "Power on",
+            "to power on",
+            "Switch on",
+            "to switch on",
+            "Turn on",
+            "to turn on"
+          ]
+        },
+        {
+          "name": "SetLibbiDisabled",
+          "slots": [],
+          "samples": [
+            "Disable",
+            "to disable",
+            "Power off",
+            "to power off",
+            "Turn off",
+            "to turn off",
+            "Power off"
+          ]
+        },
+        {
+          "name": "SetLibbiChargeTarget",
+          "slots": [
+            {
+              "name": "ChargeTargetPercent",
+              "type": "AMAZON.NUMBER"
+            }
+          ],
+          "samples": [
+            "Set target to {ChargeTargetPercent} percent",
+            "Set charge target to {ChargeTargetPercent} percent",
+            "Change charge target to {ChargeTargetPercent} percent"
+          ]
+        },
+        {
+          "name": "SetLibbiChargeFromGridEnabled",
+          "slots": [],
+          "samples": [
+            "Enable charge from grid",
+            "Turn on charge from grid",
+            "Start Boost",
+            "Start Boosting",
+            "Start Boost from grid",
+            "Start Boosting from grid",
+            "Turn on charging from grid",
+            "Enable charging from grid",
+            "Please charge from grid",
+            "Enable charge from grid"
+          ]
+        },
+        {
+          "name": "SetLibbiChargeFromGridDisabled",
+          "slots": [],
+          "samples": [
+            "Turn off charge from grid",
+            "Disable charging from grid",
+            "Please turn off charge from grid",
+            "Disable charge from grid",
+            "Stop charge from grid",
+            "Stop charging from grid"
+          ]
+        }
+      ],
+      "types": []
+    }
+  }
+}
