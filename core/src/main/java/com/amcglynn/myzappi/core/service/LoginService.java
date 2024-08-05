@@ -69,6 +69,10 @@ public class LoginService {
         myEnergiAccountCredentialsRepository.write(creds);
     }
 
+    public void deleteMyEnergiAccountCredentials(UserId userId) {
+        myEnergiAccountCredentialsRepository.delete(userId.toString());
+    }
+
     public Optional<MyEnergiAccountCredentials> readMyEnergiAccountCredentials(UserId userId) {
         var creds = myEnergiAccountCredentialsRepository.read(userId.toString());
 

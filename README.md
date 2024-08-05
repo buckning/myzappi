@@ -1,30 +1,5 @@
 # Welcome to MyZappi!
 
-## Next Features
-* Libbi Support
-
-
-* Reminder if your car is plugged in but no schedule is set
-* Remove dependencies on APIs from devices in credentials table
-* Remove devices from credential table
-* delete hub API should remove schedules
-
-* Support multiple tanks with Eddi (API changes, Alexa command changes, front end schedule changes)
-* Remind me when my car finishes charging
-* Better metrics
-* Notify if the charger is offline 
-* If the car charge mode is changed or if boost was set, notify if the car is not plugged in
-
-## Premium features
-* sync history
-* Query history between 2 times 
-* Add PIN so that only those with a PIN can control the Zappi
-* Add guest mode where the host authorizes guests can use the charger and can get information from it for their sessions.
-** Guests are issued a guest key. The guests enter it into the website to unlock the charger.
-** Guests enter key whenever they are charging
-** Guest have a prorated session that the owner gets reported of 
-** May be useful in AirBnBs 
-
 ## What is MyZappi?
 MyZappi is an Alexa skill that can be used to control your myenergi Zappi device all through an Amazon Echo or Alexa device.
 It offers functionality such as:

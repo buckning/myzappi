@@ -7,11 +7,9 @@ import com.amcglynn.myzappi.api.rest.request.RegisterMyEnergiAccountRequest;
 import com.amcglynn.myzappi.api.rest.response.RegisterAccountResponse;
 import com.amcglynn.myzappi.api.service.RegistrationService;
 import com.amcglynn.myzappi.core.model.EmailAddress;
-import com.amcglynn.myzappi.core.model.SerialNumber;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 /**
