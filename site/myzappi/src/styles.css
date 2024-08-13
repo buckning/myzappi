@@ -149,3 +149,20 @@ input {
     }
 }
 
+.carousel-container {
+    margin: auto;
+    background-color: #36689a;
+    border: 1px solid #36628e;
+}
+
+.panel-content {
+    padding: 20px;
+    margin-bottom: 10px;
+    background-color: #36689a;
+    color: #ffffff;
+}
+
+.devicesTable {
+    min-width: 590px;
+    max-width: 590px;
+}

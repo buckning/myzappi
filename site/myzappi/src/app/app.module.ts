@@ -21,12 +21,14 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { MatSliderModule } from '@angular/material/slider';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatTabsModule } from '@angular/material/tabs';
 import { InlineSchedulePanelComponent } from './inline-schedule-panel/inline-schedule-panel.component';
 import { ZappiSetChargeModeActionPanelComponent } from './zappi-set-charge-mode-action-panel/zappi-set-charge-mode-action-panel.component';
 import { LibbiSetChargeTargetActionPanelComponent } from './libbi-set-charge-target-action-panel/libbi-set-charge-target-action-panel.component';
 import { LibbiSetChargeFromGridActionPanelComponent } from './libbi-set-charge-from-grid-action-panel/libbi-set-charge-from-grid-action-panel.component';
 import { LibbiSetEnabledActionPanelComponent } from './libbi-set-enabled-action-panel/libbi-set-enabled-action-panel.component';
 import { EnergyStatsPanelComponent } from './energy-stats-panel/energy-stats-panel.component';
+import { QuoteCarouselComponent } from './quote-carousel/quote-carousel.component';
 
 @NgModule({
   declarations: [
@@ -47,7 +49,8 @@ import { EnergyStatsPanelComponent } from './energy-stats-panel/energy-stats-pan
     LibbiSetChargeTargetActionPanelComponent,
     LibbiSetChargeFromGridActionPanelComponent,
     LibbiSetEnabledActionPanelComponent,
-    EnergyStatsPanelComponent
+    EnergyStatsPanelComponent,
+    QuoteCarouselComponent
   ],
   imports: [
     MatSlideToggleModule,
@@ -55,6 +58,7 @@ import { EnergyStatsPanelComponent } from './energy-stats-panel/energy-stats-pan
     MatSliderModule,
     MatButtonToggleModule,
     MatDividerModule,
+    MatTabsModule,
     BrowserModule,
     HttpClientModule,
     FormsModule,

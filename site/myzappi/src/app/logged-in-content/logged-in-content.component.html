@@ -53,6 +53,26 @@
                                 Heater 1: {{row.tank1Name}}
                                 <br>
                                 Heater 2: {{row.tank2Name}}
+                                <br>
+                                <div>
+                                    <app-quote-carousel>
+                                        <ng-template #carouselItem>
+                                            "Alexa, ask my water heater to give me hot water"
+                                        </ng-template>
+                                      
+                                        <ng-template #carouselItem>
+                                            "Alexa, ask my water heater to disable"
+                                        </ng-template>
+                                      
+                                        <ng-template #carouselItem>
+                                            "Alexa, ask my water heater to boost for 25 minutes"
+                                        </ng-template>
+                                
+                                        <ng-template #carouselItem>
+                                            "Alexa, ask my water heater to stop boosting"
+                                        </ng-template>
+                                      </app-quote-carousel>
+                                </div>
                             </div>
                             <br>
                           </tr>
@@ -70,9 +90,6 @@
     <br>
     <app-schedules-panel [bearerToken]="bearerToken" [hubDetails]="hubDetails"></app-schedules-panel>
     <br>
-    <div *ngIf="registeredThisSession !== true">
-        <app-help-panel></app-help-panel>
-    </div>
     <div class="bmc">
         <a href="https://www.buymeacoffee.com/andrewmcglynn">
             <img src="https://myzappi-site.s3.eu-west-1.amazonaws.com/bmc_qr.png" width="100" height="100" alt="Help keep the servers running">

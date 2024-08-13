@@ -47,5 +47,24 @@
         <div class="errorMessage">{{messageText}}</div>
     </div>
     <!-- <app-inline-schedule-panel [actionComponentType]="libbiSetChargeTargetActionPanelComponent"></app-inline-schedule-panel> -->
+    <br>
+    <div>
+        <app-quote-carousel>
+            <ng-template #carouselItem>
+                "Alexa, ask my battery for the state of charge"
+            </ng-template>
+          
+            <ng-template #carouselItem>
+                "Alexa, ask my battery to enable"
+            </ng-template>
+          
+            <ng-template #carouselItem>
+                "Alexa, ask my battery to disable"
+            </ng-template>
     
+            <ng-template #carouselItem>
+                "Alexa, ask my battery to set charge target to 100%"
+            </ng-template>
+          </app-quote-carousel>
+    </div>
 </div>

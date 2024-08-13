@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, HostListener, OnDestroy } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { ZappiSetChargeModeActionPanelComponent } from '../zappi-set-charge-mode-action-panel/zappi-set-charge-mode-action-panel.component';
 import { EnergyOverviewService } from '../energy-overview.service';
@@ -39,11 +39,48 @@ export class ZappiPanelComponent {
   mode: any;
   changeModeEnabled = true;
   refreshInterval = 15000;
+  panels: string[] = ['"Alexa, ask my charger to charge my car"', 
+    '"Alexa, ask my charger to change to Eco mode"',
+    '"Alexa, ask my charger to boost for 3 hours"',
+    '"Alexa, ask my charger to stop boosting"',
+    '"Alexa, ask my charger if my car is plugged in"',
+    '"Alexa, ask my charger for a charging report"',
+    '"Alexa, ask my charger to schedule a boost for 10 kilowatt hours"'];
+  currentPanelIndex: number = 0;
+
+  autoSlideInterval: any;
+  autoSlideDelay: number = 5000; // 5 seconds
 
   constructor(private http: HttpClient, private energyOverviewService: EnergyOverviewService) {}
 
   ngOnInit(): void {
     this.loadDeviceStatus();
+    this.startAutoSlide();
+  }
+
+
+  startAutoSlide() {
+    this.autoSlideInterval = setInterval(() => {
+      this.nextPanel();
+    }, this.autoSlideDelay);
+  }
+
+  resetAutoSlide() {
+    clearInterval(this.autoSlideInterval);
+    this.startAutoSlide();
+  }
+
+  @HostListener('window:click')
+  @HostListener('window:keydown')
+  @HostListener('window:mousemove')
+  onUserInteraction() {
+    this.resetAutoSlide();
+  }
+
+  ngOnDestroy() {
+    if (this.autoSlideInterval) {
+      clearInterval(this.autoSlideInterval);
+    }
   }
 
   loadDeviceStatus() {
@@ -67,6 +104,14 @@ export class ZappiPanelComponent {
           this.loadDeviceStatus();
         }, this.refreshInterval);
       });
+  }
+
+  nextPanel() {
+    this.currentPanelIndex = (this.currentPanelIndex + 1) % this.panels.length;
+  }
+
+  previousPanel() {
+    this.currentPanelIndex = (this.currentPanelIndex - 1 + this.panels.length) % this.panels.length;
   }
 
   pushEnergySummary(deviceStatus: DeviceStatus) {
