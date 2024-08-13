@@ -1,0 +1,16 @@
+<div class="carousel-container">
+    
+    <div class="carousel-content">
+        Try saying...
+        <ng-template ngFor let-panel let-i="index" [ngForOf]="panels.toArray()">
+        <div *ngIf="i === currentPanelIndex" class="panel-content">
+            <i><ng-container *ngTemplateOutlet="panel"></ng-container></i>
+        </div>
+        </ng-template>
+    </div>
+
+    <!-- <div class="controls" *ngIf="panels.toArray().length > 1">
+        <button mat-raised-button (click)="previousPanel(); resetAutoSlide()">Previous</button>
+        <button mat-raised-button (click)="nextPanel(); resetAutoSlide()">Next</button>
+    </div> -->
+</div>

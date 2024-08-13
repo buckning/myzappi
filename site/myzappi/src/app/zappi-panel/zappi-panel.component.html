@@ -6,7 +6,7 @@
 <br>
 <b>Charge added</b>: {{chargeAddedKwh}} kWh
 <br>
-
+  
 <div class="chargeMode">
     <button class="toggleButton" [class.selected]="isModeActive('Eco+')" (click)="changeMode('Eco+')" [disabled]="!isChangeModeEnabled()">
         Eco+
@@ -22,4 +22,35 @@
     </button>    
     <app-inline-schedule-panel [bearerToken]="bearerToken" [serialNumber]="serialNumber" [actionComponentType]="zappiSetChargeModeActionPanelComponent"></app-inline-schedule-panel>
 </div>
-  
+<br>
+<div>
+    <app-quote-carousel>
+        <ng-template #carouselItem>
+            "Alexa, ask my charger to charge my car"
+        </ng-template>
+      
+        <ng-template #carouselItem>
+            "Alexa, ask my charger to change to Eco mode"
+        </ng-template>
+      
+        <ng-template #carouselItem>
+            "Alexa, ask my charger to boost for 3 hours"
+        </ng-template>
+
+        <ng-template #carouselItem>
+            "Alexa, ask my charger to stop boosting"
+        </ng-template>
+
+        <ng-template #carouselItem>
+            "Alexa, ask my charger if my car is plugged in"
+        </ng-template>
+
+        <ng-template #carouselItem>
+            "Alexa, ask my charger for a charging report"
+        </ng-template>
+
+        <ng-template #carouselItem>
+            "Alexa, ask my charger to schedule a boost for 10 kilowatt hours"
+        </ng-template>
+      </app-quote-carousel>
+</div>

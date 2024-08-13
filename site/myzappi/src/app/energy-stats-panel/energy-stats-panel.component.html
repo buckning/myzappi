@@ -25,3 +25,14 @@
     <img class="energyUsageDiagramIcon" src="assets/images/car.png" alt="Zappi">
     Charging {{row.usageRateKW}}kW
 </div>
+<br>
+<div>
+    <app-quote-carousel>
+        <ng-template #carouselItem>
+            "Alexa, ask my charger for my energy usage"
+        </ng-template>
+        <ng-template #carouselItem>
+            "Alexa, ask my charger for energy usage for today"
+        </ng-template>
+      </app-quote-carousel>
+</div>
