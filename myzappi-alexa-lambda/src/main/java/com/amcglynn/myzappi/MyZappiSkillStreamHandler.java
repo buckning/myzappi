@@ -10,6 +10,7 @@ import com.amcglynn.myzappi.core.service.Clock;
 import com.amcglynn.myzappi.handlers.BoostEddiHandler;
 import com.amcglynn.myzappi.handlers.ChargeMyCarHandler;
 import com.amcglynn.myzappi.handlers.FallbackHandler;
+import com.amcglynn.myzappi.handlers.GetChargeModeHandler;
 import com.amcglynn.myzappi.handlers.GetChargeRateHandler;
 import com.amcglynn.myzappi.handlers.GetEnergyCostHandler;
 import com.amcglynn.myzappi.handlers.GetEnergyUsageHandler;
@@ -66,6 +67,7 @@ public class MyZappiSkillStreamHandler extends SkillStreamHandler {
                 .addRequestHandler(new StartBoostHandler(serviceManager.getMyEnergiServiceBuilder(), userIdResolverFactory, userZoneResolver))
                 .addRequestHandler(new StopBoostHandler(serviceManager.getMyEnergiServiceBuilder(), userIdResolverFactory))
                 .addRequestHandler(new GetPlugStatusHandler(serviceManager.getMyEnergiServiceBuilder(), userIdResolverFactory))
+                .addRequestHandler(new GetChargeModeHandler(serviceManager.getMyEnergiServiceBuilder(), userIdResolverFactory))
                 .addRequestHandler(new GetEnergyUsageHandler(serviceManager.getMyEnergiServiceBuilder(), userIdResolverFactory, userZoneResolver))
                 .addRequestHandler(new GetEnergyCostHandler(serviceManager.getMyEnergiServiceBuilder(), userIdResolverFactory, userZoneResolver, serviceManager.getTariffService()))
                 .addRequestHandler(new SetChargeModeHandler(serviceManager.getMyEnergiServiceBuilder(), userIdResolverFactory))

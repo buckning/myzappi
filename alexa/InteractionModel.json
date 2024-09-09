@@ -461,6 +461,26 @@
             "Please turn off charge from grid",
             "Disable charge from grid"
           ]
+        },
+        {
+          "name": "GetChargeMode",
+          "slots": [],
+          "samples": [
+            "Is it enabled",
+            "Is is disabled",
+            "Is Eco mode set",
+            "Is it set to Eco mode",
+            "Is it set to fast mode",
+            "Is it set to Eco Plus",
+            "Give me the charge mode",
+            "Tell me the charge mode",
+            "What charge mode is set",
+            "What mode is it set to",
+            "What mode is it",
+            "What's my charge mode",
+            "What's the charge mode",
+            "Get charge mode"
+          ]
         }
       ],
       "types": [

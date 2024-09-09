@@ -6,12 +6,12 @@
     </div>
     <form id="loginCodeForm" *ngIf="registrationComplete === false">
         <div>
-            <label for="serialNumber">myenergi Zappi Serial Number:</label>
+            <label for="serialNumber">myenergi Hub Serial Number:</label>
             <input type="text" [(ngModel)]="serialNumberText" name="serialNumber" autocomplete="off" required>
         </div>
         <div>
-            <label for="apiKey">myenergi Zappi API Key:</label>
-            <input type="password" [(ngModel)]="apiKeyText" name="apiKey" autocomplete="off" required>
+            <label for="apiKey">myenergi Hub API Key:</label>
+            <input type="text" [(ngModel)]="apiKeyText" name="apiKey" autocomplete="off" required>
         </div>
         <div>
             <button class="confirmButton" (click)="registerZappi()" [disabled]="buttonDisabled" type="button"
