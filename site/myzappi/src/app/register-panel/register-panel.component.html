@@ -1,24 +1,102 @@
 <div class="tile">
     <div *ngIf="registrationComplete === false">
         <p>
-            Set up My Zappi by entering your myenergi details.
+            Set up My Zappi by entering your myenergi hub details.
         </p>
+            <br>
+            <div (click)="toggleShowHelp()" class="clickable-container">
+                <img src="assets/images/helpQuestion.png" alt="Help" width="25px" height="25px"> Need Help? Click here
+              </div>
+            <div>
+                <mat-expansion-panel  [expanded]="helpPanelExpanded" (opened)="helpPanelExpanded = true"
+                (closed)="helpPanelExpanded = false">
+                    <div (click)="toggleShowHelp()" class="clickable-container">
+                        <h3>Step 1: Get your myenergi Hub Serial number</h3>
+                        <ol>
+                            <li>Log in to <a href="https://myaccount.myenergi.com" target="_blank">https://myaccount.myenergi.com</a></li>
+                            <li>Click on <b>Manage products</b> under <b>My products</b></li>
+                            <li>Copy your Gateway Product Serial Number. See the image below to help find your serial number. It should be in a dark grey colour and there should be an <b>SN</b> before it. Please do not copy the SN prefix, just the numeric value</li>
+                            <li>Navigate back to this page</li>
+                            <li>Enter the copied serial number into the <b>myenergi Hub Serial Number</b> text box on this page and click <b>Next</b></li>
+                        </ol>
+
+                        <img src="https://myzappi-site.s3.eu-west-1.amazonaws.com/serialNumberExample.png"  width="100%" height="100%">
+
+                        <h3>Step 2: Get your myenergi Hub API Key</h3>
+                        <ol>
+                            <li>Under your Gateway product, click the <b>Advanced...</b> button. This button also has an image of a key on it. Note that the <b>Advanced...</b> text may not be shown in the button if you are doing this on a mobile device</li>
+                            <li>Click <b>Generate new API key</b></li>
+                            <li>Copy your Gateway product API key</li>
+                            <li>Navigate back to this page</li>
+                            <li>Enter your API key in the <b>myenergi Hub API Key</b> text box on this page and click <b>Next</b></li>
+                        </ol>
+                        <h3>Step 3: Submit your details</h3>
+                        <ol>
+                            <li>Click on the <b>Submit</b> button</li>
+                            <li>You can now start using My Zappi</li>
+                        </ol>
+
+                        <h3>Still need help? Follow the instructions in the video below</h3>
+                        <div class="helpVideo" *ngIf="registrationComplete === false">
+                            <iframe src="https://www.youtube.com/embed/ilbOxvD58eM"
+                            frameborder="0"
+                            allowfullscreen></iframe>
+                        </div>
+
+                        <div>
+                            <h3>Why do I need to enter this information?</h3>
+                            <div>
+                                <p>
+                                    My Zappi is a 3rd party application and is not affiliated with myenergi. My Zappi reads and controls your myenergi devices on your behalf and it can only do that by you granting access to your myenergi devices via an API key.
+                                </p>
+                                <p>
+                                    An API key is like a special password that lets a computer program, like My Zappi, talk to another program or service, like myenergi. 
+                                    Just like how you use a password to log into your favorite website, an API key helps a program prove that it's allowed to use certain features or information from another program.
+                                </p>
+                                
+                            </div>
+                        </div>
+                    </div>
+                </mat-expansion-panel>
+            </div>
+            
+        
     </div>
     <form id="loginCodeForm" *ngIf="registrationComplete === false">
-        <div>
-            <label for="serialNumber">myenergi Hub Serial Number:</label>
-            <input type="text" [(ngModel)]="serialNumberText" name="serialNumber" autocomplete="off" required>
-        </div>
-        <div>
-            <label for="apiKey">myenergi Hub API Key:</label>
-            <input type="text" [(ngModel)]="apiKeyText" name="apiKey" autocomplete="off" required>
-        </div>
-        <div>
-            <button class="confirmButton" (click)="registerZappi()" [disabled]="buttonDisabled" type="button"
-                id="submitBtn">Submit</button>
-        </div>
+        
+        <mat-stepper orientation="vertical">
+            <mat-step [completed]="false">
+              <ng-template matStepLabel>Step 1: Enter your myenergi Hub Serial Number</ng-template>
+              <ng-template matStepContent>
+                <input type="text" placeholder="Hub Serial Number" [(ngModel)]="serialNumberText" name="serialNumber" autocomplete="off" required> 
+                <br>
+                <button class="navButton" matStepperNext>Next</button>
+              </ng-template>
+            </mat-step>
+            <mat-step [completed]="false">
+              <ng-template matStepLabel>Step 2: Enter your myenergi Hub API Key</ng-template>
+              <ng-template matStepContent>
+                <input type="text" placeholder="myenergi Hub API Key" [(ngModel)]="apiKeyText" name="apiKey" autocomplete="off" required>
+                <br>
+                
+                <button class="navButton" matStepperPrevious>Back</button> <button class="navButton" matStepperNext>Next</button>
+                
+              </ng-template>
+            </mat-step>
+            <mat-step [completed]="false">
+              <ng-template matStepLabel>Step 3: Submit your details</ng-template>
+              <div>
+                Clicking confirm will save your myenergi hub serial number and API key and you will be able to use the My Zappi service.
+                <br>
+                <button class="confirmButton" (click)="registerZappi()" [disabled]="buttonDisabled" type="button"
+                    id="submitBtn">Submit</button>
+                </div>
+                <br>
+                <button class="navButton" matStepperPrevious>Back</button>
+            </mat-step>
+          </mat-stepper>
     </form>
-
+    
     <div *ngIf="registrationComplete === true">
         <p>
             My Zappi is now configured. You can start using it on your Alexa device.
