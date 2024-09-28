@@ -13,6 +13,7 @@ export class RegisterPanelComponent {
   buttonDisabled:boolean = false;
   messageText = '';
   registrationComplete = false;
+  helpPanelExpanded = false;
   @Output() public registeredEvent = new EventEmitter();
 
   constructor(private http: HttpClient) { }
@@ -44,5 +45,9 @@ export class RegisterPanelComponent {
         this.buttonDisabled = false;
         this.messageText = "Something went wrong. Please check you entered the correct serial number and API key.";
       });
+  }
+
+  toggleShowHelp() {
+    this.helpPanelExpanded = !this.helpPanelExpanded;
   }
 }

@@ -22,6 +22,7 @@ import { MatSliderModule } from '@angular/material/slider';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatTabsModule } from '@angular/material/tabs';
+import { MatStepperModule } from '@angular/material/stepper';
 import { InlineSchedulePanelComponent } from './inline-schedule-panel/inline-schedule-panel.component';
 import { ZappiSetChargeModeActionPanelComponent } from './zappi-set-charge-mode-action-panel/zappi-set-charge-mode-action-panel.component';
 import { LibbiSetChargeTargetActionPanelComponent } from './libbi-set-charge-target-action-panel/libbi-set-charge-target-action-panel.component';
@@ -59,6 +60,7 @@ import { QuoteCarouselComponent } from './quote-carousel/quote-carousel.componen
     MatButtonToggleModule,
     MatDividerModule,
     MatTabsModule,
+    MatStepperModule,
     BrowserModule,
     HttpClientModule,
     FormsModule,

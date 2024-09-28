@@ -7,3 +7,8 @@
     cursor: pointer;
     float: right;
 }
+
+::ng-deep .mat-expansion-panel {
+    --mat-expansion-container-background-color: #3f7ab5;
+    --mat-expansion-container-text-color: white;
+}

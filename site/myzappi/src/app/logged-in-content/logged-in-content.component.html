@@ -90,13 +90,17 @@
     <br>
     <app-schedules-panel [bearerToken]="bearerToken" [hubDetails]="hubDetails"></app-schedules-panel>
     <br>
+    <div *ngIf="registeredThisSession === false">
+        <app-help-panel></app-help-panel>
+    </div>
+    <br>
     <div class="bmc">
         <a href="https://www.buymeacoffee.com/andrewmcglynn">
-            <img src="https://myzappi-site.s3.eu-west-1.amazonaws.com/bmc_qr.png" width="100" height="100" alt="Help keep the servers running">
+            <img src="https://myzappi-site.s3.eu-west-1.amazonaws.com/bmc-button.png" width="218" height="62" alt="Help keep the servers running">
         </a>
     </div>
 </div>
 
 <div class="logoutButtonContainer">
-    <button (click)="logOut()" class="confirmButton" id="logoutButton"><img class="iconButtonImage" src="assets/images/logout.png" alt="Logout"> </button>
+    <button (click)="logOut()" class="destructiveButton" id="logoutButton"><img class="iconButtonImage" src="assets/images/logout.png" alt="Logout"> </button>
 </div>
