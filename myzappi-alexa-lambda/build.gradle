@@ -2,6 +2,7 @@ dependencies {
     implementation "com.amazon.alexa:ask-sdk:${awsAskSdkVersion}"
     implementation "software.amazon.awssdk:scheduler:${awsSchedulerVersion}"
     implementation "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}"
+    implementation 'org.knowm.xchart:xchart:3.8.0'
     implementation project(":core")
     implementation project(":login-with-amazon")
     implementation project(":myenergi-client")
