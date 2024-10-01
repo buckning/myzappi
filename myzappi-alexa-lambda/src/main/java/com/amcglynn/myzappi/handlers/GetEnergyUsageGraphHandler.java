@@ -3,19 +3,20 @@ package com.amcglynn.myzappi.handlers;
 import com.amazon.ask.dispatcher.request.handler.HandlerInput;
 import com.amazon.ask.dispatcher.request.handler.RequestHandler;
 import com.amazon.ask.model.Response;
+import com.amazon.ask.model.interfaces.alexa.presentation.apl.RenderDocumentDirective;
 import com.amazon.ask.request.RequestHelper;
 import com.amcglynn.myzappi.UserIdResolverFactory;
 import com.amcglynn.myzappi.UserZoneResolver;
 import com.amcglynn.myzappi.core.Brand;
 import com.amcglynn.myzappi.core.service.MyEnergiService;
-import com.amcglynn.myzappi.handlers.responses.ZappiDaySummaryCardResponse;
-import com.amcglynn.myzappi.handlers.responses.ZappiDaySummaryVoiceResponse;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.util.Locale;
+import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 import static com.amazon.ask.request.Predicates.intentName;
@@ -38,65 +39,46 @@ public class GetEnergyUsageGraphHandler implements RequestHandler {
 
     @Override
     public boolean canHandle(HandlerInput handlerInput) {
-        return handlerInput.matches(intentName("GetEnergyUsage"));
+        return handlerInput.matches(intentName("GetEnergyUsageGraph"));
     }
 
+    @SneakyThrows
     @Override
     public Optional<Response> handle(HandlerInput handlerInput) {
-        var locale = Locale.forLanguageTag(handlerInput.getRequestEnvelope().getRequest().getLocale());
-        // expected date format is 2023-05-06
-        var date = parseDate(handlerInput);
-        if (date.isEmpty() || date.get().length() != 10) {
-            return getInvalidInputResponse(handlerInput);
-        }
-        var userTimeZone = userZoneResolver.getZoneId(handlerInput);
-        var localDate = LocalDate.parse(date.get(), DateTimeFormatter.ISO_DATE);
-
-        if (isInvalid(localDate, userTimeZone)) {
-            return getInvalidRequestedDateResponse(handlerInput);
+        if (!hasDisplayInterface(handlerInput)) {
+            return handlerInput.getResponseBuilder()
+                    .withSpeech(voiceResponse(handlerInput, "graph-not-supported"))
+                    .withSimpleCard(Brand.NAME,
+                            cardResponse(handlerInput, "graph-not-supported"))
+                    .withShouldEndSession(true)
+                    .build();
         }
 
-        var zappiService = zappyServiceBuilder.build(userIdResolverFactory.newUserIdResolver(handlerInput)).getZappiServiceOrThrow();
-        var history = zappiService.getEnergyUsage(localDate, userTimeZone);
+        ObjectMapper mapper = new ObjectMapper();
+        TypeReference<HashMap<String, Object>> documentMapType =
+                new TypeReference<>() {};
+
+        Map<String, Object> document = mapper.readValue(
+                new File("apl-energy-usage-graph.json"),
+                documentMapType);
+
+
+        RenderDocumentDirective renderDocumentDirective = RenderDocumentDirective.builder()
+                .withToken("zappidaysummaryToken")
+                .withDocument(document)
+                .build();
 
         return handlerInput.getResponseBuilder()
-                .withSpeech(new ZappiDaySummaryVoiceResponse(locale, history).toString())
-                .withSimpleCard(Brand.NAME,
-                        new ZappiDaySummaryCardResponse(locale, history).toString())
+                .withSpeech("Checkout out the graph")
+                .withSimpleCard(Brand.NAME, "Checkout out the graph")
+                .addDirective(renderDocumentDirective)
                 .withShouldEndSession(false)
                 .build();
     }
 
-    private Optional<Response> getInvalidRequestedDateResponse(HandlerInput handlerInput) {
-        return handlerInput.getResponseBuilder()
-                .withSpeech(voiceResponse(handlerInput, "invalid-future-date"))
-                .withSimpleCard(Brand.NAME,
-                        cardResponse(handlerInput, "invalid-future-date"))
-                .withShouldEndSession(false)
-                .build();
-    }
-
-    private Optional<Response> getInvalidInputResponse(HandlerInput handlerInput) {
-        return handlerInput.getResponseBuilder()
-                .withSpeech(voiceResponse(handlerInput, "request-specific-date"))
-                .withSimpleCard(Brand.NAME,
-                        cardResponse(handlerInput, "request-specific-date"))
-                .withShouldEndSession(false)
-                .build();
-    }
-
-    /**
-     * Invalid if date is in the future. Requesting for today is accepted but not future dates.
-     * @param date today or historical date
-     * @param userTimeZone time-zone of the user
-     * @return true if invalid
-     */
-    private boolean isInvalid(LocalDate date, ZoneId userTimeZone) {
-        return date.isAfter(LocalDate.now(userTimeZone));
-    }
-
-    private Optional<String> parseDate(HandlerInput handlerInput) {
+    private boolean hasDisplayInterface(HandlerInput handlerInput) {
         return RequestHelper.forHandlerInput(handlerInput)
-                .getSlotValue("date");
+                .getSupportedInterfaces()
+                .getAlexaPresentationAPL() != null;
     }
 }

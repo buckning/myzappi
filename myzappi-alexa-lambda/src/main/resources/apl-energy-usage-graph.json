@@ -1,0 +1,24 @@
+{
+  "type": "APL",
+  "version": "2024.2",
+  "description": "A hello world APL document.",
+  "theme": "dark",
+  "import": [
+    {
+      "name": "alexa-layouts",
+      "version": "1.7.0"
+    }
+  ],
+  "mainTemplate": {
+    "parameters": [
+      "payload"
+    ],
+    "item": [
+      {
+        "type": "AlexaHeadline",
+        "id": "energyUsageGraph",
+        "backgroundImageSource": "https://myzappi-site.s3.eu-west-1.amazonaws.com/MultipleAreaChart.png"
+      }
+    ]
+  }
+}

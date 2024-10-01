@@ -13,6 +13,7 @@ import com.amcglynn.myzappi.handlers.FallbackHandler;
 import com.amcglynn.myzappi.handlers.GetChargeModeHandler;
 import com.amcglynn.myzappi.handlers.GetChargeRateHandler;
 import com.amcglynn.myzappi.handlers.GetEnergyCostHandler;
+import com.amcglynn.myzappi.handlers.GetEnergyUsageGraphHandler;
 import com.amcglynn.myzappi.handlers.GetEnergyUsageHandler;
 import com.amcglynn.myzappi.handlers.GetLibbiChargeFromGridEnabledHandler;
 import com.amcglynn.myzappi.handlers.GetLibbiChargeTargetHandler;
@@ -78,6 +79,7 @@ public class MyZappiSkillStreamHandler extends SkillStreamHandler {
                 .addRequestHandler(new GoGreenHandler(serviceManager.getMyEnergiServiceBuilder(), userIdResolverFactory))
                 .addRequestHandler(new GetChargeRateHandler(serviceManager.getMyEnergiServiceBuilder(), userIdResolverFactory))
                 .addRequestHandler(new ChargeMyCarHandler(serviceManager.getMyEnergiServiceBuilder(), userIdResolverFactory))
+                .addRequestHandler(new GetEnergyUsageGraphHandler(serviceManager.getMyEnergiServiceBuilder(), userIdResolverFactory, userZoneResolver))
                 .addRequestHandler(new SetReminderHandler(reminderServiceFactory, userZoneResolver, userIdResolverFactory,
                         new AlexaToLwaLookUpRepository(serviceManager.getAmazonDynamoDB()),
                         new SchedulerService(SchedulerClient.builder().region(Region.EU_WEST_1).build(),
