@@ -1,7 +1,9 @@
 package com.amcglynn.myzappi.service;
 
 import com.amcglynn.myenergi.MyEnergiClient;
+import com.amcglynn.myenergi.apiresponse.ZappiHistory;
 import com.amcglynn.myenergi.units.KiloWattHour;
+import lombok.SneakyThrows;
 import org.knowm.xchart.BitmapEncoder;
 import org.knowm.xchart.XYChart;
 import org.knowm.xchart.XYChartBuilder;
@@ -14,6 +16,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 
 public class EnergyUsageGraphGenerator {
 
@@ -39,6 +42,26 @@ public class EnergyUsageGraphGenerator {
         }
         EnergyUsageGraphGenerator generator = new EnergyUsageGraphGenerator();
         generator.generateXChart(xData, imported, exported, consumed);
+    }
+
+    public byte[] generateGraph(List<ZappiHistory> readings) {
+        double[] xData = new double[readings.size()];
+        double[] imported = new double[readings.size()];
+        double[] exported = new double[readings.size()];
+        double[] consumed = new double[readings.size()];
+
+        for (int i = 0; i < readings.size(); i++) {
+            xData[i] = i;
+
+            imported[i] = new KiloWattHour(readings.get(i).getImported()).getDouble();
+            exported[i] = new KiloWattHour(readings.get(i).getGridExport()).getDouble() * -1;
+
+            var consumedJoules = readings.get(i).getSolarGeneration()
+                    .subtract(readings.get(i).getGridExport());
+            consumed[i] = new KiloWattHour(consumedJoules).getDouble();
+        }
+
+        return generateChartBytes(xData, imported, exported, consumed);
     }
 
     public void generateXChart(double[] xData, double[] imported, double[] exported, double[] consumed) {
@@ -92,6 +115,38 @@ public class EnergyUsageGraphGenerator {
             }
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    @SneakyThrows
+    private byte[] generateChartBytes(double[] xData, double[] imported, double[] exported, double[] consumed) {
+        XYChart chart = new XYChartBuilder().width(1200).height(600).title("Multiple Area Chart Example").xAxisTitle("X").yAxisTitle("Y").build();
+        chart.getStyler().setLegendPosition(Styler.LegendPosition.InsideNE);
+        chart.getStyler().setChartBackgroundColor(Color.BLACK);
+        chart.getStyler().setPlotBackgroundColor(Color.black);
+        chart.getStyler().setPlotGridLinesVisible(false);
+        chart.getStyler().setDefaultSeriesRenderStyle(org.knowm.xchart.XYSeries.XYSeriesRenderStyle.Area);
+
+        var series = chart.addSeries("Imported", xData, imported);
+        series.setMarker(SeriesMarkers.NONE);
+        series.setLineColor(Color.RED);
+        series.setFillColor(Color.RED);
+        series.setSmooth(true);
+
+        series = chart.addSeries("Exported", xData, exported);
+        series.setMarker(SeriesMarkers.NONE);
+        series.setLineColor(Color.YELLOW);
+        series.setFillColor(Color.YELLOW);
+        series.setSmooth(true);
+
+        series = chart.addSeries("Consumed", xData, consumed);
+        series.setMarker(SeriesMarkers.NONE);
+        series.setLineColor(Color.GREEN);
+        series.setFillColor(Color.GREEN);
+
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+            BitmapEncoder.saveBitmap(chart, baos, BitmapEncoder.BitmapFormat.PNG);
+            return baos.toByteArray();
         }
     }
 }
