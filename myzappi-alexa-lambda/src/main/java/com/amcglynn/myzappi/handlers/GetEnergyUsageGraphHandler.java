@@ -15,7 +15,12 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -54,26 +59,38 @@ public class GetEnergyUsageGraphHandler implements RequestHandler {
                     .build();
         }
 
-        ObjectMapper mapper = new ObjectMapper();
-        TypeReference<HashMap<String, Object>> documentMapType =
-                new TypeReference<>() {};
-
-        Map<String, Object> document = mapper.readValue(
-                new File("apl-energy-usage-graph.json"),
-                documentMapType);
-
 
         RenderDocumentDirective renderDocumentDirective = RenderDocumentDirective.builder()
                 .withToken("zappidaysummaryToken")
-                .withDocument(document)
+                .withDocument(buildDocument())
                 .build();
 
+        // Return the APL response
         return handlerInput.getResponseBuilder()
-                .withSpeech("Checkout out the graph")
-                .withSimpleCard(Brand.NAME, "Checkout out the graph")
+                .withSpeech("Checkout the graph")
+                .withSimpleCard("My Zappi", "Checkout the graph")
                 .addDirective(renderDocumentDirective)
                 .withShouldEndSession(false)
                 .build();
+    }
+
+    @SneakyThrows
+    private Map<String, Object> buildDocument() {
+        ObjectMapper mapper = new ObjectMapper();
+        TypeReference<HashMap<String, Object>> documentMapType = new TypeReference<>() {
+        };
+
+        // Getting the resource as an InputStream
+        InputStream inputStream = GetEnergyUsageGraphHandler.class.getClassLoader().getResourceAsStream("apl-energy-usage-graph.json");
+
+
+        // Convert InputStream to String using java.nio.charset.StandardCharsets.UTF_8
+        var contents = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+        contents = contents.replace("${payload.backgroundEnergyUsageGraph}", "https://myzappi-site.s3.eu-west-1.amazonaws.com/MultipleAreaChart.png");
+
+        System.out.println("contents = " + contents);
+        return mapper.readValue(contents,
+                documentMapType);
     }
 
     private boolean hasDisplayInterface(HandlerInput handlerInput) {

@@ -13,11 +13,11 @@
     "parameters": [
       "payload"
     ],
-    "item": [
+    "items": [
       {
         "type": "AlexaHeadline",
         "id": "energyUsageGraph",
-        "backgroundImageSource": "https://myzappi-site.s3.eu-west-1.amazonaws.com/MultipleAreaChart.png"
+        "backgroundImageSource": "${payload.backgroundEnergyUsageGraph}"
       }
     ]
   }
