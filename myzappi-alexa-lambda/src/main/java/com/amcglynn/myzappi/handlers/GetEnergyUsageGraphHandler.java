@@ -83,7 +83,7 @@ public class GetEnergyUsageGraphHandler implements RequestHandler {
         var zappiService = zappyServiceBuilder.build(userIdResolverFactory.newUserIdResolver(handlerInput)).getZappiServiceOrThrow();
         var history = zappiService.getRawEnergyHistory(localDate, userTimeZone);
 
-        var imageContent = new EnergyUsageGraphGenerator().generateGraph(history);
+        var imageContent = new EnergyUsageGraphGenerator().generateGraph(history, userTimeZone);
         final var s3KeyName = handlerInput.getRequestEnvelope().getSession().getSessionId() + ".png";
         s3Service.uploadToS3(BUCKET_NAME,
                 s3KeyName, imageContent, "image/png");
