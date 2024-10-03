@@ -11,10 +11,9 @@ import org.knowm.xchart.XYChartBuilder;
 import org.knowm.xchart.style.Styler;
 import org.knowm.xchart.style.markers.SeriesMarkers;
 
+import java.awt.Dimension;
 import java.awt.Color;
 import java.io.ByteArrayOutputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
@@ -25,6 +24,7 @@ import java.util.List;
 public class EnergyUsageGraphGenerator {
 
     private static final int SAMPLES_PER_DAY = 1440;
+    private final Dimension dimension;
 
     // contains an incrementing double array
     private static final double[] X_DATA = new double[SAMPLES_PER_DAY];
@@ -32,6 +32,16 @@ public class EnergyUsageGraphGenerator {
     static {
         for (int i = 0; i < SAMPLES_PER_DAY; i++) {
             X_DATA[i] = i;
+        }
+    }
+
+    public EnergyUsageGraphGenerator(Dimension dimension) {
+        if (dimension.getHeight() > dimension.getWidth() * 2/3) {
+            log.info("The height of the graph is greater than 2/3 of the width. Reducing the height to 2/3 of the width.");
+            this.dimension = new Dimension((int) dimension.getWidth(), (int) dimension.getHeight() * 2/3);
+        }
+        else {
+            this.dimension = dimension;
         }
     }
 
@@ -51,7 +61,6 @@ public class EnergyUsageGraphGenerator {
         for (ZappiHistory reading : readings) {
             var index = calculateIndex(reading, userZone);
             imported[index] = importedSmoother.smooth(new KiloWattHour(reading.getImported()).getDouble());
-
             exported[index] = exportedSmoother.smooth(new KiloWattHour(reading.getGridExport()).getDouble() * -1);
 
             var consumedJoules = reading.getSolarGeneration()
@@ -60,7 +69,7 @@ public class EnergyUsageGraphGenerator {
         }
 
 
-        return generateChartBytes(X_DATA, imported, exported, consumed);
+        return generateChartBytes(imported, exported, consumed);
     }
 
     private int calculateIndex(ZappiHistory zappiHistory, ZoneId userZone) {
@@ -85,30 +94,39 @@ public class EnergyUsageGraphGenerator {
     }
 
     @SneakyThrows
-    private byte[] generateChartBytes(double[] xData, double[] imported, double[] exported, double[] consumed) {
-        XYChart chart = new XYChartBuilder().width(1200).height(600).title("Multiple Area Chart Example").xAxisTitle("X").yAxisTitle("Y").build();
+    private byte[] generateChartBytes(double[] imported, double[] exported, double[] consumed) {
+        XYChart chart = new XYChartBuilder()
+                .width((int) dimension.getWidth())
+                .height((int) dimension.getHeight())
+                .title("Multiple Area Chart Example")
+                .xAxisTitle("X")
+                .yAxisTitle("Y")
+                .build();
         chart.getStyler().setLegendPosition(Styler.LegendPosition.InsideNE);
         chart.getStyler().setChartBackgroundColor(Color.BLACK);
         chart.getStyler().setPlotBackgroundColor(Color.black);
         chart.getStyler().setPlotGridLinesVisible(false);
+        chart.getStyler().setAxisTicksMarksVisible(false);
+        chart.getStyler().setPlotBorderVisible(false);
         chart.getStyler().setDefaultSeriesRenderStyle(org.knowm.xchart.XYSeries.XYSeriesRenderStyle.Area);
 
-        var series = chart.addSeries("Imported", xData, imported);
+        var series = chart.addSeries("Imported", X_DATA, imported);
         series.setMarker(SeriesMarkers.NONE);
         series.setLineColor(Color.RED);
         series.setFillColor(Color.RED);
         series.setSmooth(true);
 
-        series = chart.addSeries("Exported", xData, exported);
+        series = chart.addSeries("Exported", X_DATA, exported);
         series.setMarker(SeriesMarkers.NONE);
         series.setLineColor(Color.YELLOW);
         series.setFillColor(Color.YELLOW);
         series.setSmooth(true);
 
-        series = chart.addSeries("Consumed", xData, consumed);
+        series = chart.addSeries("Consumed", X_DATA, consumed);
         series.setMarker(SeriesMarkers.NONE);
         series.setLineColor(Color.GREEN);
         series.setFillColor(Color.GREEN);
+        series.setSmooth(true);
 
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
             BitmapEncoder.saveBitmap(chart, baos, BitmapEncoder.BitmapFormat.PNG);

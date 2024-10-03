@@ -16,6 +16,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
+import java.awt.Dimension;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
@@ -83,7 +84,9 @@ public class GetEnergyUsageGraphHandler implements RequestHandler {
         var zappiService = zappyServiceBuilder.build(userIdResolverFactory.newUserIdResolver(handlerInput)).getZappiServiceOrThrow();
         var history = zappiService.getRawEnergyHistory(localDate, userTimeZone);
 
-        var imageContent = new EnergyUsageGraphGenerator().generateGraph(history, userTimeZone);
+        var imageContent = new EnergyUsageGraphGenerator(getScreenSize(handlerInput))
+                .generateGraph(history, userTimeZone);
+
         final var s3KeyName = handlerInput.getRequestEnvelope().getSession().getSessionId() + ".png";
         s3Service.uploadToS3(BUCKET_NAME,
                 s3KeyName, imageContent, "image/png");
@@ -121,6 +124,11 @@ public class GetEnergyUsageGraphHandler implements RequestHandler {
         return RequestHelper.forHandlerInput(handlerInput)
                 .getSupportedInterfaces()
                 .getAlexaPresentationAPL() != null;
+    }
+
+    private Dimension getScreenSize(HandlerInput handlerInput) {
+        var viewPort = handlerInput.getRequestEnvelope().getContext().getViewport();
+        return new Dimension(viewPort.getPixelWidth().intValue(), viewPort.getPixelHeight().intValue());
     }
 
     private Optional<Response> getInvalidRequestedDateResponse(HandlerInput handlerInput) {
