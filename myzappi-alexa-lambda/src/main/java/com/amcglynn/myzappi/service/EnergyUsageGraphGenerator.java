@@ -2,6 +2,7 @@ package com.amcglynn.myzappi.service;
 
 import com.amcglynn.myenergi.apiresponse.ZappiHistory;
 import com.amcglynn.myenergi.units.KiloWattHour;
+import com.amcglynn.myzappi.graphing.DataSmoother;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.knowm.xchart.BitmapEncoder;
@@ -43,15 +44,19 @@ public class EnergyUsageGraphGenerator {
         double[] exported = new double[SAMPLES_PER_DAY];
         double[] consumed = new double[SAMPLES_PER_DAY];
 
+        var importedSmoother = new DataSmoother(5);
+        var exportedSmoother = new DataSmoother(5);
+        var consumedSmoother = new DataSmoother(5);
+
         for (ZappiHistory reading : readings) {
             var index = calculateIndex(reading, userZone);
-            imported[index] = new KiloWattHour(reading.getImported()).getDouble();
+            imported[index] = importedSmoother.smooth(new KiloWattHour(reading.getImported()).getDouble());
 
-            exported[index] = new KiloWattHour(reading.getGridExport()).getDouble() * -1;
+            exported[index] = exportedSmoother.smooth(new KiloWattHour(reading.getGridExport()).getDouble() * -1);
 
             var consumedJoules = reading.getSolarGeneration()
                     .subtract(reading.getGridExport());
-            consumed[index] = new KiloWattHour(consumedJoules).getDouble();
+            consumed[index] = consumedSmoother.smooth(new KiloWattHour(consumedJoules).getDouble());
         }
 
 
