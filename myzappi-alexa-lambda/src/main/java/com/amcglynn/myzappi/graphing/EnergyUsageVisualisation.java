@@ -1,5 +1,6 @@
 package com.amcglynn.myzappi.graphing;
 
+import com.amcglynn.myenergi.ZappiDaySummary;
 import com.amcglynn.myenergi.apiresponse.ZappiHistory;
 import com.amcglynn.myenergi.units.KiloWattHour;
 import lombok.SneakyThrows;
@@ -30,6 +31,10 @@ public class EnergyUsageVisualisation {
     }
 
     public byte[] generateGraph(List<ZappiHistory> readings, ZoneId userZone) {
+        return generateGraph(readings, null, userZone);
+    }
+
+    public byte[] generateGraph(List<ZappiHistory> readings, ZappiDaySummary summary, ZoneId userZone) {
         if (readings.size() < 1440) {
             log.warn("There are not enough readings to generate a graph. Expected at least 1440 readings, but got {}", readings.size());
         }
@@ -55,7 +60,7 @@ public class EnergyUsageVisualisation {
         }
 
 
-        return generateEnergyUsageChartBytes(imported, exported, consumed);
+        return generateEnergyUsageChartBytes(imported, exported, consumed, summary);
     }
 
     private int calculateIndex(ZappiHistory zappiHistory, ZoneId userZone) {
@@ -80,11 +85,19 @@ public class EnergyUsageVisualisation {
     }
 
     @SneakyThrows
-    private byte[] generateEnergyUsageChartBytes(double[] imported, double[] exported, double[] consumed) {
+    private byte[] generateEnergyUsageChartBytes(double[] imported, double[] exported, double[] consumed, ZappiDaySummary summary) {
         var graph = new MyEnergiGraph(dimension);
-        graph.addSeries(imported, "Imported", Color.RED);
-        graph.addSeries(exported, "Exported", Color.YELLOW);
-        graph.addSeries(consumed, "Consumed", Color.GREEN);
+        if (summary != null) {
+            graph.addSeries(imported, summary.getImported() + "kWh", Color.RED);
+            graph.addSeries(exported, summary.getExported() + "kWh", Color.YELLOW);
+            graph.addSeries(consumed, summary.getConsumed() + "kWh", Color.GREEN);
+            graph.showLegend(true);
+        } else {
+            graph.addSeries(imported, "Imported", Color.RED);
+            graph.addSeries(exported, "Exported", Color.YELLOW);
+            graph.addSeries(consumed, "Consumed", Color.GREEN);
+        }
+
 
         return graph.exportImageBytes();
     }

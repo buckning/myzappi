@@ -69,7 +69,10 @@ public class MyEnergiGraph {
 
     private void applyLegendStyling(XYChart chart) {
         chart.getStyler().setLegendPosition(Styler.LegendPosition.InsideNE);
-        chart.getStyler().setLegendBackgroundColor(Color.BLACK);
         chart.getStyler().setLegendVisible(false);
+    }
+
+    public void showLegend(boolean showLegend) {
+        chart.getStyler().setLegendVisible(showLegend);
     }
 }
