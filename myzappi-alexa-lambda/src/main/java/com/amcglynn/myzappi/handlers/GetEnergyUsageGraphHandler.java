@@ -9,7 +9,7 @@ import com.amcglynn.myzappi.UserIdResolverFactory;
 import com.amcglynn.myzappi.UserZoneResolver;
 import com.amcglynn.myzappi.core.Brand;
 import com.amcglynn.myzappi.core.service.MyEnergiService;
-import com.amcglynn.myzappi.service.EnergyUsageGraphGenerator;
+import com.amcglynn.myzappi.graphing.EnergyUsageVisualisation;
 import com.amcglynn.myzappi.service.S3Service;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -84,10 +84,10 @@ public class GetEnergyUsageGraphHandler implements RequestHandler {
         var zappiService = zappyServiceBuilder.build(userIdResolverFactory.newUserIdResolver(handlerInput)).getZappiServiceOrThrow();
         var history = zappiService.getRawEnergyHistory(localDate, userTimeZone);
 
-        var imageContent = new EnergyUsageGraphGenerator(getScreenSize(handlerInput))
+        var imageContent = new EnergyUsageVisualisation(getScreenSize(handlerInput))
                 .generateGraph(history, userTimeZone);
 
-        final var s3KeyName = handlerInput.getRequestEnvelope().getSession().getSessionId() + ".png";
+        final var s3KeyName = handlerInput.getRequestEnvelope().getSession().getUser().getUserId() + ".png";
         s3Service.uploadToS3(BUCKET_NAME,
                 s3KeyName, imageContent, "image/png");
         var presignedUrl = s3Service.generatePresignUrl(BUCKET_NAME, s3KeyName, Duration.ofMinutes(10));
