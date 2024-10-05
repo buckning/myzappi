@@ -4,6 +4,8 @@ import com.amcglynn.myenergi.units.Joule;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.time.LocalDateTime;
+
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ZappiHistory {
     @JsonProperty("yr")
@@ -102,6 +104,10 @@ public class ZappiHistory {
 
     public Integer getMinute() {
         return this.minute;
+    }
+
+    public LocalDateTime getLocalDateTime() {
+        return LocalDateTime.of(year, month, dayOfMonth, hour, minute);
     }
 
     public static class ZappiHistoryBuilder {

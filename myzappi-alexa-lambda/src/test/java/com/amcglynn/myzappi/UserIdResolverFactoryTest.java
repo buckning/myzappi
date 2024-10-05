@@ -8,7 +8,6 @@ import com.amazon.ask.model.RequestEnvelope;
 import com.amazon.ask.model.Session;
 import com.amazon.ask.model.User;
 import com.amcglynn.lwa.LwaClient;
-import com.amcglynn.myzappi.core.service.UserIdResolver;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;

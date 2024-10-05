@@ -1,0 +1,24 @@
+{
+  "type": "APL",
+  "version": "2024.2",
+  "description": "A hello world APL document.",
+  "theme": "dark",
+  "import": [
+    {
+      "name": "alexa-layouts",
+      "version": "1.7.0"
+    }
+  ],
+  "mainTemplate": {
+    "parameters": [
+      "payload"
+    ],
+    "items": [
+      {
+        "type": "AlexaHeadline",
+        "id": "energyUsageGraph",
+        "backgroundImageSource": "${payload.backgroundEnergyUsageGraph}"
+      }
+    ]
+  }
+}

@@ -128,4 +128,11 @@ public class ZappiService {
         }
         return endTime.minus(overflow15Minutes, ChronoUnit.MINUTES);
     }
+
+    public List<ZappiHistory> getRawEnergyHistory(LocalDate localDate, ZoneId userTimeZone) {
+        var utcTime = LocalTime.of(0, 0);   // start from 0:00AM local time for the user and then convert that to UTC for the API
+        var userTime = utcTime.atDate(localDate).atZone(userTimeZone)
+                .withZoneSameInstant(ZoneId.of("UTC"));
+        return client.getZappiHistory(userTime.toLocalDate(), userTime.toLocalTime().getHour()).getReadings();
+    }
 }
