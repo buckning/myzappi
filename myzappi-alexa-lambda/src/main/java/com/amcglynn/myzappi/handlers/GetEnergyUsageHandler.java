@@ -104,7 +104,7 @@ public class GetEnergyUsageHandler implements RequestHandler {
         TypeReference<HashMap<String, Object>> documentMapType = new TypeReference<>() {
         };
 
-        InputStream inputStream = GetEnergyUsageGraphHandler.class.getClassLoader().getResourceAsStream("apl-energy-usage-graph.json");
+        InputStream inputStream = GetEnergyUsageHandler.class.getClassLoader().getResourceAsStream("apl-energy-usage-graph.json");
 
         var contents = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
 
