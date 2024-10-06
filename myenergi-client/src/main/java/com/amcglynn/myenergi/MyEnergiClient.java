@@ -146,20 +146,6 @@ public class MyEnergiClient {
     }
 
     /**
-     * @deprecated this method incorrectly assumes that the smart boost will disable when the target time is reached,
-     * this is incorrect, the boost will only continue until the target charge has been reached. The charge target has
-     * to be generated based on the maximum kW that the Zappi can charge at for the configured phase.
-     *
-     * Start boost mode for the maximum kWh value and boost until the request end time.
-     * @param endTime end time of boost. Note that the API works with local time and not UTC.
-     *                This method does not handle conversion from UTC since LocalTime does not contain any time zone information.
-     */
-    @Deprecated
-    public void boost(LocalTime endTime) {
-        invokeCgiZappiModeApi(ZappiChargeMode.BOOST, ZappiBoostMode.SMART_BOOST, maxKwh, endTime);
-    }
-
-    /**
      * Start smart boost mode for the specified kWh value. This will try to charge the E.V. to the specified kWh value
      * by the specified end time using as much solar energy as possible. If the specified kWh value is not reached by the
      * specified end time, the boost will continue until the specified kWh value is reached.
