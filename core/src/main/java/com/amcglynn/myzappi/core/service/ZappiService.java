@@ -79,15 +79,40 @@ public class ZappiService {
         var phase = Phase.from(zappiStatus.getPhase());
         var kiloWattHoursToAdd = duration.toMinutes() * (phase.getMaxChargeRate() / 60);
         var chargeNeeded = chargeAlreadyInEv + kiloWattHoursToAdd;
-        client.boost(boostEndTime, new KiloWattHour(Math.floor(chargeNeeded)));
+        client.boost(boostEndTime, clampBoost(Math.floor(chargeNeeded)));
         return boostEndTime;
+    }
+
+    public KiloWattHour clampBoost(double kwh) {
+        if (kwh < 0) {
+            return new KiloWattHour(0);
+        } else if (kwh > 99) {
+            return new KiloWattHour(99);
+        }
+
+        return new KiloWattHour(kwh);
     }
 
     public LocalTime startSmartBoost(final LocalTime endTime) {
         var boostEndTime = roundToNearest15Mins(endTime);
 
-        client.boost(boostEndTime);
+        var duration = calculateDuration(localTimeSupplier.get(), boostEndTime);
+
+        startSmartBoost(duration);
         return boostEndTime;
+    }
+
+    private Duration calculateDuration(LocalTime time1, LocalTime time2) {
+        if (time2.isBefore(time1)) {
+            // subtract a second from midnight to get the last second of the day otherwise the duration will be from
+            // midnight to time1 and not time1 to midnight
+            LocalTime oneSecondToMidnight = LocalTime.MIDNIGHT.minus(1, ChronoUnit.SECONDS);
+            Duration untilMidnight = Duration.between(time1, oneSecondToMidnight).plus(1, ChronoUnit.SECONDS);
+            Duration fromMidnightToTime2 = Duration.between(LocalTime.MIDNIGHT, time2);
+            return untilMidnight.plus(fromMidnightToTime2);   // adjust for the second taken away above
+        } else {
+            return Duration.between(time1, time2);
+        }
     }
 
     public void stopBoost() {

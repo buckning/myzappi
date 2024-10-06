@@ -69,11 +69,15 @@ class ZappiServiceTest {
 
     @ParameterizedTest
     @MethodSource("boostWithEndTime")
-    void testBoostUntilTimeWillBoostToTheNearest15Minutes(String endTime, String expectedEndTime) {
-        zappiService.setLocalTimeSupplier(LocalTime::now);
+    void testBoostUntilTimeWillBoostToTheNearest15Minutes(String endTime, String expectedEndTime, KiloWattHour expectedKiloWattHourSentToCharger) {
+        when(mockClient.getZappiStatus()).thenReturn(mockStatusResponse);
+        zappiService.setLocalTimeSupplier(() -> LocalTime.of(21, 0));
         var boostStopTime = zappiService.startSmartBoost(LocalTime.parse(endTime));
 
         var timeFormatterForUrl = DateTimeFormatter.ofPattern("HHmm");
+
+        verify(mockClient).boost(LocalTime.parse(expectedEndTime, timeFormatterForUrl), expectedKiloWattHourSentToCharger);
+
         assertThat(expectedEndTime).isEqualTo(boostStopTime.format(timeFormatterForUrl));
     }
 
@@ -196,21 +200,21 @@ class ZappiServiceTest {
 
     private static Stream<Arguments> boostWithEndTime() {
         return Stream.of(
-                Arguments.of("12:32:30", "1230"),
-                Arguments.of("00:32:30", "0030"),
-                Arguments.of("00:40:30", "0045"),
-                Arguments.of("00:44:30", "0045"),
-                Arguments.of("10:30:30", "1030"),
-                Arguments.of("02:00:59", "0200"),
+                Arguments.of("00:32:30", "0030", new KiloWattHour(30)), // charge 3.5 hours (9PM to 12:30PM) * 7.3kW = 25.55kWh. There is already 5kWh in the EV, so 30kWh is sent to the charger
+                Arguments.of("00:40:30", "0045", new KiloWattHour(32)),
+                Arguments.of("00:44:30", "0045", new KiloWattHour(32)),
+                Arguments.of("10:30:30", "1030", new KiloWattHour(99)),
+                Arguments.of("02:00:59", "0200", new KiloWattHour(41)),
                 // round up
-                Arguments.of("02:08:59", "0215"),
-                Arguments.of("02:23:59", "0230"),
-                Arguments.of("02:38:59", "0245"),
-                Arguments.of("03:53:59", "0400"),
+                Arguments.of("02:08:59", "0215", new KiloWattHour(43)),
+                Arguments.of("02:23:59", "0230", new KiloWattHour(45)),
+                Arguments.of("02:38:59", "0245", new KiloWattHour(46)),
+                Arguments.of("03:53:59", "0400", new KiloWattHour(56)),
                 // round down
-                Arguments.of("02:07:59", "0200"),
-                Arguments.of("02:22:59", "0215"),
-                Arguments.of("02:37:59", "0230"),
-                Arguments.of("02:52:59", "0245"));
+                Arguments.of("02:07:59", "0200", new KiloWattHour(41)),
+                Arguments.of("02:22:59", "0215", new KiloWattHour(43)),
+                Arguments.of("02:37:59", "0230", new KiloWattHour(45)),
+                Arguments.of("02:52:59", "0245", new KiloWattHour(46)),
+                Arguments.of("12:32:30", "1230", new KiloWattHour(99)));    // charge from 9PM to 12:30PM = 15.5 hours * 7.3kW = 113.15kWh. All values clamped between 0 and 99kWh so 99kWh is sent to the charger
     }
 }
