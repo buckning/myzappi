@@ -9,7 +9,6 @@ import com.amcglynn.myzappi.UserIdResolverFactory;
 import com.amcglynn.myzappi.UserZoneResolver;
 import com.amcglynn.myzappi.core.Brand;
 import com.amcglynn.myzappi.core.service.MyEnergiService;
-import com.amcglynn.myzappi.core.service.ZappiService;
 
 import java.time.Duration;
 import java.time.LocalTime;
@@ -51,7 +50,9 @@ public class StartBoostHandler implements RequestHandler {
         // to retrieve the timezone for the device. Once the timezone is retrieved, it is set here so that when an end
         // time needs to be calculated, it gets the current local time, adds the duration and then sends that end time
         // to the myenergi API
-        zappiService.setLocalTimeSupplier(() -> LocalTime.now(userZoneResolver.getZoneId(handlerInput)));
+
+        var zoneId = userZoneResolver.getZoneId(handlerInput);
+        zappiService.setLocalTimeSupplier(() -> LocalTime.now(zoneId));
 
         if (duration.isPresent()) {
             return buildResponse(handlerInput, zappiService.startSmartBoost(duration.get()));

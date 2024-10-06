@@ -227,18 +227,6 @@ class MyEnergiClientTest {
     }
 
     @Test
-    void testSmartBoostWithOnlyEndTimeSpecifiedChangesTheChargeAmountTo99Kwh() throws Exception {
-        var mockResponse = new MockResponse()
-                .setResponseCode(200)
-                .setBody(MockMyEnergiResponses.getGenericResponse());
-        mockWebServer.enqueue(mockResponse);
-        var endTime = LocalTime.now().withHour(15).withMinute(45);
-        client.boost(endTime);
-        var request = mockWebServer.takeRequest();
-        assertThat(request.getRequestUrl().url().getPath()).contains("/cgi-zappi-mode-Z56781234-0-11-99-1545");
-    }
-
-    @Test
     void testBoostWithKiloWattHours() throws Exception {
         var mockResponse = new MockResponse()
                 .setResponseCode(200)

@@ -99,15 +99,6 @@ public class MockMyEnergiClient extends MyEnergiClient {
     }
 
     @Override
-    public void boost(LocalTime endTime) {
-        var mockResponse = new MockResponse()
-                .setResponseCode(200)
-                .setBody(MockMyEnergiResponses.getGenericResponse());
-        mockWebServer.enqueue(mockResponse);
-        super.boost(endTime);
-    }
-
-    @Override
     public void boost(LocalTime endTime, KiloWattHour kiloWattHour) {
         var mockResponse = new MockResponse()
                 .setResponseCode(200)

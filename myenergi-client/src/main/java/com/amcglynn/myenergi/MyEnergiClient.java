@@ -146,16 +146,9 @@ public class MyEnergiClient {
     }
 
     /**
-     * Start boost mode for the maximum kWh value and boost until the request end time.
-     * @param endTime end time of boost. Note that the API works with local time and not UTC.
-     *                This method does not handle conversion from UTC since LocalTime does not contain any time zone information.
-     */
-    public void boost(LocalTime endTime) {
-        invokeCgiZappiModeApi(ZappiChargeMode.BOOST, ZappiBoostMode.SMART_BOOST, maxKwh, endTime);
-    }
-
-    /**
-     * Start boost mode for the specified kWh value or boost until the requested end time.
+     * Start smart boost mode for the specified kWh value. This will try to charge the E.V. to the specified kWh value
+     * by the specified end time using as much solar energy as possible. If the specified kWh value is not reached by the
+     * specified end time, the boost will continue until the specified kWh value is reached.
      * @param endTime end time of boost. Note that the API works with local time and not UTC.
      *                This method does not handle conversion from UTC since LocalTime does not contain any time zone information.
      * @param kiloWattHour the requested kWh to be boosted to the E.V.
