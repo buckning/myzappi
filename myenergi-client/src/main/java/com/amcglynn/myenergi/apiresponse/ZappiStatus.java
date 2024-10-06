@@ -22,6 +22,9 @@ public class ZappiStatus {
     @JsonProperty("sta")
     private int chargeStatus;
 
+    @JsonProperty("pha")
+    private int phase;
+
     @JsonProperty("fwv")
     private String firmwareVersion;
     @JsonProperty("pst")        // plug status
@@ -77,6 +80,10 @@ public class ZappiStatus {
 
     public int getChargeStatus() {
         return this.chargeStatus;
+    }
+
+    public int getPhase() {
+        return this.phase;
     }
 
     public int getLockStatus() {

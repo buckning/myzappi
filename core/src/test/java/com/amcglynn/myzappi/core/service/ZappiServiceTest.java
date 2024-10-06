@@ -4,6 +4,8 @@ import com.amcglynn.myenergi.MyEnergiClient;
 import com.amcglynn.myenergi.ZappiChargeMode;
 import com.amcglynn.myenergi.apiresponse.ZappiDayHistory;
 import com.amcglynn.myenergi.apiresponse.ZappiHistory;
+import com.amcglynn.myenergi.apiresponse.ZappiStatus;
+import com.amcglynn.myenergi.apiresponse.ZappiStatusResponse;
 import com.amcglynn.myenergi.units.KiloWattHour;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,6 +15,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
 
 import java.time.Duration;
 import java.time.LocalDate;
@@ -29,26 +32,38 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@MockitoSettings(strictness = org.mockito.quality.Strictness.LENIENT)
 @ExtendWith(MockitoExtension.class)
 class ZappiServiceTest {
 
     private ZappiService zappiService;
     @Mock
     private MyEnergiClient mockClient;
+    @Mock
+    private ZappiStatusResponse mockStatusResponse;
+    @Mock
+    private ZappiStatus mockZappiStatus;
 
     @BeforeEach
     void setUp() {
+        when(mockZappiStatus.getPhase()).thenReturn(1);
+        when(mockZappiStatus.getChargeAddedThisSessionKwh()).thenReturn(5.0);
+        when(mockStatusResponse.getZappi()).thenReturn(List.of(mockZappiStatus));
         this.zappiService = new ZappiService(mockClient);
     }
 
     @ParameterizedTest
     @MethodSource("boostWithDurationSource")
-    void testBoostWithDurationWillBoostToTheNearest15Minutes(String startTime, Duration chargeDuration, String expectedEndTime) {
+    void testBoostWithDurationWillBoostToTheNearest15Minutes(String startTime, Duration chargeDuration,
+                                                             String expectedEndTime, KiloWattHour expectedKiloWattHourSentToCharger) {
+        when(mockClient.getZappiStatus()).thenReturn(mockStatusResponse);
         Supplier<LocalTime> localTimeSupplier = () -> LocalTime.parse(startTime);
         zappiService.setLocalTimeSupplier(localTimeSupplier);
         var boostStopTime = zappiService.startSmartBoost(chargeDuration);
 
         var timeFormatterForUrl = DateTimeFormatter.ofPattern("HHmm");
+
+        verify(mockClient).boost(LocalTime.parse(expectedEndTime, timeFormatterForUrl), expectedKiloWattHourSentToCharger);
         assertThat(expectedEndTime).isEqualTo(boostStopTime.format(timeFormatterForUrl));
     }
 
@@ -160,22 +175,23 @@ class ZappiServiceTest {
 
     private static Stream<Arguments> boostWithDurationSource() {
         return Stream.of(
-                Arguments.of("11:32:30", Duration.of(1, ChronoUnit.HOURS), "1230"),
-                Arguments.of("23:32:30", Duration.of(1, ChronoUnit.HOURS), "0030"),
-                Arguments.of("23:40:30", Duration.of(1, ChronoUnit.HOURS), "0045"),
-                Arguments.of("23:44:30", Duration.of(1, ChronoUnit.HOURS), "0045"),
-                Arguments.of("09:30:30", Duration.of(1, ChronoUnit.HOURS), "1030"),
-                Arguments.of("01:00:59", Duration.of(1, ChronoUnit.HOURS), "0200"),
+                Arguments.of("11:32:30", Duration.of(1, ChronoUnit.HOURS), "1230", new KiloWattHour(12)),   // kWh is 12, 5 already in the EV and 7 to be added in an hour
+                Arguments.of("23:32:30", Duration.of(1, ChronoUnit.HOURS), "0030", new KiloWattHour(12)),
+                Arguments.of("23:40:30", Duration.of(1, ChronoUnit.HOURS), "0045", new KiloWattHour(12)),
+                Arguments.of("23:44:30", Duration.of(1, ChronoUnit.HOURS), "0045", new KiloWattHour(12)),
+                Arguments.of("09:30:30", Duration.of(1, ChronoUnit.HOURS), "1030", new KiloWattHour(12)),
+                Arguments.of("01:00:59", Duration.of(1, ChronoUnit.HOURS), "0200", new KiloWattHour(12)),
                 // round up
-                Arguments.of("01:08:59", Duration.of(1, ChronoUnit.HOURS), "0215"),
-                Arguments.of("01:23:59", Duration.of(1, ChronoUnit.HOURS), "0230"),
-                Arguments.of("01:38:59", Duration.of(1, ChronoUnit.HOURS), "0245"),
-                Arguments.of("01:53:59", Duration.of(1, ChronoUnit.HOURS), "0300"),
+                Arguments.of("01:08:59", Duration.of(1, ChronoUnit.HOURS), "0215", new KiloWattHour(12)),
+                Arguments.of("01:23:59", Duration.of(1, ChronoUnit.HOURS), "0230", new KiloWattHour(12)),
+                Arguments.of("01:38:59", Duration.of(1, ChronoUnit.HOURS), "0245", new KiloWattHour(12)),
+                Arguments.of("01:53:59", Duration.of(1, ChronoUnit.HOURS), "0300", new KiloWattHour(12)),
                 // round down
-                Arguments.of("01:07:59", Duration.of(1, ChronoUnit.HOURS), "0200"),
-                Arguments.of("01:22:59", Duration.of(1, ChronoUnit.HOURS), "0215"),
-                Arguments.of("01:37:59", Duration.of(1, ChronoUnit.HOURS), "0230"),
-                Arguments.of("01:52:59", Duration.of(1, ChronoUnit.HOURS), "0245"));
+                Arguments.of("01:07:59", Duration.of(1, ChronoUnit.HOURS), "0200", new KiloWattHour(12)),
+                Arguments.of("01:22:59", Duration.of(1, ChronoUnit.HOURS), "0215", new KiloWattHour(12)),
+                Arguments.of("01:37:59", Duration.of(1, ChronoUnit.HOURS), "0230", new KiloWattHour(12)),
+                Arguments.of("01:52:59", Duration.of(1, ChronoUnit.HOURS), "0245", new KiloWattHour(12)),
+                Arguments.of("01:52:59", Duration.of(7, ChronoUnit.HOURS), "0845", new KiloWattHour(56)));  // 7 hours * 7.3kW = 51.1kWh + 5 already in the EV == 56.1kWh, then floor is applied, making it 56.0
     }
 
     private static Stream<Arguments> boostWithEndTime() {

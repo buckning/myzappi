@@ -1,10 +1,12 @@
 package com.amcglynn.myzappi.core.service;
 
 import com.amcglynn.myenergi.MyEnergiClient;
+import com.amcglynn.myenergi.Phase;
 import com.amcglynn.myenergi.ZappiChargeMode;
 import com.amcglynn.myenergi.ZappiDaySummary;
 import com.amcglynn.myenergi.ZappiStatusSummary;
 import com.amcglynn.myenergi.apiresponse.ZappiHistory;
+import com.amcglynn.myenergi.apiresponse.ZappiStatus;
 import com.amcglynn.myenergi.units.KiloWattHour;
 import com.amcglynn.myzappi.core.model.SerialNumber;
 import lombok.extern.slf4j.Slf4j;
@@ -61,12 +63,29 @@ public class ZappiService {
      */
     public LocalTime startSmartBoost(final Duration duration) {
         var boostEndTime = roundToNearest15Mins(duration);
-        client.boost(boostEndTime);
+
+        // get the zappi charge added this session
+        // get the zappi phase
+        // if the phase is single phase, the charge rate is 7.3kW
+        // if the phase is 3 phase, the charge rate is 22kW
+        // take into account the charge already in the EV so add the charge on top of what is already in the EV.
+
+        // https://support.myenergi.com/hc/en-gb/articles/5780558509201-ECO-ECO-charge-rates-in-a-three-phase-zappi
+
+        var status = client.getZappiStatus();
+        var zappiStatus = status.getZappi().get(0);
+        var chargeAlreadyInEv = zappiStatus.getChargeAddedThisSessionKwh();
+
+        var phase = Phase.from(zappiStatus.getPhase());
+        var kiloWattHoursToAdd = duration.toMinutes() * (phase.getMaxChargeRate() / 60);
+        var chargeNeeded = chargeAlreadyInEv + kiloWattHoursToAdd;
+        client.boost(boostEndTime, new KiloWattHour(Math.floor(chargeNeeded)));
         return boostEndTime;
     }
 
     public LocalTime startSmartBoost(final LocalTime endTime) {
         var boostEndTime = roundToNearest15Mins(endTime);
+
         client.boost(boostEndTime);
         return boostEndTime;
     }
@@ -124,8 +143,10 @@ public class ZappiService {
     private LocalTime roundToNearest15Mins(LocalTime endTime) {
         var overflow15Minutes = endTime.getMinute() % 15;
         if (overflow15Minutes > 7) {
+            endTime = endTime.minus(endTime.getSecond(), ChronoUnit.SECONDS);
             return endTime.plus((15 - overflow15Minutes), ChronoUnit.MINUTES);
         }
+        endTime = endTime.minus(endTime.getSecond(), ChronoUnit.SECONDS);
         return endTime.minus(overflow15Minutes, ChronoUnit.MINUTES);
     }
 
