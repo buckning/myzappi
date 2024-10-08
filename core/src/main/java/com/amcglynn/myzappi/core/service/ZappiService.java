@@ -28,6 +28,7 @@ public class ZappiService {
 
     public ZappiService(MyEnergiClient client) {
         this.client = client;
+        this.localTimeSupplier = LocalTime::now;
     }
 
     public void setLocalTimeSupplier(Supplier<LocalTime> localTimeSupplier) {
