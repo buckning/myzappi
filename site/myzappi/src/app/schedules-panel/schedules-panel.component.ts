@@ -45,7 +45,7 @@ export class SchedulesPanelComponent {
 
   scheduleTypeMapping: { [key: string]: string } = {
     'setBoostKwh': 'Boosting kWh',
-    'setBoostFor': 'Boost for hours',
+    'setBoostFor': 'Boost for hours. Warning: There was an issue found with this type of schedule where the boost may not finish after the boost duration. Please delete this schedule and use smart boost schedule instead. Apologies for any inconvenience caused.',
     'setBoostUntil': 'Boosting until time',
     'setChargeMode': 'Set charge mode',
     'setEddiMode': 'Set Eddi mode',
