@@ -31,6 +31,8 @@ public class MyZappiScheduleHandler {
         handlers = Map.of(
                 "setChargeMode",    (myEnergiService, scheduleAction) -> myEnergiService.getZappiServiceOrThrow()
                         .setChargeMode(ZappiChargeMode.valueOf(scheduleAction.getValue())),
+                "setSmartBoost",   (myEnergiService, scheduleAction) -> myEnergiService.getZappiServiceOrThrow()
+                        .startSmartBoost(parseSmartBoostKwh(scheduleAction), parseSmartBoostTime(scheduleAction)),
                 "setBoostKwh",      (myEnergiService, scheduleAction) -> myEnergiService.getZappiServiceOrThrow()
                         .startBoost(new KiloWattHour(Double.parseDouble(scheduleAction.getValue()))),
                 "setBoostUntil",    (myEnergiService, scheduleAction) -> myEnergiService.getZappiServiceOrThrow()
@@ -80,6 +82,8 @@ public class MyZappiScheduleHandler {
         if (schedule.get().getRecurrence() == null) {
             scheduleService.deleteLocalSchedule(scheduleId);
         }
+
+        zappiService.getZappiService().ifPresent(zappiSvc -> zappiSvc.setLocalTimeSupplier(() -> LocalTime.now(schedule.get().getZoneId())));
         handler.accept(zappiService, schedule.get().getAction());
     }
 
@@ -98,5 +102,17 @@ public class MyZappiScheduleHandler {
     private Duration parseDuration(String value) {
         var tokens = value.split(";");
         return Duration.parse(tokens[0]);
+    }
+
+    private LocalTime parseSmartBoostTime(ScheduleAction scheduleAction) {
+        // smart boost scheduleAction format = "kwh;time"
+        var tokens = scheduleAction.getValue().split(";");
+        return LocalTime.parse(tokens[1]);
+    }
+
+    private KiloWattHour parseSmartBoostKwh(ScheduleAction scheduleAction) {
+        // smart boost scheduleAction format = "kwh;time"
+        var tokens = scheduleAction.getValue().split(";");
+        return new KiloWattHour(Double.parseDouble(tokens[0]));
     }
 }
