@@ -47,6 +47,7 @@ export class SchedulesPanelComponent {
     'setBoostKwh': 'Boosting kWh',
     'setBoostFor': 'Boost for hours. Warning: There was an issue found with this type of schedule where the boost may not finish after the boost duration. Please delete this schedule and use smart boost schedule instead. Apologies for any inconvenience caused.',
     'setBoostUntil': 'Boosting until time',
+    'setSmartBoost': 'Set smart boost',
     'setChargeMode': 'Set charge mode',
     'setEddiMode': 'Set Eddi mode',
     'setEddiBoostFor': 'Boost Eddi',
@@ -59,6 +60,7 @@ export class SchedulesPanelComponent {
     'setBoostKwh': 'ZAPPI',
     'setBoostFor': 'ZAPPI',
     'setBoostUntil': 'ZAPPI',
+    'setSmartBoost': 'ZAPPI',
     'setChargeMode': 'ZAPPI',
     'setEddiMode': 'EDDI',
     'setEddiBoostFor': 'EDDI',
@@ -212,6 +214,9 @@ export class SchedulesPanelComponent {
     if (input.action.type === 'setBoostFor') {
       return this.convertDuration(input.action.value);
     }
+    if (input.action.type === 'setSmartBoost') {
+      return this.convertSmartBoost(input.action.value);
+    }
     if (input.action.type === 'setChargeMode') {
       return this.convertChargeMode(input.action.value);
     }
@@ -259,6 +264,11 @@ export class SchedulesPanelComponent {
     var tokens = isoDuration.split(";");
     
     return formatDuration(tokens[0]);
+  }
+
+  convertSmartBoost(input: string): string {
+    var tokens = input.split(";");
+    return tokens[0] + "kWh Finish charging by: " + tokens[1];
   }
 
   convertDateTime(input: string): string {
