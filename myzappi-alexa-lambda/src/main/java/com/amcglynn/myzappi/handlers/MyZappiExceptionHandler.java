@@ -3,7 +3,6 @@ package com.amcglynn.myzappi.handlers;
 import com.amazon.ask.dispatcher.exception.ExceptionHandler;
 import com.amazon.ask.dispatcher.request.handler.HandlerInput;
 import com.amazon.ask.model.Response;
-import com.amazon.ask.response.ResponseBuilder;
 import com.amcglynn.myzappi.UserNotLinkedException;
 import com.amcglynn.myzappi.core.Brand;
 import lombok.extern.slf4j.Slf4j;
@@ -41,6 +40,7 @@ public class MyZappiExceptionHandler implements ExceptionHandler {
         try {
             response = voiceResponse(handlerInput, "error." + throwable.getClass().getSimpleName());
         } catch (Exception e) {
+            log.error("Error getting voice response", e);
             response = voiceResponse(handlerInput, "error.Exception");
         }
         return response;

@@ -119,6 +119,22 @@ class MyZappiScheduleHandlerTest {
     }
 
     @Test
+    void testSetSmartBoost() {
+        var input = new LinkedHashMap<String, String>();
+        input.put("type", "setSmartBoost");
+        var scheduleId = UUID.randomUUID().toString();
+        input.put("scheduleId", scheduleId);
+        input.put("lwaUserId", "mockLwaUserId");
+        when(mockScheduleService.getSchedule(scheduleId)).thenReturn(Optional.of(Schedule.builder()
+                .id(scheduleId)
+                .startDateTime(LocalDateTime.of(2023, 9, 13, 14, 0))
+                .zoneId(ZoneId.of("Europe/Dublin"))
+                .action(new ScheduleAction("setSmartBoost", "42;18:00")).build()));
+        handler.handle(new MyZappiScheduleEvent(input));
+        verify(mockZappiService).startSmartBoost(new KiloWattHour(42), LocalTime.of(18, 0));
+    }
+
+    @Test
     void testSetBoostUntil() {
         var input = new LinkedHashMap<String, String>();
         input.put("type", "setBoostUntil");

@@ -58,10 +58,14 @@ public class ZappiService {
     }
 
     /**
+     * @deprecated don't use this method. It makes some bad assumptions with the predicted kilowatt-hours to add. There
+     * can be factors that could cause the end time not possible to achieve, like the onboard charge rate of the EV.
+     *
      * Start Smart Boost for a certain duration. The myenergi APIs expect everything to be rounded to the nearest 15 minutes.
      * @param duration minimum duration of the boost. This will be rounded to the nearest 15 minutes of the requested time.
      * @return end time of the boost
      */
+    @Deprecated
     public LocalTime startSmartBoost(final Duration duration) {
         var boostEndTime = roundToNearest15Mins(duration);
 
@@ -94,6 +98,14 @@ public class ZappiService {
         return new KiloWattHour(kwh);
     }
 
+    /**
+     * @deprecated don't use this method. It makes some bad assumptions with the predicted kilowatt-hours to add. There
+     * can be factors that could cause the end time not possible to achieve, like the onboard charge rate of the EV.
+     *
+     * @param endTime expected end time (which may not be accurate)
+     * @return expected end time
+     */
+    @Deprecated
     public LocalTime startSmartBoost(final LocalTime endTime) {
         var boostEndTime = roundToNearest15Mins(endTime);
 
@@ -101,6 +113,16 @@ public class ZappiService {
 
         startSmartBoost(duration);
         return boostEndTime;
+    }
+
+    /**
+     * Start smart boost.
+     * @param kiloWattHours Target kilowatt-hours to reach
+     * @param endTime finish charging at - localtime from the user. No zone information is required, myenergi will figure this out based on the zappi configuration
+     */
+    public void startSmartBoost(final KiloWattHour kiloWattHours, final LocalTime endTime) {
+        var boostEndTime = roundToNearest15Mins(endTime);
+        client.boost(boostEndTime, clampBoost(Math.floor(kiloWattHours.getDouble())));
     }
 
     private Duration calculateDuration(LocalTime time1, LocalTime time2) {

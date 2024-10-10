@@ -88,9 +88,9 @@ public class EnergyUsageVisualisation {
     private byte[] generateEnergyUsageChartBytes(double[] imported, double[] exported, double[] consumed, ZappiDaySummary summary) {
         var graph = new MyEnergiGraph(dimension);
         if (summary != null) {
-            graph.addSeries(imported, summary.getImported() + "kWh", Color.RED);
-            graph.addSeries(exported, summary.getExported() + "kWh", Color.YELLOW);
-            graph.addSeries(consumed, summary.getConsumed() + "kWh", Color.GREEN);
+            graph.addSeries(imported, "Import: " + summary.getImported() + "kWh", Color.RED);
+            graph.addSeries(exported, "Export: " + summary.getExported() + "kWh", Color.YELLOW);
+            graph.addSeries(consumed, "Consumed: " + summary.getConsumed() + "kWh", Color.GREEN);
             graph.showLegend(true);
         } else {
             graph.addSeries(imported, "Imported", Color.RED);

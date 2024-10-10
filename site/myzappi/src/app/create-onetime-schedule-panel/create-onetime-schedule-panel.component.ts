@@ -24,6 +24,7 @@ export class CreateOnetimeSchedulePanelComponent {
   scheduleType: string = 'setBoostKwh';
   scheduleActionValue: string = '';
   scheduleActionTankValue: string = '';
+  smartBoostTime: string = '00:00';
   selectedTank: any;
   cancelButtonVisible = true;
   saveButtonDisabled = false;
@@ -38,6 +39,7 @@ export class CreateOnetimeSchedulePanelComponent {
 
   zappiOptions: { value: string, label: string }[] = [
     { value: 'setBoostKwh', label: 'Boost until kilowatt hours reached' },
+    { value: 'setSmartBoost', label: 'Set smart boost'},
     { value: 'setChargeMode', label: 'Set charge mode' }
   ];
 
@@ -221,6 +223,9 @@ export class CreateOnetimeSchedulePanelComponent {
             return "PT" + this.scheduleActionValue + "M;tank=" + (index + 1);
         }
       }
+    }
+    if (this.scheduleType === 'setSmartBoost') {
+      return this.scheduleActionValue + ";" + this.smartBoostTime;
     }
       
     return this.scheduleActionValue;

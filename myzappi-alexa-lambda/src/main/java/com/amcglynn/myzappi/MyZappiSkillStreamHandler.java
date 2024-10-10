@@ -37,6 +37,7 @@ import com.amcglynn.myzappi.handlers.SetLibbiDisabledHandler;
 import com.amcglynn.myzappi.handlers.SetLibbiEnabledHandler;
 import com.amcglynn.myzappi.handlers.SetReminderHandler;
 import com.amcglynn.myzappi.handlers.StartBoostHandler;
+import com.amcglynn.myzappi.handlers.StartSmartBoostHandler;
 import com.amcglynn.myzappi.handlers.StatusSummaryHandler;
 import com.amcglynn.myzappi.handlers.StopBoostHandler;
 import com.amcglynn.myzappi.handlers.StopEddiBoostHandler;
@@ -66,6 +67,7 @@ public class MyZappiSkillStreamHandler extends SkillStreamHandler {
                 .addRequestHandler(new GetSolarReportHandler(serviceManager.getMyEnergiServiceBuilder(), userIdResolverFactory))
                 .addRequestHandler(new StartBoostHandler(serviceManager.getMyEnergiServiceBuilder(), userIdResolverFactory, userZoneResolver))
                 .addRequestHandler(new StopBoostHandler(serviceManager.getMyEnergiServiceBuilder(), userIdResolverFactory))
+                .addRequestHandler(new StartSmartBoostHandler(serviceManager.getMyEnergiServiceBuilder(), userIdResolverFactory))
                 .addRequestHandler(new GetPlugStatusHandler(serviceManager.getMyEnergiServiceBuilder(), userIdResolverFactory))
                 .addRequestHandler(new GetChargeModeHandler(serviceManager.getMyEnergiServiceBuilder(), userIdResolverFactory))
                 .addRequestHandler(new GetEnergyUsageHandler(serviceManager.getMyEnergiServiceBuilder(), userIdResolverFactory, userZoneResolver))

@@ -25,12 +25,21 @@ public class ScheduleValidator {
     private static final Map<String, Predicate<String>> SUPPORTED_TYPES = Map.of("setChargeMode", ScheduleValidator::isValidChargeMode,
             "setBoostKwh", ScheduleValidator::isValidChargeInteger,
             "setBoostUntil", ScheduleValidator::isValidChargeLocalTime,
+            "setSmartBoost", ScheduleValidator::isValidSmartBoost,
             "setBoostFor", ScheduleValidator::isValidChargeDuration,
             "setEddiMode", ScheduleValidator::isValidEddiMode,
             "setEddiBoostFor", ScheduleValidator::isValidEddiBoostDuration,
             "setLibbiEnabled", ScheduleValidator::isValidBoolean,
             "setLibbiChargeFromGrid", ScheduleValidator::isValidBoolean,
             "setLibbiChargeTarget", ScheduleValidator::isValidTargetSoc);
+
+    private static boolean isValidSmartBoost(String s) {
+            var tokens = s.split(";");
+            if (tokens.length != 2) {
+                return false;
+            }
+            return isValidChargeInteger(tokens[0]) && isValidChargeLocalTime(tokens[1]);
+    }
 
     private static boolean isValidTargetSoc(String s) {
         try {
