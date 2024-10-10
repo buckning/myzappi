@@ -21,7 +21,7 @@ import static org.mockito.Mockito.mock;
  */
 class MyZappiSkillStreamHandlerTest {
 
-    private static final int EXPECTED_NUMBER_OF_INTENT_HANDLERS = 37;
+    private static final int EXPECTED_NUMBER_OF_INTENT_HANDLERS = 38;
 
     @Test
     void testConstructorDoesNotThrowAnException() {

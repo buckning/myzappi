@@ -94,16 +94,13 @@
           "name": "StartBoostMode",
           "slots": [
             {
-              "name": "Duration",
-              "type": "AMAZON.DURATION"
-            },
-            {
-              "name": "Time",
-              "type": "AMAZON.TIME"
-            },
-            {
               "name": "KiloWattHours",
-              "type": "AMAZON.NUMBER"
+              "type": "AMAZON.NUMBER",
+              "samples": [
+                "{KiloWattHours} kilowatt hours",
+                "{KiloWattHours} kilowatts",
+                "{KiloWattHours}"
+              ]
             }
           ],
           "samples": [
@@ -115,9 +112,7 @@
             "Add {KiloWattHours} kilowatts now",
             "Add {KiloWattHours} kilowatts to my car",
             "Boost for {KiloWattHours} kilowatts",
-            "Boost for {KiloWattHours} Kilowatt hours",
-            "Boost until {Time}",
-            "Boost for {Duration}"
+            "Boost for {KiloWattHours} Kilowatt hours"
           ]
         },
         {
@@ -137,6 +132,10 @@
             }
           ],
           "samples": [
+            "What's my energy usage for {date}",
+            "Energy usage for {date}",
+            "Show me my energy usage for {date}",
+            "Show me energy usage for {date}",
             "Calculate energy usage for {date}",
             "Get usage for {date}",
             "What's my usage for {date} "
@@ -228,14 +227,6 @@
             {
               "name": "chargeMode",
               "type": "chargeMode"
-            },
-            {
-              "name": "boostDuration",
-              "type": "AMAZON.DURATION"
-            },
-            {
-              "name": "boostEndTime",
-              "type": "AMAZON.TIME"
             }
           ],
           "samples": [
@@ -243,20 +234,14 @@
             "Boost for {boostKwh} kilowatt hours starting at {scheduleTime}",
             "Boost {boostKwh} kilowatt hours starting at {scheduleTime}",
             "Boost {boostKwh} kilowatts starting at {scheduleTime}",
-            "Boost for {boostDuration} starting at {scheduleTime}",
             "Switch to {chargeMode} mode starting at {scheduleTime}",
             "Switch to {chargeMode} mode at {scheduleTime}",
             "At {scheduleTime} switch to {chargeMode} mode",
             "At {scheduleTime} switch to {chargeMode}",
             "Switch to {chargeMode} starting at {scheduleTime}",
-            "Schedule a boost for {boostDuration}",
-            "Schedule a boost until {boostEndTime}",
             "Schedule a boost for {boostKwh} kilowatts",
             "Schedule a boost for {boostKwh} kilowatt hours",
             "Schedule a boost for {boostKwh} kilowatt hours starting at {scheduleTime}",
-            "charge my car in {chargeMode} mode starting at {scheduleTime} for {boostDuration}",
-            "Boost until {boostEndTime} starting at {scheduleTime}",
-            "Schedule a boost for {boostDuration} starting at {scheduleTime}",
             "Switch to {chargeMode} at {scheduleTime}",
             "Schedule a boost for {boostKwh} kilowatts starting at {scheduleTime}"
           ]
@@ -481,6 +466,55 @@
             "What's the charge mode",
             "Get charge mode"
           ]
+        },
+        {
+          "name": "StartSmartBoost",
+          "slots": [
+            {
+              "name": "KiloWattHours",
+              "type": "AMAZON.NUMBER",
+              "samples": [
+                "{KiloWattHours} kilowatts",
+                "{KiloWattHours}",
+                "{KiloWattHours} kilowatt hours"
+              ]
+            },
+            {
+              "name": "Time",
+              "type": "AMAZON.TIME",
+              "samples": [
+                "{Time} please",
+                "Finish charging at {Time}",
+                "Until {Time}",
+                "{Time}"
+              ]
+            }
+          ],
+          "samples": [
+            "Smart boost for {KiloWattHours} kilowatt hours until {Time}",
+            "Smart boost",
+            "Start smart boost",
+            "Set smart boost for {KiloWattHours} kilowatt hours",
+            "Smart boost charging for {KiloWattHours} kilowatt hours",
+            "Start a smart boost until {Time}",
+            "Smart Boost my car for {KiloWattHours} kilowatt hours",
+            "Initiate smart boost until {Time}",
+            "Turn on smart boost",
+            "Enable smart boost",
+            "Charge with smart boost until {Time}",
+            "Smart boost my car for {KiloWattHours} kilowatt hours",
+            "Start smart boost charging until {Time}",
+            "Run smart boost for {KiloWattHours} kilowatt hours",
+            "Begin smart boost until {Time}",
+            "Can you start a smart boost",
+            "Begin smart boost charging",
+            "Activate smart boost for {KiloWattHours} kilowatt hours",
+            "Start charging with smart boost",
+            "Charge my car with smart boost for {KiloWattHours} kilowatt hours",
+            "Smart boost my charger for {KiloWattHours} kilowatt hours until {Time}",
+            "Use smart boost until {Time}",
+            "Give my car a smart boost"
+          ]
         }
       ],
       "types": [
@@ -599,20 +633,6 @@
               "confirmationRequired": false,
               "elicitationRequired": false,
               "prompts": {}
-            },
-            {
-              "name": "boostDuration",
-              "type": "AMAZON.DURATION",
-              "confirmationRequired": false,
-              "elicitationRequired": false,
-              "prompts": {}
-            },
-            {
-              "name": "boostEndTime",
-              "type": "AMAZON.TIME",
-              "confirmationRequired": false,
-              "elicitationRequired": false,
-              "prompts": {}
             }
           ]
         },
@@ -634,6 +654,47 @@
               "elicitationRequired": true,
               "prompts": {
                 "elicitation": "Elicit.Slot.100143912541.189556316592"
+              }
+            }
+          ]
+        },
+        {
+          "name": "StartBoostMode",
+          "confirmationRequired": false,
+          "prompts": {},
+          "slots": [
+            {
+              "name": "KiloWattHours",
+              "type": "AMAZON.NUMBER",
+              "confirmationRequired": false,
+              "elicitationRequired": true,
+              "prompts": {
+                "elicitation": "Elicit.Slot.802970864828.40139685710"
+              }
+            }
+          ]
+        },
+        {
+          "name": "StartSmartBoost",
+          "confirmationRequired": false,
+          "prompts": {},
+          "slots": [
+            {
+              "name": "KiloWattHours",
+              "type": "AMAZON.NUMBER",
+              "confirmationRequired": false,
+              "elicitationRequired": true,
+              "prompts": {
+                "elicitation": "Elicit.Slot.478948219012.751035573648"
+              }
+            },
+            {
+              "name": "Time",
+              "type": "AMAZON.TIME",
+              "confirmationRequired": false,
+              "elicitationRequired": true,
+              "prompts": {
+                "elicitation": "Elicit.Slot.478948219012.709788881941"
               }
             }
           ]
@@ -695,6 +756,45 @@
           {
             "type": "PlainText",
             "value": "Please tell me how long you want me to boost for"
+          }
+        ]
+      },
+      {
+        "id": "Elicit.Slot.802970864828.40139685710",
+        "variations": [
+          {
+            "type": "PlainText",
+            "value": "How many kilowatt hours"
+          },
+          {
+            "type": "PlainText",
+            "value": "How many kilowatt hours do you want"
+          }
+        ]
+      },
+      {
+        "id": "Elicit.Slot.478948219012.751035573648",
+        "variations": [
+          {
+            "type": "PlainText",
+            "value": "How many kilowatt hours"
+          },
+          {
+            "type": "PlainText",
+            "value": "How many kilowatt hours do you want to add"
+          }
+        ]
+      },
+      {
+        "id": "Elicit.Slot.478948219012.709788881941",
+        "variations": [
+          {
+            "type": "PlainText",
+            "value": "Until what time"
+          },
+          {
+            "type": "PlainText",
+            "value": "When do you want to finish charging"
           }
         ]
       }

@@ -115,10 +115,14 @@ public class ZappiService {
         return boostEndTime;
     }
 
-    public LocalTime startSmartBoost(final KiloWattHour kiloWattHours, final LocalTime endTime) {
+    /**
+     * Start smart boost.
+     * @param kiloWattHours Target kilowatt-hours to reach
+     * @param endTime finish charging at - localtime from the user. No zone information is required, myenergi will figure this out based on the zappi configuration
+     */
+    public void startSmartBoost(final KiloWattHour kiloWattHours, final LocalTime endTime) {
         var boostEndTime = roundToNearest15Mins(endTime);
         client.boost(boostEndTime, clampBoost(Math.floor(kiloWattHours.getDouble())));
-        return boostEndTime;
     }
 
     private Duration calculateDuration(LocalTime time1, LocalTime time2) {
