@@ -4,14 +4,18 @@ import com.amazon.ask.dispatcher.request.handler.HandlerInput;
 import com.amazon.ask.dispatcher.request.handler.RequestHandler;
 import com.amazon.ask.model.IntentRequest;
 import com.amazon.ask.model.Response;
+import com.amcglynn.myenergi.EvStatusSummary;
+import com.amcglynn.myenergi.ZappiChargeMode;
 import com.amcglynn.myzappi.UserIdResolverFactory;
 import com.amcglynn.myzappi.core.Brand;
 import com.amcglynn.myzappi.core.service.MyEnergiService;
 import com.amcglynn.myzappi.core.service.ZappiService;
 import com.amcglynn.myzappi.mappers.AlexaZappiChargeModeMapper;
+import lombok.SneakyThrows;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ExecutorService;
 
 import static com.amazon.ask.request.Predicates.intentName;
 import static com.amcglynn.myzappi.LocalisedResponse.cardResponse;
@@ -22,11 +26,14 @@ public class SetChargeModeHandler implements RequestHandler {
     private final MyEnergiService.Builder zappiServiceBuilder;
     private final AlexaZappiChargeModeMapper mapper;
     private final UserIdResolverFactory userIdResolverFactory;
+    private final ExecutorService executorService;
 
-    public SetChargeModeHandler(MyEnergiService.Builder zappiServiceBuilder, UserIdResolverFactory userIdResolverFactory) {
+    public SetChargeModeHandler(MyEnergiService.Builder zappiServiceBuilder, UserIdResolverFactory userIdResolverFactory,
+                                ExecutorService executorService) {
         this.zappiServiceBuilder = zappiServiceBuilder;
         mapper = new AlexaZappiChargeModeMapper();
         this.userIdResolverFactory = userIdResolverFactory;
+        this.executorService = executorService;
     }
 
     @Override
@@ -34,6 +41,7 @@ public class SetChargeModeHandler implements RequestHandler {
         return handlerInput.matches(intentName("SetChargeMode"));
     }
 
+    @SneakyThrows
     @Override
     public Optional<Response> handle(HandlerInput handlerInput) {
         var zappiService = zappiServiceBuilder.build(userIdResolverFactory.newUserIdResolver(handlerInput)).getZappiServiceOrThrow();
@@ -53,13 +61,39 @@ public class SetChargeModeHandler implements RequestHandler {
                     .withShouldEndSession(false)
                     .build();
         }
-        var chargeMode = mappedChargeMode.get();
+        var newChargeMode = mappedChargeMode.get();
 
-        zappiService.setChargeMode(chargeMode);
+        var status = executorService.submit(() ->  zappiService.getStatusSummary());
+
+        zappiService.setChargeMode(newChargeMode);
+
+        var zappiStatus = status.get().get(0);
+        var currentChargeMode = zappiStatus.getChargeMode();
+
+        var voiceResponse = voiceResponse(handlerInput, "change-charge-mode", Map.of("zappiChargeMode", newChargeMode.getDisplayName()));
+        var cardResponse = cardResponse(handlerInput, "change-charge-mode", Map.of("zappiChargeMode", newChargeMode.getDisplayName()));
+
+        if (chargeModeEscalated(currentChargeMode, newChargeMode) && !new EvStatusSummary(zappiStatus).isConnected()) {
+            voiceResponse += " " + voiceResponse(handlerInput, "connect-ev");
+            cardResponse += "\n" + cardResponse(handlerInput, "connect-ev");
+        }
+
         return handlerInput.getResponseBuilder()
                 .withShouldEndSession(false)
-                .withSpeech(voiceResponse(handlerInput, "change-charge-mode", Map.of("zappiChargeMode", chargeMode.getDisplayName())))
-                .withSimpleCard(Brand.NAME, cardResponse(handlerInput, "change-charge-mode", Map.of("zappiChargeMode", chargeMode.getDisplayName())))
+                .withSpeech(voiceResponse)
+                .withSimpleCard(Brand.NAME, cardResponse)
                 .build();
+    }
+
+    /**
+     * Check if the new charge mode is escalated from the existing charge mode. Escalated meaning the new charge mode
+     * pushes a greater charge rate to the car from the previous charge mode. Stop -> Eco+ -> Eco -> Fast -> Boost
+     * If the user is escalating the charge mode, they would likely want to know if their car is not plugged in.
+     * @param existingChargeMode the current charge mode
+     * @param newChargeMode the new charge mode requested by the user
+     * @return if the new charge mode is escalated from the existing charge mode
+     */
+    private boolean chargeModeEscalated(ZappiChargeMode existingChargeMode, ZappiChargeMode newChargeMode) {
+        return newChargeMode.ordinal() < existingChargeMode.ordinal();
     }
 }

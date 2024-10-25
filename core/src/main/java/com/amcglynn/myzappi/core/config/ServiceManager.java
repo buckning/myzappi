@@ -14,10 +14,12 @@ import com.amcglynn.myzappi.core.service.LoginService;
 import com.amcglynn.myzappi.core.service.MyEnergiService;
 import com.amcglynn.myzappi.core.service.ScheduleService;
 import com.amcglynn.myzappi.core.service.TariffService;
-import com.amcglynn.myzappi.core.service.ZappiService;
 import lombok.Getter;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.scheduler.SchedulerClient;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class ServiceManager {
 
@@ -34,6 +36,8 @@ public class ServiceManager {
     private final AmazonDynamoDB amazonDynamoDB;
     @Getter
     private final ScheduleService scheduleService;
+    @Getter
+    private final ExecutorService executorService;
 
     public ServiceManager(Properties properties) {
         amazonDynamoDB = AmazonDynamoDBClientBuilder.standard()
@@ -43,6 +47,7 @@ public class ServiceManager {
         credentialsRepository = new CredentialsRepository(amazonDynamoDB);
         devicesRepository = new DevicesRepository(amazonDynamoDB);
         myEnergiAccountCredentialsRepository = new MyEnergiAccountCredentialsRepository(amazonDynamoDB);
+        executorService = Executors.newFixedThreadPool(2);
 
         tariffService = new TariffService(new TariffRepository(amazonDynamoDB));
         this.properties = properties;

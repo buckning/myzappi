@@ -7,10 +7,15 @@ import com.amazon.ask.model.RequestEnvelope;
 import com.amazon.ask.model.Session;
 import com.amazon.ask.model.Slot;
 import com.amazon.ask.model.User;
+import com.amcglynn.myenergi.ChargeStatus;
+import com.amcglynn.myenergi.EvConnectionStatus;
 import com.amcglynn.myenergi.ZappiChargeMode;
+import com.amcglynn.myenergi.ZappiStatusSummary;
+import com.amcglynn.myenergi.apiresponse.ZappiStatus;
 import com.amcglynn.myzappi.UserIdResolverFactory;
 import com.amcglynn.myzappi.core.service.MyEnergiService;
 import com.amcglynn.myzappi.core.service.ZappiService;
+import com.google.common.util.concurrent.MoreExecutors;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,6 +27,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
+import java.util.List;
+import java.util.concurrent.ExecutorService;
 import java.util.stream.Stream;
 
 import static com.amcglynn.myzappi.handlers.ResponseVerifier.verifySimpleCardInResponse;
@@ -50,8 +57,14 @@ class SetChargeModeHandlerTest {
 
     @BeforeEach
     void setUp() {
+        when(mockMyEnergiServiceBuilder.build(any())).thenReturn(mockMyEnergiService);
         when(mockMyEnergiService.getZappiServiceOrThrow()).thenReturn(mockZappiService);
-        handler = new SetChargeModeHandler(mockMyEnergiServiceBuilder, mockUserIdResolverFactory);
+        when(mockZappiService.getStatusSummary()).thenReturn(List.of(new ZappiStatusSummary(
+                new ZappiStatus("12345678", 0L, 0L,
+                        0.0, 0L, ZappiChargeMode.ECO_PLUS.getApiValue(),
+                        ChargeStatus.DIVERTING.ordinal(), EvConnectionStatus.EV_CONNECTED.getCode()))));
+        handler = new SetChargeModeHandler(mockMyEnergiServiceBuilder,
+                mockUserIdResolverFactory, MoreExecutors.newDirectExecutorService());
         intentRequest = IntentRequest.builder()
                 .withIntent(Intent.builder().withName("SetChargeMode").build())
                 .build();
