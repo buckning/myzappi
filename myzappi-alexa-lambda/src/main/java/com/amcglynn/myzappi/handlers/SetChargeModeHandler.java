@@ -9,18 +9,20 @@ import com.amcglynn.myenergi.ZappiChargeMode;
 import com.amcglynn.myzappi.UserIdResolverFactory;
 import com.amcglynn.myzappi.core.Brand;
 import com.amcglynn.myzappi.core.service.MyEnergiService;
-import com.amcglynn.myzappi.core.service.ZappiService;
 import com.amcglynn.myzappi.mappers.AlexaZappiChargeModeMapper;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 
 import static com.amazon.ask.request.Predicates.intentName;
 import static com.amcglynn.myzappi.LocalisedResponse.cardResponse;
 import static com.amcglynn.myzappi.LocalisedResponse.voiceResponse;
 
+@Slf4j
 public class SetChargeModeHandler implements RequestHandler {
 
     private final MyEnergiService.Builder zappiServiceBuilder;
@@ -67,15 +69,19 @@ public class SetChargeModeHandler implements RequestHandler {
 
         zappiService.setChargeMode(newChargeMode);
 
-        var zappiStatus = status.get().get(0);
-        var currentChargeMode = zappiStatus.getChargeMode();
-
         var voiceResponse = voiceResponse(handlerInput, "change-charge-mode", Map.of("zappiChargeMode", newChargeMode.getDisplayName()));
         var cardResponse = cardResponse(handlerInput, "change-charge-mode", Map.of("zappiChargeMode", newChargeMode.getDisplayName()));
 
-        if (chargeModeEscalated(currentChargeMode, newChargeMode) && !new EvStatusSummary(zappiStatus).isConnected()) {
-            voiceResponse += " " + voiceResponse(handlerInput, "connect-ev");
-            cardResponse += "\n" + cardResponse(handlerInput, "connect-ev");
+        try {
+            var zappiStatus = status.get().get(0);
+            var currentChargeMode = zappiStatus.getChargeMode();
+
+            if (chargeModeEscalated(currentChargeMode, newChargeMode) && !new EvStatusSummary(zappiStatus).isConnected()) {
+                voiceResponse += " " + voiceResponse(handlerInput, "connect-ev");
+                cardResponse += "\n" + cardResponse(handlerInput, "connect-ev");
+            }
+        } catch (ExecutionException exception) {
+            log.info("Failed to get Zappi status when changing the charge mode", exception);
         }
 
         return handlerInput.getResponseBuilder()

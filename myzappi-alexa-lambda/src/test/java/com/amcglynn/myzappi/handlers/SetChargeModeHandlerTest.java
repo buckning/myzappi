@@ -12,6 +12,7 @@ import com.amcglynn.myenergi.EvConnectionStatus;
 import com.amcglynn.myenergi.ZappiChargeMode;
 import com.amcglynn.myenergi.ZappiStatusSummary;
 import com.amcglynn.myenergi.apiresponse.ZappiStatus;
+import com.amcglynn.myenergi.exception.InvalidResponseFormatException;
 import com.amcglynn.myzappi.UserIdResolverFactory;
 import com.amcglynn.myzappi.core.service.MyEnergiService;
 import com.amcglynn.myzappi.core.service.ZappiService;
@@ -35,6 +36,7 @@ import static com.amcglynn.myzappi.handlers.ResponseVerifier.verifySimpleCardInR
 import static com.amcglynn.myzappi.handlers.ResponseVerifier.verifySpeechInResponse;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -97,6 +99,21 @@ class SetChargeModeHandlerTest {
                 zappiChargeMode.getDisplayName() + ". This may take a few minutes.");
 
         verify(mockZappiService).setChargeMode(zappiChargeMode);
+    }
+
+    @Test
+    void testGetStatusFailsInSeparateThreadExpectTheChargeModeToStillBeSet() {
+        doThrow(new InvalidResponseFormatException()).when(mockZappiService).getStatusSummary();
+        initIntentRequest(ZappiChargeMode.ECO_PLUS);
+        var result = handler.handle(handlerInputBuilder().build());
+        assertThat(result).isPresent();
+
+        verifySpeechInResponse(result.get(), "<speak>Changing charge mode to "
+                + ZappiChargeMode.ECO_PLUS.getDisplayName() + ". This may take a few minutes.</speak>");
+        verifySimpleCardInResponse(result.get(), "My Zappi", "Changing charge mode to " +
+                ZappiChargeMode.ECO_PLUS.getDisplayName() + ". This may take a few minutes.");
+
+        verify(mockZappiService).setChargeMode(ZappiChargeMode.ECO_PLUS);
     }
 
     @ParameterizedTest
