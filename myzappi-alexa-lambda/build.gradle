@@ -7,4 +7,5 @@ dependencies {
     implementation project(":login-with-amazon")
     implementation project(":myenergi-client")
     implementation "software.amazon.awssdk:s3:${awsS3Version}"
+    testImplementation 'com.google.guava:guava:31.1-jre'
 }

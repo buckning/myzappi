@@ -1,5 +1,10 @@
 # Welcome to MyZappi!
 
+Task list:
+SetChargeMode
+1. Prompt the user to confirm if they want to unlock the charge mode if it is locked
+
+
 ## What is MyZappi?
 MyZappi is an Alexa skill that can be used to control your myenergi Zappi device all through an Amazon Echo or Alexa device.
 It offers functionality such as:
