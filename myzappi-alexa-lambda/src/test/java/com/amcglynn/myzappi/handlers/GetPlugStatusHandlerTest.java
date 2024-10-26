@@ -1,18 +1,12 @@
 package com.amcglynn.myzappi.handlers;
 
-import com.amazon.ask.dispatcher.request.handler.HandlerInput;
-import com.amazon.ask.model.Intent;
-import com.amazon.ask.model.IntentRequest;
-import com.amazon.ask.model.RequestEnvelope;
-import com.amazon.ask.model.Session;
-import com.amazon.ask.model.User;
 import com.amcglynn.myenergi.ChargeStatus;
 import com.amcglynn.myenergi.EvConnectionStatus;
 import com.amcglynn.myenergi.LockStatus;
 import com.amcglynn.myenergi.ZappiChargeMode;
 import com.amcglynn.myenergi.ZappiStatusSummary;
 import com.amcglynn.myenergi.apiresponse.ZappiStatus;
-import com.amcglynn.myzappi.UserIdResolverFactory;
+import com.amcglynn.myzappi.TestData;
 import com.amcglynn.myzappi.core.service.MyEnergiService;
 import com.amcglynn.myzappi.core.service.ZappiService;
 import org.junit.jupiter.api.BeforeEach;
@@ -41,35 +35,26 @@ class GetPlugStatusHandlerTest {
     private MyEnergiService mockMyEnergiService;
     @Mock
     private ZappiService mockZappiService;
-    @Mock
-    private UserIdResolverFactory mockUserIdResolverFactory;
 
     private GetPlugStatusHandler handler;
-    private IntentRequest intentRequest;
+    private TestData testData;
 
     @BeforeEach
     void setUp() {
+        testData = new TestData("GetPlugStatus", mockZappiService);
         when(mockMyEnergiService.getZappiServiceOrThrow()).thenReturn(mockZappiService);
         when(mockMyEnergiServiceBuilder.build(any())).thenReturn(mockMyEnergiService);
-        handler = new GetPlugStatusHandler(mockMyEnergiServiceBuilder, mockUserIdResolverFactory);
-        intentRequest = IntentRequest.builder()
-                .withLocale("en-GB")
-                .withIntent(Intent.builder().withName("GetPlugStatus").build())
-                .build();
+        handler = new GetPlugStatusHandler();
     }
 
     @Test
     void testCanHandleOnlyTriggersForTheIntent() {
-        assertThat(handler.canHandle(handlerInputBuilder().build())).isTrue();
+        assertThat(handler.canHandle(testData.handlerInput())).isTrue();
     }
 
     @Test
     void testCanHandleReturnsFalseWhenNotTheCorrectIntent() {
-        intentRequest = IntentRequest.builder()
-                .withIntent(Intent.builder()
-                        .withName("SetChargeMode").build())
-                .build();
-        assertThat(handler.canHandle(handlerInputBuilder().build())).isFalse();
+        assertThat(handler.canHandle(new TestData("Unknown").handlerInput())).isFalse();
     }
 
     @Test
@@ -78,7 +63,7 @@ class GetPlugStatusHandlerTest {
                 new ZappiStatus("12345678", 0L, 0L,
                         0.0, 0L, ZappiChargeMode.ECO_PLUS.getApiValue(),
                         ChargeStatus.PAUSED.ordinal(), EvConnectionStatus.EV_DISCONNECTED.getCode()))));
-        var result = handler.handle(handlerInputBuilder().build());
+        var result = handler.handle(testData.handlerInput());
         assertThat(result).isPresent();
         verifySpeechInResponse(result.get(), "<speak>Your E.V. is not connected.</speak>");
         verifySimpleCardInResponse(result.get(), "My Zappi", "Your E.V. is not connected.\n");
@@ -90,14 +75,15 @@ class GetPlugStatusHandlerTest {
                 new ZappiStatus("12345678", 0L, 1000L,
                         2.3, 0L, ZappiChargeMode.ECO_PLUS.getApiValue(),
                         ChargeStatus.PAUSED.ordinal(), EvConnectionStatus.CHARGING.getCode()))));
-        var result = handler.handle(handlerInputBuilder().build());
+        var result = handler.handle(testData.handlerInput());
         assertThat(result).isPresent();
         verifySpeechInResponse(result.get(), "<speak>Your E.V. is connected. Charge mode is Eco+. " +
                 "2.3 kilowatt hours added this session. Charge rate is 1.0 kilowatts.</speak>");
-        verifySimpleCardInResponse(result.get(), "My Zappi", "Your E.V. is connected.\n" +
-                "Charge mode: Eco+\n" +
-                "Charge added: 2.3kWh\n" +
-                "Charge rate: 1.0kW");
+        verifySimpleCardInResponse(result.get(), "My Zappi", """
+                Your E.V. is connected.
+                Charge mode: Eco+
+                Charge added: 2.3kWh
+                Charge rate: 1.0kW""");
     }
 
     @Test
@@ -106,12 +92,14 @@ class GetPlugStatusHandlerTest {
                 new ZappiStatus("12345678", 0L, 0L,
                         25.0, 0L, ZappiChargeMode.ECO_PLUS.getApiValue(),
                         ChargeStatus.COMPLETE.ordinal(), EvConnectionStatus.WAITING_FOR_EV.getCode()))));
-        var result = handler.handle(handlerInputBuilder().build());
+        var result = handler.handle(testData.handlerInput());
         assertThat(result).isPresent();
         verifySpeechInResponse(result.get(), "<speak>Your E.V. is finished charging. Charge mode is Eco+. 25.0 kilowatt hours added this session.</speak>");
-        verifySimpleCardInResponse(result.get(), "My Zappi", "Your E.V. is finished charging.\n" +
-                "Charge mode: Eco+\n" +
-                "Charge added: 25.0kWh\n");
+        verifySimpleCardInResponse(result.get(), "My Zappi", """
+                Your E.V. is finished charging.
+                Charge mode: Eco+
+                Charge added: 25.0kWh
+                """);
     }
 
     @Test
@@ -120,20 +108,9 @@ class GetPlugStatusHandlerTest {
                 new ZappiStatus("12345678", 0L, 0L,
                         25.0, 0L, ZappiChargeMode.ECO_PLUS.getApiValue(),
                         ChargeStatus.PAUSED.ordinal(), EvConnectionStatus.EV_CONNECTED.getCode(), LockStatus.LOCKED.getCode(), "v1.2.3"))));
-        var result = handler.handle(handlerInputBuilder().build());
+        var result = handler.handle(testData.handlerInput());
         assertThat(result).isPresent();
         verifySpeechInResponse(result.get(), "<speak>Your E.V. is connected but your charger is locked. It needs to be unlocked before you can start charging.</speak>");
         verifySimpleCardInResponse(result.get(), "My Zappi", "Your E.V. is connected but your charger is locked. It needs to be unlocked before you can start charging.\n");
-    }
-
-    private HandlerInput.Builder handlerInputBuilder() {
-        return HandlerInput.builder()
-                .withRequestEnvelope(requestEnvelopeBuilder().build());
-    }
-
-    private RequestEnvelope.Builder requestEnvelopeBuilder() {
-        return RequestEnvelope.builder()
-                .withRequest(intentRequest)
-                .withSession(Session.builder().withUser(User.builder().withUserId("test").build()).build());
     }
 }

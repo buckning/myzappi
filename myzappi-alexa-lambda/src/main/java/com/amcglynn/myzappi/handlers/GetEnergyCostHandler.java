@@ -4,13 +4,13 @@ import com.amazon.ask.dispatcher.request.handler.HandlerInput;
 import com.amazon.ask.dispatcher.request.handler.RequestHandler;
 import com.amazon.ask.model.Response;
 import com.amazon.ask.request.RequestHelper;
+import com.amcglynn.myzappi.RequestAttributes;
 import com.amcglynn.myzappi.TariffNotFoundException;
 import com.amcglynn.myzappi.UserIdResolverFactory;
 import com.amcglynn.myzappi.UserZoneResolver;
 import com.amcglynn.myzappi.core.Brand;
 import com.amcglynn.myzappi.core.service.MyEnergiService;
 import com.amcglynn.myzappi.core.service.TariffService;
-import com.amcglynn.myzappi.core.service.ZappiService;
 import com.amcglynn.myzappi.handlers.responses.ZappiEnergyCostCardResponse;
 import com.amcglynn.myzappi.handlers.responses.ZappiEnergyCostVoiceResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -24,19 +24,16 @@ import java.util.Optional;
 import static com.amazon.ask.request.Predicates.intentName;
 import static com.amcglynn.myzappi.LocalisedResponse.cardResponse;
 import static com.amcglynn.myzappi.LocalisedResponse.voiceResponse;
+import static com.amcglynn.myzappi.RequestAttributes.getUserId;
+import static com.amcglynn.myzappi.RequestAttributes.getZappiServiceOrThrow;
+import static com.amcglynn.myzappi.RequestAttributes.getZoneId;
 
 @Slf4j
 public class GetEnergyCostHandler implements RequestHandler {
-    private final MyEnergiService.Builder zappyServiceBuilder;
-    private final UserIdResolverFactory userIdResolverFactory;
-    private final UserZoneResolver userZoneResolver;
+
     private final TariffService tariffService;
 
-    public GetEnergyCostHandler(MyEnergiService.Builder zappyServiceBuilder, UserIdResolverFactory userIdResolverFactory,
-                                UserZoneResolver userZoneResolver, TariffService tariffService) {
-        this.zappyServiceBuilder = zappyServiceBuilder;
-        this.userIdResolverFactory = userIdResolverFactory;
-        this.userZoneResolver = userZoneResolver;
+    public GetEnergyCostHandler(TariffService tariffService) {
         this.tariffService = tariffService;
     }
 
@@ -49,7 +46,7 @@ public class GetEnergyCostHandler implements RequestHandler {
     public Optional<Response> handle(HandlerInput handlerInput) {
         var locale = Locale.forLanguageTag(handlerInput.getRequestEnvelope().getRequest().getLocale());
         // expected date format is 2023-05-06
-        var userTimeZone = userZoneResolver.getZoneId(handlerInput);
+        var userTimeZone = getZoneId(handlerInput);
 
         var date = parseSlot(handlerInput);
         if (date.isPresent() && date.get().length() != 10) {
@@ -63,11 +60,10 @@ public class GetEnergyCostHandler implements RequestHandler {
             return getInvalidRequestedDateResponse(handlerInput);
         }
 
-        var userIdResolver = userIdResolverFactory.newUserIdResolver(handlerInput);
-        var userId = userIdResolver.getUserId();
+        var userId = getUserId(handlerInput);
         var dayTariff = tariffService.get(userId).orElseThrow(() -> new TariffNotFoundException(userId));
 
-        var zappiService = zappyServiceBuilder.build(userIdResolver).getZappiServiceOrThrow();
+        var zappiService = getZappiServiceOrThrow(handlerInput);
 
         // call getHistory instead of getHourlyHistory so that requests for "today" are always up-to-date
         var history = zappiService.getHistory(localDate, userTimeZone);

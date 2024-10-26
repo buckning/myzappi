@@ -13,9 +13,7 @@ import com.amazon.ask.model.User;
 import com.amazon.ask.model.interfaces.system.SystemState;
 import com.amcglynn.myenergi.ZappiDaySummary;
 import com.amcglynn.myenergi.units.KiloWattHour;
-import com.amcglynn.myzappi.UserIdResolverFactory;
-import com.amcglynn.myzappi.UserZoneResolver;
-import com.amcglynn.myzappi.core.service.MyEnergiService;
+import com.amcglynn.myzappi.TestData;
 import com.amcglynn.myzappi.core.service.ZappiService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,6 +26,7 @@ import org.mockito.quality.Strictness;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
+import java.util.Map;
 
 import static com.amcglynn.myzappi.handlers.ResponseVerifier.verifySimpleCardInResponse;
 import static com.amcglynn.myzappi.handlers.ResponseVerifier.verifySpeechInResponse;
@@ -40,44 +39,26 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
 class GetEnergyUsageHandlerTest {
-
-    @Mock
-    private MyEnergiService.Builder mockMyEnergiServiceBuilder;
-    @Mock
-    private MyEnergiService mockMyEnergiService;
     @Mock
     private ZappiService mockZappiService;
-    @Mock
-    private UserIdResolverFactory mockUserIdResolverFactory;
-    @Mock
-    private UserZoneResolver mockUserZoneResolver;
-    private IntentRequest intentRequest;
-
     private GetEnergyUsageHandler handler;
+    private TestData testData;
 
     @BeforeEach
     void setUp() {
-        when(mockMyEnergiService.getZappiServiceOrThrow()).thenReturn(mockZappiService);
-        when(mockMyEnergiServiceBuilder.build(any())).thenReturn(mockMyEnergiService);
-        when(mockUserZoneResolver.getZoneId(any())).thenReturn(ZoneId.of("Europe/Dublin"));
-        handler = new GetEnergyUsageHandler(mockMyEnergiServiceBuilder, mockUserIdResolverFactory, mockUserZoneResolver);
-        intentRequest = IntentRequest.builder()
-                .withLocale("en-GB")
-                .withIntent(Intent.builder().withName("GetEnergyUsage").build())
-                .build();
+        testData = new TestData("GetEnergyUsage", mockZappiService);
+        handler = new GetEnergyUsageHandler();
     }
 
     @Test
     void testCanHandleOnlyTriggersForTheIntent() {
-        assertThat(handler.canHandle(handlerInputBuilder().build())).isTrue();
+        assertThat(handler.canHandle(testData.handlerInput())).isTrue();
     }
 
     @Test
     void testCanHandleReturnsFalseWhenNotTheCorrectIntent() {
-        intentRequest = IntentRequest.builder()
-                .withIntent(Intent.builder().withName("SetChargeMode").build())
-                .build();
-        assertThat(handler.canHandle(handlerInputBuilder().build())).isFalse();
+        testData = new TestData("Unknown", mockZappiService);
+        assertThat(handler.canHandle(testData.handlerInput())).isFalse();
     }
 // TODO - fix this code. It is broken after switching to zappiService.getRawEnergyUsage. commented out because of being too lazy to fix tonight
 //    @Test
@@ -107,8 +88,9 @@ class GetEnergyUsageHandlerTest {
 
     @Test
     void testHandleRejectsTheRequestWhenTheRequestedDateIsInTheFuture() {
-        initIntentRequest(LocalDate.now().plus(1, ChronoUnit.DAYS));
-        var result = handler.handle(handlerInputBuilder().build());
+        testData = new TestData("GetEnergyUsage", mockZappiService,
+                Map.of("date", LocalDate.now().plus(1, ChronoUnit.DAYS).toString()));
+        var result = handler.handle(testData.handlerInput());
         assertThat(result).isPresent();
         verifySpeechInResponse(result.get(), "<speak>I cannot give you usage data for a time in the future.</speak>");
         verifySimpleCardInResponse(result.get(), "My Zappi", "I cannot give you usage data for a time in the future.");
@@ -116,7 +98,7 @@ class GetEnergyUsageHandlerTest {
 
     @Test
     void testHandleReturnsErrorMessageWhenDateIsNotProvided() {
-        var result = handler.handle(handlerInputBuilder().build());
+        var result = handler.handle(new TestData("GetEnergyUsage", mockZappiService).handlerInput());
         assertThat(result).isPresent();
         verifySpeechInResponse(result.get(), "<speak>Please ask me for energy " +
                 "usage for a specific date.</speak>");
@@ -126,47 +108,14 @@ class GetEnergyUsageHandlerTest {
 
     @Test
     void testHandleReturnsErrorMessageWhenASpecificDateIsNotProvided() {
-        initIntentRequest("2023-06");
-        var result = handler.handle(handlerInputBuilder().build());
+        testData = new TestData("GetEnergyUsage", mockZappiService,
+                Map.of("date", "2023-06"));
+        var result = handler.handle(testData.handlerInput());
         assertThat(result).isPresent();
         verifySpeechInResponse(result.get(), "<speak>Please ask me for energy " +
                 "usage for a specific date.</speak>");
         verifySimpleCardInResponse(result.get(), "My Zappi", "Please ask me for energy " +
                 "usage for a specific date.");
-    }
-
-    private HandlerInput.Builder handlerInputBuilder() {
-        return HandlerInput.builder()
-                .withRequestEnvelope(requestEnvelopeBuilder()
-
-                        .withContext(Context.builder()
-
-                                .withSystem(SystemState.builder().withDevice(Device.builder().withDeviceId("myDeviceId").withSupportedInterfaces(SupportedInterfaces.builder()
-                                                .build())
-                                                .build())
-                                .build())
-                            .build())
-                        .build());
-    }
-
-    private RequestEnvelope.Builder requestEnvelopeBuilder() {
-        return RequestEnvelope.builder()
-                .withRequest(intentRequest)
-                .withContext(Context.builder()
-                        .withSystem(SystemState.builder().withDevice(Device.builder().withDeviceId("myDeviceId")
-                                        .build())
-                                .build())
-                        .build())
-                .withSession(Session.builder().withUser(User.builder().withUserId("test").build()).build());
-    }
-
-    private void initIntentRequest(Object object) {
-        intentRequest = IntentRequest.builder()
-                .withLocale("en-GB")
-                .withIntent(Intent.builder()
-                        .putSlotsItem("date", Slot.builder().withValue(object.toString()).build())
-                        .withName("date").build())
-                .build();
     }
 }
 

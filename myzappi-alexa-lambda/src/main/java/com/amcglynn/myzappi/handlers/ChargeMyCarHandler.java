@@ -16,17 +16,10 @@ import java.util.Optional;
 import static com.amazon.ask.request.Predicates.intentName;
 import static com.amcglynn.myzappi.LocalisedResponse.cardResponse;
 import static com.amcglynn.myzappi.LocalisedResponse.voiceResponse;
+import static com.amcglynn.myzappi.RequestAttributes.getZappiServiceOrThrow;
 
 @Slf4j
 public class ChargeMyCarHandler implements RequestHandler {
-
-    private final MyEnergiService.Builder zappiServiceBuilder;
-    private final UserIdResolverFactory userIdResolverFactory;
-
-    public ChargeMyCarHandler(MyEnergiService.Builder zappiServiceBuilder, UserIdResolverFactory userIdResolverFactory) {
-        this.zappiServiceBuilder = zappiServiceBuilder;
-        this.userIdResolverFactory = userIdResolverFactory;
-    }
 
     @Override
     public boolean canHandle(HandlerInput handlerInput) {
@@ -35,9 +28,8 @@ public class ChargeMyCarHandler implements RequestHandler {
 
     @Override
     public Optional<Response> handle(HandlerInput handlerInput) {
-        var zappiService = zappiServiceBuilder.build(userIdResolverFactory.newUserIdResolver(handlerInput));
         var chargeMode = ZappiChargeMode.FAST;
-        zappiService.getZappiServiceOrThrow().setChargeMode(chargeMode);
+        getZappiServiceOrThrow(handlerInput).setChargeMode(chargeMode);
         return handlerInput.getResponseBuilder()
                 .withSpeech(voiceResponse(handlerInput, "change-charge-mode", Map.of("zappiChargeMode", chargeMode.getDisplayName())))
                 .withSimpleCard(Brand.NAME, cardResponse(handlerInput, "change-charge-mode", Map.of("zappiChargeMode", chargeMode.getDisplayName())))

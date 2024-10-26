@@ -1,14 +1,7 @@
 package com.amcglynn.myzappi.handlers;
 
-import com.amazon.ask.dispatcher.request.handler.HandlerInput;
-import com.amazon.ask.model.Intent;
-import com.amazon.ask.model.IntentRequest;
-import com.amazon.ask.model.RequestEnvelope;
-import com.amazon.ask.model.Session;
-import com.amazon.ask.model.User;
 import com.amcglynn.myenergi.ZappiChargeMode;
-import com.amcglynn.myzappi.UserIdResolverFactory;
-import com.amcglynn.myzappi.core.service.MyEnergiService;
+import com.amcglynn.myzappi.TestData;
 import com.amcglynn.myzappi.core.service.ZappiService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,53 +14,37 @@ import org.mockito.quality.Strictness;
 import static com.amcglynn.myzappi.handlers.ResponseVerifier.verifySimpleCardInResponse;
 import static com.amcglynn.myzappi.handlers.ResponseVerifier.verifySpeechInResponse;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
 class ChargeMyCarHandlerTest {
 
     @Mock
-    private MyEnergiService mockMyEnergiService;
-    @Mock
     private ZappiService mockZappiService;
-    @Mock
-    private MyEnergiService.Builder mockMyEnergiServiceBuilder;
-    @Mock
-    private UserIdResolverFactory mockUserIdResolverFactory;
-    private IntentRequest intentRequest;
 
     private ChargeMyCarHandler handler;
+    private TestData testData;
 
     @BeforeEach
     void setUp() {
-        when(mockMyEnergiService.getZappiServiceOrThrow()).thenReturn(mockZappiService);
-        when(mockMyEnergiServiceBuilder.build(any())).thenReturn(mockMyEnergiService);
-        handler = new ChargeMyCarHandler(mockMyEnergiServiceBuilder, mockUserIdResolverFactory);
-        intentRequest = IntentRequest.builder()
-                .withIntent(Intent.builder().withName("ChargeMyCar").build())
-                .withLocale("en-GB")
-                .build();
+        handler = new ChargeMyCarHandler();
+        testData = new TestData("ChargeMyCar", mockZappiService);
     }
 
     @Test
     void testCanHandleOnlyTriggersForTheIntent() {
-        assertThat(handler.canHandle(handlerInputBuilder().build())).isTrue();
+        assertThat(handler.canHandle(testData.handlerInput())).isTrue();
     }
 
     @Test
     void testCanHandleReturnsFalseWhenNotTheCorrectIntent() {
-        intentRequest = IntentRequest.builder()
-                .withIntent(Intent.builder().withName("Unknown").build())
-                .build();
-        assertThat(handler.canHandle(handlerInputBuilder().build())).isFalse();
+        assertThat(handler.canHandle(new TestData("Unknown", mockZappiService).handlerInput())).isFalse();
     }
 
     @Test
     void testHandleSetsChargeModeToEcoPlus() {
-        var result = handler.handle(handlerInputBuilder().build());
+        var result = handler.handle(testData.handlerInput());
         assertThat(result).isPresent();
 
         verifySpeechInResponse(result.get(), "<speak>Changing charge mode to Fast. This may take a few minutes.</speak>");
@@ -75,16 +52,5 @@ class ChargeMyCarHandlerTest {
                 "This may take a few minutes.");
 
         verify(mockZappiService).setChargeMode(ZappiChargeMode.FAST);
-    }
-
-    private HandlerInput.Builder handlerInputBuilder() {
-        return HandlerInput.builder()
-                .withRequestEnvelope(requestEnvelopeBuilder().build());
-    }
-
-    private RequestEnvelope.Builder requestEnvelopeBuilder() {
-        return RequestEnvelope.builder()
-                .withRequest(intentRequest)
-                .withSession(Session.builder().withUser(User.builder().withUserId("test").build()).build());
     }
 }

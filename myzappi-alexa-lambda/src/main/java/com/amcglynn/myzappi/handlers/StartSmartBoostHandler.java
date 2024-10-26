@@ -2,12 +2,9 @@ package com.amcglynn.myzappi.handlers;
 
 import com.amazon.ask.dispatcher.request.handler.HandlerInput;
 import com.amazon.ask.dispatcher.request.handler.RequestHandler;
-import com.amazon.ask.model.IntentRequest;
 import com.amazon.ask.model.Response;
 import com.amazon.ask.request.RequestHelper;
 import com.amcglynn.myenergi.units.KiloWattHour;
-import com.amcglynn.myzappi.UserIdResolverFactory;
-import com.amcglynn.myzappi.core.service.MyEnergiService;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalTime;
@@ -17,17 +14,10 @@ import java.util.Optional;
 import static com.amazon.ask.request.Predicates.intentName;
 import static com.amcglynn.myzappi.LocalisedResponse.cardResponse;
 import static com.amcglynn.myzappi.LocalisedResponse.voiceResponse;
+import static com.amcglynn.myzappi.RequestAttributes.getZappiServiceOrThrow;
 
 @Slf4j
 public class StartSmartBoostHandler implements RequestHandler {
-
-    private final MyEnergiService.Builder zappiServiceBuilder;
-    private final UserIdResolverFactory userIdResolverFactory;
-
-    public StartSmartBoostHandler(MyEnergiService.Builder zappiServiceBuilder, UserIdResolverFactory userIdResolverFactory) {
-        this.zappiServiceBuilder = zappiServiceBuilder;
-        this.userIdResolverFactory = userIdResolverFactory;
-    }
 
     @Override
     public boolean canHandle(HandlerInput handlerInput) {
@@ -47,7 +37,7 @@ public class StartSmartBoostHandler implements RequestHandler {
                     .build();
         }
 
-        var zappiService = zappiServiceBuilder.build(userIdResolverFactory.newUserIdResolver(handlerInput)).getZappiServiceOrThrow();
+        var zappiService = getZappiServiceOrThrow(handlerInput);
 
         // alexa ensures kilowatt hours and Time slots are populated
         zappiService.startSmartBoost(kilowattHours.get(), LocalTime.parse(finishChargingAt.get()));

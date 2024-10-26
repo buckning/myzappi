@@ -21,20 +21,16 @@ import java.util.concurrent.ExecutorService;
 import static com.amazon.ask.request.Predicates.intentName;
 import static com.amcglynn.myzappi.LocalisedResponse.cardResponse;
 import static com.amcglynn.myzappi.LocalisedResponse.voiceResponse;
+import static com.amcglynn.myzappi.RequestAttributes.getZappiServiceOrThrow;
 
 @Slf4j
 public class SetChargeModeHandler implements RequestHandler {
 
-    private final MyEnergiService.Builder zappiServiceBuilder;
     private final AlexaZappiChargeModeMapper mapper;
-    private final UserIdResolverFactory userIdResolverFactory;
     private final ExecutorService executorService;
 
-    public SetChargeModeHandler(MyEnergiService.Builder zappiServiceBuilder, UserIdResolverFactory userIdResolverFactory,
-                                ExecutorService executorService) {
-        this.zappiServiceBuilder = zappiServiceBuilder;
+    public SetChargeModeHandler(ExecutorService executorService) {
         mapper = new AlexaZappiChargeModeMapper();
-        this.userIdResolverFactory = userIdResolverFactory;
         this.executorService = executorService;
     }
 
@@ -46,7 +42,7 @@ public class SetChargeModeHandler implements RequestHandler {
     @SneakyThrows
     @Override
     public Optional<Response> handle(HandlerInput handlerInput) {
-        var zappiService = zappiServiceBuilder.build(userIdResolverFactory.newUserIdResolver(handlerInput)).getZappiServiceOrThrow();
+        var zappiService = getZappiServiceOrThrow(handlerInput);
 
         var request = handlerInput.getRequestEnvelope().getRequest();
         var intentRequest = (IntentRequest) request;

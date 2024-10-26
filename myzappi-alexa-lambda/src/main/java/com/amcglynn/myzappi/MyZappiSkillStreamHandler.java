@@ -42,6 +42,8 @@ import com.amcglynn.myzappi.handlers.StatusSummaryHandler;
 import com.amcglynn.myzappi.handlers.StopBoostHandler;
 import com.amcglynn.myzappi.handlers.StopEddiBoostHandler;
 import com.amcglynn.myzappi.handlers.UnlockZappiHandler;
+import com.amcglynn.myzappi.interceptors.ZappiServiceInjectorInterceptor;
+import com.amcglynn.myzappi.interceptors.ZoneIdInjectorInterceptor;
 import com.amcglynn.myzappi.service.ReminderServiceFactory;
 import com.amcglynn.myzappi.service.SchedulerService;
 import software.amazon.awssdk.regions.Region;
@@ -59,27 +61,29 @@ public class MyZappiSkillStreamHandler extends SkillStreamHandler {
     public MyZappiSkillStreamHandler(ServiceManager serviceManager, UserIdResolverFactory userIdResolverFactory,
                                      UserZoneResolver userZoneResolver, ReminderServiceFactory reminderServiceFactory) {
         super(Skills.standard()
+                .addRequestInterceptor(new ZappiServiceInjectorInterceptor(serviceManager.getMyEnergiServiceBuilder(), userIdResolverFactory))
+                .addRequestInterceptor(new ZoneIdInjectorInterceptor(userZoneResolver))
                 .addRequestHandler(new LaunchHandler())
                 .addRequestHandler(new HelpHandler())
                 .addRequestHandler(new FallbackHandler())
-                .addRequestHandler(new UnlockZappiHandler(serviceManager.getMyEnergiServiceBuilder(), userIdResolverFactory))
-                .addRequestHandler(new StatusSummaryHandler(serviceManager.getMyEnergiServiceBuilder(), userIdResolverFactory))
-                .addRequestHandler(new GetSolarReportHandler(serviceManager.getMyEnergiServiceBuilder(), userIdResolverFactory))
-                .addRequestHandler(new StartBoostHandler(serviceManager.getMyEnergiServiceBuilder(), userIdResolverFactory, userZoneResolver))
-                .addRequestHandler(new StopBoostHandler(serviceManager.getMyEnergiServiceBuilder(), userIdResolverFactory))
-                .addRequestHandler(new StartSmartBoostHandler(serviceManager.getMyEnergiServiceBuilder(), userIdResolverFactory))
-                .addRequestHandler(new GetPlugStatusHandler(serviceManager.getMyEnergiServiceBuilder(), userIdResolverFactory))
-                .addRequestHandler(new GetChargeModeHandler(serviceManager.getMyEnergiServiceBuilder(), userIdResolverFactory))
-                .addRequestHandler(new GetEnergyUsageHandler(serviceManager.getMyEnergiServiceBuilder(), userIdResolverFactory, userZoneResolver))
-                .addRequestHandler(new GetEnergyCostHandler(serviceManager.getMyEnergiServiceBuilder(), userIdResolverFactory, userZoneResolver, serviceManager.getTariffService()))
-                .addRequestHandler(new SetChargeModeHandler(serviceManager.getMyEnergiServiceBuilder(), userIdResolverFactory, serviceManager.getExecutorService()))
+                .addRequestHandler(new UnlockZappiHandler())
+                .addRequestHandler(new StatusSummaryHandler())
+                .addRequestHandler(new GetSolarReportHandler())
+                .addRequestHandler(new StartBoostHandler())
+                .addRequestHandler(new StopBoostHandler())
+                .addRequestHandler(new StartSmartBoostHandler())
+                .addRequestHandler(new GetPlugStatusHandler())
+                .addRequestHandler(new GetChargeModeHandler())
+                .addRequestHandler(new GetEnergyUsageHandler())
+                .addRequestHandler(new GoGreenHandler())
+                .addRequestHandler(new GetChargeRateHandler())
+                .addRequestHandler(new ChargeMyCarHandler())
+                .addRequestHandler(new GetEnergyCostHandler(serviceManager.getTariffService()))
+                .addRequestHandler(new SetChargeModeHandler(serviceManager.getExecutorService()))
                 .addRequestHandler(new SetEddiModeToNormalHandler(serviceManager.getMyEnergiServiceBuilder(), userIdResolverFactory))
                 .addRequestHandler(new SetEddiModeToStoppedHandler(serviceManager.getMyEnergiServiceBuilder(), userIdResolverFactory))
                 .addRequestHandler(new BoostEddiHandler(serviceManager.getMyEnergiServiceBuilder(), userIdResolverFactory))
                 .addRequestHandler(new StopEddiBoostHandler(serviceManager.getMyEnergiServiceBuilder(), userIdResolverFactory))
-                .addRequestHandler(new GoGreenHandler(serviceManager.getMyEnergiServiceBuilder(), userIdResolverFactory))
-                .addRequestHandler(new GetChargeRateHandler(serviceManager.getMyEnergiServiceBuilder(), userIdResolverFactory))
-                .addRequestHandler(new ChargeMyCarHandler(serviceManager.getMyEnergiServiceBuilder(), userIdResolverFactory))
                 .addRequestHandler(new SetReminderHandler(reminderServiceFactory, userZoneResolver, userIdResolverFactory,
                         new AlexaToLwaLookUpRepository(serviceManager.getAmazonDynamoDB()),
                         new SchedulerService(SchedulerClient.builder().region(Region.EU_WEST_1).build(),
