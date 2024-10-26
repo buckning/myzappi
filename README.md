@@ -17,6 +17,7 @@ The most popular commands from about 10 months are:
 6. Status summary
 7. Get plug status
 8. Get charge rate - show graph of just the charge rate
+9. Get solar report - show graph of solar generation
 
 These commands should be as good as possible, offering value to the user over the myenergi app
 

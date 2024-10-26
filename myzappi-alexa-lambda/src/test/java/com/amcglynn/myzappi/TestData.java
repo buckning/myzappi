@@ -11,6 +11,7 @@ import com.amazon.ask.model.Slot;
 import com.amazon.ask.model.SupportedInterfaces;
 import com.amazon.ask.model.User;
 import com.amazon.ask.model.interfaces.system.SystemState;
+import com.amazon.ask.model.services.ServiceClientFactory;
 import com.amcglynn.myzappi.core.service.ZappiService;
 
 import java.time.ZoneId;
@@ -58,7 +59,12 @@ public class TestData {
     }
 
     public HandlerInput handlerInput() {
+        return handlerInput(null);
+    }
+
+    public HandlerInput handlerInput(ServiceClientFactory serviceClientFactory) {
         var handlerInput = HandlerInput.builder()
+                .withServiceClientFactory(serviceClientFactory)
                 .withContext(Context.builder()
                         .withSystem(SystemState.builder()
                                 .withDevice(Device.builder()
