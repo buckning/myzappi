@@ -17,6 +17,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
+import java.time.ZoneId;
+import java.util.HashMap;
+
 import static com.amcglynn.myzappi.handlers.ResponseVerifier.verifySimpleCardInResponse;
 import static com.amcglynn.myzappi.handlers.ResponseVerifier.verifySpeechInResponse;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -34,8 +37,6 @@ class UnlockZappiHandlerTest {
     private MyEnergiService mockMyEnergiService;
     @Mock
     private ZappiService mockZappiService;
-    @Mock
-    private UserIdResolverFactory mockUserIdResolverFactory;
 
     private UnlockZappiHandler handler;
     private IntentRequest intentRequest;
@@ -44,7 +45,7 @@ class UnlockZappiHandlerTest {
     void setUp() {
         when(mockMyEnergiService.getZappiServiceOrThrow()).thenReturn(mockZappiService);
         when(mockMyEnergiServiceBuilder.build(any())).thenReturn(mockMyEnergiService);
-        handler = new UnlockZappiHandler(mockMyEnergiServiceBuilder, mockUserIdResolverFactory);
+        handler = new UnlockZappiHandler();
         intentRequest = IntentRequest.builder()
                 .withLocale("en-GB")
                 .withIntent(Intent.builder().withName("UnlockZappi").build())
@@ -53,7 +54,7 @@ class UnlockZappiHandlerTest {
 
     @Test
     void testCanHandleOnlyTriggersForTheIntent() {
-        assertThat(handler.canHandle(handlerInputBuilder().build())).isTrue();
+        assertThat(handler.canHandle(handlerInputBuilder())).isTrue();
     }
 
     @Test
@@ -62,21 +63,26 @@ class UnlockZappiHandlerTest {
                 .withIntent(Intent.builder()
                         .withName("SetChargeMode").build())
                 .build();
-        assertThat(handler.canHandle(handlerInputBuilder().build())).isFalse();
+        assertThat(handler.canHandle(handlerInputBuilder())).isFalse();
     }
 
     @Test
     void testHandle() {
-        var result = handler.handle(handlerInputBuilder().build());
+        var result = handler.handle(handlerInputBuilder());
         assertThat(result).isPresent();
         verifySpeechInResponse(result.get(), "<speak>Unlocking your charger. This may take a few minutes.</speak>");
         verifySimpleCardInResponse(result.get(), "My Zappi", "Unlocking your charger. This may take a few minutes.");
         verify(mockZappiService).unlockZappi();
     }
 
-    private HandlerInput.Builder handlerInputBuilder() {
-        return HandlerInput.builder()
-                .withRequestEnvelope(requestEnvelopeBuilder().build());
+    private HandlerInput handlerInputBuilder() {
+        var handlerInput = HandlerInput.builder()
+                .withRequestEnvelope(requestEnvelopeBuilder().build()).build();
+        var requestAttributes = new HashMap<String, Object>();
+        requestAttributes.put("zoneId", ZoneId.of("Europe/Dublin"));
+        requestAttributes.put("zappiService", mockZappiService);
+        handlerInput.getAttributesManager().setRequestAttributes(requestAttributes);
+        return handlerInput;
     }
 
     private RequestEnvelope.Builder requestEnvelopeBuilder() {

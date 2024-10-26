@@ -10,7 +10,6 @@ import com.amcglynn.myzappi.UserZoneResolver;
 import com.amcglynn.myzappi.core.Brand;
 import com.amcglynn.myzappi.core.service.MyEnergiService;
 import com.amcglynn.myzappi.core.service.TariffService;
-import com.amcglynn.myzappi.core.service.ZappiService;
 import com.amcglynn.myzappi.handlers.responses.ZappiEnergyCostCardResponse;
 import com.amcglynn.myzappi.handlers.responses.ZappiEnergyCostVoiceResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +23,8 @@ import java.util.Optional;
 import static com.amazon.ask.request.Predicates.intentName;
 import static com.amcglynn.myzappi.LocalisedResponse.cardResponse;
 import static com.amcglynn.myzappi.LocalisedResponse.voiceResponse;
+import static com.amcglynn.myzappi.RequestAttributes.getZappiServiceOrThrow;
+import static com.amcglynn.myzappi.RequestAttributes.getZoneId;
 
 @Slf4j
 public class GetEnergyCostHandler implements RequestHandler {
@@ -49,7 +50,7 @@ public class GetEnergyCostHandler implements RequestHandler {
     public Optional<Response> handle(HandlerInput handlerInput) {
         var locale = Locale.forLanguageTag(handlerInput.getRequestEnvelope().getRequest().getLocale());
         // expected date format is 2023-05-06
-        var userTimeZone = userZoneResolver.getZoneId(handlerInput);
+        var userTimeZone = getZoneId(handlerInput);
 
         var date = parseSlot(handlerInput);
         if (date.isPresent() && date.get().length() != 10) {
@@ -67,7 +68,7 @@ public class GetEnergyCostHandler implements RequestHandler {
         var userId = userIdResolver.getUserId();
         var dayTariff = tariffService.get(userId).orElseThrow(() -> new TariffNotFoundException(userId));
 
-        var zappiService = zappyServiceBuilder.build(userIdResolver).getZappiServiceOrThrow();
+        var zappiService = getZappiServiceOrThrow(handlerInput);
 
         // call getHistory instead of getHourlyHistory so that requests for "today" are always up-to-date
         var history = zappiService.getHistory(localDate, userTimeZone);

@@ -38,6 +38,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -59,8 +60,6 @@ class GetEnergyCostHandlerTest {
     @Mock
     private MyEnergiService.Builder mockMyEnergiServiceBuilder;
     @Mock
-    private MyEnergiService mockMyEnergiService;
-    @Mock
     private ZappiService mockZappiService;
     @Mock
     private UserIdResolverFactory mockUserIdResolverFactory;
@@ -73,24 +72,32 @@ class GetEnergyCostHandlerTest {
     private IntentRequest intentRequest;
 
     private GetEnergyCostHandler handler;
+    private HandlerInput handlerInput;
 
     @BeforeEach
     void setUp() {
-        when(mockMyEnergiService.getZappiServiceOrThrow()).thenReturn(mockZappiService);
-        when(mockMyEnergiServiceBuilder.build(any())).thenReturn(mockMyEnergiService);
-        when(mockUserZoneResolver.getZoneId(any())).thenReturn(ZoneId.of("Europe/Dublin"));
-        handler = new GetEnergyCostHandler(mockMyEnergiServiceBuilder, mockUserIdResolverFactory, mockUserZoneResolver, mockTariffService);
-        when(mockUserIdResolverFactory.newUserIdResolver(any())).thenReturn(mockUserIdResolver);
-        when(mockUserIdResolver.getUserId()).thenReturn("mockUserId");
         intentRequest = IntentRequest.builder()
                 .withLocale("en-GB")
                 .withIntent(Intent.builder().withName("GetEnergyCost").build())
                 .build();
+
+        handler = new GetEnergyCostHandler(mockMyEnergiServiceBuilder, mockUserIdResolverFactory, mockUserZoneResolver, mockTariffService);
+        when(mockUserIdResolverFactory.newUserIdResolver(any())).thenReturn(mockUserIdResolver);
+        when(mockUserIdResolver.getUserId()).thenReturn("mockUserId");
+        initHandlerInput();
+    }
+
+    private void initHandlerInput() {
+        handlerInput = handlerInputBuilder().build();
+        var requestAttributes = new HashMap<String, Object>();
+        requestAttributes.put("zoneId", ZoneId.of("Europe/Dublin"));
+        requestAttributes.put("zappiService", mockZappiService);
+        handlerInput.getAttributesManager().setRequestAttributes(requestAttributes);
     }
 
     @Test
     void testCanHandleOnlyTriggersForTheIntent() {
-        assertThat(handler.canHandle(handlerInputBuilder().build())).isTrue();
+        assertThat(handler.canHandle(handlerInput)).isTrue();
     }
 
     @Test
@@ -114,7 +121,7 @@ class GetEnergyCostHandlerTest {
                 new KiloWattHour(4), new KiloWattHour(7)));
 
         when(mockTariffService.get(anyString())).thenReturn(Optional.empty());
-        var throwable = catchThrowable(() -> handler.handle(handlerInputBuilder().build()));
+        var throwable = catchThrowable(() -> handler.handle(handlerInput));
         assertThat(throwable).isNotNull().isInstanceOf(TariffNotFoundException.class);
     }
 
@@ -130,7 +137,7 @@ class GetEnergyCostHandlerTest {
         when(mockTariffService.get(anyString())).thenReturn(Optional.of(new DayTariff("EUR", List.of(tariff))));
         when(mockTariffService.calculateCost(any(), any(), any(), any())).thenReturn(dayCost);
 
-        var response = handler.handle(handlerInputBuilder().build());
+        var response = handler.handle(handlerInput);
         verifySpeechInResponse(response.get(), "<speak>Total credit is 1 Euro and 0 cent. You imported 1 Euro " +
                 "and 0 cent. You exported 2 Euro and 0 cent. Total saved 1 Euro and 0 cent.</speak>");
         verifySimpleCardInResponse(response.get(), "My Zappi", "Total credit: €1.00\n" +
@@ -152,7 +159,7 @@ class GetEnergyCostHandlerTest {
         when(mockTariffService.get(anyString())).thenReturn(Optional.of(new DayTariff("EUR", List.of(tariff))));
         when(mockTariffService.calculateCost(any(), any(), any(), any())).thenReturn(dayCost);
 
-        var response = handler.handle(handlerInputBuilder().build());
+        var response = handler.handle(handlerInput);
         verifySpeechInResponse(response.get(), "<speak>Total cost is 1 Euro and 0 cent. You imported 2 Euro " +
                 "and 0 cent. You exported 1 Euro and 0 cent. Total saved 1 Euro and 0 cent.</speak>");
         verifySimpleCardInResponse(response.get(), "My Zappi", "Total cost: €1.00\n" +
@@ -170,6 +177,7 @@ class GetEnergyCostHandlerTest {
                         .putSlotsItem("date", Slot.builder().withValue(LocalDate.of(2023, 2, 20).toString()).build())
                         .withName("date").build())
                 .build();
+        initHandlerInput();
 
         var dayCost = new DayCost("EUR");
         var tariff = new Tariff("MockTariff", LocalTime.of(0, 0), LocalTime.of(0, 0), 1, 1);
@@ -179,7 +187,7 @@ class GetEnergyCostHandlerTest {
         when(mockTariffService.get(anyString())).thenReturn(Optional.of(new DayTariff("EUR", List.of(tariff))));
         when(mockTariffService.calculateCost(any(), any(), any(), any())).thenReturn(dayCost);
 
-        var response = handler.handle(handlerInputBuilder().build());
+        var response = handler.handle(handlerInput);
         verifySpeechInResponse(response.get(), "<speak>Il costo totale è 1 e 0. Il costo dell'energia importata è 2 e 0. " +
                 "Il costo dell'energia esportata è 1 e 0. Hai risparmiato in totale  1 e 0.</speak>");
         verifySimpleCardInResponse(response.get(), "My Zappi", "Costo totale: €1,00\n" +
@@ -216,7 +224,7 @@ class GetEnergyCostHandlerTest {
         when(mockTariffService.get(anyString())).thenReturn(Optional.of(new DayTariff("EUR", List.of(tariff))));
         when(mockTariffService.calculateCost(any(), any(), any(), any())).thenReturn(dayCost);
 
-        var response = handler.handle(handlerInputBuilder().build());
+        var response = handler.handle(handlerInput);
         verifySpeechInResponse(response.get(), "<speak>Total cost is 1 Pound and 0 pence. You imported 2 Pounds " +
                 "and 0 pence. You exported 1 Pound and 0 pence. Total saved 1 Pound and 0 pence.</speak>");
         verifySimpleCardInResponse(response.get(), "My Zappi", "Total cost: £1.00\n" +
@@ -229,7 +237,8 @@ class GetEnergyCostHandlerTest {
     @Test
     void testHandleRejectsTheRequestWhenTheRequestedDateIsInTheFuture() {
         initIntentRequest(LocalDate.now().plus(1, ChronoUnit.DAYS));
-        var result = handler.handle(handlerInputBuilder().build());
+        initHandlerInput();
+        var result = handler.handle(handlerInput);
         assertThat(result).isPresent();
         verifySpeechInResponse(result.get(), "<speak>I cannot give you a cost for a time in the future.</speak>");
         verifySimpleCardInResponse(result.get(), "My Zappi", "I cannot give you a cost for a time in the future.");
@@ -239,7 +248,7 @@ class GetEnergyCostHandlerTest {
     void testHandleUsesCurrentDateIfNoDateIsSpecified() {
         when(mockTariffService.get(anyString())).thenReturn(Optional.of(new DayTariff("EUR", List.of())));
         when(mockTariffService.calculateCost(any(), any(), any(), any())).thenReturn(new DayCost("EUR"));
-        var result = handler.handle(handlerInputBuilder().build());
+        var result = handler.handle(handlerInput);
         assertThat(result).isPresent();
         verify(mockZappiService).getHistory(LocalDate.now(), ZoneId.of("Europe/Dublin"));
     }
@@ -247,7 +256,8 @@ class GetEnergyCostHandlerTest {
     @Test
     void testHandleReturnsErrorMessageWhenASpecificDateIsNotProvided() {
         initIntentRequest("2023-06");
-        var result = handler.handle(handlerInputBuilder().build());
+        initHandlerInput();
+        var result = handler.handle(handlerInput);
         assertThat(result).isPresent();
         verifySpeechInResponse(result.get(), "<speak>Please ask me for an energy " +
                 "cost for a specific date.</speak>");
