@@ -4,6 +4,7 @@ import com.amazon.ask.dispatcher.request.handler.HandlerInput;
 import com.amazon.ask.dispatcher.request.interceptor.RequestInterceptor;
 import com.amcglynn.myzappi.UserIdResolverFactory;
 import com.amcglynn.myzappi.core.service.MyEnergiService;
+import com.amcglynn.myzappi.core.service.UserIdResolver;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -21,7 +22,10 @@ public class ZappiServiceInjectorInterceptor implements RequestInterceptor {
     public void process(HandlerInput handlerInput) {
         var requestAttributes = handlerInput.getAttributesManager().getRequestAttributes();
 
-        var zappiService = myenergiServiceBuilder.build(userIdResolverFactory.newUserIdResolver(handlerInput)).getZappiService();
+        var userIdResolver = userIdResolverFactory.newUserIdResolver(handlerInput);
+        requestAttributes.put("userId", userIdResolver.getUserId());
+
+        var zappiService = myenergiServiceBuilder.build(userIdResolver).getZappiService();
         zappiService.ifPresent(service -> requestAttributes.put("zappiService", service));
     }
 }

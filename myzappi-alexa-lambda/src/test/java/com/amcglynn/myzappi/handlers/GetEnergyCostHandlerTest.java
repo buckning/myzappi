@@ -14,6 +14,7 @@ import com.amcglynn.myenergi.ZappiDaySummary;
 import com.amcglynn.myenergi.apiresponse.ZappiHistory;
 import com.amcglynn.myenergi.units.KiloWattHour;
 import com.amcglynn.myzappi.TariffNotFoundException;
+import com.amcglynn.myzappi.TestData;
 import com.amcglynn.myzappi.UserIdResolverFactory;
 import com.amcglynn.myzappi.UserZoneResolver;
 import com.amcglynn.myzappi.core.model.DayCost;
@@ -73,6 +74,7 @@ class GetEnergyCostHandlerTest {
 
     private GetEnergyCostHandler handler;
     private HandlerInput handlerInput;
+    private TestData testData;
 
     @BeforeEach
     void setUp() {
@@ -80,8 +82,9 @@ class GetEnergyCostHandlerTest {
                 .withLocale("en-GB")
                 .withIntent(Intent.builder().withName("GetEnergyCost").build())
                 .build();
+        testData = new TestData("GetEnergyCost", mockZappiService);
 
-        handler = new GetEnergyCostHandler(mockMyEnergiServiceBuilder, mockUserIdResolverFactory, mockUserZoneResolver, mockTariffService);
+        handler = new GetEnergyCostHandler(mockTariffService);
         when(mockUserIdResolverFactory.newUserIdResolver(any())).thenReturn(mockUserIdResolver);
         when(mockUserIdResolver.getUserId()).thenReturn("mockUserId");
         initHandlerInput();
@@ -92,12 +95,13 @@ class GetEnergyCostHandlerTest {
         var requestAttributes = new HashMap<String, Object>();
         requestAttributes.put("zoneId", ZoneId.of("Europe/Dublin"));
         requestAttributes.put("zappiService", mockZappiService);
+        requestAttributes.put("userId", "mockUserId");
         handlerInput.getAttributesManager().setRequestAttributes(requestAttributes);
     }
 
     @Test
     void testCanHandleOnlyTriggersForTheIntent() {
-        assertThat(handler.canHandle(handlerInput)).isTrue();
+        assertThat(handler.canHandle(testData.handlerInput())).isTrue();
     }
 
     @Test
@@ -105,7 +109,7 @@ class GetEnergyCostHandlerTest {
         intentRequest = IntentRequest.builder()
                 .withIntent(Intent.builder().withName("SetChargeMode").build())
                 .build();
-        assertThat(handler.canHandle(handlerInputBuilder().build())).isFalse();
+        assertThat(handler.canHandle(new TestData("SetChargeMode", mockZappiService).handlerInput())).isFalse();
     }
 
     @Test

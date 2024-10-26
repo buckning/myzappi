@@ -15,6 +15,11 @@ public class RequestAttributes {
         return (ZoneId) requestAttributes.get("zoneId");
     }
 
+    public static String getUserId(HandlerInput handlerInput) {
+        var requestAttributes = handlerInput.getAttributesManager().getRequestAttributes();
+        return (String) requestAttributes.get("userId");
+    }
+
     public static ZappiService getZappiServiceOrThrow(HandlerInput handlerInput) {
         var requestAttributes = handlerInput.getAttributesManager().getRequestAttributes();
         var zappiService = (ZappiService) requestAttributes.get("zappiService");

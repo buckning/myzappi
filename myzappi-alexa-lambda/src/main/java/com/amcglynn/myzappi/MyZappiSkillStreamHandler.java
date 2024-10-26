@@ -73,9 +73,9 @@ public class MyZappiSkillStreamHandler extends SkillStreamHandler {
                 .addRequestHandler(new StopBoostHandler(serviceManager.getMyEnergiServiceBuilder(), userIdResolverFactory))
                 .addRequestHandler(new StartSmartBoostHandler(serviceManager.getMyEnergiServiceBuilder(), userIdResolverFactory))
                 .addRequestHandler(new GetPlugStatusHandler(serviceManager.getMyEnergiServiceBuilder(), userIdResolverFactory))
-                .addRequestHandler(new GetChargeModeHandler(serviceManager.getMyEnergiServiceBuilder(), userIdResolverFactory))
-                .addRequestHandler(new GetEnergyUsageHandler(serviceManager.getMyEnergiServiceBuilder(), userIdResolverFactory, userZoneResolver))
-                .addRequestHandler(new GetEnergyCostHandler(serviceManager.getMyEnergiServiceBuilder(), userIdResolverFactory, userZoneResolver, serviceManager.getTariffService()))
+                .addRequestHandler(new GetChargeModeHandler())
+                .addRequestHandler(new GetEnergyUsageHandler())
+                .addRequestHandler(new GetEnergyCostHandler(serviceManager.getTariffService()))
                 .addRequestHandler(new SetChargeModeHandler(serviceManager.getMyEnergiServiceBuilder(), userIdResolverFactory, serviceManager.getExecutorService()))
                 .addRequestHandler(new SetEddiModeToNormalHandler(serviceManager.getMyEnergiServiceBuilder(), userIdResolverFactory))
                 .addRequestHandler(new SetEddiModeToStoppedHandler(serviceManager.getMyEnergiServiceBuilder(), userIdResolverFactory))
@@ -83,7 +83,7 @@ public class MyZappiSkillStreamHandler extends SkillStreamHandler {
                 .addRequestHandler(new StopEddiBoostHandler(serviceManager.getMyEnergiServiceBuilder(), userIdResolverFactory))
                 .addRequestHandler(new GoGreenHandler(serviceManager.getMyEnergiServiceBuilder(), userIdResolverFactory))
                 .addRequestHandler(new GetChargeRateHandler(serviceManager.getMyEnergiServiceBuilder(), userIdResolverFactory))
-                .addRequestHandler(new ChargeMyCarHandler(serviceManager.getMyEnergiServiceBuilder(), userIdResolverFactory))
+                .addRequestHandler(new ChargeMyCarHandler())
                 .addRequestHandler(new SetReminderHandler(reminderServiceFactory, userZoneResolver, userIdResolverFactory,
                         new AlexaToLwaLookUpRepository(serviceManager.getAmazonDynamoDB()),
                         new SchedulerService(SchedulerClient.builder().region(Region.EU_WEST_1).build(),

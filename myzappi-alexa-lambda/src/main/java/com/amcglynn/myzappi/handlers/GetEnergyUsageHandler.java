@@ -35,20 +35,15 @@ import java.util.Optional;
 import static com.amazon.ask.request.Predicates.intentName;
 import static com.amcglynn.myzappi.LocalisedResponse.cardResponse;
 import static com.amcglynn.myzappi.LocalisedResponse.voiceResponse;
+import static com.amcglynn.myzappi.RequestAttributes.getZappiServiceOrThrow;
+import static com.amcglynn.myzappi.RequestAttributes.getZoneId;
 
 @Slf4j
 public class GetEnergyUsageHandler implements RequestHandler {
 
-    private final MyEnergiService.Builder zappyServiceBuilder;
-    private final UserIdResolverFactory userIdResolverFactory;
-    private final UserZoneResolver userZoneResolver;
     private final GraphManagementService graphManagementService;
 
-    public GetEnergyUsageHandler(MyEnergiService.Builder zappyServiceBuilder, UserIdResolverFactory userIdResolverFactory,
-                                 UserZoneResolver userZoneResolver) {
-        this.zappyServiceBuilder = zappyServiceBuilder;
-        this.userIdResolverFactory = userIdResolverFactory;
-        this.userZoneResolver = userZoneResolver;
+    public GetEnergyUsageHandler() {
         this.graphManagementService = new GraphManagementService(new S3Service());
     }
 
@@ -66,14 +61,14 @@ public class GetEnergyUsageHandler implements RequestHandler {
         if (date.isEmpty() || date.get().length() != 10) {
             return getInvalidInputResponse(handlerInput);
         }
-        var userTimeZone = userZoneResolver.getZoneId(handlerInput);
+        var userTimeZone = getZoneId(handlerInput);
         var localDate = LocalDate.parse(date.get(), DateTimeFormatter.ISO_DATE);
 
         if (isInvalid(localDate, userTimeZone)) {
             return getInvalidRequestedDateResponse(handlerInput);
         }
 
-        var zappiService = zappyServiceBuilder.build(userIdResolverFactory.newUserIdResolver(handlerInput)).getZappiServiceOrThrow();
+        var zappiService = getZappiServiceOrThrow(handlerInput);
         var rawHistory = zappiService.getRawEnergyHistory(localDate, userTimeZone);
         var history = new ZappiDaySummary(rawHistory);
 

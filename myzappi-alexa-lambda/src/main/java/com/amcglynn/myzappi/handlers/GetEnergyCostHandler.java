@@ -4,6 +4,7 @@ import com.amazon.ask.dispatcher.request.handler.HandlerInput;
 import com.amazon.ask.dispatcher.request.handler.RequestHandler;
 import com.amazon.ask.model.Response;
 import com.amazon.ask.request.RequestHelper;
+import com.amcglynn.myzappi.RequestAttributes;
 import com.amcglynn.myzappi.TariffNotFoundException;
 import com.amcglynn.myzappi.UserIdResolverFactory;
 import com.amcglynn.myzappi.UserZoneResolver;
@@ -23,21 +24,16 @@ import java.util.Optional;
 import static com.amazon.ask.request.Predicates.intentName;
 import static com.amcglynn.myzappi.LocalisedResponse.cardResponse;
 import static com.amcglynn.myzappi.LocalisedResponse.voiceResponse;
+import static com.amcglynn.myzappi.RequestAttributes.getUserId;
 import static com.amcglynn.myzappi.RequestAttributes.getZappiServiceOrThrow;
 import static com.amcglynn.myzappi.RequestAttributes.getZoneId;
 
 @Slf4j
 public class GetEnergyCostHandler implements RequestHandler {
-    private final MyEnergiService.Builder zappyServiceBuilder;
-    private final UserIdResolverFactory userIdResolverFactory;
-    private final UserZoneResolver userZoneResolver;
+
     private final TariffService tariffService;
 
-    public GetEnergyCostHandler(MyEnergiService.Builder zappyServiceBuilder, UserIdResolverFactory userIdResolverFactory,
-                                UserZoneResolver userZoneResolver, TariffService tariffService) {
-        this.zappyServiceBuilder = zappyServiceBuilder;
-        this.userIdResolverFactory = userIdResolverFactory;
-        this.userZoneResolver = userZoneResolver;
+    public GetEnergyCostHandler(TariffService tariffService) {
         this.tariffService = tariffService;
     }
 
@@ -64,8 +60,7 @@ public class GetEnergyCostHandler implements RequestHandler {
             return getInvalidRequestedDateResponse(handlerInput);
         }
 
-        var userIdResolver = userIdResolverFactory.newUserIdResolver(handlerInput);
-        var userId = userIdResolver.getUserId();
+        var userId = getUserId(handlerInput);
         var dayTariff = tariffService.get(userId).orElseThrow(() -> new TariffNotFoundException(userId));
 
         var zappiService = getZappiServiceOrThrow(handlerInput);
