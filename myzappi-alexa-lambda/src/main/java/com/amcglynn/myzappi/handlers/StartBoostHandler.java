@@ -5,9 +5,6 @@ import com.amazon.ask.dispatcher.request.handler.RequestHandler;
 import com.amazon.ask.model.Response;
 import com.amazon.ask.request.RequestHelper;
 import com.amcglynn.myenergi.units.KiloWattHour;
-import com.amcglynn.myzappi.UserIdResolverFactory;
-import com.amcglynn.myzappi.UserZoneResolver;
-import com.amcglynn.myzappi.core.service.MyEnergiService;
 
 import java.time.LocalTime;
 import java.util.Map;
@@ -16,19 +13,10 @@ import java.util.Optional;
 import static com.amazon.ask.request.Predicates.intentName;
 import static com.amcglynn.myzappi.LocalisedResponse.cardResponse;
 import static com.amcglynn.myzappi.LocalisedResponse.voiceResponse;
+import static com.amcglynn.myzappi.RequestAttributes.getZappiServiceOrThrow;
+import static com.amcglynn.myzappi.RequestAttributes.getZoneId;
 
 public class StartBoostHandler implements RequestHandler {
-
-    private final MyEnergiService.Builder zappiServiceBuilder;
-    private final UserIdResolverFactory userIdResolverFactory;
-    private final UserZoneResolver userZoneResolver;
-
-    public StartBoostHandler(MyEnergiService.Builder zappiServiceBuilder, UserIdResolverFactory userIdResolverFactory,
-                             UserZoneResolver userZoneResolver) {
-        this.zappiServiceBuilder = zappiServiceBuilder;
-        this.userIdResolverFactory = userIdResolverFactory;
-        this.userZoneResolver = userZoneResolver;
-    }
 
     @Override
     public boolean canHandle(HandlerInput handlerInput) {
@@ -39,9 +27,9 @@ public class StartBoostHandler implements RequestHandler {
     public Optional<Response> handle(HandlerInput handlerInput) {
         var kilowattHours = parseKiloWattHourSlot(handlerInput);
 
-        var zappiService = zappiServiceBuilder.build(userIdResolverFactory.newUserIdResolver(handlerInput)).getZappiServiceOrThrow();
+        var zappiService = getZappiServiceOrThrow(handlerInput);
 
-        var zoneId = userZoneResolver.getZoneId(handlerInput);
+        var zoneId = getZoneId(handlerInput);
         zappiService.setLocalTimeSupplier(() -> LocalTime.now(zoneId));
 
         // alexa ensures kilowatt hours slot is populated

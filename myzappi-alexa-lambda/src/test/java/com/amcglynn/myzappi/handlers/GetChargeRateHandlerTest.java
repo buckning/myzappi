@@ -27,24 +27,14 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = org.mockito.quality.Strictness.LENIENT)
 class GetChargeRateHandlerTest {
-
-    @Mock
-    private MyEnergiService.Builder mockMyEnergiServiceBuilder;
-
-    @Mock
-    private MyEnergiService mockMyEnergiService;
     @Mock
     private ZappiService mockZappiService;
-    @Mock
-    private UserIdResolverFactory mockUserIdResolverFactory;
     private GetChargeRateHandler handler;
     private TestData testData;
 
     @BeforeEach
     void setUp() {
-        when(mockMyEnergiServiceBuilder.build(any())).thenReturn(mockMyEnergiService);
-        when(mockMyEnergiService.getZappiServiceOrThrow()).thenReturn(mockZappiService);
-        handler = new GetChargeRateHandler(mockMyEnergiServiceBuilder, mockUserIdResolverFactory);
+        handler = new GetChargeRateHandler();
         testData = new TestData("GetChargeRate", mockZappiService);
     }
 

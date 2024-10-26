@@ -69,7 +69,7 @@ public class MyZappiSkillStreamHandler extends SkillStreamHandler {
                 .addRequestHandler(new UnlockZappiHandler())
                 .addRequestHandler(new StatusSummaryHandler(serviceManager.getMyEnergiServiceBuilder(), userIdResolverFactory))
                 .addRequestHandler(new GetSolarReportHandler())
-                .addRequestHandler(new StartBoostHandler(serviceManager.getMyEnergiServiceBuilder(), userIdResolverFactory, userZoneResolver))
+                .addRequestHandler(new StartBoostHandler())
                 .addRequestHandler(new StopBoostHandler(serviceManager.getMyEnergiServiceBuilder(), userIdResolverFactory))
                 .addRequestHandler(new StartSmartBoostHandler(serviceManager.getMyEnergiServiceBuilder(), userIdResolverFactory))
                 .addRequestHandler(new GetPlugStatusHandler())
@@ -81,8 +81,8 @@ public class MyZappiSkillStreamHandler extends SkillStreamHandler {
                 .addRequestHandler(new SetEddiModeToStoppedHandler(serviceManager.getMyEnergiServiceBuilder(), userIdResolverFactory))
                 .addRequestHandler(new BoostEddiHandler(serviceManager.getMyEnergiServiceBuilder(), userIdResolverFactory))
                 .addRequestHandler(new StopEddiBoostHandler(serviceManager.getMyEnergiServiceBuilder(), userIdResolverFactory))
-                .addRequestHandler(new GoGreenHandler(serviceManager.getMyEnergiServiceBuilder(), userIdResolverFactory))
-                .addRequestHandler(new GetChargeRateHandler(serviceManager.getMyEnergiServiceBuilder(), userIdResolverFactory))
+                .addRequestHandler(new GoGreenHandler())
+                .addRequestHandler(new GetChargeRateHandler())
                 .addRequestHandler(new ChargeMyCarHandler())
                 .addRequestHandler(new SetReminderHandler(reminderServiceFactory, userZoneResolver, userIdResolverFactory,
                         new AlexaToLwaLookUpRepository(serviceManager.getAmazonDynamoDB()),
