@@ -7,12 +7,13 @@ import com.amcglynn.myenergi.EvStatusSummary;
 import com.amcglynn.myzappi.core.Brand;
 import com.amcglynn.myzappi.handlers.responses.ZappiEvConnectionStatusCardResponse;
 import com.amcglynn.myzappi.handlers.responses.ZappiEvConnectionStatusVoiceResponse;
+import lombok.SneakyThrows;
 
 import java.util.Locale;
 import java.util.Optional;
 
 import static com.amazon.ask.request.Predicates.intentName;
-import static com.amcglynn.myzappi.RequestAttributes.getZappiServiceOrThrow;
+import static com.amcglynn.myzappi.RequestAttributes.waitForZappiStatusSummary;
 
 public class GetPlugStatusHandler implements RequestHandler {
 
@@ -21,10 +22,10 @@ public class GetPlugStatusHandler implements RequestHandler {
         return handlerInput.matches(intentName("GetPlugStatus"));
     }
 
+    @SneakyThrows
     @Override
     public Optional<Response> handle(HandlerInput handlerInput) {
-        var zappiService = getZappiServiceOrThrow(handlerInput);
-        var summary = new EvStatusSummary(zappiService.getStatusSummary().get(0));
+        var summary = new EvStatusSummary(waitForZappiStatusSummary(handlerInput));
         var locale = Locale.forLanguageTag(handlerInput.getRequestEnvelope().getRequest().getLocale());
         return handlerInput.getResponseBuilder()
                 .withSpeech(new ZappiEvConnectionStatusVoiceResponse(locale, summary).toString())

@@ -79,7 +79,7 @@ public class MyZappiSkillStreamHandler extends SkillStreamHandler {
                 .addRequestHandler(new GetChargeRateHandler())
                 .addRequestHandler(new ChargeMyCarHandler())
                 .addRequestHandler(new GetEnergyCostHandler(serviceManager.getTariffService()))
-                .addRequestHandler(new SetChargeModeHandler(serviceManager.getExecutorService()))
+                .addRequestHandler(new SetChargeModeHandler())
                 .addRequestHandler(new SetEddiModeToNormalHandler(serviceManager.getMyEnergiServiceBuilder(), userIdResolverFactory))
                 .addRequestHandler(new SetEddiModeToStoppedHandler(serviceManager.getMyEnergiServiceBuilder(), userIdResolverFactory))
                 .addRequestHandler(new BoostEddiHandler(serviceManager.getMyEnergiServiceBuilder(), userIdResolverFactory))

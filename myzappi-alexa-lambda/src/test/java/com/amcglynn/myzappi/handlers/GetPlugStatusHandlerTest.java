@@ -9,6 +9,7 @@ import com.amcglynn.myenergi.apiresponse.ZappiStatus;
 import com.amcglynn.myzappi.TestData;
 import com.amcglynn.myzappi.core.service.MyEnergiService;
 import com.amcglynn.myzappi.core.service.ZappiService;
+import com.google.common.util.concurrent.MoreExecutors;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,6 +19,8 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
 
 import static com.amcglynn.myzappi.handlers.ResponseVerifier.verifySimpleCardInResponse;
 import static com.amcglynn.myzappi.handlers.ResponseVerifier.verifySpeechInResponse;
@@ -38,6 +41,7 @@ class GetPlugStatusHandlerTest {
 
     private GetPlugStatusHandler handler;
     private TestData testData;
+    private ExecutorService executorService;
 
     @BeforeEach
     void setUp() {
@@ -45,6 +49,7 @@ class GetPlugStatusHandlerTest {
         when(mockMyEnergiService.getZappiServiceOrThrow()).thenReturn(mockZappiService);
         when(mockMyEnergiServiceBuilder.build(any())).thenReturn(mockMyEnergiService);
         handler = new GetPlugStatusHandler();
+        executorService = MoreExecutors.newDirectExecutorService();
     }
 
     @Test
@@ -63,7 +68,10 @@ class GetPlugStatusHandlerTest {
                 new ZappiStatus("12345678", 0L, 0L,
                         0.0, 0L, ZappiChargeMode.ECO_PLUS.getApiValue(),
                         ChargeStatus.PAUSED.ordinal(), EvConnectionStatus.EV_DISCONNECTED.getCode()))));
-        var result = handler.handle(testData.handlerInput());
+        var statusSummaryFuture = executorService.submit(() -> mockZappiService.getStatusSummary());
+
+        var result = handler.handle(testData.handlerInput(Map.of("zappiStatusSummary", statusSummaryFuture), null));
+
         assertThat(result).isPresent();
         verifySpeechInResponse(result.get(), "<speak>Your E.V. is not connected.</speak>");
         verifySimpleCardInResponse(result.get(), "My Zappi", "Your E.V. is not connected.\n");
@@ -75,7 +83,10 @@ class GetPlugStatusHandlerTest {
                 new ZappiStatus("12345678", 0L, 1000L,
                         2.3, 0L, ZappiChargeMode.ECO_PLUS.getApiValue(),
                         ChargeStatus.PAUSED.ordinal(), EvConnectionStatus.CHARGING.getCode()))));
-        var result = handler.handle(testData.handlerInput());
+        var statusSummaryFuture = executorService.submit(() -> mockZappiService.getStatusSummary());
+
+        var result = handler.handle(testData.handlerInput(Map.of("zappiStatusSummary", statusSummaryFuture), null));
+
         assertThat(result).isPresent();
         verifySpeechInResponse(result.get(), "<speak>Your E.V. is connected. Charge mode is Eco+. " +
                 "2.3 kilowatt hours added this session. Charge rate is 1.0 kilowatts.</speak>");
@@ -92,7 +103,10 @@ class GetPlugStatusHandlerTest {
                 new ZappiStatus("12345678", 0L, 0L,
                         25.0, 0L, ZappiChargeMode.ECO_PLUS.getApiValue(),
                         ChargeStatus.COMPLETE.ordinal(), EvConnectionStatus.WAITING_FOR_EV.getCode()))));
-        var result = handler.handle(testData.handlerInput());
+        var statusSummaryFuture = executorService.submit(() -> mockZappiService.getStatusSummary());
+
+        var result = handler.handle(testData.handlerInput(Map.of("zappiStatusSummary", statusSummaryFuture), null));
+
         assertThat(result).isPresent();
         verifySpeechInResponse(result.get(), "<speak>Your E.V. is finished charging. Charge mode is Eco+. 25.0 kilowatt hours added this session.</speak>");
         verifySimpleCardInResponse(result.get(), "My Zappi", """
@@ -108,7 +122,10 @@ class GetPlugStatusHandlerTest {
                 new ZappiStatus("12345678", 0L, 0L,
                         25.0, 0L, ZappiChargeMode.ECO_PLUS.getApiValue(),
                         ChargeStatus.PAUSED.ordinal(), EvConnectionStatus.EV_CONNECTED.getCode(), LockStatus.LOCKED.getCode(), "v1.2.3"))));
-        var result = handler.handle(testData.handlerInput());
+        var statusSummaryFuture = executorService.submit(() -> mockZappiService.getStatusSummary());
+
+        var result = handler.handle(testData.handlerInput(Map.of("zappiStatusSummary", statusSummaryFuture), null));
+
         assertThat(result).isPresent();
         verifySpeechInResponse(result.get(), "<speak>Your E.V. is connected but your charger is locked. It needs to be unlocked before you can start charging.</speak>");
         verifySimpleCardInResponse(result.get(), "My Zappi", "Your E.V. is connected but your charger is locked. It needs to be unlocked before you can start charging.\n");

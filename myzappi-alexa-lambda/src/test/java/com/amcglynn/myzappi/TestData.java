@@ -63,6 +63,14 @@ public class TestData {
     }
 
     public HandlerInput handlerInput(ServiceClientFactory serviceClientFactory) {
+        var requestAttributes = new HashMap<String, Object>();
+        requestAttributes.put("zoneId", ZoneId.of("Europe/Dublin"));
+        requestAttributes.put("zappiService", mockZappiService);
+        requestAttributes.put("userId", "mockUserId");
+        return handlerInput(requestAttributes, serviceClientFactory);
+    }
+
+    public HandlerInput handlerInput(Map<String, Object> additionalRequestAttributes, ServiceClientFactory serviceClientFactory) {
         var handlerInput = HandlerInput.builder()
                 .withServiceClientFactory(serviceClientFactory)
                 .withContext(Context.builder()
@@ -74,7 +82,7 @@ public class TestData {
                                 .build())
                         .build())
                 .withRequestEnvelope(requestEnvelopeBuilder().build()).build();
-        var requestAttributes = new HashMap<String, Object>();
+        var requestAttributes = new HashMap<>(additionalRequestAttributes);
         requestAttributes.put("zoneId", ZoneId.of("Europe/Dublin"));
         requestAttributes.put("zappiService", mockZappiService);
         requestAttributes.put("userId", "mockUserId");
