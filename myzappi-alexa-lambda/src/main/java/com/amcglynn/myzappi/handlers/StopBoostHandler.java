@@ -3,26 +3,16 @@ package com.amcglynn.myzappi.handlers;
 import com.amazon.ask.dispatcher.request.handler.HandlerInput;
 import com.amazon.ask.dispatcher.request.handler.RequestHandler;
 import com.amazon.ask.model.Response;
-import com.amcglynn.myzappi.UserIdResolverFactory;
 import com.amcglynn.myzappi.core.Brand;
-import com.amcglynn.myzappi.core.service.MyEnergiService;
-import com.amcglynn.myzappi.core.service.ZappiService;
 
 import java.util.Optional;
 
 import static com.amazon.ask.request.Predicates.intentName;
 import static com.amcglynn.myzappi.LocalisedResponse.cardResponse;
 import static com.amcglynn.myzappi.LocalisedResponse.voiceResponse;
+import static com.amcglynn.myzappi.RequestAttributes.getZappiServiceOrThrow;
 
 public class StopBoostHandler implements RequestHandler {
-
-    private final MyEnergiService.Builder zappiServiceBuilder;
-    private final UserIdResolverFactory userIdResolverFactory;
-
-    public StopBoostHandler(MyEnergiService.Builder zappiServiceBuilder, UserIdResolverFactory userIdResolverFactory) {
-        this.zappiServiceBuilder = zappiServiceBuilder;
-        this.userIdResolverFactory = userIdResolverFactory;
-    }
 
     @Override
     public boolean canHandle(HandlerInput handlerInput) {
@@ -31,7 +21,7 @@ public class StopBoostHandler implements RequestHandler {
 
     @Override
     public Optional<Response> handle(HandlerInput handlerInput) {
-        var zappiService = zappiServiceBuilder.build(userIdResolverFactory.newUserIdResolver(handlerInput)).getZappiServiceOrThrow();
+        var zappiService = getZappiServiceOrThrow(handlerInput);
 
         zappiService.stopBoost();
         return buildResponse(handlerInput);

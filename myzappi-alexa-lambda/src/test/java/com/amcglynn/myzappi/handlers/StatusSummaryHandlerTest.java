@@ -15,6 +15,7 @@ import com.amcglynn.myenergi.EvConnectionStatus;
 import com.amcglynn.myenergi.ZappiChargeMode;
 import com.amcglynn.myenergi.ZappiStatusSummary;
 import com.amcglynn.myenergi.apiresponse.ZappiStatus;
+import com.amcglynn.myzappi.TestData;
 import com.amcglynn.myzappi.UserIdResolverFactory;
 import com.amcglynn.myzappi.core.service.MyEnergiService;
 import com.amcglynn.myzappi.core.service.ZappiService;
@@ -39,48 +40,32 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = org.mockito.quality.Strictness.LENIENT)
 class StatusSummaryHandlerTest {
-
-    @Mock
-    private MyEnergiService.Builder mockMyEnergiServiceBuilder;
-
-    @Mock
-    private MyEnergiService mockMyEnergiService;
     @Mock
     private ZappiService mockZappiService;
     @Mock
     private ServiceClientFactory mockServiceClientFactory;
     @Mock
-    private UserIdResolverFactory mockUserIdResolverFactory;
-    @Mock
     private DirectiveServiceClient mockDirectiveServiceClient;
     @Captor
     private ArgumentCaptor<SendDirectiveRequest> mockSendDirectiveRequestCaptor;
-    private IntentRequest intentRequest;
     private StatusSummaryHandler handler;
+    private TestData testData;
 
     @BeforeEach
     void setUp() {
-        when(mockMyEnergiServiceBuilder.build(any())).thenReturn(mockMyEnergiService);
-        when(mockMyEnergiService.getZappiServiceOrThrow()).thenReturn(mockZappiService);
-        handler = new StatusSummaryHandler(mockMyEnergiServiceBuilder, mockUserIdResolverFactory);
-        intentRequest = IntentRequest.builder()
-                .withLocale("en-GB")
-                .withIntent(Intent.builder().withName("StatusSummary").build())
-                .build();
+        testData = new TestData("StatusSummary", mockZappiService);
+        when(mockServiceClientFactory.getDirectiveService()).thenReturn(mockDirectiveServiceClient);
+        handler = new StatusSummaryHandler();
     }
 
     @Test
     void testCanHandleOnlyTriggersForTheIntent() {
-        assertThat(handler.canHandle(handlerInputBuilder().build())).isTrue();
+        assertThat(handler.canHandle(testData.handlerInput(mockServiceClientFactory))).isTrue();
     }
 
     @Test
     void testCanHandleReturnsFalseWhenNotTheCorrectIntent() {
-        intentRequest = IntentRequest.builder()
-                .withIntent(Intent.builder()
-                        .withName("SetChargeMode").build())
-                .build();
-        assertThat(handler.canHandle(handlerInputBuilder().build())).isFalse();
+        assertThat(handler.canHandle(new TestData("Unknown").handlerInput())).isFalse();
     }
 
     @Test
@@ -90,7 +75,7 @@ class StatusSummaryHandlerTest {
                 new ZappiStatus("12345678", 1500L, 1400L,
                         24.3, 1000L, ZappiChargeMode.ECO_PLUS.getApiValue(),
                         ChargeStatus.BOOSTING.ordinal(), EvConnectionStatus.CHARGING.getCode()))));
-        var result = handler.handle(handlerInputBuilder().build());
+        var result = handler.handle(testData.handlerInput(mockServiceClientFactory));
         assertThat(result).isPresent();
         verifySpeechInResponse(result.get(), "<speak>Solar generation is 1.5 kilowatts. " +
                 "Importing 1.0 kilowatts. Boosting 1.4 kilowatts to your E.V. - Charge mode is Eco+. " +
@@ -116,7 +101,7 @@ class StatusSummaryHandlerTest {
                 new ZappiStatus("12345678", 1500L, 1400L,
                         24.3, 1000L, ZappiChargeMode.ECO_PLUS.getApiValue(),
                         ChargeStatus.DIVERTING.ordinal(), EvConnectionStatus.CHARGING.getCode()))));
-        var result = handler.handle(handlerInputBuilder().build());
+        var result = handler.handle(testData.handlerInput(mockServiceClientFactory));
         assertThat(result).isPresent();
         verifySpeechInResponse(result.get(), "<speak>Solar generation is 1.5 kilowatts. " +
                 "Importing 1.0 kilowatts. Charge rate is 1.4 kilowatts. Charge mode is Eco+. " +
@@ -135,7 +120,7 @@ class StatusSummaryHandlerTest {
                 new ZappiStatus("12345678", 0L, 0L,
                         0.0, 0L, ZappiChargeMode.ECO_PLUS.getApiValue(),
                         ChargeStatus.PAUSED.ordinal(), EvConnectionStatus.EV_DISCONNECTED.getCode()))));
-        var result = handler.handle(handlerInputBuilder().build());
+        var result = handler.handle(testData.handlerInput(mockServiceClientFactory));
         assertThat(result).isPresent();
         verifySpeechInResponse(result.get(), "<speak>Charge mode is Eco+.</speak>");
         verifySimpleCardInResponse(result.get(), "My Zappi", "Charge mode: Eco+\n");
@@ -148,7 +133,7 @@ class StatusSummaryHandlerTest {
                 new ZappiStatus("12345678", 0L, 0L,
                         0.0, 0L, ZappiChargeMode.ECO_PLUS.getApiValue(),
                         ChargeStatus.COMPLETE.ordinal(), EvConnectionStatus.EV_DISCONNECTED.getCode()))));
-        var result = handler.handle(handlerInputBuilder().build());
+        var result = handler.handle(testData.handlerInput(mockServiceClientFactory));
         assertThat(result).isPresent();
         verifySpeechInResponse(result.get(), "<speak>Charge mode is Eco+. Charging session is complete.</speak>");
         verifySimpleCardInResponse(result.get(), "My Zappi", "Charge mode: Eco+\n" +
@@ -162,21 +147,9 @@ class StatusSummaryHandlerTest {
                 new ZappiStatus("12345678", 0L, 0L,
                         0.0, -3000L, ZappiChargeMode.ECO_PLUS.getApiValue(),
                         ChargeStatus.STARTING.ordinal(), EvConnectionStatus.EV_DISCONNECTED.getCode()))));
-        var result = handler.handle(handlerInputBuilder().build());
+        var result = handler.handle(testData.handlerInput(mockServiceClientFactory));
         assertThat(result).isPresent();
         verifySpeechInResponse(result.get(), "<speak>Exporting 3.0 kilowatts. Charge mode is Eco+.</speak>");
         verifySimpleCardInResponse(result.get(), "My Zappi", "Export: 3.0kW\nCharge mode: Eco+\n");
-    }
-
-    private HandlerInput.Builder handlerInputBuilder() {
-        return HandlerInput.builder()
-                .withServiceClientFactory(mockServiceClientFactory)
-                .withRequestEnvelope(requestEnvelopeBuilder().build());
-    }
-
-    private RequestEnvelope.Builder requestEnvelopeBuilder() {
-        return RequestEnvelope.builder()
-                .withRequest(intentRequest)
-                .withSession(Session.builder().withUser(User.builder().withUserId("userId").build()).build());
     }
 }

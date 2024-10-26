@@ -13,6 +13,7 @@ import com.amcglynn.myenergi.ZappiChargeMode;
 import com.amcglynn.myenergi.ZappiStatusSummary;
 import com.amcglynn.myenergi.apiresponse.ZappiStatus;
 import com.amcglynn.myenergi.exception.InvalidResponseFormatException;
+import com.amcglynn.myzappi.TestData;
 import com.amcglynn.myzappi.UserIdResolverFactory;
 import com.amcglynn.myzappi.core.service.MyEnergiService;
 import com.amcglynn.myzappi.core.service.ZappiService;
@@ -29,6 +30,7 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.Stream;
 
@@ -46,51 +48,37 @@ import static org.mockito.Mockito.when;
 class SetChargeModeHandlerTest {
 
     @Mock
-    private MyEnergiService mockMyEnergiService;
-    @Mock
     private ZappiService mockZappiService;
-    @Mock
-    private MyEnergiService.Builder mockMyEnergiServiceBuilder;
-    @Mock
-    private UserIdResolverFactory mockUserIdResolverFactory;
-    private IntentRequest intentRequest;
 
     private SetChargeModeHandler handler;
+    private TestData testData;
 
     @BeforeEach
     void setUp() {
-        when(mockMyEnergiServiceBuilder.build(any())).thenReturn(mockMyEnergiService);
-        when(mockMyEnergiService.getZappiServiceOrThrow()).thenReturn(mockZappiService);
+        testData = new TestData("SetChargeMode", mockZappiService);
         when(mockZappiService.getStatusSummary()).thenReturn(List.of(new ZappiStatusSummary(
                 new ZappiStatus("12345678", 0L, 0L,
                         0.0, 0L, ZappiChargeMode.ECO_PLUS.getApiValue(),
                         ChargeStatus.DIVERTING.ordinal(), EvConnectionStatus.EV_CONNECTED.getCode()))));
-        handler = new SetChargeModeHandler(mockMyEnergiServiceBuilder,
-                mockUserIdResolverFactory, MoreExecutors.newDirectExecutorService());
-        intentRequest = IntentRequest.builder()
-                .withIntent(Intent.builder().withName("SetChargeMode").build())
-                .build();
+        handler = new SetChargeModeHandler(MoreExecutors.newDirectExecutorService());
     }
 
     @Test
     void testCanHandleOnlyTriggersForTheIntent() {
-        assertThat(handler.canHandle(handlerInputBuilder().build())).isTrue();
+        assertThat(handler.canHandle(testData.handlerInput())).isTrue();
     }
 
     @Test
     void testCanHandleReturnsFalseWhenNotTheCorrectIntent() {
-        intentRequest = IntentRequest.builder()
-                .withIntent(Intent.builder().withName("GoGreen").build())
-                .build();
-        assertThat(handler.canHandle(handlerInputBuilder().build())).isFalse();
+        assertThat(handler.canHandle(new TestData("Unknown").handlerInput())).isFalse();
     }
 
     @ParameterizedTest
     @MethodSource("zappiChargeMode")
     void testHandle(ZappiChargeMode zappiChargeMode) {
-        when(mockMyEnergiServiceBuilder.build(any())).thenReturn(mockMyEnergiService);
-        initIntentRequest(zappiChargeMode);
-        var result = handler.handle(handlerInputBuilder().build());
+        testData = new TestData("SetChargeMode", mockZappiService, Map.of("ChargeMode", zappiChargeMode.getDisplayName()));
+
+        var result = handler.handle(testData.handlerInput());
         assertThat(result).isPresent();
 
         verifySpeechInResponse(result.get(), "<speak>Changing charge mode to "
@@ -104,8 +92,8 @@ class SetChargeModeHandlerTest {
     @Test
     void testGetStatusFailsInSeparateThreadExpectTheChargeModeToStillBeSet() {
         doThrow(new InvalidResponseFormatException()).when(mockZappiService).getStatusSummary();
-        initIntentRequest(ZappiChargeMode.ECO_PLUS);
-        var result = handler.handle(handlerInputBuilder().build());
+        testData = new TestData("SetChargeMode", mockZappiService, Map.of("ChargeMode", ZappiChargeMode.ECO_PLUS.getDisplayName()));
+        var result = handler.handle(testData.handlerInput());
         assertThat(result).isPresent();
 
         verifySpeechInResponse(result.get(), "<speak>Changing charge mode to "
@@ -119,39 +107,14 @@ class SetChargeModeHandlerTest {
     @ParameterizedTest
     @MethodSource("invalidChargeModes")
     void testHandleReturnsErrorIfChargeModeIsNotRecognised(String zappiChargeMode) {
-        when(mockMyEnergiServiceBuilder.build(any())).thenReturn(mockMyEnergiService);
-        initIntentRequest(zappiChargeMode);
-        var result = handler.handle(handlerInputBuilder().build());
+        testData = new TestData("SetChargeMode", mockZappiService, Map.of("ChargeMode", zappiChargeMode));
+        var result = handler.handle(testData.handlerInput());
         assertThat(result).isPresent();
 
         verifySpeechInResponse(result.get(), "<speak>Sorry, I don't recognise that charge mode.</speak>");
         verifySimpleCardInResponse(result.get(), "My Zappi", "Sorry, I don't recognise that charge mode.");
 
         verify(mockZappiService, never()).setChargeMode(any());
-    }
-
-    private HandlerInput.Builder handlerInputBuilder() {
-        return HandlerInput.builder()
-                .withRequestEnvelope(requestEnvelopeBuilder().build());
-    }
-
-    private RequestEnvelope.Builder requestEnvelopeBuilder() {
-        return RequestEnvelope.builder()
-                .withRequest(intentRequest)
-                .withSession(Session.builder().withUser(User.builder().withUserId("test").build()).build());
-    }
-
-    private void initIntentRequest(ZappiChargeMode chargeMode) {
-        initIntentRequest(chargeMode.getDisplayName());
-    }
-
-    private void initIntentRequest(String chargeMode) {
-        intentRequest = IntentRequest.builder()
-                .withLocale("en-GB")
-                .withIntent(Intent.builder()
-                        .putSlotsItem("ChargeMode", Slot.builder().withValue(chargeMode).build())
-                        .withName("ChargeMode").build())
-                .build();
     }
 
     private static Stream<Arguments> zappiChargeMode() {
