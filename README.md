@@ -16,6 +16,7 @@ The most popular commands from about 10 months are:
 5. Set eddi mode to normal
 6. Status summary
 7. Get plug status
+8. Get charge rate - show graph of just the charge rate
 
 These commands should be as good as possible, offering value to the user over the myenergi app
 

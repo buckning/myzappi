@@ -15,23 +15,32 @@ import com.amcglynn.myzappi.core.service.ZappiService;
 
 import java.time.ZoneId;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 public class TestData {
     private IntentRequest intentRequest;
     private ZappiService mockZappiService;
 
+    public TestData(String intentName) {
+        this(Locale.UK, intentName, null, Map.of());
+    }
+
     public TestData(String intentName, ZappiService mockZappiService) {
-        this(intentName, mockZappiService, Map.of());
+        this(Locale.UK, intentName, mockZappiService, Map.of());
     }
 
     public TestData(String intentName, ZappiService mockZappiService, Map<String, String> slots) {
+        this(Locale.UK, intentName, mockZappiService, slots);
+    }
+
+    public TestData(Locale locale, String intentName, ZappiService mockZappiService, Map<String, String> slots) {
         var intentBuilder = Intent.builder().withName(intentName);
         slots.forEach((key, value) -> intentBuilder
                 .putSlotsItem(key, Slot.builder().withValue(value).build()));
 
         intentRequest = IntentRequest.builder()
-                .withLocale("en-GB")
+                .withLocale(locale.toLanguageTag())
                 .withIntent(intentBuilder.build())
                 .build();
         this.mockZappiService = mockZappiService;
