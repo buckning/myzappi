@@ -6,32 +6,27 @@ import com.amazon.ask.model.IntentRequest;
 import com.amazon.ask.model.Response;
 import com.amcglynn.myenergi.EvStatusSummary;
 import com.amcglynn.myenergi.ZappiChargeMode;
-import com.amcglynn.myzappi.UserIdResolverFactory;
 import com.amcglynn.myzappi.core.Brand;
-import com.amcglynn.myzappi.core.service.MyEnergiService;
 import com.amcglynn.myzappi.mappers.AlexaZappiChargeModeMapper;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
 
 import static com.amazon.ask.request.Predicates.intentName;
 import static com.amcglynn.myzappi.LocalisedResponse.cardResponse;
 import static com.amcglynn.myzappi.LocalisedResponse.voiceResponse;
 import static com.amcglynn.myzappi.RequestAttributes.getZappiServiceOrThrow;
+import static com.amcglynn.myzappi.RequestAttributes.waitForZappiStatusSummary;
 
 @Slf4j
 public class SetChargeModeHandler implements RequestHandler {
 
     private final AlexaZappiChargeModeMapper mapper;
-    private final ExecutorService executorService;
 
-    public SetChargeModeHandler(ExecutorService executorService) {
+    public SetChargeModeHandler() {
         mapper = new AlexaZappiChargeModeMapper();
-        this.executorService = executorService;
     }
 
     @Override
@@ -39,7 +34,6 @@ public class SetChargeModeHandler implements RequestHandler {
         return handlerInput.matches(intentName("SetChargeMode"));
     }
 
-    @SneakyThrows
     @Override
     public Optional<Response> handle(HandlerInput handlerInput) {
         var zappiService = getZappiServiceOrThrow(handlerInput);
@@ -61,23 +55,23 @@ public class SetChargeModeHandler implements RequestHandler {
         }
         var newChargeMode = mappedChargeMode.get();
 
-        var status = executorService.submit(() ->  zappiService.getStatusSummary());
-
         zappiService.setChargeMode(newChargeMode);
 
         var voiceResponse = voiceResponse(handlerInput, "change-charge-mode", Map.of("zappiChargeMode", newChargeMode.getDisplayName()));
         var cardResponse = cardResponse(handlerInput, "change-charge-mode", Map.of("zappiChargeMode", newChargeMode.getDisplayName()));
 
         try {
-            var zappiStatus = status.get().get(0);
+            var zappiStatus = waitForZappiStatusSummary(handlerInput);
             var currentChargeMode = zappiStatus.getChargeMode();
 
+            log.info("Current charge mode: {}, New charge mode: {}, connection status = {}", currentChargeMode, newChargeMode, new EvStatusSummary(zappiStatus));
             if (chargeModeEscalated(currentChargeMode, newChargeMode) && !new EvStatusSummary(zappiStatus).isConnected()) {
                 voiceResponse += " " + voiceResponse(handlerInput, "connect-ev");
                 cardResponse += "\n" + cardResponse(handlerInput, "connect-ev");
             }
-        } catch (ExecutionException exception) {
-            log.info("Failed to get Zappi status when changing the charge mode", exception);
+        } catch (ExecutionException | InterruptedException exception) {
+            // it's not important if we can't get the Zappi status, we can still change the charge mode to what the user requested
+            log.info("Failed to get Zappi status when changing the charge mode, ignoring...", exception);
         }
 
         return handlerInput.getResponseBuilder()

@@ -9,12 +9,14 @@ import com.amazon.ask.model.services.directive.SpeakDirective;
 import com.amcglynn.myzappi.core.Brand;
 import com.amcglynn.myzappi.handlers.responses.ZappiStatusSummaryCardResponse;
 import com.amcglynn.myzappi.handlers.responses.ZappiStatusSummaryVoiceResponse;
+import lombok.SneakyThrows;
 
 import java.util.Locale;
 import java.util.Optional;
 
 import static com.amazon.ask.request.Predicates.intentName;
 import static com.amcglynn.myzappi.RequestAttributes.getZappiServiceOrThrow;
+import static com.amcglynn.myzappi.RequestAttributes.waitForZappiStatusSummary;
 
 public class StatusSummaryHandler implements RequestHandler {
     @Override
@@ -22,6 +24,7 @@ public class StatusSummaryHandler implements RequestHandler {
         return handlerInput.matches(intentName("StatusSummary"));
     }
 
+    @SneakyThrows
     @Override
     public Optional<Response> handle(HandlerInput handlerInput) {
         handlerInput.getServiceClientFactory().getDirectiveService()
@@ -31,7 +34,7 @@ public class StatusSummaryHandler implements RequestHandler {
                         .build());
         var locale = Locale.forLanguageTag(handlerInput.getRequestEnvelope().getRequest().getLocale());
 
-        var summary = getZappiServiceOrThrow(handlerInput).getStatusSummary().get(0);
+        var summary = waitForZappiStatusSummary(handlerInput);
 
         return handlerInput.getResponseBuilder()
                 .withSpeech(new ZappiStatusSummaryVoiceResponse(locale, summary).toString())
