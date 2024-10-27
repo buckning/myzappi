@@ -34,7 +34,7 @@ public class StatusSummaryHandler implements RequestHandler {
                         .build());
         var locale = Locale.forLanguageTag(handlerInput.getRequestEnvelope().getRequest().getLocale());
 
-        var summary = waitForZappiStatusSummary(handlerInput);;
+        var summary = waitForZappiStatusSummary(handlerInput);
 
         return handlerInput.getResponseBuilder()
                 .withSpeech(new ZappiStatusSummaryVoiceResponse(locale, summary).toString())

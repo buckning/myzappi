@@ -6,11 +6,8 @@ import com.amazon.ask.model.IntentRequest;
 import com.amazon.ask.model.Response;
 import com.amcglynn.myenergi.EvStatusSummary;
 import com.amcglynn.myenergi.ZappiChargeMode;
-import com.amcglynn.myzappi.UserIdResolverFactory;
 import com.amcglynn.myzappi.core.Brand;
-import com.amcglynn.myzappi.core.service.MyEnergiService;
 import com.amcglynn.myzappi.mappers.AlexaZappiChargeModeMapper;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Map;
@@ -73,6 +70,7 @@ public class SetChargeModeHandler implements RequestHandler {
                 cardResponse += "\n" + cardResponse(handlerInput, "connect-ev");
             }
         } catch (ExecutionException | InterruptedException exception) {
+            // it's not important if we can't get the Zappi status, we can still change the charge mode to what the user requested
             log.info("Failed to get Zappi status when changing the charge mode, ignoring...", exception);
         }
 
