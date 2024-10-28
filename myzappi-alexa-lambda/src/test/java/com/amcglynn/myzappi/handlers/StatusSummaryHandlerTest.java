@@ -1,11 +1,5 @@
 package com.amcglynn.myzappi.handlers;
 
-import com.amazon.ask.dispatcher.request.handler.HandlerInput;
-import com.amazon.ask.model.Intent;
-import com.amazon.ask.model.IntentRequest;
-import com.amazon.ask.model.RequestEnvelope;
-import com.amazon.ask.model.Session;
-import com.amazon.ask.model.User;
 import com.amazon.ask.model.services.ServiceClientFactory;
 import com.amazon.ask.model.services.directive.DirectiveServiceClient;
 import com.amazon.ask.model.services.directive.SendDirectiveRequest;
@@ -14,10 +8,9 @@ import com.amcglynn.myenergi.ChargeStatus;
 import com.amcglynn.myenergi.EvConnectionStatus;
 import com.amcglynn.myenergi.ZappiChargeMode;
 import com.amcglynn.myenergi.ZappiStatusSummary;
+import com.amcglynn.myenergi.apiresponse.ZappiHistory;
 import com.amcglynn.myenergi.apiresponse.ZappiStatus;
 import com.amcglynn.myzappi.TestData;
-import com.amcglynn.myzappi.UserIdResolverFactory;
-import com.amcglynn.myzappi.core.service.MyEnergiService;
 import com.amcglynn.myzappi.core.service.ZappiService;
 import com.google.common.util.concurrent.MoreExecutors;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,6 +25,7 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 
 import static com.amcglynn.myzappi.handlers.ResponseVerifier.verifySimpleCardInResponse;
 import static com.amcglynn.myzappi.handlers.ResponseVerifier.verifySpeechInResponse;
@@ -54,6 +48,7 @@ class StatusSummaryHandlerTest {
     private StatusSummaryHandler handler;
     private TestData testData;
     private ExecutorService executorService;
+    private Future<List<ZappiHistory>> historyFuture;
 
     @BeforeEach
     void setUp() {
@@ -61,6 +56,8 @@ class StatusSummaryHandlerTest {
         when(mockServiceClientFactory.getDirectiveService()).thenReturn(mockDirectiveServiceClient);
         handler = new StatusSummaryHandler();
         executorService = MoreExecutors.newDirectExecutorService();
+        when(mockZappiService.getHistory(any(), any())).thenReturn(List.of());
+        historyFuture = executorService.submit(() -> mockZappiService.getHistory(null, null));
     }
 
     @Test
@@ -82,7 +79,8 @@ class StatusSummaryHandlerTest {
                         ChargeStatus.BOOSTING.ordinal(), EvConnectionStatus.CHARGING.getCode()))));
         var statusSummaryFuture = executorService.submit(() -> mockZappiService.getStatusSummary());
 
-        var result = handler.handle(testData.handlerInput(Map.of("zappiStatusSummary", statusSummaryFuture), mockServiceClientFactory));
+        var result = handler.handle(testData.handlerInput(Map.of("zappiStatusSummary", statusSummaryFuture,
+                "zappiHistory", historyFuture), mockServiceClientFactory));
         assertThat(result).isPresent();
         verifySpeechInResponse(result.get(), "<speak>Solar generation is 1.5 kilowatts. " +
                 "Importing 1.0 kilowatts. Boosting 1.4 kilowatts to your E.V. - Charge mode is Eco+. " +
@@ -112,7 +110,8 @@ class StatusSummaryHandlerTest {
                         ChargeStatus.DIVERTING.ordinal(), EvConnectionStatus.CHARGING.getCode()))));
         var statusSummaryFuture = executorService.submit(() -> mockZappiService.getStatusSummary());
 
-        var result = handler.handle(testData.handlerInput(Map.of("zappiStatusSummary", statusSummaryFuture), mockServiceClientFactory));
+        var result = handler.handle(testData.handlerInput(Map.of("zappiStatusSummary", statusSummaryFuture,
+                "zappiHistory", historyFuture), mockServiceClientFactory));
 
         assertThat(result).isPresent();
         verifySpeechInResponse(result.get(), "<speak>Solar generation is 1.5 kilowatts. " +
@@ -136,7 +135,8 @@ class StatusSummaryHandlerTest {
                         ChargeStatus.PAUSED.ordinal(), EvConnectionStatus.EV_DISCONNECTED.getCode()))));
         var statusSummaryFuture = executorService.submit(() -> mockZappiService.getStatusSummary());
 
-        var result = handler.handle(testData.handlerInput(Map.of("zappiStatusSummary", statusSummaryFuture), mockServiceClientFactory));
+        var result = handler.handle(testData.handlerInput(Map.of("zappiStatusSummary", statusSummaryFuture,
+                "zappiHistory", historyFuture), mockServiceClientFactory));
         assertThat(result).isPresent();
         verifySpeechInResponse(result.get(), "<speak>Charge mode is Eco+.</speak>");
         verifySimpleCardInResponse(result.get(), "My Zappi", "Charge mode: Eco+\n");
@@ -151,7 +151,8 @@ class StatusSummaryHandlerTest {
                         ChargeStatus.COMPLETE.ordinal(), EvConnectionStatus.EV_DISCONNECTED.getCode()))));
         var statusSummaryFuture = executorService.submit(() -> mockZappiService.getStatusSummary());
 
-        var result = handler.handle(testData.handlerInput(Map.of("zappiStatusSummary", statusSummaryFuture), mockServiceClientFactory));
+        var result = handler.handle(testData.handlerInput(Map.of("zappiStatusSummary", statusSummaryFuture,
+                "zappiHistory", historyFuture), mockServiceClientFactory));
         assertThat(result).isPresent();
         verifySpeechInResponse(result.get(), "<speak>Charge mode is Eco+. Charging session is complete.</speak>");
         verifySimpleCardInResponse(result.get(), "My Zappi", """
@@ -169,7 +170,8 @@ class StatusSummaryHandlerTest {
                         ChargeStatus.STARTING.ordinal(), EvConnectionStatus.EV_DISCONNECTED.getCode()))));
         var statusSummaryFuture = executorService.submit(() -> mockZappiService.getStatusSummary());
 
-        var result = handler.handle(testData.handlerInput(Map.of("zappiStatusSummary", statusSummaryFuture), mockServiceClientFactory));
+        var result = handler.handle(testData.handlerInput(Map.of("zappiStatusSummary", statusSummaryFuture,
+                "zappiHistory", historyFuture), mockServiceClientFactory));
         assertThat(result).isPresent();
         verifySpeechInResponse(result.get(), "<speak>Exporting 3.0 kilowatts. Charge mode is Eco+.</speak>");
         verifySimpleCardInResponse(result.get(), "My Zappi", "Export: 3.0kW\nCharge mode: Eco+\n");
