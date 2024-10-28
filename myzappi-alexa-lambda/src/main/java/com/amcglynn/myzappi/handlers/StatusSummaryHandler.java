@@ -10,14 +10,18 @@ import com.amcglynn.myzappi.core.Brand;
 import com.amcglynn.myzappi.handlers.responses.ZappiStatusSummaryCardResponse;
 import com.amcglynn.myzappi.handlers.responses.ZappiStatusSummaryVoiceResponse;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.Locale;
 import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 
 import static com.amazon.ask.request.Predicates.intentName;
 import static com.amcglynn.myzappi.RequestAttributes.getZappiServiceOrThrow;
+import static com.amcglynn.myzappi.RequestAttributes.waitForHistory;
 import static com.amcglynn.myzappi.RequestAttributes.waitForZappiStatusSummary;
 
+@Slf4j
 public class StatusSummaryHandler implements RequestHandler {
     @Override
     public boolean canHandle(HandlerInput handlerInput) {
@@ -35,6 +39,12 @@ public class StatusSummaryHandler implements RequestHandler {
         var locale = Locale.forLanguageTag(handlerInput.getRequestEnvelope().getRequest().getLocale());
 
         var summary = waitForZappiStatusSummary(handlerInput);
+
+        try {
+            var history = waitForHistory(handlerInput);
+        } catch (ExecutionException | InterruptedException e) {
+            log.warn("Failed to get history", e);
+        }
 
         return handlerInput.getResponseBuilder()
                 .withSpeech(new ZappiStatusSummaryVoiceResponse(locale, summary).toString())

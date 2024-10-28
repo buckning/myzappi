@@ -2,6 +2,7 @@ package com.amcglynn.myzappi;
 
 import com.amazon.ask.dispatcher.request.handler.HandlerInput;
 import com.amcglynn.myenergi.ZappiStatusSummary;
+import com.amcglynn.myenergi.apiresponse.ZappiHistory;
 import com.amcglynn.myzappi.core.exception.MissingDeviceException;
 import com.amcglynn.myzappi.core.service.ZappiService;
 
@@ -32,6 +33,11 @@ public class RequestAttributes {
 
     public static ZappiStatusSummary waitForZappiStatusSummary(HandlerInput handlerInput) throws ExecutionException, InterruptedException {
         return getZappiStatusSummary(handlerInput).get().get(0);
+    }
+
+    public static List<ZappiHistory> waitForHistory(HandlerInput handlerInput) throws ExecutionException, InterruptedException {
+        var requestAttributes = handlerInput.getAttributesManager().getRequestAttributes();
+        return ((Future<List<ZappiHistory>>) requestAttributes.get("zappiHistory")).get();
     }
 
     public static ZappiService getZappiServiceOrThrow(HandlerInput handlerInput) {

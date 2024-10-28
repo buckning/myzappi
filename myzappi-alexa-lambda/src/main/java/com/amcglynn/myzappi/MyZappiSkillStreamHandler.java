@@ -43,7 +43,6 @@ import com.amcglynn.myzappi.handlers.StopBoostHandler;
 import com.amcglynn.myzappi.handlers.StopEddiBoostHandler;
 import com.amcglynn.myzappi.handlers.UnlockZappiHandler;
 import com.amcglynn.myzappi.interceptors.ZappiServiceInjectorInterceptor;
-import com.amcglynn.myzappi.interceptors.ZoneIdInjectorInterceptor;
 import com.amcglynn.myzappi.service.ReminderServiceFactory;
 import com.amcglynn.myzappi.service.SchedulerService;
 import software.amazon.awssdk.regions.Region;
@@ -61,8 +60,9 @@ public class MyZappiSkillStreamHandler extends SkillStreamHandler {
     public MyZappiSkillStreamHandler(ServiceManager serviceManager, UserIdResolverFactory userIdResolverFactory,
                                      UserZoneResolver userZoneResolver, ReminderServiceFactory reminderServiceFactory) {
         super(Skills.standard()
-                .addRequestInterceptor(new ZappiServiceInjectorInterceptor(serviceManager.getMyEnergiServiceBuilder(), userIdResolverFactory))
-                .addRequestInterceptor(new ZoneIdInjectorInterceptor(userZoneResolver))
+                .addRequestInterceptor(new ZappiServiceInjectorInterceptor(serviceManager.getMyEnergiServiceBuilder(),
+                        userZoneResolver,
+                        userIdResolverFactory))
                 .addRequestHandler(new LaunchHandler())
                 .addRequestHandler(new HelpHandler())
                 .addRequestHandler(new FallbackHandler())
