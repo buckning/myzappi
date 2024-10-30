@@ -1,6 +1,7 @@
 package com.amcglynn.myzappi;
 
 import com.amazon.ask.dispatcher.request.handler.HandlerInput;
+import com.amazon.ask.model.Application;
 import com.amazon.ask.model.Context;
 import com.amazon.ask.model.Device;
 import com.amazon.ask.model.Intent;
@@ -10,6 +11,7 @@ import com.amazon.ask.model.Session;
 import com.amazon.ask.model.Slot;
 import com.amazon.ask.model.SupportedInterfaces;
 import com.amazon.ask.model.User;
+import com.amazon.ask.model.interfaces.alexa.presentation.apl.AlexaPresentationAplInterface;
 import com.amazon.ask.model.interfaces.system.SystemState;
 import com.amazon.ask.model.services.ServiceClientFactory;
 import com.amcglynn.myzappi.core.service.ZappiService;
@@ -50,12 +52,11 @@ public class TestData {
     private RequestEnvelope.Builder requestEnvelopeBuilder() {
         return RequestEnvelope.builder()
                 .withRequest(intentRequest)
-                .withContext(Context.builder()
-                        .withSystem(SystemState.builder().withDevice(Device.builder().withDeviceId("myDeviceId")
-                                        .build())
-                                .build())
-                        .build())
-                .withSession(Session.builder().withUser(User.builder().withUserId("userId").build()).build());
+                .withContext(getContext())
+                .withSession(Session.builder()
+                        .withUser(User.builder().withUserId("userId").build())
+                        .withApplication(Application.builder().withApplicationId("eddiSkill").build())
+                        .build());
     }
 
     public HandlerInput handlerInput() {
@@ -73,14 +74,7 @@ public class TestData {
     public HandlerInput handlerInput(Map<String, Object> additionalRequestAttributes, ServiceClientFactory serviceClientFactory) {
         var handlerInput = HandlerInput.builder()
                 .withServiceClientFactory(serviceClientFactory)
-                .withContext(Context.builder()
-                        .withSystem(SystemState.builder()
-                                .withDevice(Device.builder()
-                                        .withDeviceId("myDeviceId")
-                                        .withSupportedInterfaces(SupportedInterfaces.builder().build())
-                                        .build())
-                                .build())
-                        .build())
+                .withContext(getContext())
                 .withRequestEnvelope(requestEnvelopeBuilder().build()).build();
         var requestAttributes = new HashMap<>(additionalRequestAttributes);
         requestAttributes.put("zoneId", ZoneId.of("Europe/Dublin"));
@@ -89,4 +83,19 @@ public class TestData {
         handlerInput.getAttributesManager().setRequestAttributes(requestAttributes);
         return handlerInput;
     }
+
+    private static Context getContext() {
+        return Context.builder()
+                .withSystem(SystemState.builder()
+                        .withDevice(Device.builder()
+                                .withDeviceId("myDeviceId")
+                                .withSupportedInterfaces(SupportedInterfaces.builder()
+                                        .withAlexaPresentationAPL(AlexaPresentationAplInterface.builder().build())
+                                        .build())
+                                .build())
+                        .build())
+                .build();
+    }
+
+
 }
