@@ -1,0 +1,86 @@
+{
+  "type": "APL",
+  "version": "1.8",
+  "import": [
+    {
+      "name": "alexa-layouts",
+      "version": "1.7.0"
+    }
+  ],
+  "mainTemplate": {
+    "items": [
+      {
+        "type": "Container",
+        "direction": "column",
+        "alignItems": "center",
+        "justifyContent": "center",
+        "width": "100vw",
+        "height": "100vh",
+        "items": [
+          {
+            "type": "Text",
+            "text": "${payload.energySummary}",
+            "fontSize": "24dp",
+            "color": "white",
+            "textAlign": "left",
+            "paddingBottom": "20dp"
+          },
+          {
+            "type": "Container",
+            "direction": "row",
+            "spacing": "20dp",
+            "alignItems": "center",
+            "justifyContent": "center",
+            "width": "100vw",
+            "items": [
+              {
+                "type": "AlexaButton",
+                "buttonText": "Eco",
+                "primaryAction": {
+                  "type": "SendEvent",
+                  "arguments": [
+                    "setChargeMode",
+                    "ECO"
+                  ]
+                }
+              },
+              {
+                "type": "AlexaButton",
+                "buttonText": "Eco+",
+                "primaryAction": {
+                  "type": "SendEvent",
+                  "arguments": [
+                    "setChargeMode",
+                    "ECO_PLUS"
+                  ]
+                }
+              },
+              {
+                "type": "AlexaButton",
+                "buttonText": "Fast",
+                "primaryAction": {
+                  "type": "SendEvent",
+                  "arguments": [
+                    "setChargeMode",
+                    "FAST"
+                  ]
+                }
+              },
+              {
+                "type": "AlexaButton",
+                "buttonText": "Stop",
+                "primaryAction": {
+                  "type": "SendEvent",
+                  "arguments": [
+                    "setChargeMode",
+                    "STOP"
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

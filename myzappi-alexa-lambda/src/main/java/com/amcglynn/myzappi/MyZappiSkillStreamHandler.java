@@ -9,6 +9,7 @@ import com.amcglynn.myzappi.core.dal.AlexaToLwaLookUpRepository;
 import com.amcglynn.myzappi.core.service.Clock;
 import com.amcglynn.myzappi.handlers.BoostEddiHandler;
 import com.amcglynn.myzappi.handlers.ChargeMyCarHandler;
+import com.amcglynn.myzappi.handlers.EventBrokerHandler;
 import com.amcglynn.myzappi.handlers.FallbackHandler;
 import com.amcglynn.myzappi.handlers.GetChargeModeHandler;
 import com.amcglynn.myzappi.handlers.GetChargeRateHandler;
@@ -110,6 +111,7 @@ public class MyZappiSkillStreamHandler extends SkillStreamHandler {
                         userIdResolverFactory))
                 .addRequestHandler(new SetLibbiDisabledHandler(serviceManager.getMyEnergiServiceBuilder(),
                         userIdResolverFactory))
+                .addRequestHandler(new EventBrokerHandler())
                 .addExceptionHandler(new MyZappiExceptionHandler())
                 .build());
     }
