@@ -3,10 +3,19 @@ package com.amcglynn.myzappi.handlers;
 import com.amazon.ask.dispatcher.exception.ExceptionHandler;
 import com.amazon.ask.dispatcher.request.handler.HandlerInput;
 import com.amazon.ask.model.Response;
+import com.amazon.ask.model.interfaces.alexa.presentation.apl.RenderDocumentDirective;
 import com.amcglynn.myzappi.UserNotLinkedException;
 import com.amcglynn.myzappi.core.Brand;
+import com.amcglynn.myzappi.core.exception.UserNotLoggedInException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 import static com.amcglynn.myzappi.LocalisedResponse.cardResponse;
@@ -28,6 +37,9 @@ public class MyZappiExceptionHandler implements ExceptionHandler {
                 .withSimpleCard(Brand.NAME, getCardResponse(handlerInput, throwable))
                 .withShouldEndSession(false);
 
+        if (throwable instanceof UserNotLoggedInException e) {
+            return buildUserMustRegisterResponse(handlerInput);
+        }
         if (throwable instanceof UserNotLinkedException e) {
             responseBuilder = responseBuilder.withLinkAccountCard();
         }
@@ -55,4 +67,30 @@ public class MyZappiExceptionHandler implements ExceptionHandler {
         }
         return response;
     }
+
+    private Optional<Response> buildUserMustRegisterResponse(HandlerInput handlerInput) {
+        var doc = RenderDocumentDirective.builder()
+                .withToken("zappidaysummaryToken")
+                .withDocument(buildRegisterAplDocument())
+                .build();
+        return handlerInput.getResponseBuilder()
+                .addDirective(doc)
+                .withSimpleCard(Brand.NAME, cardResponse(handlerInput, "error.UserNotLoggedInException"))
+                .withShouldEndSession(false)
+                .build();
+    }
+
+    @SneakyThrows
+    private Map<String, Object> buildRegisterAplDocument() {
+        ObjectMapper mapper = new ObjectMapper();
+        TypeReference<HashMap<String, Object>> documentMapType = new TypeReference<>() {
+        };
+
+        InputStream inputStream = getClass().getClassLoader().getResourceAsStream("apl/register.json");
+
+        var contents = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+
+        return mapper.readValue(contents, documentMapType);
+    }
+
 }
