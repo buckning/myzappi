@@ -1,0 +1,41 @@
+{
+  "type": "APL",
+  "version": "2024.2",
+  "license": "Copyright 2024 Amazon.com, Inc. or its affiliates. All Rights Reserved.\nSPDX-License-Identifier: LicenseRef-.amazon.com.-AmznSL-1.0\nLicensed under the Amazon Software License  http://aws.amazon.com/asl/",
+  "settings": {},
+  "theme": "dark",
+  "import": [],
+  "resources": [],
+  "styles": {},
+  "onMount": [],
+  "graphics": {},
+  "commands": {},
+  "layouts": {},
+  "mainTemplate": {
+    "parameters": [
+      "payload"
+    ],
+    "items": [
+      {
+        "type":"Container",
+        "wrap": "wrap",
+        "items": [
+          {
+            "type": "Text",
+            "text": "You're almost there!<br>Register at https://myzappiunofficial.com<br>",
+            "width": "100vw",
+            "paddingStart": "30",
+            "paddingBottom": "30"
+          },
+          {
+            "width": "30vw",
+            "height": "30vh",
+            "type":"Image",
+            "source": "https://s3.eu-west-1.amazonaws.com/www.myzappiunofficial.com/assets/images/qrcode.jpg"
+
+          }
+        ]
+      }
+    ]
+  }
+}
