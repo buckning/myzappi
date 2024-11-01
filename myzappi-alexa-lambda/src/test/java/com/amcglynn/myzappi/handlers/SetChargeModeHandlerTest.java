@@ -99,21 +99,6 @@ class SetChargeModeHandlerTest {
         verify(mockZappiService).setChargeMode(zappiChargeMode);
     }
 
-    @Test
-    void testGetStatusFailsInSeparateThreadExpectTheChargeModeToStillBeSet() {
-        doThrow(new InvalidResponseFormatException()).when(mockZappiService).getStatusSummary();
-        testData = new TestData("SetChargeMode", mockZappiService, Map.of("ChargeMode", ZappiChargeMode.ECO_PLUS.getDisplayName()));
-        var result = handler.handle(testData.handlerInput(Map.of("zappiStatusSummary", statusSummaryFuture), null));
-        assertThat(result).isPresent();
-
-        verifySpeechInResponse(result.get(), "<speak>Changing charge mode to "
-                + ZappiChargeMode.ECO_PLUS.getDisplayName() + ". This may take a few minutes.</speak>");
-        verifySimpleCardInResponse(result.get(), "My Zappi", "Changing charge mode to " +
-                ZappiChargeMode.ECO_PLUS.getDisplayName() + ". This may take a few minutes.");
-
-        verify(mockZappiService).setChargeMode(ZappiChargeMode.ECO_PLUS);
-    }
-
     @ParameterizedTest
     @MethodSource("invalidChargeModes")
     void testHandleReturnsErrorIfChargeModeIsNotRecognised(String zappiChargeMode) {

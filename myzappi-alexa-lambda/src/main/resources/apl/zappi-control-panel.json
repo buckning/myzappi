@@ -7,79 +7,248 @@
       "version": "1.7.0"
     }
   ],
+  "resources": [
+    {
+      "dimensions": {
+        "frameWidth": "20vw",
+        "frameHeight": "30vh"
+      },
+      "colors": {
+        "myenergiRed": "#FF4400",
+        "myenergiGreen": "#55FF00",
+        "myenergiYellow": "#FFD701",
+        "myenergiBlue": "#0186FF",
+        "myenergiPurple": "#FF008C"
+      }
+    }
+  ],
   "mainTemplate": {
     "items": [
       {
-        "type": "Container",
-        "direction": "column",
-        "alignItems": "center",
-        "justifyContent": "center",
-        "width": "100vw",
-        "height": "100vh",
         "items": [
           {
-            "type": "Text",
-            "text": "${payload.energySummary}",
-            "fontSize": "24dp",
-            "color": "white",
-            "textAlign": "left",
-            "paddingBottom": "20dp"
-          },
-          {
-            "type": "Container",
-            "direction": "row",
-            "spacing": "20dp",
-            "alignItems": "center",
+            "wrap": "wrap",
             "justifyContent": "center",
-            "width": "100vw",
+            "direction": "row",
+            "grow": 1,
             "items": [
+
               {
-                "type": "AlexaButton",
-                "buttonText": "Eco",
-                "primaryAction": {
-                  "type": "SendEvent",
-                  "arguments": [
-                    "setChargeMode",
-                    "ECO"
-                  ]
-                }
+                "alignItems": "center",
+                "justifyContent": "center",
+                "items": [
+                  {
+                    "type": "Text",
+                    "text": "Importing",
+                    "color": "grey",
+                    "fontSize": "20",
+                    "textAlign": "center",
+                    "paddingBottom": "20dp",
+                    "description": "Imported"
+                  },
+                  {
+                    "type": "Text",
+                    "text": "${payload.importing}",
+                    "color": "${@myenergiRed}",
+                    "fontSize": "40dp",
+                    "textAlign": "center",
+                    "paddingBottom": "20dp"
+                  },
+                  {
+                    "type": "Text",
+                    "text": "kW",
+                    "color": "grey",
+                    "fontSize": "20dp",
+                    "textAlign": "center"
+                  }
+                ],
+                "type": "Container",
+                "height": "${@frameHeight}",
+                "width": "${@frameWidth}"
               },
               {
-                "type": "AlexaButton",
-                "buttonText": "Eco+",
-                "primaryAction": {
-                  "type": "SendEvent",
-                  "arguments": [
-                    "setChargeMode",
-                    "ECO_PLUS"
-                  ]
-                }
+                "type": "Container",
+                "width": "${@frameWidth}",
+                "height": "${@frameHeight}",
+                "alignItems": "center",
+                "justifyContent": "center",
+                "items": [
+                  {
+                    "type": "Text",
+                    "text": "Generating",
+                    "color": "grey",
+                    "fontSize": "20dp",
+                    "textAlign": "center",
+                    "paddingBottom": "20dp"
+                  },
+                  {
+                    "type": "Text",
+                    "text": "${payload.generating}",
+                    "color": "${@myenergiGreen}",
+                    "fontSize": "40dp",
+                    "textAlign": "center",
+                    "paddingBottom": "20dp"
+                  },
+                  {
+                    "type": "Text",
+                    "text": "kW",
+                    "color": "grey",
+                    "fontSize": "20dp",
+                    "textAlign": "center"
+                  }
+                ]
               },
               {
-                "type": "AlexaButton",
-                "buttonText": "Fast",
-                "primaryAction": {
-                  "type": "SendEvent",
-                  "arguments": [
-                    "setChargeMode",
-                    "FAST"
-                  ]
-                }
+                "type": "Container",
+                "width": "${@frameWidth}",
+                "height": "${@frameHeight}",
+                "alignItems": "center",
+                "justifyContent": "center",
+                "items": [
+                  {
+                    "type": "Text",
+                    "text": "Exporting",
+                    "color": "grey",
+                    "fontSize": "20dp",
+                    "textAlign": "center",
+                    "paddingBottom": "20dp"
+                  },
+                  {
+                    "type": "Text",
+                    "text": "${payload.exporting}",
+                    "color": "${@myenergiYellow}",
+                    "fontSize": "40dp",
+                    "textAlign": "center",
+                    "paddingBottom": "20dp"
+                  },
+                  {
+                    "type": "Text",
+                    "text": "kW",
+                    "color": "grey",
+                    "fontSize": "20dp",
+                    "textAlign": "center"
+                  }
+                ]
               },
               {
-                "type": "AlexaButton",
-                "buttonText": "Stop",
-                "primaryAction": {
-                  "type": "SendEvent",
-                  "arguments": [
-                    "setChargeMode",
-                    "STOP"
-                  ]
-                }
+                "type": "Container",
+                "width": "${@frameWidth}",
+                "height": "${@frameHeight}",
+                "alignItems": "center",
+                "justifyContent": "center",
+                "items": [
+                  {
+                    "type": "Text",
+                    "text": "Charge Rate",
+                    "color": "grey",
+                    "fontSize": "20dp",
+                    "textAlign": "center",
+                    "paddingBottom": "20dp"
+                  },
+                  {
+                    "type": "Text",
+                    "text": "${payload.chargeRate}",
+                    "color": "${@myenergiBlue}",
+                    "fontSize": "40dp",
+                    "textAlign": "center",
+                    "paddingBottom": "20dp"
+                  },
+                  {
+                    "type": "Text",
+                    "text": "kW",
+                    "color": "grey",
+                    "fontSize": "20dp",
+                    "textAlign": "center"
+                  }
+                ]
+              },
+              {
+                "type": "Container",
+                "direction": "row",
+                "alignItems": "center",
+                "justifyContent": "center",
+                "paddingTop": "10vh",
+                "width": "100vw",
+                "items": [
+                  {
+                    "type": "AlexaButton",
+                    "buttonText": "Fast",
+                    "buttonStyle": "${fastStyle}",
+                    "primaryAction": {
+                      "type": "SendEvent",
+                      "arguments": [
+                        "setChargeMode",
+                        "FAST"
+                      ]
+                    }
+                  },
+                  {
+                    "type": "AlexaButton",
+                    "buttonText": "Eco",
+                    "buttonStyle": "${ecoStyle}",
+                    "primaryAction": {
+                      "type": "SendEvent",
+                      "arguments": [
+                        "setChargeMode",
+                        "ECO"
+                      ]
+                    }
+                  },
+                  {
+                    "type": "AlexaButton",
+                    "buttonText": "Eco+",
+                    "buttonStyle": "${ecoPlusStyle}",
+                    "primaryAction": {
+                      "type": "SendEvent",
+                      "arguments": [
+                        "setChargeMode",
+                        "ECO_PLUS"
+                      ]
+                    }
+                  },
+                  {
+                    "type": "AlexaButton",
+                    "buttonText": "Stop",
+                    "buttonStyle": "${stopStyle}",
+                    "primaryAction": {
+                      "type": "SendEvent",
+                      "arguments": [
+                        "setChargeMode",
+                        "STOP"
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "Container",
+                "direction": "row",
+                "alignItems": "center",
+                "justifyContent": "center",
+                "paddingTop": "10vh",
+                "width": "100vw",
+                "items": [
+                  {
+                    "type": "Text",
+                    "text": "Charge added so far: ${payload.chargeAdded}kWh",
+                    "fontSize": "30dp"
+                  }
+                ]
               }
-            ]
+            ],
+            "alignSelf": "center",
+            "position": "absolute",
+            "alignItems": "center",
+            "type": "Container",
+            "height": "80vh",
+            "width": "100vw"
           }
-        ]
+        ],
+        "justifyContent": "center",
+        "alignItems": "center",
+        "wrap": "wrap",
+        "layoutDirection": "LTR",
+        "type": "Container"
       }
     ]
   }

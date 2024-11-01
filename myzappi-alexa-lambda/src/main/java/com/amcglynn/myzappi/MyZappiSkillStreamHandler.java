@@ -43,6 +43,7 @@ import com.amcglynn.myzappi.handlers.StatusSummaryHandler;
 import com.amcglynn.myzappi.handlers.StopBoostHandler;
 import com.amcglynn.myzappi.handlers.StopEddiBoostHandler;
 import com.amcglynn.myzappi.handlers.UnlockZappiHandler;
+import com.amcglynn.myzappi.interceptors.AplResponseInterceptor;
 import com.amcglynn.myzappi.interceptors.ZappiServiceInjectorInterceptor;
 import com.amcglynn.myzappi.service.ReminderServiceFactory;
 import com.amcglynn.myzappi.service.SchedulerService;
@@ -64,6 +65,7 @@ public class MyZappiSkillStreamHandler extends SkillStreamHandler {
                 .addRequestInterceptor(new ZappiServiceInjectorInterceptor(serviceManager.getMyEnergiServiceBuilder(),
                         userZoneResolver,
                         userIdResolverFactory))
+                .addResponseInterceptor(new AplResponseInterceptor())
                 .addRequestHandler(new LaunchHandler())
                 .addRequestHandler(new HelpHandler())
                 .addRequestHandler(new FallbackHandler())

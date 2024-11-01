@@ -4,10 +4,13 @@ import com.amazon.ask.dispatcher.request.handler.HandlerInput;
 import com.amazon.ask.dispatcher.request.handler.RequestHandler;
 import com.amazon.ask.model.IntentRequest;
 import com.amazon.ask.model.Response;
+import com.amazon.ask.request.RequestHelper;
+import com.amazon.ask.response.ResponseBuilder;
 import com.amcglynn.myenergi.EvStatusSummary;
 import com.amcglynn.myenergi.ZappiChargeMode;
 import com.amcglynn.myzappi.core.Brand;
 import com.amcglynn.myzappi.mappers.AlexaZappiChargeModeMapper;
+import com.amcglynn.myzappi.service.ControlPanelBuilder;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Map;
@@ -45,9 +48,10 @@ public class SetChargeModeHandler implements RequestHandler {
 
         var mappedChargeMode = mapper.getZappiChargeMode(chargeModeSlot.getValue().toLowerCase());
 
+        ResponseBuilder responseBuilder = handlerInput.getResponseBuilder();
         if (mappedChargeMode.isEmpty()) {
             // it should not be possible to get to this block since Alexa should only allow requests with valid values in the slot
-            return handlerInput.getResponseBuilder()
+            return responseBuilder
                     .withSpeech(voiceResponse(handlerInput, "unrecognised-charge-mode"))
                     .withSimpleCard(Brand.NAME, "Sorry, I don't recognise that charge mode.")
                     .withShouldEndSession(false)
@@ -69,16 +73,27 @@ public class SetChargeModeHandler implements RequestHandler {
                 voiceResponse += " " + voiceResponse(handlerInput, "connect-ev");
                 cardResponse += "\n" + cardResponse(handlerInput, "connect-ev");
             }
+            addControlPanel(handlerInput, responseBuilder, newChargeMode);
         } catch (ExecutionException | InterruptedException exception) {
             // it's not important if we can't get the Zappi status, we can still change the charge mode to what the user requested
             log.info("Failed to get Zappi status when changing the charge mode, ignoring...", exception);
         }
 
-        return handlerInput.getResponseBuilder()
+
+        return responseBuilder
                 .withShouldEndSession(false)
                 .withSpeech(voiceResponse)
                 .withSimpleCard(Brand.NAME, cardResponse)
                 .build();
+    }
+
+    private void addControlPanel(HandlerInput handlerInput, ResponseBuilder responseBuilder, ZappiChargeMode newChargeMode) {
+        if (RequestHelper.forHandlerInput(handlerInput)
+                .getSupportedInterfaces()
+                .getAlexaPresentationAPL() != null) {
+            responseBuilder
+                    .addDirective(new ControlPanelBuilder().buildControlPanel(handlerInput, newChargeMode));
+        }
     }
 
     /**

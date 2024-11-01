@@ -4,8 +4,11 @@ import com.amazon.ask.dispatcher.request.handler.HandlerInput;
 import com.amazon.ask.dispatcher.request.handler.RequestHandler;
 import com.amazon.ask.model.Response;
 import com.amazon.ask.model.interfaces.alexa.presentation.apl.UserEvent;
+import com.amazon.ask.request.RequestHelper;
+import com.amazon.ask.response.ResponseBuilder;
 import com.amcglynn.myenergi.ZappiChargeMode;
 import com.amcglynn.myzappi.core.Brand;
+import com.amcglynn.myzappi.service.ControlPanelBuilder;
 
 import java.util.Map;
 import java.util.Optional;
@@ -19,7 +22,6 @@ public class EventBrokerHandler implements RequestHandler {
 
     @Override
     public boolean canHandle(HandlerInput input) {
-        // Check if the request is an APL UserEvent request
         return input.matches(requestType(UserEvent.class));
     }
 
@@ -27,20 +29,14 @@ public class EventBrokerHandler implements RequestHandler {
     public Optional<Response> handle(HandlerInput handlerInput) {
         var userEvent = (UserEvent) handlerInput.getRequestEnvelope().getRequest();
 
-        // Extract arguments from the UserEvent request
         if (userEvent.getArguments() != null && !userEvent.getArguments().isEmpty()) {
             var command = userEvent.getArguments().get(0).toString();
 
             if (command.equals("setChargeMode")) {
                 return handleSetChargeMode(handlerInput, userEvent);
             }
-            // Perform actions based on event argument
-            System.out.println("Received APL UserEvent with argument: " + command);
-
-            // Add any logic based on the user event, such as handling button clicks or other interactions
         }
 
-        // Send a response if needed (can be empty or confirm interaction)
         return handlerInput.getResponseBuilder()
                 .withSpeech("Received your selection!")
                 .withShouldEndSession(false)
@@ -54,10 +50,21 @@ public class EventBrokerHandler implements RequestHandler {
         getZappiServiceOrThrow(handlerInput).setChargeMode(newChargeMode);
         var voiceResponse = voiceResponse(handlerInput, "change-charge-mode", Map.of("zappiChargeMode", newChargeMode.getDisplayName()));
         var cardResponse = cardResponse(handlerInput, "change-charge-mode", Map.of("zappiChargeMode", newChargeMode.getDisplayName()));
-        return handlerInput.getResponseBuilder()
+        var responseBuilder = handlerInput.getResponseBuilder();
+        addControlPanel(handlerInput, responseBuilder, newChargeMode);
+        return responseBuilder
                 .withSpeech(voiceResponse)
                 .withSimpleCard(Brand.NAME, cardResponse)
                 .withShouldEndSession(false)
                 .build();
+    }
+
+    private void addControlPanel(HandlerInput handlerInput, ResponseBuilder responseBuilder, ZappiChargeMode newChargeMode) {
+        if (RequestHelper.forHandlerInput(handlerInput)
+                .getSupportedInterfaces()
+                .getAlexaPresentationAPL() != null) {
+            responseBuilder
+                    .addDirective(new ControlPanelBuilder().buildControlPanel(handlerInput, newChargeMode));
+        }
     }
 }
