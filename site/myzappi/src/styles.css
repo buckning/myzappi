@@ -166,3 +166,6 @@ input {
     min-width: 590px;
     max-width: 590px;
 }
+
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
