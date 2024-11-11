@@ -4,7 +4,6 @@ target
 .DS_Store
 node_modules
 site/myzappi/.vscode
-site/myzappi/src/custom-theme.scss
 .gradle
 gradle
 gradlew
