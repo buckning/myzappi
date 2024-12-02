@@ -113,7 +113,7 @@ public class MyZappiSkillStreamHandler extends SkillStreamHandler {
                         userIdResolverFactory))
                 .addRequestHandler(new SetLibbiDisabledHandler(serviceManager.getMyEnergiServiceBuilder(),
                         userIdResolverFactory))
-                .addRequestHandler(new EventBrokerHandler())
+                .addRequestHandler(new EventBrokerHandler(serviceManager.getScheduleService(), userIdResolverFactory))
                 .addExceptionHandler(new MyZappiExceptionHandler())
                 .build());
     }

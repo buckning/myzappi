@@ -7,8 +7,12 @@ import com.amazon.ask.model.interfaces.alexa.presentation.apl.UserEvent;
 import com.amazon.ask.request.RequestHelper;
 import com.amazon.ask.response.ResponseBuilder;
 import com.amcglynn.myenergi.ZappiChargeMode;
+import com.amcglynn.myzappi.UserIdResolverFactory;
 import com.amcglynn.myzappi.core.Brand;
+import com.amcglynn.myzappi.core.model.UserId;
+import com.amcglynn.myzappi.core.service.ScheduleService;
 import com.amcglynn.myzappi.service.ControlPanelBuilder;
+import lombok.AllArgsConstructor;
 
 import java.util.Map;
 import java.util.Optional;
@@ -18,7 +22,11 @@ import static com.amcglynn.myzappi.LocalisedResponse.cardResponse;
 import static com.amcglynn.myzappi.LocalisedResponse.voiceResponse;
 import static com.amcglynn.myzappi.RequestAttributes.getZappiServiceOrThrow;
 
+@AllArgsConstructor
 public class EventBrokerHandler implements RequestHandler {
+
+    private ScheduleService scheduleService;
+    private UserIdResolverFactory userIdResolverFactory;
 
     @Override
     public boolean canHandle(HandlerInput input) {
@@ -35,10 +43,13 @@ public class EventBrokerHandler implements RequestHandler {
             if (command.equals("setChargeMode")) {
                 return handleSetChargeMode(handlerInput, userEvent);
             }
+            if (command.equals("deleteSchedule")) {
+                return handleDeleteSchedule(handlerInput, userEvent);
+            }
         }
 
         return handlerInput.getResponseBuilder()
-                .withSpeech("Received your selection!")
+                .withSpeech("Oops, Andrew didn't write code to handle this!")
                 .withShouldEndSession(false)
                 .build();
     }
@@ -55,6 +66,20 @@ public class EventBrokerHandler implements RequestHandler {
         return responseBuilder
                 .withSpeech(voiceResponse)
                 .withSimpleCard(Brand.NAME, cardResponse)
+                .withShouldEndSession(false)
+                .build();
+    }
+
+    private Optional<Response> handleDeleteSchedule(HandlerInput handlerInput, UserEvent userEvent) {
+        var userIdResolver = userIdResolverFactory.newUserIdResolver(handlerInput);
+        var scheduleId = userEvent.getArguments().get(1).toString();
+
+        scheduleService.deleteSchedule(UserId.from(userIdResolver.getUserId()), scheduleId);
+
+        var responseBuilder = handlerInput.getResponseBuilder();
+        return responseBuilder
+                .withSpeech("Schedule deleted")
+                .withSimpleCard(Brand.NAME, "Schedule deleted")
                 .withShouldEndSession(false)
                 .build();
     }

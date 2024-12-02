@@ -12,6 +12,7 @@ import com.amazon.ask.model.Slot;
 import com.amazon.ask.model.SupportedInterfaces;
 import com.amazon.ask.model.User;
 import com.amazon.ask.model.interfaces.alexa.presentation.apl.AlexaPresentationAplInterface;
+import com.amazon.ask.model.interfaces.alexa.presentation.apl.UserEvent;
 import com.amazon.ask.model.interfaces.system.SystemState;
 import com.amazon.ask.model.services.ServiceClientFactory;
 import com.amcglynn.myzappi.core.service.ZappiService;
@@ -21,9 +22,11 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
+import static com.amcglynn.myzappi.TestObjectCreator.handlerInputBuilder;
+
 public class TestData {
-    private IntentRequest intentRequest;
-    private ZappiService mockZappiService;
+    private final IntentRequest intentRequest;
+    private final ZappiService mockZappiService;
 
     public TestData(String intentName) {
         this(Locale.UK, intentName, null, Map.of());
@@ -60,7 +63,7 @@ public class TestData {
     }
 
     public HandlerInput handlerInput() {
-        return handlerInput(null);
+        return handlerInput((ServiceClientFactory) null);
     }
 
     public HandlerInput handlerInput(ServiceClientFactory serviceClientFactory) {
@@ -84,6 +87,23 @@ public class TestData {
         return handlerInput;
     }
 
+    public HandlerInput handlerInput(UserEvent userEvent) {
+        var requestAttributes = new HashMap<String, Object>();
+        requestAttributes.put("zoneId", ZoneId.of("Europe/Dublin"));
+        requestAttributes.put("zappiService", mockZappiService);
+        requestAttributes.put("userId", "mockUserId");
+
+        var handlerInput = handlerInputBuilder()
+                .withRequestEnvelope(RequestEnvelope.builder()
+                        .withContext(getContext())
+                        .withRequest(userEvent)
+                        .build())
+                .build();
+        handlerInput.getAttributesManager().setRequestAttributes(requestAttributes);
+
+        return handlerInput;
+    }
+
     private static Context getContext() {
         return Context.builder()
                 .withSystem(SystemState.builder()
@@ -96,6 +116,4 @@ public class TestData {
                         .build())
                 .build();
     }
-
-
 }

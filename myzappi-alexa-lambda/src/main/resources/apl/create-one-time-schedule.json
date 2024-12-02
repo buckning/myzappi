@@ -1,0 +1,139 @@
+{
+  "type": "APL",
+  "version": "1.8",
+  "import": [
+    {
+      "name": "alexa-layouts",
+      "version": "1.7.0"
+    }
+  ],
+  "resources": [
+    {
+      "colors": {
+        "myenergiRed": "#FF4400",
+        "myenergiGreen": "#55FF00",
+        "myenergiYellow": "#FFD701",
+        "myenergiBlue": "#0186FF",
+        "myenergiPurple": "#FF008C"
+      }
+    }
+  ],
+  "mainTemplate": {
+    "items": [
+      {
+        "items": [
+          {
+            "wrap": "wrap",
+            "paddingLeft": "5vw",
+            "justifyContent": "start",
+            "direction": "row",
+            "grow": 1,
+            "items": [
+              {
+                "alignItems": "start",
+                "justifyContent": "start",
+                "items": [
+                  {
+                    "type": "Text",
+                    "text": "Schedule Details",
+                    "color": "grey",
+                    "fontSize": "30",
+                    "textAlign": "center",
+                    "paddingBottom": "20dp"
+                  },
+                  {
+                    "type": "Text",
+                    "text": "Schedule Type: <span color='white'>One-time</span>",
+                    "color": "grey",
+                    "fontSize": "20dp",
+                    "textAlign": "center"
+                  },
+                  {
+                    "type": "Text",
+                    "text": "Start time: <span color='white'>${payload.scheduleStartTime}</span>",
+                    "color": "grey",
+                    "fontSize": "20dp",
+                    "textAlign": "center"
+                  },
+                  {
+                    "type": "Text",
+                    "text": "Start date: <span color='white'>${payload.scheduleStartDate}</span>",
+                    "color": "grey",
+                    "fontSize": "20dp",
+                    "textAlign": "center"
+                  },
+                  {
+                    "type": "Text",
+                    "text": "${payload.importing}",
+                    "color": "${@myenergiRed}",
+                    "fontSize": "40dp",
+                    "textAlign": "center",
+                    "paddingBottom": "20dp"
+                  },
+                  {
+                    "type": "Text",
+                    "text": "Schedule Action",
+                    "color": "grey",
+                    "fontSize": "30dp",
+                    "textAlign": "center"
+                  },
+                  {
+                    "type": "Text",
+                    "text": "Schedule Type: <span color='white'>${payload.scheduleActionType}</span>",
+                    "color": "grey",
+                    "fontSize": "20dp",
+                    "textAlign": "center"
+                  },
+                  {
+                    "type": "Text",
+                    "text": "Value: <span color='white'>${payload.scheduleActionValue}</span>",
+                    "color": "grey",
+                    "fontSize": "20dp",
+                    "textAlign": "center"
+                  }
+                ],
+                "type": "Container",
+                "width": "85vw"
+              },
+              {
+                "direction": "row",
+                "alignItems": "start",
+                "justifyContent": "start",
+                "items": [
+                  {
+                    "type": "AlexaButton",
+                    "buttonText": "Delete",
+                    "primaryAction": {
+                      "type": "SendEvent",
+                      "arguments": [
+                        "deleteSchedule",
+                        "${payload.scheduleId}"
+                      ]
+                    }
+                  }
+                ],
+                "wrap": "wrap",
+                "grow": 1,
+                "position": "relative",
+                "type": "Container",
+                "width": "100vw",
+                "paddingTop": "10vh"
+              }
+            ],
+            "alignSelf": "center",
+            "position": "absolute",
+            "alignItems": "center",
+            "type": "Container",
+            "height": "90vh",
+            "width": "100vw"
+          }
+        ],
+        "justifyContent": "center",
+        "alignItems": "center",
+        "wrap": "wrap",
+        "layoutDirection": "LTR",
+        "type": "Container"
+      }
+    ]
+  }
+}

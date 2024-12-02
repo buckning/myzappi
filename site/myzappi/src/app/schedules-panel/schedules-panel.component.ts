@@ -288,11 +288,11 @@ export class SchedulesPanelComponent {
   }
 
   getStartTime(schedule: Schedule) {
-    return schedule?.startDateTime?.substring(0, 10);
+    return schedule?.startDateTime?.substring(11);
   }
 
   getStartDate(schedule: Schedule) {
-    return schedule?.startDateTime?.substring(11);
+    return schedule?.startDateTime?.substring(0, 10);
   }
 
   getValue(schedule: Schedule) {

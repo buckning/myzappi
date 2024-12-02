@@ -3,8 +3,12 @@ package com.amcglynn.myzappi.handlers;
 import com.amazon.ask.dispatcher.request.handler.HandlerInput;
 import com.amazon.ask.dispatcher.request.handler.RequestHandler;
 import com.amazon.ask.model.Response;
+import com.amazon.ask.model.interfaces.alexa.presentation.apl.RenderDocumentDirective;
 import com.amazon.ask.request.RequestHelper;
+import com.amazon.ask.response.ResponseBuilder;
 import com.amcglynn.myenergi.ZappiChargeMode;
+import com.amcglynn.myenergi.ZappiStatusSummary;
+import com.amcglynn.myenergi.units.KiloWatt;
 import com.amcglynn.myenergi.units.KiloWattHour;
 import com.amcglynn.myzappi.UserIdResolverFactory;
 import com.amcglynn.myzappi.UserZoneResolver;
@@ -16,16 +20,27 @@ import com.amcglynn.myzappi.core.service.Clock;
 import com.amcglynn.myzappi.core.service.ScheduleService;
 import com.amcglynn.myzappi.exception.InvalidScheduleException;
 import com.amcglynn.myzappi.mappers.AlexaZappiChargeModeMapper;
+import com.amcglynn.myzappi.service.ControlPanelBuilder;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 
 import static com.amazon.ask.request.Predicates.intentName;
 import static com.amcglynn.myzappi.LocalisedResponse.cardResponse;
 import static com.amcglynn.myzappi.LocalisedResponse.voiceResponse;
+import static com.amcglynn.myzappi.RequestAttributes.getZappiServiceOrThrow;
 
 @Slf4j
 public class ScheduleJobHandler implements RequestHandler {
@@ -59,19 +74,54 @@ public class ScheduleJobHandler implements RequestHandler {
         var scheduleAction = validateScheduleTypeIsConfigured(handlerInput);
         var startDateTime = LocalDateTime.of(clock.localDate(zoneId), scheduleTime);
 
-        scheduleService.createSchedule(UserId.from(userIdResolver.getUserId()), Schedule.builder()
+        var schedule = scheduleService.createSchedule(UserId.from(userIdResolver.getUserId()), Schedule.builder()
                 .zoneId(zoneId)
                 .startDateTime(getNextOccurrence(startDateTime, clock.localDateTime(zoneId)))
                 .action(scheduleAction)
                 .build());
 
-        log.info("ScheduleAction = {}", scheduleAction);
+        var responseBuilder = handlerInput.getResponseBuilder();
 
-        return handlerInput.getResponseBuilder()
+        if (hasDisplayInterface(handlerInput)) {
+            responseBuilder.addDirective(buildAplResponse(schedule));
+        }
+
+        return responseBuilder
                 .withShouldEndSession(false)
                 .withSpeech(voiceResponse(handlerInput, "scheduled-job"))
                 .withSimpleCard(Brand.NAME, cardResponse(handlerInput, "scheduled-job"))
                 .build();
+    }
+
+    private boolean hasDisplayInterface(HandlerInput handlerInput) {
+        return RequestHelper.forHandlerInput(handlerInput)
+                .getSupportedInterfaces()
+                .getAlexaPresentationAPL() != null;
+    }
+
+    public RenderDocumentDirective buildAplResponse(Schedule schedule) {
+        return RenderDocumentDirective.builder()
+                .withToken("zappidaysummaryToken")
+                .withDocument(buildDocument(schedule))
+                .build();
+    }
+
+    @SneakyThrows
+    private Map<String, Object> buildDocument(Schedule schedule) {
+        ObjectMapper mapper = new ObjectMapper();
+        TypeReference<HashMap<String, Object>> documentMapType = new TypeReference<>() {
+        };
+
+        InputStream inputStream = getClass().getClassLoader().getResourceAsStream("apl/create-one-time-schedule.json");
+
+        var contents = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+        contents = contents.replace("${payload.scheduleStartTime}", LocalTime.of(schedule.getStartDateTime().getHour(), schedule.getStartDateTime().getMinute()).toString());
+        contents = contents.replace("${payload.scheduleStartDate}", LocalDate.from(schedule.getStartDateTime()).toString());
+        contents = contents.replace("${payload.scheduleActionType}", schedule.getAction().getType());
+        contents = contents.replace("${payload.scheduleActionValue}", schedule.getAction().getValue());
+        contents = contents.replace("${payload.scheduleId}", schedule.getId());
+
+        return mapper.readValue(contents, documentMapType);
     }
 
     private ScheduleAction validateScheduleTypeIsConfigured(HandlerInput handlerInput) {
