@@ -1,27 +1,20 @@
 package com.amcglynn.myzappi.handlers;
 
-import com.amazon.ask.dispatcher.request.handler.HandlerInput;
-import com.amazon.ask.model.Intent;
-import com.amazon.ask.model.IntentRequest;
-import com.amazon.ask.model.RequestEnvelope;
-import com.amazon.ask.model.Session;
-import com.amazon.ask.model.Slot;
-import com.amazon.ask.model.User;
-import com.amcglynn.myenergi.ZappiChargeMode;
+import com.amazon.ask.model.interfaces.alexa.presentation.apl.RenderDocumentDirective;
+import com.amcglynn.myzappi.TestData;
 import com.amcglynn.myzappi.UserIdResolverFactory;
 import com.amcglynn.myzappi.UserZoneResolver;
 import com.amcglynn.myzappi.core.model.Schedule;
+import com.amcglynn.myzappi.core.model.ScheduleAction;
 import com.amcglynn.myzappi.core.model.UserId;
 import com.amcglynn.myzappi.core.service.Clock;
 import com.amcglynn.myzappi.core.service.ScheduleService;
 import com.amcglynn.myzappi.core.service.UserIdResolver;
+import com.amcglynn.myzappi.core.service.ZappiService;
 import com.amcglynn.myzappi.exception.InvalidScheduleException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
@@ -35,7 +28,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
-import java.util.stream.Stream;
+import java.util.Map;
 
 import static com.amcglynn.myzappi.handlers.ResponseVerifier.verifySimpleCardInResponse;
 import static com.amcglynn.myzappi.handlers.ResponseVerifier.verifySpeechInResponse;
@@ -43,7 +36,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowableOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -61,11 +53,13 @@ class ScheduleJobHandlerTest {
     private UserIdResolver mockUserIdResover;
     @Mock
     private Clock mockClock;
+    @Mock
+    private ZappiService mockZappiService;
     @Captor
     private ArgumentCaptor<Schedule> scheduleCaptor;
-    private IntentRequest intentRequest;
 
     private ScheduleJobHandler handler;
+    private TestData testData;
 
     @BeforeEach
     void setUp() {
@@ -74,29 +68,35 @@ class ScheduleJobHandlerTest {
         when(mockUserZoneResolver.getZoneId(any())).thenReturn(ZoneId.of("Europe/Dublin"));
         when(mockClock.localDateTime(any())).thenReturn(LocalDateTime.parse("2023-09-17T23:19:00"));
         when(mockClock.localDate(any())).thenReturn(LocalDate.of(2023, 9, 17));
+        when(mockScheduleService.createSchedule(any(), any())).thenReturn(
+                Schedule.builder()
+                        .id("scheduleId")
+                        .startDateTime(LocalDateTime.of(2023, 9, 18, 9, 15))
+                        .action(ScheduleAction.builder()
+                                .type("setBoostKwh")
+                                .value("50").build())
+                        .build());
         handler = new ScheduleJobHandler(mockScheduleService, mockUserIdResolverFactory, mockUserZoneResolver, mockClock);
-        intentRequest = IntentRequest.builder()
-                .withIntent(Intent.builder().withName("ScheduleJob").build())
-                .build();
+
+        testData = new TestData("ScheduleJob", mockZappiService, Map.of(
+                "scheduleTime", "09:15:00",
+                "chargeMode", "ECO PLUS"
+        ));
     }
 
     @Test
     void testCanHandleOnlyTriggersForTheIntent() {
-        assertThat(handler.canHandle(handlerInputBuilder().build())).isTrue();
+        assertThat(handler.canHandle(testData.handlerInput())).isTrue();
     }
 
     @Test
     void testCanHandleReturnsFalseWhenNotTheCorrectIntent() {
-        intentRequest = IntentRequest.builder()
-                .withIntent(Intent.builder().withName("GoGreen").build())
-                .build();
-        assertThat(handler.canHandle(handlerInputBuilder().build())).isFalse();
+        assertThat(handler.canHandle(new TestData("Unknown").handlerInput())).isFalse();
     }
 
     @Test
     void testScheduleChargeModeForTimeInTheNextDay() {
-        initIntentRequest();
-        var result = handler.handle(handlerInputBuilder().build());
+        var result = handler.handle(testData.handlerInput());
         assertThat(result).isPresent();
         verify(mockScheduleService).createSchedule(eq(UserId.from("mockUserId")), scheduleCaptor.capture());
 
@@ -113,8 +113,7 @@ class ScheduleJobHandlerTest {
         when(mockClock.localDateTime(any())).thenReturn(LocalDateTime.parse("2023-09-19T05:00:00"));
         when(mockClock.localDate(any())).thenReturn(LocalDate.of(2023, 9, 19));
 
-        initIntentRequest();
-        var result = handler.handle(handlerInputBuilder().build());
+        var result = handler.handle(testData.handlerInput());
         assertThat(result).isPresent();
         verify(mockScheduleService).createSchedule(eq(UserId.from("mockUserId")), scheduleCaptor.capture());
 
@@ -128,8 +127,12 @@ class ScheduleJobHandlerTest {
 
     @Test
     void testScheduleKwhBoost() {
-        initIntentRequest("boostKwh", "5.0");
-        var result = handler.handle(handlerInputBuilder().build());
+        testData = new TestData("ScheduleJob", mockZappiService, Map.of(
+                "scheduleTime", "09:15:00",
+                "boostKwh", "5.0"
+        ));
+
+        var result = handler.handle(testData.handlerInput());
         assertThat(result).isPresent();
         verify(mockScheduleService).createSchedule(eq(UserId.from("mockUserId")), scheduleCaptor.capture());
 
@@ -140,12 +143,41 @@ class ScheduleJobHandlerTest {
         assertThat(schedule.getAction().getValue()).isEqualTo("5.0");
         verifySpeechInResponse(result.get(), "<speak>Okay, I've scheduled that for you.</speak>");
         verifySimpleCardInResponse(result.get(), "My Zappi", "Created schedule.");
+        assertThat(result.get().getDirectives()).isNotEmpty();
+        assertThat(result.get().getDirectives().get(0)).isInstanceOf(RenderDocumentDirective.class);
+        assertThat(((RenderDocumentDirective)result.get().getDirectives().get(0)).getDocument().toString())
+                .isEqualTo("""
+                        {import=[{name=alexa-layouts, version=1.7.0}], \
+                        mainTemplate={items=[{items=[{wrap=wrap, paddingLeft=5vw, justifyContent=start, direction=row, \
+                        grow=1, items=[{alignItems=start, justifyContent=start, items=[{type=Text, text=Schedule Details, \
+                        color=grey, fontSize=30, textAlign=center, paddingBottom=20dp}, \
+                        {type=Text, text=Schedule Type: <span color='white'>One-time</span>, color=grey, fontSize=20dp, \
+                        textAlign=center}, {type=Text, text=Start time: <span color='white'>09:15</span>, color=grey, \
+                        fontSize=20dp, textAlign=center}, {type=Text, text=Start date: <span color='white'>2023-09-18</span>, \
+                        color=grey, fontSize=20dp, textAlign=center}, {type=Text, text=${payload.importing}, \
+                        color=${@myenergiRed}, fontSize=40dp, textAlign=center, paddingBottom=20dp}, \
+                        {type=Text, text=Schedule Action, color=grey, fontSize=30dp, textAlign=center}, \
+                        {type=Text, text=Schedule Type: <span color='white'>setBoostKwh</span>, color=grey, \
+                        fontSize=20dp, textAlign=center}, {type=Text, text=Value: <span color='white'>50</span>, \
+                        color=grey, fontSize=20dp, textAlign=center}], type=Container, width=85vw}, {direction=row, \
+                        alignItems=start, justifyContent=start, items=[{type=AlexaButton, buttonText=Delete, \
+                        primaryAction={type=SendEvent, arguments=[deleteSchedule, scheduleId]}}], wrap=wrap, grow=1, \
+                        position=relative, type=Container, width=100vw, paddingTop=10vh}], alignSelf=center, position=absolute, \
+                        alignItems=center, type=Container, height=90vh, width=100vw}], justifyContent=center, \
+                        alignItems=center, wrap=wrap, layoutDirection=LTR, type=Container}]}, resources=[{colors={myenergiRed=#FF4400, \
+                        myenergiGreen=#55FF00, myenergiYellow=#FFD701, myenergiBlue=#0186FF, myenergiPurple=#FF008C}}], \
+                        type=APL, version=1.8}\
+                        """);
     }
 
     @Test
     void testScheduleBoostDuration() {
-        initIntentRequest("boostDuration", Duration.of(3, ChronoUnit.HOURS).toString());
-        var result = handler.handle(handlerInputBuilder().build());
+        testData = new TestData("ScheduleJob", mockZappiService, Map.of(
+                "scheduleTime", "09:15:00",
+                "boostDuration", Duration.of(3, ChronoUnit.HOURS).toString()
+        ));
+
+        var result = handler.handle(testData.handlerInput());
         assertThat(result).isPresent();
         verify(mockScheduleService).createSchedule(eq(UserId.from("mockUserId")), scheduleCaptor.capture());
 
@@ -160,8 +192,12 @@ class ScheduleJobHandlerTest {
 
     @Test
     void testScheduleBoostEndTime() {
-        initIntentRequest("boostEndTime", LocalTime.of(4, 15).toString());
-        var result = handler.handle(handlerInputBuilder().build());
+        testData = new TestData("ScheduleJob", mockZappiService, Map.of(
+                "scheduleTime", "09:15:00",
+                "boostEndTime", LocalTime.of(4, 15).toString()
+        ));
+
+        var result = handler.handle(testData.handlerInput());
         assertThat(result).isPresent();
         verify(mockScheduleService).createSchedule(eq(UserId.from("mockUserId")), scheduleCaptor.capture());
 
@@ -176,41 +212,12 @@ class ScheduleJobHandlerTest {
 
     @Test
     void testScheduleWithInvalidDataThrowsInvalidScheduleException() {
-        initIntentRequest("invalidData", LocalTime.of(4, 15).toString());
-        var throwable = catchThrowableOfType(() -> handler.handle(handlerInputBuilder().build()), InvalidScheduleException.class);
+        testData = new TestData("ScheduleJob", mockZappiService, Map.of(
+                "scheduleTime", "09:15:00",
+                "invalidData", LocalTime.of(4, 15).toString()
+        ));
+
+        var throwable = catchThrowableOfType(() ->  handler.handle(testData.handlerInput()), InvalidScheduleException.class);
         assertThat(throwable).isNotNull();
-    }
-
-    private HandlerInput.Builder handlerInputBuilder() {
-        return HandlerInput.builder()
-                .withRequestEnvelope(requestEnvelopeBuilder().build());
-    }
-
-    private RequestEnvelope.Builder requestEnvelopeBuilder() {
-        return RequestEnvelope.builder()
-                .withRequest(intentRequest)
-                .withSession(Session.builder().withUser(User.builder().withUserId("test").build()).build());
-    }
-
-    private void initIntentRequest() {
-        intentRequest = IntentRequest.builder()
-                .withLocale("en-GB")
-                .withIntent(Intent.builder()
-                        .putSlotsItem("scheduleTime", Slot.builder().withValue("09:15:00").build())
-                        .putSlotsItem("chargeMode", Slot.builder().withValue("ECO PLUS").build())
-
-                        .build())
-                .build();
-    }
-
-    private void initIntentRequest(String slotName, String slotValue) {
-        intentRequest = IntentRequest.builder()
-                .withLocale("en-GB")
-                .withIntent(Intent.builder()
-                        .putSlotsItem("scheduleTime", Slot.builder().withValue("09:15:00").build())
-                        .putSlotsItem(slotName, Slot.builder().withValue(slotValue).build())
-
-                        .build())
-                .build();
     }
 }
