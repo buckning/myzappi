@@ -132,6 +132,54 @@ class LibbiServiceTest {
     }
 
     @Test
+    void getUsableEnergy() {
+        var libbiStatusResponse = new LibbiStatusResponse();
+        libbiStatusResponse.setLibbi(List.of(LibbiStatus.builder()
+                .serialNumber("30000001")
+                .status(1)
+                .stateOfCharge(60)
+                .batterySizeWh(5120)
+                .build()));
+        when(mockMyEnergiClient.getLibbiStatus("30000001"))
+                .thenReturn(libbiStatusResponse);
+        assertThat(service.getUsableEnergy(SerialNumber.from("30000001")).getDouble()).isEqualTo(4.6);
+    }
+
+    @Test
+    void getUsableEnergyForBatterySizeOf2() {
+        // 2 libbis has mbc of 10200
+        assertThat(service.getUsableEnergy(SerialNumber.from("30000001")).getDouble()).isEqualTo(9.2);
+    }
+
+    @Test
+    void getUsableEnergyForBatterySizeOf3() {
+        var libbiStatusResponse = new LibbiStatusResponse();
+        libbiStatusResponse.setLibbi(List.of(LibbiStatus.builder()
+                .serialNumber("30000001")
+                .status(1)
+                .stateOfCharge(60)
+                .batterySizeWh(15360)
+                .build()));
+        when(mockMyEnergiClient.getLibbiStatus("30000001"))
+                .thenReturn(libbiStatusResponse);
+        assertThat(service.getUsableEnergy(SerialNumber.from("30000001")).getDouble()).isEqualTo(13.8);
+    }
+
+    @Test
+    void getUsableEnergyForBatterySizeOf4() {
+        var libbiStatusResponse = new LibbiStatusResponse();
+        libbiStatusResponse.setLibbi(List.of(LibbiStatus.builder()
+                .serialNumber("30000001")
+                .status(1)
+                .stateOfCharge(60)
+                .batterySizeWh(20480)
+                .build()));
+        when(mockMyEnergiClient.getLibbiStatus("30000001"))
+                .thenReturn(libbiStatusResponse);
+        assertThat(service.getUsableEnergy(SerialNumber.from("30000001")).getDouble()).isEqualTo(18.4);
+    }
+
+    @Test
     void setChargeTargetTo50Percent() {
         when(mockLoginService.readMyEnergiAccountCredentials(userId))
                 .thenReturn(Optional.of(new MyEnergiAccountCredentials(userId.toString(), "user@test.com", "password")));
