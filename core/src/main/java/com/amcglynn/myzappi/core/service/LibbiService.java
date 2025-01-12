@@ -24,6 +24,14 @@ public class LibbiService {
     private final List<SerialNumber> serialNumbers;
     private final TargetDeviceResolver targetDeviceResolver;
 
+    private static final KiloWattHour USABLE_LIBBI_SIZE = new KiloWattHour(4.6);
+    private static final KiloWattHour[] LIBBI_USABLE_SIZES = {
+            new KiloWattHour(4.6),
+            new KiloWattHour(9.2),
+            new KiloWattHour(13.8),
+            new KiloWattHour(18.4)
+    };
+
     public LibbiService(MyEnergiClient client, MyEnergiClientFactory clientFactory, LoginService loginService,
                         List<SerialNumber> serialNumbers) {
         this.client = client;
@@ -31,6 +39,18 @@ public class LibbiService {
         this.clientFactory = clientFactory;
         this.serialNumbers = serialNumbers;
         this.targetDeviceResolver = new AscendingOrderTargetDeviceResolver();
+    }
+
+    /**
+     * This is going on some assumptions and not tested. Each Libbi has a usable energy size of 4.6kWh. Libbi's can be
+     * combined with up to 4 Libbi's. This means the usable energy size can be 4.6kWh, 9.2kWh, 13.8kWh or 18.4kWh.
+     * @param serialNumber the serial number of the Libbi
+     * @return the usable energy size of the Libbi
+     */
+    public KiloWattHour getUsableEnergy(SerialNumber serialNumber) {
+        var libbiStatus = client.getLibbiStatus(serialNumber.toString()).getLibbi().get(0);
+        var numberOfLibbis = (int) Math.floor(libbiStatus.getBatterySizeWh() / (USABLE_LIBBI_SIZE.getDouble() * 1000));
+        return LIBBI_USABLE_SIZES[numberOfLibbis - 1];
     }
 
     public void setMode(LibbiMode libbiMode) {
