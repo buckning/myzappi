@@ -118,7 +118,12 @@ public class DevicesController {
             var service = myEnergiServiceBuilder.build(() -> request.getUserId().toString());
             if (DeviceClass.LIBBI == device.getDeviceClass()) {
                 log.info("Setting target energy to {} for device {}", body.getTargetEnergyWh(), serialNumber);
-                service.getLibbiService().get().setChargeTarget(request.getUserId(), serialNumber, body.getTargetEnergyWh());
+                if ("insertTestLibbiSerialNumberHere".equals(serialNumber.toString())) {
+                    log.info("Setting scaled charge target for device {}", serialNumber);
+                    service.getLibbiService().get().setChargeTargetScaled(request.getUserId(), serialNumber, body.getTargetEnergyWh());
+                } else {
+                    service.getLibbiService().get().setChargeTarget(request.getUserId(), serialNumber, body.getTargetEnergyWh());
+                }
                 return new Response(202);
             } else {
                 log.info("Device is not a libbi");
