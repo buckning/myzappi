@@ -10,6 +10,9 @@ public class MyEnergiClientFactory {
     }
 
     public MyEnergiOAuthClient newMyEnergiOAuthClient(String email, String password) {
+        if ("mydemoemail@test.com".equals(email)) {
+            return new MockMyEnergiOAuthClient();
+        }
         return new MyEnergiOAuthClient(email, password);
     }
 }

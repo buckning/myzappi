@@ -22,6 +22,7 @@ interface LibbiSummary {
   batterySizeKWh: string,
   chargeFromGridEnabled: boolean,
   energyTargetKWh: string;
+  energyTargetPercentage: string;
   state: string
 }
 
@@ -45,6 +46,7 @@ export class LibbiPanelComponent {
   stateOfCharge: number = -1;
   batterySize = '';
   energyTargetKWh = '';
+  energyTargetPercentage = '';
   libbiEnabled = false;
 
   mode: any;
@@ -71,6 +73,7 @@ export class LibbiPanelComponent {
         this.batterySize = data.batterySizeKWh;
         this.stateOfCharge = data.stateOfChargePercentage;
         this.energyTargetKWh = data.energyTargetKWh;
+        this.energyTargetPercentage = data.energyTargetPercentage;
         if (data.state === 'OFF') {
           this.libbiEnabled = false;
         } else {

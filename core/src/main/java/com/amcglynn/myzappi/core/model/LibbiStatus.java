@@ -25,4 +25,5 @@ public class LibbiStatus {
     // below fields are optional
     private Boolean chargeFromGridEnabled;
     private KiloWattHour energyTargetKWh;
+    private int energyTargetPercentage;
 }

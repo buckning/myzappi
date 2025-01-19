@@ -84,6 +84,10 @@ public class LibbiService {
     }
 
     public void setChargeTarget(UserId userId, SerialNumber serialNumber, int targetEnergy) {
+        if ("earlyAccessSerialNumber".equals(serialNumber.toString())) {
+            setChargeTargetScaled(userId, serialNumber, targetEnergy);
+            return;
+        }
         var creds = loginService.readMyEnergiAccountCredentials(userId);
 
         creds.ifPresent(cred -> {
@@ -99,7 +103,7 @@ public class LibbiService {
 
     public void setChargeTargetScaled(UserId userId, SerialNumber serialNumber, int targetEnergy) {
         var creds = loginService.readMyEnergiAccountCredentials(userId);
-
+        log.info("Setting scaled charge target for device {}", serialNumber);
         creds.ifPresent(cred -> {
             var libbiStatus = client.getLibbiStatus(serialNumber.toString()).getLibbi().get(0);
             var batterySize = getUsableEnergy(libbiStatus);
@@ -132,6 +136,7 @@ public class LibbiService {
         var creds = loginService.readMyEnergiAccountCredentials(userId);
         Boolean chargeFromGrid = null;
         KiloWattHour energyTarget = null;
+        int chargeTargetPercent = -1;
 
         var libbiStatus = client.getLibbiStatus(serialNumber.toString()).getLibbi().get(0);
 
@@ -143,6 +148,9 @@ public class LibbiService {
             if (libbiChargeSetup.isPresent()) {
                 chargeFromGrid = libbiChargeSetup.get().getChargeFromGridEnabled();
                 energyTarget = libbiChargeSetup.get().getEnergyTargetKWh();
+
+                var batterySize = getUsableEnergy(libbiStatus);
+                chargeTargetPercent = (int) (energyTarget.getDouble() / batterySize.getDouble() * 100);
             }
         }
         return LibbiStatus.builder()
@@ -151,6 +159,7 @@ public class LibbiService {
                 .serialNumber(serialNumber)
                 .energyTargetKWh(energyTarget)
                 .chargeFromGridEnabled(chargeFromGrid)
+                .energyTargetPercentage(chargeTargetPercent)
                 .state(LibbiState.from(libbiStatus.getStatus()))
                 .build();
     }

@@ -25,6 +25,15 @@ public class MyEnergiOAuthClient {
     private final OkHttpClient client;
     private final String myEnergiBaseUrl;
 
+    /**
+     * Used in unit testing only
+     */
+    protected MyEnergiOAuthClient() {
+        this.accessToken = null;
+        this.client = null;
+        this.myEnergiBaseUrl = null;
+    }
+
     public MyEnergiOAuthClient(String email, String password) {
         var authHelper = new AuthenticationHelper(userPoolId);
         this.accessToken = authHelper.performSRPAuthentication(email, password);
@@ -56,8 +65,8 @@ public class MyEnergiOAuthClient {
         putRequest("/api/AccountAccess/LibbiMode?chargeFromGrid=" + chargeFromGrid + "&serialNo=" + serialNumber);
     }
 
-    public String setTargetEnergy(String serialNumber, int targetEnergy) {
-        return putRequest("/api/AccountAccess/" + serialNumber + "/TargetEnergy?targetEnergy=" + targetEnergy);
+    public void setTargetEnergy(String serialNumber, int targetEnergy) {
+        putRequest("/api/AccountAccess/" + serialNumber + "/TargetEnergy?targetEnergy=" + targetEnergy);
     }
 
     public LibbiChargeSetupResponse getLibbiChargeSetup(String serialNumber) {
