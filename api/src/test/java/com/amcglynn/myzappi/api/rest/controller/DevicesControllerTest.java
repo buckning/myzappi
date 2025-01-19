@@ -192,6 +192,7 @@ class DevicesControllerTest {
                         .energyTargetKWh(new KiloWattHour(5.520))
                         .chargeFromGridEnabled(true)
                         .batterySizeKWh(new KiloWattHour(10.200))
+                        .energyTargetPercentage(20)
                         .build());
 
         var response = controller.getDeviceStatus(new Request(UserId.from("userId"), RequestMethod.GET, "/devices/30000001/status", null));
@@ -203,7 +204,8 @@ class DevicesControllerTest {
                 "stateOfChargePercentage":60,\
                 "batterySizeKWh":"10.2",\
                 "chargeFromGridEnabled":true,\
-                "energyTargetKWh":"5.5"}\
+                "energyTargetKWh":"5.5",\
+                "energyTargetPercentage":20}\
                 """));
     }
 

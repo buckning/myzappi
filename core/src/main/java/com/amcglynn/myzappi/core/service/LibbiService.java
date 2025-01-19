@@ -49,6 +49,10 @@ public class LibbiService {
      */
     public KiloWattHour getUsableEnergy(SerialNumber serialNumber) {
         var libbiStatus = client.getLibbiStatus(serialNumber.toString()).getLibbi().get(0);
+        return getUsableEnergy(libbiStatus);
+    }
+
+    public KiloWattHour getUsableEnergy(com.amcglynn.myenergi.apiresponse.LibbiStatus libbiStatus) {
         var numberOfLibbis = (int) Math.floor(libbiStatus.getBatterySizeWh() / (USABLE_LIBBI_SIZE.getDouble() * 1000));
         return LIBBI_USABLE_SIZES[numberOfLibbis - 1];
     }
@@ -74,13 +78,16 @@ public class LibbiService {
     public void setChargeFromGrid(MyEnergiAccountCredentials creds, boolean chargeFromGrid) {
         var serialNumber = targetDeviceResolver.resolveTargetDevice(serialNumbers);
 
-
         log.info("Setting charge from grid for serial number {} to {}", serialNumber, chargeFromGrid);
         clientFactory.newMyEnergiOAuthClient(creds.getEmailAddress(), creds.getPassword())
                 .setChargeFromGrid(serialNumber.toString(), chargeFromGrid);
     }
 
     public void setChargeTarget(UserId userId, SerialNumber serialNumber, int targetEnergy) {
+        if ("earlyAccessSerialNumber".equals(serialNumber.toString())) {
+            setChargeTargetScaled(userId, serialNumber, targetEnergy);
+            return;
+        }
         var creds = loginService.readMyEnergiAccountCredentials(userId);
 
         creds.ifPresent(cred -> {
@@ -92,6 +99,20 @@ public class LibbiService {
             clientFactory.newMyEnergiOAuthClient(cred.getEmailAddress(), cred.getPassword())
                             .setTargetEnergy(serialNumber.toString(), targetEnergyWh);
             });
+    }
+
+    public void setChargeTargetScaled(UserId userId, SerialNumber serialNumber, int targetEnergy) {
+        var creds = loginService.readMyEnergiAccountCredentials(userId);
+        log.info("Setting scaled charge target for device {}", serialNumber);
+        creds.ifPresent(cred -> {
+            var libbiStatus = client.getLibbiStatus(serialNumber.toString()).getLibbi().get(0);
+            var batterySize = getUsableEnergy(libbiStatus);
+            var targetEnergyWh = (int) (batterySize.getDouble() * 1000) * targetEnergy / 100;
+
+            log.info("Setting target energy for serial number {} to {}% {}/{}", serialNumber, targetEnergy, targetEnergyWh, batterySize);
+            clientFactory.newMyEnergiOAuthClient(cred.getEmailAddress(), cred.getPassword())
+                    .setTargetEnergy(serialNumber.toString(), targetEnergyWh);
+        });
     }
 
     public void setChargeTarget(UserId userId, int targetEnergy) {
@@ -115,6 +136,7 @@ public class LibbiService {
         var creds = loginService.readMyEnergiAccountCredentials(userId);
         Boolean chargeFromGrid = null;
         KiloWattHour energyTarget = null;
+        int chargeTargetPercent = -1;
 
         var libbiStatus = client.getLibbiStatus(serialNumber.toString()).getLibbi().get(0);
 
@@ -126,6 +148,9 @@ public class LibbiService {
             if (libbiChargeSetup.isPresent()) {
                 chargeFromGrid = libbiChargeSetup.get().getChargeFromGridEnabled();
                 energyTarget = libbiChargeSetup.get().getEnergyTargetKWh();
+
+                var batterySize = getUsableEnergy(libbiStatus);
+                chargeTargetPercent = (int) (energyTarget.getDouble() / batterySize.getDouble() * 100);
             }
         }
         return LibbiStatus.builder()
@@ -134,6 +159,7 @@ public class LibbiService {
                 .serialNumber(serialNumber)
                 .energyTargetKWh(energyTarget)
                 .chargeFromGridEnabled(chargeFromGrid)
+                .energyTargetPercentage(chargeTargetPercent)
                 .state(LibbiState.from(libbiStatus.getStatus()))
                 .build();
     }
