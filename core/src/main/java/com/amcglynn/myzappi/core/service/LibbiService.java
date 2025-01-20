@@ -84,24 +84,6 @@ public class LibbiService {
     }
 
     public void setChargeTarget(UserId userId, SerialNumber serialNumber, int targetEnergy) {
-        if ("earlyAccessSerialNumber".equals(serialNumber.toString())) {
-            setChargeTargetScaled(userId, serialNumber, targetEnergy);
-            return;
-        }
-        var creds = loginService.readMyEnergiAccountCredentials(userId);
-
-        creds.ifPresent(cred -> {
-            var libbiStatus = client.getLibbiStatus(serialNumber.toString()).getLibbi().get(0);
-            var batterySize = libbiStatus.getBatterySizeWh();
-            var targetEnergyWh = batterySize * targetEnergy / 100;
-
-            log.info("Setting target energy for serial number {} to {}% {}/{}", serialNumber, targetEnergy, targetEnergyWh, batterySize);
-            clientFactory.newMyEnergiOAuthClient(cred.getEmailAddress(), cred.getPassword())
-                            .setTargetEnergy(serialNumber.toString(), targetEnergyWh);
-            });
-    }
-
-    public void setChargeTargetScaled(UserId userId, SerialNumber serialNumber, int targetEnergy) {
         var creds = loginService.readMyEnergiAccountCredentials(userId);
         log.info("Setting scaled charge target for device {}", serialNumber);
         creds.ifPresent(cred -> {

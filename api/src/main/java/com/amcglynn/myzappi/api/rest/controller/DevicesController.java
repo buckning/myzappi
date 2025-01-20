@@ -226,6 +226,5 @@ public class DevicesController {
         } else {
             throw new ServerException(404);
         }
-//        return myEnergiServiceBuilder.build().getZappiService()request.getUserId(), SerialNumber.from(deviceId));
     }
 }

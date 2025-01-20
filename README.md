@@ -3,7 +3,7 @@
 Task list:
 Launch screen
 Add QR code: https://s3.eu-west-1.amazonaws.com/www.myzappiunofficial.com/assets/images/qrcode.jpg
-
+* Update UI to update libbi charge target in 5% increments
 
 SetChargeMode
 1. Prompt the user to confirm if they want to unlock the charge mode if it is locked
