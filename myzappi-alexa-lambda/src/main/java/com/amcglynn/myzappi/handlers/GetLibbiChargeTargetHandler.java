@@ -39,16 +39,12 @@ public class GetLibbiChargeTargetHandler implements RequestHandler {
         libbiService.validateMyEnergiAccountIsConfigured(userId);
 
         var status = libbiService.getStatus(userId);
-        var chargeTarget = status.getEnergyTargetKWh();
-        var batterySize = status.getBatterySizeKWh();
-
-        var chargeTargetPercentage = (int) (chargeTarget.getDouble() / batterySize.getDouble() * 100);
 
         return handlerInput.getResponseBuilder()
                 .withSpeech(voiceResponse(handlerInput, "libbi-charge-target-percentage",
-                        Map.of("chargeTargetPercentage", Integer.toString(chargeTargetPercentage))))
+                        Map.of("chargeTargetPercentage", Integer.toString(status.getEnergyTargetPercentage()))))
                 .withSimpleCard(Brand.NAME, cardResponse(handlerInput, "libbi-charge-target-percentage",
-                        Map.of("chargeTargetPercentage", Integer.toString(chargeTargetPercentage))))
+                        Map.of("chargeTargetPercentage", Integer.toString(status.getEnergyTargetPercentage()))))
                 .withShouldEndSession(false)
                 .build();
     }

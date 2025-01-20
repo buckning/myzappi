@@ -76,6 +76,7 @@ class GetLibbiChargeTargetHandlerTest {
                 .state(LibbiState.ON)
                         .batterySizeKWh(new KiloWattHour(10.2))
                         .energyTargetKWh(new KiloWattHour(5.1))
+                        .energyTargetPercentage(50)
                 .build());
         var response = handler.handle(handlerInputBuilder("GetLibbiChargeTarget").build());
         assertThat(response).isPresent();

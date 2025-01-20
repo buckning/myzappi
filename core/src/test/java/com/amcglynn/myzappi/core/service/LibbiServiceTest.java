@@ -118,15 +118,15 @@ class LibbiServiceTest {
         when(mockLoginService.readMyEnergiAccountCredentials(userId))
                 .thenReturn(Optional.of(new MyEnergiAccountCredentials(userId.toString(), "user@test.com", "password")));
         service.setChargeTarget(userId, SerialNumber.from("30000001"), 100);
-        verify(mockMyEnergiOAuthClient).setTargetEnergy("30000001", 10200);
+        verify(mockMyEnergiOAuthClient).setTargetEnergy("30000001", 9200);
     }
 
     @MethodSource("chargeTargetPercentForLibbiWith2Batteries")
     @ParameterizedTest
-    void setChargeTargetScaled(int percent, int expectedEnergy) {
+    void setChargeTarget(int percent, int expectedEnergy) {
         when(mockLoginService.readMyEnergiAccountCredentials(userId))
                 .thenReturn(Optional.of(new MyEnergiAccountCredentials(userId.toString(), "user@test.com", "password")));
-        service.setChargeTargetScaled(userId, SerialNumber.from("30000001"), percent);
+        service.setChargeTarget(userId, SerialNumber.from("30000001"), percent);
         verify(mockMyEnergiOAuthClient).setTargetEnergy("30000001", expectedEnergy);
     }
 
@@ -183,7 +183,7 @@ class LibbiServiceTest {
         when(mockLoginService.readMyEnergiAccountCredentials(userId))
                 .thenReturn(Optional.of(new MyEnergiAccountCredentials(userId.toString(), "user@test.com", "password")));
         service.setChargeTarget(userId, SerialNumber.from("30000001"), 50);
-        verify(mockMyEnergiOAuthClient).setTargetEnergy("30000001", 5100);
+        verify(mockMyEnergiOAuthClient).setTargetEnergy("30000001", 4600);
     }
 
     @Test
