@@ -3,10 +3,12 @@ package com.amcglynn.myzappi.api.rest.controller;
 import com.amcglynn.myzappi.core.model.SerialNumber;
 import com.amcglynn.myzappi.api.CompleteLoginRequest;
 import com.amcglynn.myzappi.api.rest.Request;
-import com.amcglynn.myzappi.api.rest.RequestMethod;
 import com.amcglynn.myzappi.api.rest.Response;
 import com.amcglynn.myzappi.api.rest.ServerException;
 import com.amcglynn.myzappi.api.service.RegistrationService;
+import com.amcglynn.myzappi.core.model.UserId;
+import com.amcglynn.myzappi.core.service.ScheduleService;
+import com.amcglynn.myzappi.core.service.TariffService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -20,14 +22,41 @@ import lombok.extern.slf4j.Slf4j;
 public class HubController {
 
     private final RegistrationService registrationService;
+    private final ScheduleService scheduleService;
+    private final TariffService tariffService;
 
-    public HubController(RegistrationService registrationService) {
+    public HubController(RegistrationService registrationService,
+                         ScheduleService scheduleService,
+                         TariffService tariffService) {
         this.registrationService = registrationService;
+        this.scheduleService = scheduleService;
+        this.tariffService = tariffService;
     }
 
     public Response delete(Request request) {
+        var userId = UserId.from(request.getUserId().toString());
+        deleteSchedules(userId);
+        deleteTariffs(userId);
         registrationService.delete(request.getUserId());
         return new Response(204);
+    }
+
+    private void deleteSchedules(UserId userId) {
+        try {
+            var schedules = scheduleService.listSchedules(userId);
+            schedules.forEach(schedule ->
+                    scheduleService.deleteSchedule(userId, schedule.getId()));
+        } catch (Exception e) {
+            log.error("Error deleting schedules for user {}", userId, e);
+        }
+    }
+
+    private void deleteTariffs(UserId userId) {
+        try {
+            tariffService.delete(userId.toString());
+        } catch (Exception e) {
+            log.error("Error deleting tariffs for user {}", userId, e);
+        }
     }
 
     private Response post(Request request) {

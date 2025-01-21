@@ -30,7 +30,8 @@ public class EndpointRouter {
 
     public EndpointRouter(ServiceManager serviceManager) {
         this(serviceManager, new HubController(
-                        new RegistrationService(serviceManager.getLoginService(), serviceManager.getDevicesRepository(), new MyEnergiClientFactory())),
+                        new RegistrationService(serviceManager.getLoginService(), serviceManager.getDevicesRepository(), new MyEnergiClientFactory()),
+                        serviceManager.getScheduleService(), serviceManager.getTariffService()),
                 new DevicesController(new RegistrationService(serviceManager.getLoginService(), serviceManager.getDevicesRepository(), new MyEnergiClientFactory()), serviceManager.getMyEnergiServiceBuilder()),
                 new TariffController(serviceManager.getTariffService()),
                 new AccountController(new RegistrationService(serviceManager.getLoginService(), serviceManager.getDevicesRepository(), new MyEnergiClientFactory())),

@@ -1,6 +1,7 @@
 <h3>Target Charge kWh</h3>
 <mat-slider
     class="example-margin"
+    min="0" max="100" step="5"
     [disabled]="disabled">
     <input matSliderThumb [(ngModel)]="chargeTarget" #slider>
 </mat-slider>

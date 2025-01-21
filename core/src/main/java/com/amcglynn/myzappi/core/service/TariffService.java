@@ -97,4 +97,8 @@ public class TariffService {
 
         return new ArrayList<>(Arrays.asList(results));
     }
+
+    public void delete(String userId) {
+        tariffRepository.delete(userId);
+    }
 }
