@@ -2,6 +2,7 @@ package com.amcglynn.myzappi.core.dal;
 
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
+import com.amazonaws.services.dynamodbv2.model.DeleteItemRequest;
 import com.amazonaws.services.dynamodbv2.model.GetItemRequest;
 import com.amazonaws.services.dynamodbv2.model.PutItemRequest;
 import com.amcglynn.myzappi.core.model.DayTariff;
@@ -56,5 +57,13 @@ public class TariffRepository {
                 .withTableName(TABLE_NAME)
                 .withItem(item);
         dbClient.putItem(request);
+    }
+
+    public void delete(String userId) {
+        System.out.println("Deleting tariff for user: " + userId);
+        var request = new DeleteItemRequest()
+                .withTableName(TABLE_NAME)
+                .addKeyEntry(USER_ID_COLUMN, new AttributeValue(userId));
+        dbClient.deleteItem(request);
     }
 }

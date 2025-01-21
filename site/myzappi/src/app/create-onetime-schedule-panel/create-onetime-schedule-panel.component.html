@@ -119,6 +119,7 @@
         <div *ngIf="scheduleType === 'setLibbiChargeTarget'">
             Value:
             <mat-slider
+                min="0" max="100" step="5"
                 class="example-margin">
                 <input matSliderThumb [(ngModel)]="scheduleActionValue" #slider>
             </mat-slider>
