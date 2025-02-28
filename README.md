@@ -3,7 +3,6 @@
 Task list:
 Launch screen
 Add QR code: https://s3.eu-west-1.amazonaws.com/www.myzappiunofficial.com/assets/images/qrcode.jpg
-* Update UI to update libbi charge target in 5% increments
 
 SetChargeMode
 1. Prompt the user to confirm if they want to unlock the charge mode if it is locked
@@ -14,6 +13,8 @@ Show the energy usage graph as a background image for getting the status. This s
 
 The most popular commands from about 10 months are:
 1. Set charge mode
+-- prompt the user to confirm if they want to unlock the charger if it is locked
+
 2. Go green
 3. Set eddi mode to stopped
 4. Charge my car

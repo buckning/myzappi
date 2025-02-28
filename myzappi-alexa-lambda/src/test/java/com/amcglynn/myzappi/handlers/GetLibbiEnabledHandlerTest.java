@@ -70,8 +70,8 @@ class GetLibbiEnabledHandlerTest {
         when(mockLibbiService.getStatus(any())).thenReturn(LibbiStatus.builder().state(LibbiState.ON).build());
         var response = handler.handle(handlerInputBuilder("GetLibbiEnabled").build());
         assertThat(response).isPresent();
-        verifySpeechInResponse(response.get(), "<speak>Your battery is enabled.</speak>");
-        verifySimpleCardInResponse(response.get(), "My Zappi", "Your battery is enabled.");
+        verifySpeechInResponse(response.get(), "<speak>Your battery is On.</speak>");
+        verifySimpleCardInResponse(response.get(), "My Zappi", "State: On");
     }
 
     @Test
@@ -79,7 +79,7 @@ class GetLibbiEnabledHandlerTest {
         when(mockLibbiService.getStatus(any())).thenReturn(LibbiStatus.builder().state(LibbiState.OFF).build());
         var response = handler.handle(handlerInputBuilder("GetLibbiEnabled").build());
         assertThat(response).isPresent();
-        verifySpeechInResponse(response.get(), "<speak>Your battery is disabled.</speak>");
-        verifySimpleCardInResponse(response.get(), "My Zappi", "Your battery is disabled.");
+        verifySpeechInResponse(response.get(), "<speak>Your battery is Off.</speak>");
+        verifySimpleCardInResponse(response.get(), "My Zappi", "State: Off");
     }
 }

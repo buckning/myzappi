@@ -201,6 +201,7 @@ class DevicesControllerTest {
                 {\
                 "serialNumber":"30000001",\
                 "state":"OFF",\
+                "stateDescription":"Off",\
                 "stateOfChargePercentage":60,\
                 "batterySizeKWh":"10.2",\
                 "chargeFromGridEnabled":true,\
