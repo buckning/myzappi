@@ -1,35 +1,39 @@
 package com.amcglynn.myenergi;
 
+import lombok.Getter;
+
 import java.util.HashMap;
 import java.util.Map;
 
 public enum LibbiState {
     // from https://github.com/CJNE/pymyenergi/pull/16/files
-    OFF(0),
-    ON(1),
-    BATTERY_FULL(2),
-    IDLE(4),
-    CHARGING(5),
-    DISCHARGING(6),
-    DURATION_CHARGING(7),
-    DURATION_DRAIN(8),
-    TARGET_CHARGE(12),
-    BOOSTING(51),
-    BOOSTING2(53),
-    BOOSTING3(55),
-    STOPPED(11),
-    BATTERY_EMPTY(101),
-    FULL(102),
-    FULL2(104),
-    FW_UPGRADE_ARM(151),
-    FW_UPGRADE_DSP(156),
-    BMS_CHARGE_TEMPERATURE_LOW(172),
-    CALIBRATION_CHARGE(234),
-    FW_UPGRADE_DSP2(251),
-    FW_UPGRADE_ARM2(252),
-    UNKNOWN(-1);
+    OFF(0, "Off"),
+    ON(1, "On"),
+    BATTERY_FULL(2, "Full"),
+    IDLE(4, "Idle"),
+    CHARGING(5, "Charging"),
+    DISCHARGING(6, "Discharging"),
+    DURATION_CHARGING(7, "Charging"),
+    DURATION_DRAIN(8, "Discharging"),
+    TARGET_CHARGE(12, "Charging"),
+    BOOSTING(51, "Charging"),
+    BOOSTING2(53, "Charging"),
+    BOOSTING3(55, "Charging"),
+    STOPPED(11, "Stopped"),
+    BATTERY_EMPTY(101, "Empty"),
+    FULL(102, "Full"),
+    FULL2(104, "Full"),
+    FW_UPGRADE_ARM(151, "Upgrading"),
+    FW_UPGRADE_DSP(156, "Upgrading"),
+    BMS_CHARGE_TEMPERATURE_LOW(172, "Stopped"),
+    CALIBRATION_CHARGE(234, "Calibrating"),
+    FW_UPGRADE_DSP2(251, "Upgrading"),
+    FW_UPGRADE_ARM2(252, "Upgrading"),
+    UNKNOWN(-1, "Unknown");
 
     private final int state;
+    @Getter
+    private final String description;
 
     private static final Map<Integer, LibbiState> CODES = new HashMap<>();
 
@@ -39,12 +43,9 @@ public enum LibbiState {
         }
     }
 
-    public int getStateValue() {
-        return this.state;
-    }
-
-    LibbiState(int state) {
+    LibbiState(int state, String description) {
         this.state = state;
+        this.description = description;
     }
 
     public static LibbiState from(int i) {

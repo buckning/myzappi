@@ -19,6 +19,7 @@ interface SetChargeFromGrid {
 interface LibbiSummary {
   serialNumber: string,
   stateOfChargePercentage: number,
+  stateDescription: string,
   batterySizeKWh: string,
   chargeFromGridEnabled: boolean,
   energyTargetKWh: string;
@@ -48,6 +49,7 @@ export class LibbiPanelComponent {
   energyTargetKWh = '';
   energyTargetPercentage = '';
   libbiEnabled = false;
+  libbiState = '';
 
   mode: any;
   changeModeEnabled = true;
@@ -79,6 +81,7 @@ export class LibbiPanelComponent {
         } else {
           this.libbiEnabled = true;
         }
+        this.libbiState = data.stateDescription;
       });
   }
 

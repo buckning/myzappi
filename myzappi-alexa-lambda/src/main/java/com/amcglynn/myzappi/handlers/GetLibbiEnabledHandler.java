@@ -3,7 +3,6 @@ package com.amcglynn.myzappi.handlers;
 import com.amazon.ask.dispatcher.request.handler.HandlerInput;
 import com.amazon.ask.dispatcher.request.handler.RequestHandler;
 import com.amazon.ask.model.Response;
-import com.amcglynn.myenergi.LibbiState;
 import com.amcglynn.myzappi.UserIdResolverFactory;
 import com.amcglynn.myzappi.core.Brand;
 import com.amcglynn.myzappi.core.model.UserId;
@@ -35,19 +34,12 @@ public class GetLibbiEnabledHandler implements RequestHandler {
         var userId = userIdResolverFactory.newUserIdResolver(handlerInput);
         var libbiService = myEnergiServiceBuilder.build(userIdResolverFactory.newUserIdResolver(handlerInput)).getLibbiServiceOrThrow();
         var status = libbiService.getStatus(UserId.from(userId.getUserId()));
-        var stateOfCharge = status.getState();
-
-        if (stateOfCharge == LibbiState.OFF) {
-            return handlerInput.getResponseBuilder()
-                    .withSpeech(voiceResponse(handlerInput, "libbi-disabled"))
-                    .withSimpleCard(Brand.NAME, cardResponse(handlerInput, "libbi-disabled"))
-                    .withShouldEndSession(false)
-                    .build();
-        }
 
         return handlerInput.getResponseBuilder()
-                .withSpeech(voiceResponse(handlerInput, "libbi-enabled"))
-                .withSimpleCard(Brand.NAME, cardResponse(handlerInput, "libbi-enabled"))
+                .withSpeech(voiceResponse(handlerInput, "libbi-state",
+                                Map.of("state", status.getStateDescription())))
+                .withSimpleCard(Brand.NAME, cardResponse(handlerInput, "libbi-state",
+                                Map.of("state", status.getStateDescription())))
                 .withShouldEndSession(false)
                 .build();
     }
