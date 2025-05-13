@@ -28,27 +28,29 @@ public class MyZappiScheduleHandler {
         this.myEnergiServiceBuilder = zappiServiceBuilder;
         this.scheduleService = scheduleService;
 
-        handlers = Map.of(
-                "setChargeMode",    (myEnergiService, scheduleAction) -> myEnergiService.getZappiServiceOrThrow()
-                        .setChargeMode(ZappiChargeMode.valueOf(scheduleAction.getValue())),
-                "setSmartBoost",   (myEnergiService, scheduleAction) -> myEnergiService.getZappiServiceOrThrow()
-                        .startSmartBoost(parseSmartBoostKwh(scheduleAction), parseSmartBoostTime(scheduleAction)),
-                "setBoostKwh",      (myEnergiService, scheduleAction) -> myEnergiService.getZappiServiceOrThrow()
-                        .startBoost(new KiloWattHour(Double.parseDouble(scheduleAction.getValue()))),
-                "setBoostUntil",    (myEnergiService, scheduleAction) -> myEnergiService.getZappiServiceOrThrow()
-                        .startSmartBoost(LocalTime.parse(scheduleAction.getValue())),
-                "setBoostFor",      (myEnergiService, scheduleAction) -> myEnergiService.getZappiServiceOrThrow()
-                        .startSmartBoost(Duration.parse(scheduleAction.getValue())),
-                "setEddiMode",      (myEnergiService, scheduleAction) -> myEnergiService.getEddiServiceOrThrow()
-                        .setEddiMode(EddiMode.valueOf(scheduleAction.getValue())),
-                "setEddiBoostFor",  (myEnergiService, scheduleAction) -> myEnergiService.getEddiServiceOrThrow()
-                        .boostEddi(parseHeater(scheduleAction.getValue()), parseDuration(scheduleAction.getValue())),
-                "setLibbiChargeFromGrid", (myEnergiService, scheduleAction) -> myEnergiService.getLibbiService()
-                        .get().setChargeFromGrid(myEnergiService.getUserId(), SerialNumber.from(scheduleAction.getTarget().get()), Boolean.parseBoolean(scheduleAction.getValue())),
-                "setLibbiChargeTarget", (myEnergiService, scheduleAction) -> myEnergiService.getLibbiService()
-                        .get().setChargeTarget(myEnergiService.getUserId(), SerialNumber.from(scheduleAction.getTarget().get()), Integer.parseInt(scheduleAction.getValue())),
-                "setLibbiEnabled", (myEnergiService, scheduleAction) -> myEnergiService.getLibbiService()
-                        .get().setMode(SerialNumber.from(scheduleAction.getTarget().get()), parseLibbiMode(scheduleAction))
+        handlers = Map.ofEntries(
+                Map.entry("setChargeMode",    (myEnergiService, scheduleAction) -> myEnergiService.getZappiServiceOrThrow()
+                        .setChargeMode(ZappiChargeMode.valueOf(scheduleAction.getValue()))),
+                Map.entry("setZappiMgl",    (myEnergiService, scheduleAction) -> myEnergiService.getZappiServiceOrThrow()
+                        .setMgl(SerialNumber.from(scheduleAction.getTarget().get()), Integer.parseInt(scheduleAction.getValue()))),
+                Map.entry("setSmartBoost",   (myEnergiService, scheduleAction) -> myEnergiService.getZappiServiceOrThrow()
+                        .startSmartBoost(parseSmartBoostKwh(scheduleAction), parseSmartBoostTime(scheduleAction))),
+                Map.entry("setBoostKwh",      (myEnergiService, scheduleAction) -> myEnergiService.getZappiServiceOrThrow()
+                        .startBoost(new KiloWattHour(Double.parseDouble(scheduleAction.getValue())))),
+                Map.entry("setBoostUntil",    (myEnergiService, scheduleAction) -> myEnergiService.getZappiServiceOrThrow()
+                        .startSmartBoost(LocalTime.parse(scheduleAction.getValue()))),
+                Map.entry("setBoostFor",      (myEnergiService, scheduleAction) -> myEnergiService.getZappiServiceOrThrow()
+                        .startSmartBoost(Duration.parse(scheduleAction.getValue()))),
+                Map.entry("setEddiMode",      (myEnergiService, scheduleAction) -> myEnergiService.getEddiServiceOrThrow()
+                        .setEddiMode(EddiMode.valueOf(scheduleAction.getValue()))),
+                Map.entry("setEddiBoostFor",  (myEnergiService, scheduleAction) -> myEnergiService.getEddiServiceOrThrow()
+                        .boostEddi(parseHeater(scheduleAction.getValue()), parseDuration(scheduleAction.getValue()))),
+                Map.entry("setLibbiChargeFromGrid", (myEnergiService, scheduleAction) -> myEnergiService.getLibbiService()
+                        .get().setChargeFromGrid(myEnergiService.getUserId(), SerialNumber.from(scheduleAction.getTarget().get()), Boolean.parseBoolean(scheduleAction.getValue()))),
+                Map.entry("setLibbiChargeTarget", (myEnergiService, scheduleAction) -> myEnergiService.getLibbiService()
+                        .get().setChargeTarget(myEnergiService.getUserId(), SerialNumber.from(scheduleAction.getTarget().get()), Integer.parseInt(scheduleAction.getValue()))),
+                Map.entry("setLibbiEnabled", (myEnergiService, scheduleAction) -> myEnergiService.getLibbiService()
+                        .get().setMode(SerialNumber.from(scheduleAction.getTarget().get()), parseLibbiMode(scheduleAction)))
         );
     }
 
