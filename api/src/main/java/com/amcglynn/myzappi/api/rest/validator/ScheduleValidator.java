@@ -22,16 +22,18 @@ public class ScheduleValidator {
     @Setter(AccessLevel.PACKAGE)
     private Clock clock;
 
-    private static final Map<String, Predicate<String>> SUPPORTED_TYPES = Map.of("setChargeMode", ScheduleValidator::isValidChargeMode,
-            "setBoostKwh", ScheduleValidator::isValidChargeInteger,
-            "setBoostUntil", ScheduleValidator::isValidChargeLocalTime,
-            "setSmartBoost", ScheduleValidator::isValidSmartBoost,
-            "setBoostFor", ScheduleValidator::isValidChargeDuration,
-            "setEddiMode", ScheduleValidator::isValidEddiMode,
-            "setEddiBoostFor", ScheduleValidator::isValidEddiBoostDuration,
-            "setLibbiEnabled", ScheduleValidator::isValidBoolean,
-            "setLibbiChargeFromGrid", ScheduleValidator::isValidBoolean,
-            "setLibbiChargeTarget", ScheduleValidator::isValidTargetSoc);
+    private static final Map<String, Predicate<String>> SUPPORTED_TYPES = Map.ofEntries(
+            Map.entry("setChargeMode", ScheduleValidator::isValidChargeMode),
+            Map.entry("setBoostKwh", ScheduleValidator::isValidChargeInteger),
+            Map.entry("setBoostUntil", ScheduleValidator::isValidChargeLocalTime),
+            Map.entry("setSmartBoost", ScheduleValidator::isValidSmartBoost),
+            Map.entry("setBoostFor", ScheduleValidator::isValidChargeDuration),
+            Map.entry("setEddiMode", ScheduleValidator::isValidEddiMode),
+            Map.entry("setEddiBoostFor", ScheduleValidator::isValidEddiBoostDuration),
+            Map.entry("setLibbiEnabled", ScheduleValidator::isValidBoolean),
+            Map.entry("setLibbiChargeFromGrid", ScheduleValidator::isValidBoolean),
+            Map.entry("setLibbiChargeTarget", ScheduleValidator::isValidTargetSoc),
+            Map.entry("setZappiMgl", ScheduleValidator::isValidMgl));
 
     private static boolean isValidSmartBoost(String s) {
             var tokens = s.split(";");
@@ -45,6 +47,15 @@ public class ScheduleValidator {
         try {
             var value = Integer.parseInt(s);
             return value <= 100 && value >= 0;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
+
+    private static boolean isValidMgl(String s) {
+        try {
+            var value = Integer.parseInt(s);
+            return value <= 100 && value > 0;
         } catch (NumberFormatException e) {
             return false;
         }

@@ -313,4 +313,8 @@ public class MyEnergiClient {
             baseUrl = URI.create("https://" + asnValues.get(0));
         }
     }
+
+    public void setZappiMgl(String zappiSerialNumber, int mgl) {
+        getRequest("/cgi-set-min-green-Z" + zappiSerialNumber + "-" + mgl);
+    }
 }

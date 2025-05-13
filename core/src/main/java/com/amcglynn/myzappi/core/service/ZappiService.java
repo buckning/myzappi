@@ -204,4 +204,11 @@ public class ZappiService {
                 .withZoneSameInstant(ZoneId.of("UTC"));
         return client.getZappiHistory(userTime.toLocalDate(), userTime.toLocalTime().getHour()).getReadings();
     }
+
+    /**
+     * Set the Minimum Green Level (MGL) for the Zappi. This is a value between 1 and 100.
+     */
+    public void setMgl(SerialNumber serialNumber, int mgl) {
+        client.setZappiMgl(serialNumber.toString(), mgl);
+    }
 }
