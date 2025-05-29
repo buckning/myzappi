@@ -190,66 +190,53 @@ main {
     flex-direction: column;
     align-items: center; /* Center header and body horizontally */
     border: 1px solid white; /* Added outline */
+    position: relative; /* Add this for positioning the connection icon */
 }
 
-.zappi-panel-header {
-    display: flex;
-    justify-content: space-between; /* Adjust to space-around if more space is needed between icons */
-    align-items: center;
-    width: 100%; /* Header takes full width of the panel */
-    margin-bottom: 25px; /* Space between header and body */
+.zappi-icon-container { /* This targets the div holding the connection icon */
+    position: absolute;
+    top: 10px; /* Adjust as needed */
+    right: 10px; /* Adjust as needed */
+    z-index: 10; /* Ensure it's above other elements if necessary */
 }
 
-.zappi-icon-container {
-    border: 1px solid white;
-    width: 90px;  /* Adjust as needed */
-    height: 70px; /* Adjust as needed */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    padding: 5px; /* Padding inside the icon box */
-    box-sizing: border-box;
-}
-
-.zappi-icon-container img {
-    max-width: 100%;
-    max-height: 100%;
-    object-fit: contain;
-}
-
-.zappi-icon-container .icon-text {
-    font-size: 13px; /* Adjust as needed */
-    line-height: 1.2;
+.zappi-icon-container img { /* Style for the connection icon itself */
+    width: 32px; /* Increased width */
+    height: auto; /* Maintain aspect ratio */
 }
 
 .zappi-panel-body {
     display: flex;
     flex-direction: column;
-    align-items: center; /* Center text elements */
+    align-items: center; /* Center items like the car icon and text */
     width: 100%;
 }
 
-.zappi-panel-body p {
-    margin: 4px 0; /* Default margin for text elements */
+.main-car-icon {
+    width: 80px; /* Adjust size as needed, make it larger */
+    height: auto;
+    margin-bottom: 15px; /* Space below the car icon */
 }
 
-.zappi-name {
-    font-size: 24px;
-    margin-bottom: 8px;
+.zappi-device-info {
+    display: flex; /* Arrange name and SN on the same line */
+    justify-content: center; /* Center them together */
+    align-items: baseline; /* Align text nicely */
+    width: 100%;
+    margin-bottom: 5px; /* Space below this line */
 }
 
+.zappi-name,
 .zappi-serial-number {
-    font-size: 14px; /* Smaller font size for serial number */
-    color: #f0f0f0; /* Slightly lighter color, adjust as needed */
-    margin-bottom: 8px;
+    font-size: 0.9em; /* Smaller font size */
+    margin: 0 5px; /* Add a little space between name and SN */
 }
 
 .zappi-power {
     font-size: 60px;
     font-weight: bold;
     margin-top: 0px;
-    margin-bottom: 8px;
+    margin-bottom: 2px; /* Further reduced */
 }
 
 .zappi-mode {
@@ -259,4 +246,5 @@ main {
 
 .zappi-charge-added {
     font-size: 20px;
+    margin-top: 2px; /* Added to control space above */
 }

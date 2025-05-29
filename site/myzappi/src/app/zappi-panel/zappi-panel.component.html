@@ -1,22 +1,16 @@
 <div class="zappi-panel">
-  <div class="zappi-panel-header">
-    <div class="zappi-icon-container">
-      <img src="assets/images/car.png" alt="Car Status" />
-      <!-- If you prefer text like the mockup, you can use: -->
-      <!-- <span class="icon-text">Car img</span> -->
-    </div>
-    <div class="zappi-icon-container">
-      <!-- Placeholder for Connection Status Icon -->
-      <!-- You'll need to add an actual icon here -->
-      <span class="icon-text">Conn. icon</span>
-    </div>
+  <div class="zappi-icon-container">
+      <img [src]="isConnected ? 'assets/images/connected.png' : 'assets/images/disconnected.png'" alt="Connection Status" />
   </div>
   <div class="zappi-panel-body">
-    <p class="zappi-name">Zappi</p> <!-- Assuming "Zappi" is a static title, or bind if dynamic -->
-    <p class="zappi-serial-number">{{serialNumber}}</p>
+    <img src="assets/images/car.png" alt="Car Status" class="main-car-icon" />
+
+    <div class="zappi-device-info">
+      <p class="zappi-name">Zappi</p>
+      <p class="zappi-serial-number">{{serialNumber}}</p>
+    </div>
+
     <p class="zappi-power">{{chargeRate}} kW</p>
-    <!-- The mode is now represented by the buttons below, but if you have a general mode display: -->
-    <!-- <p class="zappi-mode">Current Mode</p> -->
     <p class="zappi-charge-added">Charge added: {{chargeAddedKwh}} kWh</p>
   </div>
 
