@@ -168,4 +168,95 @@ input {
 }
 
 html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+body { 
+    margin: 0; 
+    font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+main {
+    padding-bottom: 10px;
+}
+
+/* New styles for Zappi Panel */
+.zappi-panel {
+    background-color: #246ab1; /* Using a color similar to your .tile style */
+    color: white;
+    padding: 20px;
+    margin: 20px auto; /* Centers the panel */
+    width: 300px; /* Adjust as needed */
+    border-radius: 8px; /* Optional: for rounded corners */
+    font-family: Roboto, "Helvetica Neue", sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Center header and body horizontally */
+    border: 1px solid white; /* Added outline */
+}
+
+.zappi-panel-header {
+    display: flex;
+    justify-content: space-between; /* Adjust to space-around if more space is needed between icons */
+    align-items: center;
+    width: 100%; /* Header takes full width of the panel */
+    margin-bottom: 25px; /* Space between header and body */
+}
+
+.zappi-icon-container {
+    border: 1px solid white;
+    width: 90px;  /* Adjust as needed */
+    height: 70px; /* Adjust as needed */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 5px; /* Padding inside the icon box */
+    box-sizing: border-box;
+}
+
+.zappi-icon-container img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.zappi-icon-container .icon-text {
+    font-size: 13px; /* Adjust as needed */
+    line-height: 1.2;
+}
+
+.zappi-panel-body {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Center text elements */
+    width: 100%;
+}
+
+.zappi-panel-body p {
+    margin: 4px 0; /* Default margin for text elements */
+}
+
+.zappi-name {
+    font-size: 24px;
+    margin-bottom: 8px;
+}
+
+.zappi-serial-number {
+    font-size: 14px; /* Smaller font size for serial number */
+    color: #f0f0f0; /* Slightly lighter color, adjust as needed */
+    margin-bottom: 8px;
+}
+
+.zappi-power {
+    font-size: 60px;
+    font-weight: bold;
+    margin-top: 0px;
+    margin-bottom: 8px;
+}
+
+.zappi-mode {
+    font-size: 22px;
+    margin-bottom: 15px;
+}
+
+.zappi-charge-added {
+    font-size: 20px;
+}

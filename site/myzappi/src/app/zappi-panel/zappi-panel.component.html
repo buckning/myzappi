@@ -1,13 +1,26 @@
-<h2><img class="headerIconImage" src="assets/images/car.png" alt="Zappi"> Zappi</h2>
-<br>
-<b>Serial number</b>: {{serialNumber}}
-<br>
-<b>Charge rate</b>: {{chargeRate}} kW
-<br>
-<b>Charge added</b>: {{chargeAddedKwh}} kWh
-<br>
-  
-<div class="chargeMode">
+<div class="zappi-panel">
+  <div class="zappi-panel-header">
+    <div class="zappi-icon-container">
+      <img src="assets/images/car.png" alt="Car Status" />
+      <!-- If you prefer text like the mockup, you can use: -->
+      <!-- <span class="icon-text">Car img</span> -->
+    </div>
+    <div class="zappi-icon-container">
+      <!-- Placeholder for Connection Status Icon -->
+      <!-- You'll need to add an actual icon here -->
+      <span class="icon-text">Conn. icon</span>
+    </div>
+  </div>
+  <div class="zappi-panel-body">
+    <p class="zappi-name">Zappi</p> <!-- Assuming "Zappi" is a static title, or bind if dynamic -->
+    <p class="zappi-serial-number">{{serialNumber}}</p>
+    <p class="zappi-power">{{chargeRate}} kW</p>
+    <!-- The mode is now represented by the buttons below, but if you have a general mode display: -->
+    <!-- <p class="zappi-mode">Current Mode</p> -->
+    <p class="zappi-charge-added">Charge added: {{chargeAddedKwh}} kWh</p>
+  </div>
+
+  <div class="chargeMode">
     <button class="toggleButton" [class.selected]="isModeActive('Eco+')" (click)="changeMode('Eco+')" [disabled]="!isChangeModeEnabled()">
         Eco+
     </button>
@@ -21,9 +34,9 @@
         Stop
     </button>    
     <app-inline-schedule-panel [bearerToken]="bearerToken" [serialNumber]="serialNumber" [actionComponentType]="zappiSetChargeModeActionPanelComponent"></app-inline-schedule-panel>
-</div>
-<br>
-<div>
+  </div>
+  <br> <!-- Consider if this <br> is still needed -->
+  <div>
     <app-quote-carousel>
         <ng-template #carouselItem>
             "Alexa, ask my charger to charge my car"
@@ -53,4 +66,5 @@
             "Alexa, ask my charger to schedule a boost for 10 kilowatt hours"
         </ng-template>
       </app-quote-carousel>
+  </div>
 </div>
