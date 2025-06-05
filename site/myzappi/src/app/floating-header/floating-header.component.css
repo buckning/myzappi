@@ -1,0 +1,68 @@
+.floating-header-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background-color: #077ed5; /* Match website background color */
+  background-image: linear-gradient(to bottom, #0772c0, #077ed5); /* Subtle gradient effect */
+  color: white;
+  padding: 10px 20px;
+  display: flex;
+  justify-content: space-between; /* Ensures space between items */
+  align-items: center;
+  z-index: 1000; /* Ensure it's above other content */
+  border-bottom: 1px solid rgba(255,255,255,0.3); /* Light white/grey separator line */
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1); /* Subtle shadow below the border */
+  box-sizing: border-box; /* Include padding and border in the element's total width and height */
+}
+
+.header-logo {
+  height: 30px; /* Fixed height */
+  width: auto; /* Width will adjust automatically */
+}
+
+.energy-cost-container,
+.energy-cost-placeholder {
+  flex-grow: 1; /* Allows this container to take up available space */
+  text-align: center; /* Centers the text within this container */
+}
+
+.energy-cost-container span {
+  font-size: 0.9em;
+  font-weight: bold; /* Make text bold for better readability */
+}
+
+/* Class for displaying energy cost */
+.energy-cost {
+  color: #ff5252; /* Red for costs */
+}
+
+/* Class for displaying energy credit */
+.energy-credit {
+  color: #4caf50; /* Green for credits */
+}
+
+.logout-container {
+  flex-shrink: 0; /* Prevent logout container from shrinking */
+}
+
+.logout-button {
+  background-color: #d9534f; /* Example button color */
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.logout-button:hover {
+  background-color: #c9302c;
+}
+
+.logout-icon {
+  height: 16px; /* Adjust as needed */
+  width: auto;
+  margin-right: 8px;
+}

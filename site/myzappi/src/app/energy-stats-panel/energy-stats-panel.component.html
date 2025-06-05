@@ -1,22 +1,21 @@
 <h1>Energy Usage</h1>
 <div class="energy-overview-panel">
   <h2>Energy Overview</h2>
-  <p class="subtitle">Today</p>
 
-  <div class="overview-item">
-    <span class="label">Consumption</span>
-    <span class="value">{{consumingKW | number:'1.1-1'}} kWh</span> <!-- Placeholder: Using kW, unit changed for display -->
-  </div>
   <div class="overview-item">
     <span class="label">Solar generation</span>
     <span class="value">{{solarGenerationKW | number:'1.1-1'}} kWh</span> <!-- Placeholder: Using kW, unit changed for display -->
   </div>
   <div class="overview-item">
-    <span class="label">Imported from grid</span>
+    <span class="label">Consuming</span>
+    <span class="value">{{consumingKW | number:'1.1-1'}} kWh</span> <!-- Placeholder: Using kW, unit changed for display -->
+  </div>
+  <div class="overview-item">
+    <span class="label">Importing from grid</span>
     <span class="value">{{importingKW | number:'1.1-1'}} kWh</span> <!-- Placeholder: Using kW, unit changed for display -->
   </div>
   <div class="overview-item">
-    <span class="label">Exported to grid</span>
+    <span class="label">Exporting to grid</span>
     <span class="value">{{exportingKW | number:'1.1-1'}} kWh</span> <!-- Placeholder: Using kW, unit changed for display -->
   </div>
 </div>

@@ -14,10 +14,6 @@
         <app-help-panel></app-help-panel>
     </div>
     <br>
-    <div *ngIf="tariffsRegistered === true">
-        <app-energy-cost-panel [bearerToken]="bearerToken"></app-energy-cost-panel>
-        <br>
-    </div>
     <app-tariff-panel [bearerToken]="bearerToken" (tariffChangeEvent)="tariffChangeEvent()"></app-tariff-panel>
     <br>
     <div class="tile" *ngIf="hubDetails != null">
@@ -102,5 +98,5 @@
 </div>
 
 <div class="logoutButtonContainer">
-    <button (click)="logOut()" class="destructiveButton" id="logoutButton"><img class="iconButtonImage" src="assets/images/logout.png" alt="Logout"> </button>
+
 </div>

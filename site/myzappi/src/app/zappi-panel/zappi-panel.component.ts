@@ -94,7 +94,8 @@ export class ZappiPanelComponent {
         this.chargeAddedKwh = data.chargeAddedKwh;
         this.chargeRate = data.chargeRateKw;
         this.mode = data.mode;
-        this.isConnected = data.connectionStatus === 'EV_CONNECTED'; // Add this line
+        this.isConnected = ['EV_CONNECTED', 'WAITING_FOR_EV', 'READY_TO_CHARGE', 'CHARGING'].includes(data.connectionStatus);
+
         this.pushEnergySummary(data);
         setTimeout(() => {
           this.loadDeviceStatus();

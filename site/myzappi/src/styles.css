@@ -151,15 +151,15 @@ input {
 
 .carousel-container {
     margin: auto;
-    background-color: #36689a;
-    border: 1px solid #36628e;
+    background-color: #f7f7f7; /* Light grey background */
+    border: 1px solid #e0e0e0; /* Subtle border */
 }
 
 .panel-content {
     padding: 20px;
     margin-bottom: 10px;
-    background-color: #36689a;
-    color: #ffffff;
+    background-color: #f7f7f7;
+    color: #333;
 }
 
 .devicesTable {
@@ -179,17 +179,18 @@ main {
 
 /* New styles for Zappi Panel */
 .zappi-panel {
-    background-color: #246ab1; /* Using a color similar to your .tile style */
-    color: white;
+    background-color: #f7f7f7; /* Light grey background */
+    color: #333;
     padding: 20px;
     margin: 20px auto; /* Centers the panel */
-    width: 300px; /* Adjust as needed */
+    width: 400px; /* Adjust as needed */
+    max-width: 400px;
     border-radius: 8px; /* Optional: for rounded corners */
     font-family: Roboto, "Helvetica Neue", sans-serif;
     display: flex;
     flex-direction: column;
     align-items: center; /* Center header and body horizontally */
-    border: 1px solid white; /* Added outline */
+    border: 1px solid #e0e0e0; /* Subtle border */
     position: relative; /* Add this for positioning the connection icon */
 }
 
@@ -197,7 +198,7 @@ main {
     position: absolute;
     top: 10px; /* Adjust as needed */
     right: 10px; /* Adjust as needed */
-    z-index: 10; /* Ensure it's above other elements if necessary */
+    
 }
 
 .zappi-icon-container img { /* Style for the connection icon itself */
@@ -247,4 +248,15 @@ main {
 .zappi-charge-added {
     font-size: 20px;
     margin-top: 2px; /* Added to control space above */
+}
+
+.content.with-header {
+  padding-top: 60px; /* Adjusted to match the floating header height */
+}
+
+/* Hide default logo and welcome message from index.html if needed when header is shown */
+/* This might be better handled by removing them from index.html if they are fully replaced */
+body.user-logged-in .logo-container, 
+body.user-logged-in .welcome-message {
+  display: none; 
 }

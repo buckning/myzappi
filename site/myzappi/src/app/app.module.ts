@@ -15,6 +15,7 @@ import { EnergyCostPanelComponent } from './energy-cost-panel/energy-cost-panel.
 import { HelpPanelComponent } from './help-panel/help-panel.component';
 import { ZappiPanelComponent } from './zappi-panel/zappi-panel.component';
 import { LibbiPanelComponent } from './libbi-panel/libbi-panel.component';
+import { FloatingHeaderComponent } from './floating-header/floating-header.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatExpansionModule } from '@angular/material/expansion';
@@ -51,7 +52,8 @@ import { QuoteCarouselComponent } from './quote-carousel/quote-carousel.componen
     LibbiSetChargeFromGridActionPanelComponent,
     LibbiSetEnabledActionPanelComponent,
     EnergyStatsPanelComponent,
-    QuoteCarouselComponent
+    QuoteCarouselComponent,
+    FloatingHeaderComponent
   ],
   imports: [
     MatSlideToggleModule,
