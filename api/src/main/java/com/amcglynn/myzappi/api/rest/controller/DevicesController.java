@@ -12,6 +12,7 @@ import com.amcglynn.myzappi.api.rest.request.ZappiChargeModeMapper;
 import com.amcglynn.myzappi.api.rest.response.DeviceDiscoveryResponse;
 import com.amcglynn.myzappi.api.rest.response.DeviceResponse;
 import com.amcglynn.myzappi.api.rest.response.ListDeviceResponse;
+import com.amcglynn.myzappi.api.rest.response.MyEnergiEddiStatusResponse;
 import com.amcglynn.myzappi.api.rest.response.MyEnergiDeviceStatusResponse;
 import com.amcglynn.myzappi.api.service.RegistrationService;
 import com.amcglynn.myzappi.core.model.DeviceClass;
@@ -223,6 +224,13 @@ public class DevicesController {
             return new Response(200, mapper.writeValueAsString(service.getLibbiService()
                     .get()
                     .getStatus(request.getUserId(), serialNumber)));
+        } else if (DeviceClass.EDDI == device.getDeviceClass()) {
+            var status = service.getEddiService()
+                    .get()
+                    .getStatus(serialNumber);
+            return new Response(200, mapper.writeValueAsString(
+                    new MyEnergiEddiStatusResponse(status)
+            ));
         } else {
             throw new ServerException(404);
         }

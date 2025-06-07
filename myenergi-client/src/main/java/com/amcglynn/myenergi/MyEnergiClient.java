@@ -16,6 +16,7 @@ import com.amcglynn.myenergi.apiresponse.StatusResponse;
 import com.amcglynn.myenergi.apiresponse.ZappiDayHistory;
 import com.amcglynn.myenergi.apiresponse.ZappiHourlyDayHistory;
 import com.amcglynn.myenergi.apiresponse.ZappiStatusResponse;
+import com.amcglynn.myenergi.apiresponse.EddiStatusResponse;
 import com.amcglynn.myenergi.exception.ClientException;
 import com.amcglynn.myenergi.exception.InvalidRequestException;
 import com.amcglynn.myenergi.exception.InvalidResponseFormatException;
@@ -102,6 +103,15 @@ public class MyEnergiClient {
 
     public ZappiStatusResponse getZappiStatus(String zappiSerialNumber) {
         var response = getRequest("/cgi-jstatus-Z" + zappiSerialNumber);
+        try {
+            return new ObjectMapper().readValue(response, new TypeReference<>(){});
+        } catch (JsonProcessingException e) {
+            throw new InvalidResponseFormatException();
+        }
+    }
+
+    public EddiStatusResponse getEddiStatus(String eddiSerialNumber) {
+        var response = getRequest("/cgi-jstatus-E" + eddiSerialNumber);
         try {
             return new ObjectMapper().readValue(response, new TypeReference<>(){});
         } catch (JsonProcessingException e) {

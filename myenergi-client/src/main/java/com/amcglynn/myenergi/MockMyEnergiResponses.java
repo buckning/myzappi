@@ -246,6 +246,60 @@ public class MockMyEnergiResponses {
                 """, EDDI_SERIAL_NUMBER_1, LIBBI_SERIAL_NUMBER_1, ZAPPI_SERIAL_NUMBER_1, ZAPPI_SERIAL_NUMBER_2);
     }
 
+    public static String getExampleJStatusResponseWithEddi() {
+        return String.format(""" 
+                {
+                    "eddi": [
+                        {
+                            "deviceClass": "EDDI",
+                            "sno": %s,
+                            "dat": "10-05-2024",
+                            "tim": "15:19:32",
+                            "ectp1": 4,
+                            "ectp2": 0,
+                            "ectp3": 0,
+                            "ectt1": "Internal Load",
+                            "ectt2": "None",
+                            "ectt3": "None",
+                            "bsm": 0,
+                            "bst": 0,
+                            "dst": 1,
+                            "div": 4,
+                            "frq": 50.02,
+                            "gen": 2723,
+                            "grd": -76,
+                            "pha": 1,
+                            "pri": 3,
+                            "sta": 1,
+                            "tz": 0,
+                            "vol": 2443,
+                            "che": 0,
+                            "isVHubEnabled": false,
+                            "hpri": 1,
+                            "hno": 1,
+                            "ht1": "Tank 1",
+                            "ht2": "Tank 2",
+                            "r1a": 0,
+                            "r2a": 0,
+                            "r1b": 0,
+                            "r2b": 0,
+                            "rbc": 1,
+                            "tp1": 42,
+                            "tp2": 41,
+                            "che": 4321,
+                            "batteryDischargeEnabled": false,
+                            "g100LockoutState": "NONE",
+                            "cmt": 254,
+                            "fwv": "3202S5.408",
+                            "newAppAvailable": false,
+                            "newBootloaderAvailable": false,
+                            "productCode": "3202"
+                        }
+                    ]
+                }
+                """, EDDI_SERIAL_NUMBER_1);
+    }
+
     public static String getExampleResponse() {
         return getExampleResponse(ZAPPI_SERIAL_NUMBER_1);
     }
