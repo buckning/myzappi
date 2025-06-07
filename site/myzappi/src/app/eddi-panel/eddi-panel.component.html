@@ -1,1 +1,35 @@
-<p>eddi-panel works!</p>
+<div class="eddi-panel">
+  <div class="eddi-panel-body">
+    <img src="assets/images/heaterBlack.png" alt="Heater Status" class="main-heater-icon" />
+
+    <div class="eddi-device-info">
+      <p class="eddi-name">Eddi</p>
+      <p class="eddi-serial-number">{{serialNumber}}</p>
+    </div>
+
+    <p class="eddi-state">State: {{state}}</p>
+    <p class="eddi-active-heater">Active Heater: {{activeHeater === 'Tank 1' ? tank1Name : (activeHeater === 'Tank 2' ? tank2Name : activeHeater)}}</p>
+    <p class="eddi-tank-names">Heaters: {{tank1Name}} / {{tank2Name}}</p>
+    <p class="eddi-consumed">Consumed this session: {{consumedKwh}} kWh</p>
+  </div>
+  
+  <div>
+    <app-quote-carousel>
+      <ng-template #carouselItem>
+        "Alexa, ask my heater for a status report"
+      </ng-template>
+      
+      <ng-template #carouselItem>
+        "Alexa, ask my heater how much energy is being diverted"
+      </ng-template>
+      
+      <ng-template #carouselItem>
+        "Alexa, ask my heater which heating element is active"
+      </ng-template>
+      
+      <ng-template #carouselItem>
+        "Alexa, ask my heater how much energy was used today"
+      </ng-template>
+    </app-quote-carousel>
+  </div>
+</div>
