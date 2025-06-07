@@ -1,6 +1,7 @@
 package com.amcglynn.myzappi.core.model;
 
 import com.amcglynn.myenergi.LibbiState;
+import com.amcglynn.myenergi.units.KiloWatt;
 import com.amcglynn.myenergi.units.KiloWattHour;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -27,6 +28,7 @@ public class LibbiStatus {
     private Boolean chargeFromGridEnabled;
     private KiloWattHour energyTargetKWh;
     private int energyTargetPercentage;
+    private KiloWatt diversionAmountKW;
 
     public String getStateDescription() {
         return state.getDescription();
