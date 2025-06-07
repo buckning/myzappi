@@ -31,6 +31,7 @@ import { LibbiSetChargeFromGridActionPanelComponent } from './libbi-set-charge-f
 import { LibbiSetEnabledActionPanelComponent } from './libbi-set-enabled-action-panel/libbi-set-enabled-action-panel.component';
 import { EnergyStatsPanelComponent } from './energy-stats-panel/energy-stats-panel.component';
 import { QuoteCarouselComponent } from './quote-carousel/quote-carousel.component';
+import { EddiPanelComponent } from './eddi-panel/eddi-panel.component';
 
 @NgModule({
   declarations: [
@@ -53,7 +54,8 @@ import { QuoteCarouselComponent } from './quote-carousel/quote-carousel.componen
     LibbiSetEnabledActionPanelComponent,
     EnergyStatsPanelComponent,
     QuoteCarouselComponent,
-    FloatingHeaderComponent
+    FloatingHeaderComponent,
+    EddiPanelComponent
   ],
   imports: [
     MatSlideToggleModule,
