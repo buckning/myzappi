@@ -81,12 +81,4 @@ public class MyEnergiDeviceStatusResponse {
         this.chargeStatus = summary.getChargeStatus();
         this.lockStatus = summary.getLockStatus();
     }
-
-    protected MyEnergiDeviceStatusResponse(DeviceType deviceType,
-            SerialNumber serialNumber,
-            EnergyResponse energyResponse) {
-        this.type = deviceType;
-        this.serialNumber = serialNumber;
-        this.energy = energyResponse;
-    }
 }
