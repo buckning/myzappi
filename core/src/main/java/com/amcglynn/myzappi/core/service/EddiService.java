@@ -64,6 +64,9 @@ public class EddiService {
                 .generated(generated)
                 .gridExport(gridExport)
                 .gridImport(gridImport)
+                .tank1Name(response.getTank1Name())
+                .tank2Name(response.getTank2Name())
+                .diversionAmountWatts(new Watt(response.getDiversionAmountWatts()))
                 .build();
     }
 }

@@ -2,7 +2,6 @@ import { Component, Input, OnInit, OnDestroy } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { EnergyOverviewService } from '../energy-overview.service';
 import { EnergySummary, DeviceEnergyUsage } from '../energySummary.interface';
-import { Device } from '../device.interface';
 
 interface EddiStatus {
   serialNumber: string;
@@ -13,9 +12,12 @@ interface EddiStatus {
     importingKW: number;
     exportingKW: number;
   };
+  diversionAmountKW: number;
   state: string;
   activeHeater: string;
   consumedThisSessionKWh: string;
+  tank1Name: string;
+  tank2Name: string;
 }
 
 @Component({
@@ -30,6 +32,7 @@ export class EddiPanelComponent implements OnInit, OnDestroy {
   state: string = '';
   activeHeater: string = '';
   consumedKwh: string = '';
+  diversionAmountKW: number = 0;
   refreshInterval = 15000;
   isActive: boolean = false;
   tank1Name: string = 'Tank 1';
@@ -38,30 +41,7 @@ export class EddiPanelComponent implements OnInit, OnDestroy {
   constructor(private http: HttpClient, private energyOverviewService: EnergyOverviewService) {}
 
   ngOnInit(): void {
-    this.loadDeviceInfo();
     this.loadDeviceStatus();
-  }
-  
-  loadDeviceInfo() {
-    let headers = new HttpHeaders({
-      'Content-Type': 'application/json',
-      'Authorization': this.bearerToken
-    });
-    let options = { headers: headers, withCredentials: true };
-    this.http.get<Device[]>('https://api.myzappiunofficial.com/v2/hub', options)
-      .subscribe(devices => {
-        // Find the eddi device matching our serial number
-        const eddiDevice = devices.find(device => 
-          device.serialNumber === this.serialNumber && device.deviceClass === 'EDDI');
-          
-        if (eddiDevice) {
-          this.tank1Name = eddiDevice.tank1Name || 'Tank 1';
-          this.tank2Name = eddiDevice.tank2Name || 'Tank 2';
-        }
-      },
-      error => {
-        console.log("Failed to get device info: " + error.status);
-      });
   }
 
   ngOnDestroy(): void {
@@ -78,7 +58,10 @@ export class EddiPanelComponent implements OnInit, OnDestroy {
         this.state = data.state;
         this.activeHeater = data.activeHeater;
         this.consumedKwh = data.consumedThisSessionKWh;
+        this.diversionAmountKW = data.diversionAmountKW;
         this.isActive = this.state !== 'PAUSED' && this.state !== 'STOPPED';
+        this.tank1Name = data.tank1Name;
+        this.tank2Name = data.tank2Name;
 
         this.pushEnergySummary(data);
         setTimeout(() => {
@@ -98,7 +81,7 @@ export class EddiPanelComponent implements OnInit, OnDestroy {
     const device: DeviceEnergyUsage = {
       deviceClass: deviceStatus.type,
       serialNumber: deviceStatus.serialNumber,
-      usageRateKW: 0  // Eddi doesn't have a direct chargeRateKw equivalent, could calculate from other data if needed
+      usageRateKW: deviceStatus.diversionAmountKW || 0  // Now we have the diversionAmountKW field
     };
     deviceEnergyUsage.push(device);
     const energySummary: EnergySummary = {

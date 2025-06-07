@@ -45,31 +45,6 @@
                             </div>
                               <div *ngIf="row.deviceClass === 'EDDI'">
                                 <app-eddi-panel [serialNumber]="row.serialNumber" [bearerToken]="bearerToken"></app-eddi-panel>
-                                <b><img class="headerIconImage" src="assets/images/heater.png" alt="Eddi"> {{row.deviceClass}}</b>: {{row.serialNumber}}
-                                <br>
-                                Heater 1: {{row.tank1Name}}
-                                <br>
-                                Heater 2: {{row.tank2Name}}
-                                <br>
-                                <div>
-                                    <app-quote-carousel>
-                                        <ng-template #carouselItem>
-                                            "Alexa, ask my water heater to give me hot water"
-                                        </ng-template>
-                                      
-                                        <ng-template #carouselItem>
-                                            "Alexa, ask my water heater to disable"
-                                        </ng-template>
-                                      
-                                        <ng-template #carouselItem>
-                                            "Alexa, ask my water heater to boost for 25 minutes"
-                                        </ng-template>
-                                
-                                        <ng-template #carouselItem>
-                                            "Alexa, ask my water heater to stop boosting"
-                                        </ng-template>
-                                      </app-quote-carousel>
-                                </div>
                             </div>
                             <br>
                           </tr>

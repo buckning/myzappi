@@ -264,7 +264,7 @@ public class MockMyEnergiResponses {
                             "bsm": 0,
                             "bst": 0,
                             "dst": 1,
-                            "div": 4,
+                            "div": 4123,
                             "frq": 50.02,
                             "gen": 2723,
                             "grd": -76,

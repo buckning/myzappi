@@ -1,6 +1,7 @@
 package com.amcglynn.myzappi.api.rest.response;
 
 import com.amcglynn.myenergi.EddiState;
+import com.amcglynn.myenergi.units.KiloWatt;
 import com.amcglynn.myenergi.units.KiloWattHour;
 import com.amcglynn.myzappi.core.model.EddiStatus;
 import com.amcglynn.myzappi.core.model.SerialNumber;
@@ -22,10 +23,13 @@ public class MyEnergiEddiStatusResponse {
     private SerialNumber serialNumber;
     private DeviceType type;
     private EnergyResponse energy;
+    private KiloWatt diversionAmountKW;
 
     private EddiState state;
     private String activeHeater;
     private KiloWattHour consumedThisSessionKWh;
+    private String tank1Name;
+    private String tank2Name;
 
     public MyEnergiEddiStatusResponse(EddiStatus summary) {
         this.type = DeviceType.EDDI;
@@ -34,5 +38,8 @@ public class MyEnergiEddiStatusResponse {
         this.state = summary.getState();
         this.activeHeater = summary.getActiveHeater();
         this.consumedThisSessionKWh = summary.getConsumedThisSessionKWh();
+        this.diversionAmountKW = new KiloWatt(summary.getDiversionAmountWatts());
+        this.tank1Name = summary.getTank1Name();
+        this.tank2Name = summary.getTank2Name();
     }
 }

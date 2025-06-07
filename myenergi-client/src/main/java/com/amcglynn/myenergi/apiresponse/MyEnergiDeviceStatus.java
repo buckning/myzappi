@@ -29,6 +29,9 @@ public class MyEnergiDeviceStatus {
     @JsonProperty("sta")
     private int status = 1; // 1=Paused, 3=Diverting, 4=Boost, 5=Max Temp Reached, 6=Stopped
 
+    @JsonProperty("div")
+    private Long diversionAmountWatts = 0L;
+
 //    {
 //        "zappi": [
 //        {
