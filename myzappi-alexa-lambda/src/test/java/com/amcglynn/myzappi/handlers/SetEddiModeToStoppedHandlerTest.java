@@ -71,7 +71,7 @@ class SetEddiModeToStoppedHandlerTest {
         var result = handler.handle(handlerInputBuilder().build());
         assertThat(result).isPresent();
 
-        verifySpeechInResponse(result.get(), "<speak>Changing Eddi mode to stopped. This may take a few minutes.</speak>");
+        verifySpeechInResponse(result.get(), "<speak>Changing Eddi mode to stopped.</speak>");
         verifySimpleCardInResponse(result.get(), "My Zappi", "Changing Eddi mode to stopped. This may take a few minutes.");
 
         verify(mockEddiService).setEddiMode(EddiMode.STOPPED);

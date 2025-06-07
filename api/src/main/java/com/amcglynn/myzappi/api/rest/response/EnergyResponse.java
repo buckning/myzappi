@@ -2,6 +2,7 @@ package com.amcglynn.myzappi.api.rest.response;
 
 import com.amcglynn.myenergi.ZappiStatusSummary;
 import com.amcglynn.myenergi.units.KiloWatt;
+import com.amcglynn.myzappi.core.model.EddiStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -19,6 +20,13 @@ public class EnergyResponse {
     private KiloWatt exportingKW;
 
     public EnergyResponse(ZappiStatusSummary summary) {
+        this.solarGenerationKW = new KiloWatt(summary.getGenerated());
+        this.consumingKW = new KiloWatt(summary.getConsumed());
+        this.importingKW = new KiloWatt(summary.getGridImport());
+        this.exportingKW = new KiloWatt(summary.getGridExport());
+    }
+
+    public EnergyResponse(EddiStatus summary) {
         this.solarGenerationKW = new KiloWatt(summary.getGenerated());
         this.consumingKW = new KiloWatt(summary.getConsumed());
         this.importingKW = new KiloWatt(summary.getGridImport());

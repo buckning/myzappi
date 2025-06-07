@@ -201,6 +201,21 @@ class MyEnergiClientTest {
     }
 
     @Test
+    void testGetEddiStatus() {
+        var mockResponse = new MockResponse()
+                .setResponseCode(200)
+                .setBody(MockMyEnergiResponses.getExampleJStatusResponseWithEddi()
+                        );
+        mockWebServer.enqueue(mockResponse);
+
+        var response = client.getEddiStatus("20000001");
+
+        assertThat(response.getEddi()).hasSize(1);
+        var eddiResponse = response.getEddi().get(0);
+        assertThat(eddiResponse.getSerialNumber()).isEqualTo("20000001");
+    }
+
+    @Test
     void testBoostModeThrowsInvalidRequestExceptionWhenMinuteIsNotDivisibleBy15() {
         var mockResponse = new MockResponse()
                 .setResponseCode(200)

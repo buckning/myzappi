@@ -1,30 +1,5 @@
 # Welcome to MyZappi!
-
-Task list:
-Launch screen
-Add QR code: https://s3.eu-west-1.amazonaws.com/www.myzappiunofficial.com/assets/images/qrcode.jpg
-
-SetChargeMode
-1. Prompt the user to confirm if they want to unlock the charge mode if it is locked
-
-Create validation interceptor for slots
-
-Show the energy usage graph as a background image for getting the status. This should be done in a separate thread.
-
-The most popular commands from about 10 months are:
-1. Set charge mode
--- prompt the user to confirm if they want to unlock the charger if it is locked
-
-2. Go green
-3. Set eddi mode to stopped
-4. Charge my car
-5. Set eddi mode to normal
-6. Status summary
-7. Get plug status
-8. Get charge rate - show graph of just the charge rate
-9. Get solar report - show graph of solar generation
-
-These commands should be as good as possible, offering value to the user over the myenergi app
+https://www.myzappiunofficial.com/
 
 ## What is MyZappi?
 MyZappi is an Alexa skill that can be used to control your myenergi Zappi device all through an Amazon Echo or Alexa device.
