@@ -20,6 +20,15 @@ public class MyEnergiDeviceStatus {
     @JsonProperty("gen")
     private Long solarGeneration = 0L;
 
+    @JsonProperty("hno")
+    private int activeHeater = 1;
+
+    @JsonProperty("che")
+    private Long energyTransferred = 0L;
+
+    @JsonProperty("sta")
+    private int status = 1; // 1=Paused, 3=Diverting, 4=Boost, 5=Max Temp Reached, 6=Stopped
+
 //    {
 //        "zappi": [
 //        {

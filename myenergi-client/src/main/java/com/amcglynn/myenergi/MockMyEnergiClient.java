@@ -1,10 +1,6 @@
 package com.amcglynn.myenergi;
 
-import com.amcglynn.myenergi.apiresponse.LibbiStatusResponse;
-import com.amcglynn.myenergi.apiresponse.StatusResponse;
-import com.amcglynn.myenergi.apiresponse.ZappiDayHistory;
-import com.amcglynn.myenergi.apiresponse.ZappiHourlyDayHistory;
-import com.amcglynn.myenergi.apiresponse.ZappiStatusResponse;
+import com.amcglynn.myenergi.apiresponse.*;
 import com.amcglynn.myenergi.units.KiloWattHour;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -59,6 +55,16 @@ public class MockMyEnergiClient extends MyEnergiClient {
                 .setBody(MockMyEnergiResponses.getExampleResponse(zappiSerialNumber));
         mockWebServer.enqueue(mockResponse);
         return super.getZappiStatus(zappiSerialNumber);
+    }
+
+    @Override
+    public EddiStatusResponse getEddiStatus(String eddiSerialNumber) {
+        var mockResponse = new MockResponse()
+                .setResponseCode(200)
+                .addHeader("x_myenergi-asn", mockWebServer.url("").uri())
+                .setBody(MockMyEnergiResponses.getExampleJStatusResponseWithEddi());
+        mockWebServer.enqueue(mockResponse);
+        return super.getEddiStatus(eddiSerialNumber);
     }
 
     @Override

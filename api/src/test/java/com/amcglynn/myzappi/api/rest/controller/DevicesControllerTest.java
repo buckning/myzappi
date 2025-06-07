@@ -7,6 +7,7 @@ import com.amcglynn.myenergi.ZappiChargeMode;
 import com.amcglynn.myenergi.ZappiStatusSummary;
 import com.amcglynn.myenergi.apiresponse.ZappiStatus;
 import com.amcglynn.myenergi.units.KiloWattHour;
+import com.amcglynn.myenergi.units.Watt;
 import com.amcglynn.myzappi.api.rest.Request;
 import com.amcglynn.myzappi.api.rest.RequestMethod;
 import com.amcglynn.myzappi.api.rest.ServerException;
@@ -20,6 +21,9 @@ import com.amcglynn.myzappi.core.model.ZappiDevice;
 import com.amcglynn.myzappi.core.service.LibbiService;
 import com.amcglynn.myzappi.core.service.MyEnergiService;
 import com.amcglynn.myzappi.core.service.ZappiService;
+import com.amcglynn.myzappi.core.service.EddiService;
+import com.amcglynn.myzappi.core.model.EddiStatus;
+import com.amcglynn.myenergi.EddiState;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -48,6 +52,8 @@ class DevicesControllerTest {
     private ZappiService mockZappiService;
     @Mock
     private LibbiService mockLibbiService;
+    @Mock
+    private EddiService mockEddiService;
     private DevicesController controller;
     private UserId userId;
     private SerialNumber libbiSerialNumber;
@@ -208,6 +214,43 @@ class DevicesControllerTest {
                 "energyTargetKWh":"5.5",\
                 "energyTargetPercentage":20}\
                 """));
+    }
+
+    @Test
+    void testGetDeviceStatusForEddi() {
+        var eddiSerial = SerialNumber.from("20000001");
+        var eddiDevice = new EddiDevice(eddiSerial, "Tank 1", "Tank 2");
+        var eddiStatus = EddiStatus.builder()
+                .serialNumber(eddiSerial)
+                .state(EddiState.DIVERTING)
+                .activeHeater("Tank 1")
+                .gridImport(new Watt(300L))
+                .gridExport(new Watt(0L))
+                .generated(new Watt(1500L))
+                .consumed(new Watt(1200L))
+                .consumedThisSessionKWh(new KiloWattHour(3.5))
+                .build();
+
+        when(mockRegistrationService.getDevice(userId, eddiSerial)).thenReturn(Optional.of(eddiDevice));
+        when(mockMyEnergiServiceBuilder.build(any())).thenReturn(mockMyEnergiService);
+        when(mockMyEnergiService.getEddiService()).thenReturn(Optional.of(mockEddiService));
+        when(mockEddiService.getStatus(eddiSerial)).thenReturn(eddiStatus);
+
+        var request = new Request(userId, RequestMethod.GET, "/devices/20000001/status", null);
+        var response = controller.getDeviceStatus(request);
+        assertThat(response.getStatus()).isEqualTo(200);
+        assertThat(response.getBody()).isPresent();
+
+        // Verify all important fields are present in the response
+        String responseBody = response.getBody().get();
+        assertThat(responseBody).contains("\"serialNumber\":\"20000001\"");
+        assertThat(responseBody).contains("\"state\":\"DIVERTING\"");
+        assertThat(responseBody).contains("\"activeHeater\":\"Tank 1\"");
+        assertThat(responseBody).contains("\"importingKW\":\"0.3\"");
+        assertThat(responseBody).contains("\"exportingKW\":\"0.0\"");
+        assertThat(responseBody).contains("\"solarGenerationKW\":\"1.5\"");
+        assertThat(responseBody).contains("\"consumingKW\":\"1.2\"");
+        assertThat(responseBody).contains("\"consumedThisSessionKWh\":\"3.5\"");
     }
 
     @Test
