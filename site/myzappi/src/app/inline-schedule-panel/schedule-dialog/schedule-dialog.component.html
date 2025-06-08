@@ -1,0 +1,53 @@
+<div class="dialog-container">
+  <div class="dialog-header">
+    <h2>Schedule Configuration</h2>
+    <button class="close-button" (click)="cancel()">×</button>
+  </div>
+  
+  <div class="dialog-subheader">
+    <div class="device-context">
+      <span>{{ deviceName || 'Device' }}</span>
+      <span class="context-separator">•</span>
+      <span>{{ actionType || 'Action' }}</span>
+    </div>
+  </div>
+  
+  <div class="dialog-content">
+    <div *ngIf="errorMessage" class="error-message">
+      {{ errorMessage }}
+    </div>
+    
+    <h3>Schedule Action</h3>
+    <ng-container #actionContainer></ng-container>
+    
+    <h3>Schedule Type</h3>
+    <mat-button-toggle-group [(ngModel)]="selectedScheduleOption">
+      <mat-button-toggle value="recurring">Recurring</mat-button-toggle>
+      <mat-button-toggle value="one-time">One-time</mat-button-toggle>
+    </mat-button-toggle-group>
+
+    <h3>Schedule Details</h3>
+    <div *ngIf="selectedScheduleOption === 'one-time'">
+      Schedule time: <input type="datetime-local" [(ngModel)]="startDateTime" />
+    </div>
+    <div *ngIf="selectedScheduleOption === 'recurring'">
+      Starting at time: <input type="time" [(ngModel)]="recurringTime" />
+      <br>
+      Repeat on: 
+      <div class="days-of-week">
+        <button *ngFor="let day of daysOfWeek" class="toggleButton" [ngClass]="{ selected: selectedDays[day] }"
+          (click)="toggleDay(day)">
+          {{ day[0] }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="dialog-actions">
+    <button class="destructiveButton" [disabled]="isSubmitting" (click)="cancel()">Cancel</button>
+    <button class="confirmButton" [disabled]="!isScheduleValid() || isSubmitting" (click)="createSchedule()">
+      <span *ngIf="!isSubmitting">Create Schedule</span>
+      <span *ngIf="isSubmitting">Creating...</span>
+    </button>
+  </div>
+</div>

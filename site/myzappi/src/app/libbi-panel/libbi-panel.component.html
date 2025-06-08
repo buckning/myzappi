@@ -13,6 +13,11 @@
     <div class="charge-controls">
         <div class="libbi-toggles" *ngIf="registrationComplete === true">
             <div class="libbi-toggle-row">
+                <p class="toggle-label">Libbi state: </p>
+                <span class="toggle-value">{{libbiState}}</span>
+                <app-inline-schedule-panel [bearerToken]="bearerToken" [serialNumber]="serialNumber" [actionComponentType]="libbiSetEnabledActionPanelComponent"></app-inline-schedule-panel>
+            </div>
+            <div class="libbi-toggle-row">
                 <p class="toggle-label">Charge from grid:</p>
                 <span class="toggle-value">{{chargeFromGrid ? 'Enabled' : 'Disabled'}}</span>
                 <app-inline-schedule-panel [bearerToken]="bearerToken" [serialNumber]="serialNumber" [actionComponentType]="libbiSetChargeFromGridActionPanelComponent"></app-inline-schedule-panel>
@@ -21,10 +26,6 @@
                 <p class="toggle-label">Charge target:</p>
                 <span class="toggle-value">{{energyTargetPercentage}}% ({{energyTargetKWh}} kWh)</span>
                 <app-inline-schedule-panel [bearerToken]="bearerToken" [serialNumber]="serialNumber" [actionComponentType]="libbiSetChargeTargetActionPanelComponent"></app-inline-schedule-panel>
-            </div>
-            <div class="libbi-toggle-row">
-                <p class="toggle-label">Libbi state:</p>
-                <app-inline-schedule-panel [bearerToken]="bearerToken" [serialNumber]="serialNumber" [actionComponentType]="libbiSetEnabledActionPanelComponent"></app-inline-schedule-panel>
             </div>
         </div>
         

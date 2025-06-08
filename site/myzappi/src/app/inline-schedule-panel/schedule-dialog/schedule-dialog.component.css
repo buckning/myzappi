@@ -1,0 +1,147 @@
+.dialog-container {
+  display: flex;
+  flex-direction: column;
+  min-width: 350px;
+  max-width: 500px;
+  color: #333333;
+}
+
+.dialog-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #3f7ab5;
+  color: white;
+  padding: 10px 24px;
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+}
+
+.dialog-subheader {
+  background-color: #f0f8ff;
+  padding: 8px 24px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.device-context {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  color: #555;
+  font-weight: 500;
+}
+
+.context-separator {
+  margin: 0 8px;
+  color: #999;
+}
+
+.dialog-content {
+  padding: 20px 24px;
+  color: #333333;
+}
+
+.error-message {
+  margin-bottom: 15px;
+  padding: 10px;
+  border-radius: 5px;
+  background-color: #f8d7da;
+  color: #721c24;
+  font-size: 14px;
+  text-align: center;
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding: 8px 24px 16px;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+h3 {
+  margin-top: 16px;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #333333;
+}
+
+mat-button-toggle-group {
+  margin-bottom: 16px;
+}
+
+::ng-deep .mat-button-toggle {
+  color: #333333;
+}
+
+::ng-deep .mat-button-toggle-checked {
+  color: #333333;
+}
+
+.days-of-week {
+  display: flex;
+  gap: 5px;
+  margin-top: 8px;
+}
+
+.toggleButton {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid #ccc;
+  background-color: white;
+  color: #333333;
+  cursor: pointer;
+}
+
+.toggleButton.selected {
+  background-color: #3f7ab5;
+  color: white;
+}
+
+input[type="datetime-local"],
+input[type="time"] {
+  padding: 6px;
+  margin: 5px 0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  color: #333333;
+}
+
+/* Override Material Dialog styling */
+::ng-deep .mat-dialog-container {
+  padding: 0 !important;
+  overflow: hidden;
+  border-radius: 4px;
+  box-shadow: 0 24px 38px rgba(0, 0, 0, 0.14), 0 9px 46px rgba(0, 0, 0, 0.12), 0 11px 15px rgba(0, 0, 0, 0.2);
+  color: #333333;
+}
+
+::ng-deep .cdk-overlay-backdrop.cdk-overlay-backdrop-showing {
+  opacity: 0.7;
+}
+
+::ng-deep .mat-dialog-backdrop {
+  background: rgba(0, 0, 0, 0.7);
+}
+
+.dialog-actions button {
+  margin-left: 8px;
+}
+
+/* Animation for dialog appearance */
+::ng-deep .mat-dialog-container {
+  transform: none;
+  opacity: 1;
+  transition: transform 225ms cubic-bezier(0, 0, 0.2, 1), opacity 225ms cubic-bezier(0, 0, 0.2, 1);
+}

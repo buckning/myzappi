@@ -6,9 +6,9 @@
     border-radius: 4px;
     cursor: pointer;
     float: right;
+    transition: background-color 0.3s;
 }
 
-::ng-deep .mat-expansion-panel {
-    --mat-expansion-container-background-color: #3f7ab5;
-    --mat-expansion-container-text-color: white;
+.scheduleButton:hover {
+    background-color: rgba(63, 122, 181, 0.1);
 }

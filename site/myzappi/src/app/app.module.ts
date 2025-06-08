@@ -24,6 +24,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatStepperModule } from '@angular/material/stepper';
+import { MatDialogModule } from '@angular/material/dialog';
 import { InlineSchedulePanelComponent } from './inline-schedule-panel/inline-schedule-panel.component';
 import { ZappiSetChargeModeActionPanelComponent } from './zappi-set-charge-mode-action-panel/zappi-set-charge-mode-action-panel.component';
 import { LibbiSetChargeTargetActionPanelComponent } from './libbi-set-charge-target-action-panel/libbi-set-charge-target-action-panel.component';
@@ -32,6 +33,7 @@ import { LibbiSetEnabledActionPanelComponent } from './libbi-set-enabled-action-
 import { EnergyStatsPanelComponent } from './energy-stats-panel/energy-stats-panel.component';
 import { QuoteCarouselComponent } from './quote-carousel/quote-carousel.component';
 import { EddiPanelComponent } from './eddi-panel/eddi-panel.component';
+import { ScheduleDialogComponent } from './inline-schedule-panel/schedule-dialog/schedule-dialog.component';
 
 @NgModule({
   declarations: [
@@ -55,7 +57,8 @@ import { EddiPanelComponent } from './eddi-panel/eddi-panel.component';
     EnergyStatsPanelComponent,
     QuoteCarouselComponent,
     FloatingHeaderComponent,
-    EddiPanelComponent
+    EddiPanelComponent,
+    ScheduleDialogComponent
   ],
   imports: [
     MatSlideToggleModule,
@@ -65,6 +68,7 @@ import { EddiPanelComponent } from './eddi-panel/eddi-panel.component';
     MatDividerModule,
     MatTabsModule,
     MatStepperModule,
+    MatDialogModule,
     BrowserModule,
     HttpClientModule,
     FormsModule,
