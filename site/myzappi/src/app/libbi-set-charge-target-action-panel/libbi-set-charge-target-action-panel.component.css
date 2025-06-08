@@ -1,4 +1,49 @@
+.action-control-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 15px 0;
+}
+
 .mat-mdc-slider {
-    max-width: 300px;
-    width: 100%;
+  max-width: 300px;
+  width: 100%;
+}
+
+.charge-slider {
+  margin-bottom: 10px;
+  width: 100%;
+}
+
+.slider-label-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 5px;
+}
+
+.charge-label {
+  margin-right: 10px;
+  font-weight: 500;
+}
+
+.charge-value {
+  font-weight: bold;
+}
+
+h3 {
+  margin-top: 5px;
+  margin-bottom: 15px;
+}
+
+@media screen and (max-width: 480px) {
+  .mat-mdc-slider {
+    max-width: 100%;
+  }
+  
+  h3 {
+    margin-bottom: 10px;
+    font-size: 16px;
+  }
 }

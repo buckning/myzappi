@@ -3,4 +3,5 @@ export interface ScheduleActionComponent {
     scheduleConfigurationStarted(): void;
     scheduleConfigurationCancelled(): void;
     scheduleConfigurationComplete(): void;
+    actionTypeName: string;
 }

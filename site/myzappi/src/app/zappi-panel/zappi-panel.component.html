@@ -15,19 +15,23 @@
   </div>
 
   <div class="chargeMode">
-    <button class="toggleButton" [class.selected]="isModeActive('Eco+')" (click)="changeMode('Eco+')" [disabled]="!isChangeModeEnabled()">
-        Eco+
-    </button>
-    <button class="toggleButton" [class.selected]="isModeActive('Eco')" (click)="changeMode('Eco')" [disabled]="!isChangeModeEnabled()">
-        Eco
-    </button>
-    <button class="toggleButton" [class.selected]="isModeActive('Fast')" (click)="changeMode('Fast')" [disabled]="!isChangeModeEnabled()">
-        Fast
-    </button>
-    <button class="toggleButton" [class.selected]="isModeActive('Stop')" (click)="changeMode('Stop')" [disabled]="!isChangeModeEnabled()">
-        Stop
-    </button>    
-    <app-inline-schedule-panel [bearerToken]="bearerToken" [serialNumber]="serialNumber" [actionComponentType]="zappiSetChargeModeActionPanelComponent"></app-inline-schedule-panel>
+    <div class="toggle-buttons-container">
+      <button class="toggleButton" [class.selected]="isModeActive('Eco+')" (click)="changeMode('Eco+')" [disabled]="!isChangeModeEnabled()">
+          Eco+
+      </button>
+      <button class="toggleButton" [class.selected]="isModeActive('Eco')" (click)="changeMode('Eco')" [disabled]="!isChangeModeEnabled()">
+          Eco
+      </button>
+      <button class="toggleButton" [class.selected]="isModeActive('Fast')" (click)="changeMode('Fast')" [disabled]="!isChangeModeEnabled()">
+          Fast
+      </button>
+      <button class="toggleButton" [class.selected]="isModeActive('Stop')" (click)="changeMode('Stop')" [disabled]="!isChangeModeEnabled()">
+          Stop
+      </button>
+    </div>
+    <div class="schedule-container">
+      <app-inline-schedule-panel [bearerToken]="bearerToken" [serialNumber]="serialNumber" [actionComponentType]="zappiSetChargeModeActionPanelComponent"></app-inline-schedule-panel>
+    </div>
   </div>
   <br> <!-- Consider if this <br> is still needed -->
   <div>

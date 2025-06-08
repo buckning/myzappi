@@ -183,8 +183,8 @@ main {
     color: #333;
     padding: 20px;
     margin: 20px auto; /* Centers the panel */
-    width: 400px; /* Adjust as needed */
-    max-width: 400px;
+    width: 100%; /* Changed to be responsive */
+    max-width: 400px; /* Maximum width */
     border-radius: 8px; /* Optional: for rounded corners */
     font-family: Roboto, "Helvetica Neue", sans-serif;
     display: flex;
@@ -192,6 +192,7 @@ main {
     align-items: center; /* Center header and body horizontally */
     border: 1px solid #e0e0e0; /* Subtle border */
     position: relative; /* Add this for positioning the connection icon */
+    box-sizing: border-box; /* Include padding in width calculation */
 }
 
 .zappi-icon-container { /* This targets the div holding the connection icon */
@@ -259,4 +260,111 @@ main {
 body.user-logged-in .logo-container, 
 body.user-logged-in .welcome-message {
   display: none; 
+}
+
+/* Responsive styles for Zappi panel on mobile devices */
+@media screen and (max-width: 480px) {
+  .zappi-panel {
+    padding: 15px;
+    margin: 15px auto;
+  }
+  
+  .main-car-icon {
+    width: 60px;
+  }
+  
+  .zappi-power {
+    font-size: 1.3em; /* Smaller font size on mobile */
+  }
+  
+  .zappi-charge-added {
+    font-size: 0.9em;
+  }
+  
+  .chargeMode {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .toggleButton {
+    margin-bottom: 5px;
+    font-size: 14px;
+    padding: 4px;
+    width: 60px;
+  }
+  
+  /* Mobile optimization for buttons */
+  .confirmButton,
+  .destructiveButton {
+    padding: 8px 16px;
+    font-size: 14px;
+    min-height: 36px; /* Ensure adequate touch target size */
+    min-width: 80px; /* Minimum width for better touch targets */
+  }
+}
+
+@media screen and (max-width: 360px) {
+  .zappi-panel {
+    padding: 10px;
+  }
+  
+  .main-car-icon {
+    width: 50px;
+  }
+  
+  .toggleButton {
+    font-size: 12px;
+    width: 50px;
+    margin-right: 3px;
+  }
+}
+
+/* Global Material Dialog styles for mobile optimization */
+.mat-dialog-container {
+  padding: 0 !important;
+  overflow: hidden !important;
+  border-radius: 8px !important;
+}
+
+/* Material Dialog mobile optimizations */
+.mat-dialog-container {
+  padding: 0 !important;
+  max-height: 85vh !important;
+  overflow-y: auto !important;
+}
+
+/* Better mobile scrolling in dialogs */
+@media (max-width: 480px) {
+  .cdk-overlay-pane {
+    max-height: 85vh !important;
+  }
+
+  /* Improved touch scrolling */
+  .mat-dialog-container {
+    -webkit-overflow-scrolling: touch !important;
+  }
+}
+
+/* Mobile dialog optimizations */
+@media screen and (max-width: 480px) {
+  .cdk-overlay-pane {
+    max-width: 95vw !important;
+  }
+  
+  /* Prevent zooming on iOS when focusing inputs */
+  input[type="text"],
+  input[type="number"],
+  input[type="email"],
+  input[type="tel"],
+  input[type="url"],
+  input[type="password"],
+  input[type="search"],
+  input[type="datetime-local"],
+  input[type="date"],
+  input[type="time"],
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
 }

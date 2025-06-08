@@ -28,17 +28,20 @@
 
     <h3>Schedule Details</h3>
     <div *ngIf="selectedScheduleOption === 'one-time'">
-      Schedule time: <input type="datetime-local" [(ngModel)]="startDateTime" />
+      <label for="schedule-time">Schedule time:</label>
+      <input id="schedule-time" type="datetime-local" [(ngModel)]="startDateTime" />
     </div>
     <div *ngIf="selectedScheduleOption === 'recurring'">
-      Starting at time: <input type="time" [(ngModel)]="recurringTime" />
-      <br>
-      Repeat on: 
-      <div class="days-of-week">
-        <button *ngFor="let day of daysOfWeek" class="toggleButton" [ngClass]="{ selected: selectedDays[day] }"
-          (click)="toggleDay(day)">
-          {{ day[0] }}
-        </button>
+      <label for="recurring-time">Starting at time:</label>
+      <input id="recurring-time" type="time" [(ngModel)]="recurringTime" />
+      <div class="repeating-days">
+        <label>Repeat on:</label>
+        <div class="days-of-week">
+          <button *ngFor="let day of daysOfWeek" class="toggleButton" [ngClass]="{ selected: selectedDays[day] }"
+            (click)="toggleDay(day)">
+            {{ day[0] }}
+          </button>
+        </div>
       </div>
     </div>
   </div>

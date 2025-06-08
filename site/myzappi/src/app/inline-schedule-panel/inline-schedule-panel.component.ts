@@ -28,8 +28,10 @@ export class InlineSchedulePanelComponent implements OnInit {
 
   openScheduleDialog() {
     const dialogRef = this.dialog.open(ScheduleDialogComponent, {
-      width: '450px',
+      width: '90%',
+      maxWidth: '450px',
       disableClose: true,
+      autoFocus: false,
       data: {
         actionComponentType: this.actionComponentType,
         bearerToken: this.bearerToken,

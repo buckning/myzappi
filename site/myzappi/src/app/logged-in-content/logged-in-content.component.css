@@ -1,22 +1,27 @@
 .logoutButtonContainer {
     padding: 10px;
-    min-width: 600px;
     max-width: 600px;
+    width: 100%;
     margin: 0 auto;
     align-content: center;
-    max-width: auto;
     margin-bottom: 100px;
+    box-sizing: border-box;
 }
 
 @media (max-width: 768px) {
     .logoutButtonContainer {
         padding: 10px;
-        min-width: 450px;
         max-width: 450px;
         margin: 0 auto;
-        align-content: center;
-        max-width: auto;
         margin-bottom: 100px;
+    }
+}
+
+@media (max-width: 480px) {
+    .logoutButtonContainer {
+        padding: 8px;
+        max-width: 100%;
+        margin-bottom: 80px;
     }
 }
 
@@ -27,7 +32,48 @@
 .bmc {
     padding: 10px;
     margin: 0 auto;
-    min-width: 600px;
     max-width: 600px;
+    width: 100%;
     margin-bottom: 5px;
+    box-sizing: border-box;
+    text-align: center;
+}
+
+@media (max-width: 768px) {
+    .bmc {
+        max-width: 450px;
+    }
+}
+
+@media (max-width: 480px) {
+    .bmc img {
+        max-width: 90%;
+        height: auto;
+    }
+}
+
+.tile {
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    box-sizing: border-box;
+    padding: 15px;
+}
+
+@media (max-width: 768px) {
+    .tile {
+        max-width: 450px;
+    }
+}
+
+@media (max-width: 480px) {
+    .tile {
+        padding: 10px;
+    }
+    
+    br {
+        display: block;
+        margin: 5px 0;
+        content: "";
+    }
 }

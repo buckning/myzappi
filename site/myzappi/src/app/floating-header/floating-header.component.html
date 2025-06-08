@@ -4,7 +4,7 @@
     <img src="assets/images/myzappi-icon-floating-bar.png" alt="My Zappi Logo" class="header-logo">
   </div>
   <div class="energy-cost-container" *ngIf="showEnergyCost">
-    <span [ngClass]="energyCostClass">Energy {{ costType }}: {{ energyCost }}</span>
+    <span [ngClass]="energyCostClass">{{ costType }}: {{ energyCost }}</span>
   </div>
   <div class="energy-cost-placeholder" *ngIf="!showEnergyCost"></div>
   <div class="logout-container">

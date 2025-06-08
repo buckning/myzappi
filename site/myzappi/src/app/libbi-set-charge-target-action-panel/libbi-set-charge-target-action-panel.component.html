@@ -1,12 +1,14 @@
-<h3>Target Charge kWh</h3>
-<mat-slider
-    class="example-margin"
-    min="0" max="100" step="5"
-    [disabled]="disabled">
-    <input matSliderThumb [(ngModel)]="chargeTarget" #slider>
-</mat-slider>
+<div class="action-control-container">
+  <h3>Target Charge</h3>
+  <mat-slider
+      class="charge-slider"
+      min="0" max="100" step="5"
+      [disabled]="disabled">
+      <input matSliderThumb [(ngModel)]="chargeTarget" #slider>
+  </mat-slider>
 
-<div class="example-label-container">
-    <label id="example-name-label" class="example-name-label">Charge Target: </label>
-    <label class="example-value-label">{{chargeTarget}}%</label>
+  <div class="slider-label-container">
+      <label class="charge-label">Charge Target: </label>
+      <label class="charge-value">{{chargeTarget}}%</label>
+  </div>
 </div>

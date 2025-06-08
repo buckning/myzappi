@@ -6,6 +6,8 @@
   margin: 20px auto;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   max-width: 600px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .libbi-icon-container {
@@ -140,4 +142,42 @@
 .toggleButton:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+/* Responsive styles for mobile devices */
+@media screen and (max-width: 480px) {
+  .libbi-panel {
+    padding: 15px;
+    margin: 15px auto;
+    max-width: 100%;
+  }
+
+  .libbi-panel-body {
+    margin-bottom: 15px;
+  }
+
+  .main-battery-icon {
+    width: 60px;
+    height: 60px;
+  }
+
+  .libbi-charge {
+    font-size: 40px;
+  }
+
+  .libbi-device-info {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}
+
+@media screen and (max-width: 360px) {
+  .libbi-panel {
+    padding: 10px;
+  }
+  
+  .main-battery-icon {
+    width: 50px;
+    height: 50px;
+  }
 }

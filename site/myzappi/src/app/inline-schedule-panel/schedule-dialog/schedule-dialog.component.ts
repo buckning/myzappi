@@ -43,45 +43,20 @@ export class ScheduleDialogComponent implements OnInit {
     // Set the device name from the serial number or a friendly name if provided
     this.deviceName = this.data.deviceName || `Device ${this.data.serialNumber}`;
     
-    // Get the action type from the component name
-    const componentTypeName = this.data.actionComponentType.name || '';
-    this.actionType = this.getActionTypeFromComponentName(componentTypeName);
-    
+    // Create the action component
     setTimeout(() => {
       const componentFactory = this.data.componentFactoryResolver.resolveComponentFactory(this.data.actionComponentType);
       const componentRef = this.actionContainer.createComponent(componentFactory);
       this.actionComponent = componentRef.instance as ScheduleActionComponent;
+      
+      // Get the action type directly from the component instance
+      this.actionType = this.actionComponent.actionTypeName || 'Action';
+      
       this.actionComponent.scheduleConfigurationStarted();
     });
   }
   
-  /**
-   * Extracts a readable action type from the component name
-   * Example: ZappiSetChargeModeActionPanelComponent -> Set Charge Mode 
-   */
-  getActionTypeFromComponentName(name: string): string {
-    if (!name) return 'Action';
-    
-    // Remove common prefixes and suffixes
-    let actionName = name
-      .replace(/Component$/, '')
-      .replace(/Panel$/, '')
-      .replace(/Action$/, '');
-      
-    // Handle specific device prefixes
-    if (actionName.startsWith('Zappi')) {
-      actionName = actionName.replace('Zappi', '');
-    } else if (actionName.startsWith('Libbi')) {
-      actionName = actionName.replace('Libbi', '');
-    } else if (actionName.startsWith('Eddi')) {
-      actionName = actionName.replace('Eddi', '');
-    }
-    
-    // Convert camel case to space-separated words
-    actionName = actionName.replace(/([A-Z])/g, ' $1').trim();
-    
-    return actionName;
-  }
+  // getActionTypeFromComponentName method removed - we now use actionTypeName from the component
 
   cancel() {
     this.actionComponent.scheduleConfigurationCancelled();
