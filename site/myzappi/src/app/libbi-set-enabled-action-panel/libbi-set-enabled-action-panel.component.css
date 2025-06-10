@@ -1,0 +1,17 @@
+.action-control-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 15px 0;
+}
+
+.action-label {
+  margin-right: 15px;
+  font-weight: 500;
+}
+
+@media screen and (max-width: 480px) {
+  .action-control-container {
+    margin: 10px 0;
+  }
+}

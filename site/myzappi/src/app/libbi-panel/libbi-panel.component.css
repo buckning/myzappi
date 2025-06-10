@@ -1,28 +1,183 @@
-.toggleButton {
-    border: 1px solid #ccc;
-    cursor: pointer;
-    font-size: 16px;
-    padding: 5px;
-    width: 70px;
-    text-align: center;
-    margin-right: 5px;
+.libbi-panel {
+  background-color: white;
+  color: black;
+  border-radius: 8px;
+  padding: 20px;
+  margin: 20px auto;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  max-width: 600px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.libbi-icon-container {
+  text-align: right;
+  margin-bottom: 10px;
+}
+
+.libbi-icon-container img {
+  width: 24px;
+  height: 24px;
+}
+
+.libbi-panel-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.main-battery-icon {
+  width: 80px;
+  height: 80px;
+  margin-bottom: 15px;
+}
+
+.libbi-device-info {
+  display: flex;
+  justify-content: center;
+  align-items: baseline;
+  width: 100%;
+  margin-bottom: 5px;
+}
+
+.libbi-name,
+.libbi-serial-number {
+  font-size: 0.9em;
+  margin: 0 5px;
+}
+
+.libbi-charge {
+  font-size: 60px;
+  font-weight: bold;
+  margin-top: 0px;
+  margin-bottom: 2px;
+}
+
+.libbi-state {
+  font-size: 20px;
+  margin-top: 2px;
+}
+
+.charge-controls {
+  margin-top: 20px;
+}
+
+.libbi-toggles {
+  margin: 15px 0;
+}
+
+.libbi-toggle-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+}
+
+.toggle-label {
+  font-weight: bold;
+  margin-right: 10px;
+  min-width: 120px;
+}
+
+.toggle-value {
+  margin-right: 15px;
 }
 
 .errorMessage {
-    margin-top: 10px;
-    padding: 5px;
-    border-radius: 5px;
-    max-width: 400px;
-    margin: 0 auto;
-    background-color: #f8d7da;
-    color: #721c24;
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 5px;
+  max-width: 100%;
+  background-color: #f8d7da;
+  color: #721c24;
 }
 
 .myenergiInputPanel {
-    margin-bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 15px;
 }
 
 .myenergiEmailInput {
-    float: right;
-    width: 300px;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-top: 5px;
+  width: 100%;
+}
+
+.registration-container {
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  padding: 15px;
+  margin-top: 10px;
+}
+
+.registration-text {
+  margin-bottom: 15px;
+  color: #666;
+}
+
+.form-button-container {
+  margin-top: 15px;
+  text-align: center;
+}
+
+.quote-container {
+  margin-top: 20px;
+}
+
+.toggleButton {
+  border: 1px solid #ccc;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 5px;
+  width: 70px;
+  text-align: center;
+  margin-right: 5px;
+}
+
+.toggleButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Responsive styles for mobile devices */
+@media screen and (max-width: 480px) {
+  .libbi-panel {
+    padding: 15px;
+    margin: 15px auto;
+    max-width: 100%;
+  }
+
+  .libbi-panel-body {
+    margin-bottom: 15px;
+  }
+
+  .main-battery-icon {
+    width: 60px;
+    height: 60px;
+  }
+
+  .libbi-charge {
+    font-size: 40px;
+  }
+
+  .libbi-device-info {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}
+
+@media screen and (max-width: 360px) {
+  .libbi-panel {
+    padding: 10px;
+  }
+  
+  .main-battery-icon {
+    width: 50px;
+    height: 50px;
+  }
 }

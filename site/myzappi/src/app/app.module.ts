@@ -15,6 +15,7 @@ import { EnergyCostPanelComponent } from './energy-cost-panel/energy-cost-panel.
 import { HelpPanelComponent } from './help-panel/help-panel.component';
 import { ZappiPanelComponent } from './zappi-panel/zappi-panel.component';
 import { LibbiPanelComponent } from './libbi-panel/libbi-panel.component';
+import { FloatingHeaderComponent } from './floating-header/floating-header.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatExpansionModule } from '@angular/material/expansion';
@@ -23,6 +24,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatStepperModule } from '@angular/material/stepper';
+import { MatDialogModule } from '@angular/material/dialog';
 import { InlineSchedulePanelComponent } from './inline-schedule-panel/inline-schedule-panel.component';
 import { ZappiSetChargeModeActionPanelComponent } from './zappi-set-charge-mode-action-panel/zappi-set-charge-mode-action-panel.component';
 import { LibbiSetChargeTargetActionPanelComponent } from './libbi-set-charge-target-action-panel/libbi-set-charge-target-action-panel.component';
@@ -30,6 +32,8 @@ import { LibbiSetChargeFromGridActionPanelComponent } from './libbi-set-charge-f
 import { LibbiSetEnabledActionPanelComponent } from './libbi-set-enabled-action-panel/libbi-set-enabled-action-panel.component';
 import { EnergyStatsPanelComponent } from './energy-stats-panel/energy-stats-panel.component';
 import { QuoteCarouselComponent } from './quote-carousel/quote-carousel.component';
+import { EddiPanelComponent } from './eddi-panel/eddi-panel.component';
+import { ScheduleDialogComponent } from './inline-schedule-panel/schedule-dialog/schedule-dialog.component';
 
 @NgModule({
   declarations: [
@@ -51,7 +55,10 @@ import { QuoteCarouselComponent } from './quote-carousel/quote-carousel.componen
     LibbiSetChargeFromGridActionPanelComponent,
     LibbiSetEnabledActionPanelComponent,
     EnergyStatsPanelComponent,
-    QuoteCarouselComponent
+    QuoteCarouselComponent,
+    FloatingHeaderComponent,
+    EddiPanelComponent,
+    ScheduleDialogComponent
   ],
   imports: [
     MatSlideToggleModule,
@@ -61,6 +68,7 @@ import { QuoteCarouselComponent } from './quote-carousel/quote-carousel.componen
     MatDividerModule,
     MatTabsModule,
     MatStepperModule,
+    MatDialogModule,
     BrowserModule,
     HttpClientModule,
     FormsModule,

@@ -37,6 +37,7 @@ export class ZappiPanelComponent {
   chargeAddedKwh = '';
   chargeRate = 0;
   mode: any;
+  isConnected: boolean = false; // Add this line
   changeModeEnabled = true;
   refreshInterval = 15000;
   panels: string[] = ['"Alexa, ask my charger to charge my car"', 
@@ -93,6 +94,8 @@ export class ZappiPanelComponent {
         this.chargeAddedKwh = data.chargeAddedKwh;
         this.chargeRate = data.chargeRateKw;
         this.mode = data.mode;
+        this.isConnected = ['EV_CONNECTED', 'WAITING_FOR_EV', 'READY_TO_CHARGE', 'CHARGING'].includes(data.connectionStatus);
+
         this.pushEnergySummary(data);
         setTimeout(() => {
           this.loadDeviceStatus();

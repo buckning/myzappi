@@ -4,7 +4,9 @@ import com.amcglynn.myenergi.LibbiMode;
 import com.amcglynn.myenergi.LibbiState;
 import com.amcglynn.myenergi.MyEnergiClient;
 import com.amcglynn.myenergi.MyEnergiClientFactory;
+import com.amcglynn.myenergi.units.KiloWatt;
 import com.amcglynn.myenergi.units.KiloWattHour;
+import com.amcglynn.myenergi.units.Watt;
 import com.amcglynn.myzappi.core.exception.MyEnergiCredentialsNotConfiguredException;
 import com.amcglynn.myzappi.core.model.LibbiStatus;
 import com.amcglynn.myzappi.core.model.MyEnergiAccountCredentials;
@@ -139,6 +141,7 @@ public class LibbiService {
                 .stateOfChargePercentage(libbiStatus.getStateOfCharge())
                 .batterySizeKWh(new KiloWattHour(libbiStatus.getBatterySizeWh() / 1000.0))
                 .serialNumber(serialNumber)
+                .diversionAmountKW(new KiloWatt(new Watt(libbiStatus.getDiversionAmountWatts())))
                 .energyTargetKWh(energyTarget)
                 .chargeFromGridEnabled(chargeFromGrid)
                 .energyTargetPercentage(chargeTargetPercent)

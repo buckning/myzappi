@@ -10,7 +10,8 @@ export class LibbiSetChargeTargetActionPanelComponent implements ScheduleActionC
 
   chargeTarget = 100;
   disabled = false;
-
+  actionTypeName = "Set Charge Target";
+  
   batteryCapacityWh = -1;
 
 

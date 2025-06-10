@@ -228,7 +228,10 @@ class DevicesControllerTest {
                 .gridExport(new Watt(0L))
                 .generated(new Watt(1500L))
                 .consumed(new Watt(1200L))
+                .tank1Name("Tank 1")
+                .tank2Name("Tank 2")
                 .consumedThisSessionKWh(new KiloWattHour(3.5))
+                .diversionAmountWatts(new Watt(300L))
                 .build();
 
         when(mockRegistrationService.getDevice(userId, eddiSerial)).thenReturn(Optional.of(eddiDevice));
@@ -251,6 +254,9 @@ class DevicesControllerTest {
         assertThat(responseBody).contains("\"solarGenerationKW\":\"1.5\"");
         assertThat(responseBody).contains("\"consumingKW\":\"1.2\"");
         assertThat(responseBody).contains("\"consumedThisSessionKWh\":\"3.5\"");
+        assertThat(responseBody).contains("\"diversionAmountKW\":\"0.3\"");
+        assertThat(responseBody).contains("\"tank1Name\":\"Tank 1\"");
+        assertThat(responseBody).contains("\"tank2Name\":\"Tank 2\"");
     }
 
     @Test

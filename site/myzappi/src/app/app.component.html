@@ -2,8 +2,23 @@
   
 </style>
 
-<div class="content" role="main">
-  <app-logged-in-content [bearerToken]="bearerToken" (logoutEvent)="logOut()" *ngIf="loggedIn; else elseBlock" ></app-logged-in-content>
+<app-floating-header 
+    *ngIf="loggedIn" 
+    [logoUrl]="logoUrl" 
+    [energyCost]="energyCost" 
+    [costType]="costOrCredit"
+    [showEnergyCost]="hubRegistered && tariffsAvailable && energyCost !== 'N/A' && energyCost !== 'Error'"
+    (logoutClicked)="logOut()">
+</app-floating-header>
+
+<div class="content" role="main" [class.with-header]="loggedIn">
+  <app-logged-in-content 
+    [bearerToken]="bearerToken" 
+    (logoutEvent)="logOut()" 
+    (registeredStatusChange)="onRegisteredStatusChange($event)" 
+    (tariffUpdatedEvent)="onTariffUpdated($event)" 
+    *ngIf="loggedIn; else elseBlock">
+  </app-logged-in-content>
   <ng-template #elseBlock>
     <app-logged-out-content></app-logged-out-content>
   </ng-template>

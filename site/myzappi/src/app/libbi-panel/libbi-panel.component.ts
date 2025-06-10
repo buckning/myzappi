@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit, OnDestroy } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { LibbiSetChargeTargetActionPanelComponent } from '../libbi-set-charge-target-action-panel/libbi-set-charge-target-action-panel.component';
 import { LibbiSetChargeFromGridActionPanelComponent } from '../libbi-set-charge-from-grid-action-panel/libbi-set-charge-from-grid-action-panel.component';
@@ -24,6 +24,7 @@ interface LibbiSummary {
   chargeFromGridEnabled: boolean,
   energyTargetKWh: string;
   energyTargetPercentage: string;
+  diversionAmountKW: string;
   state: string
 }
 
@@ -48,6 +49,7 @@ export class LibbiPanelComponent {
   batterySize = '';
   energyTargetKWh = '';
   energyTargetPercentage = '';
+  diversionAmountKW = '';
   libbiEnabled = false;
   libbiState = '';
 
@@ -63,6 +65,10 @@ export class LibbiPanelComponent {
     this.readAccountSettings();
     this.getStatus();
   }
+  
+  ngOnDestroy(): void {
+    // Clean up if needed
+  }
 
   getStatus() {
     let headers = new HttpHeaders({
@@ -76,6 +82,7 @@ export class LibbiPanelComponent {
         this.stateOfCharge = data.stateOfChargePercentage;
         this.energyTargetKWh = data.energyTargetKWh;
         this.energyTargetPercentage = data.energyTargetPercentage;
+        this.diversionAmountKW = data.diversionAmountKW;
         if (data.state === 'OFF') {
           this.libbiEnabled = false;
         } else {

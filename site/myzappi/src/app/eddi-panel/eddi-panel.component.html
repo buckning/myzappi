@@ -1,0 +1,32 @@
+<div class="zappi-panel">
+  <div class="eddi-panel-body">
+    <img src="assets/images/heaterBlack.png" alt="Heater Status" class="main-heater-icon" />
+
+    <div class="eddi-device-info">
+      <p class="eddi-name">Eddi</p>
+      <p class="eddi-serial-number">{{serialNumber}}</p>
+    </div>
+    <p class="eddi-diversion">{{diversionAmountKW}} kW</p>
+    <p class="eddi-consumed">Consumed: {{consumedKwh}} kWh</p>
+  </div>
+  
+  <div>
+    <app-quote-carousel>
+        <ng-template #carouselItem>
+            "Alexa, ask my water heater to give me hot water"
+        </ng-template>
+        
+        <ng-template #carouselItem>
+            "Alexa, ask my water heater to disable"
+        </ng-template>
+        
+        <ng-template #carouselItem>
+            "Alexa, ask my water heater to boost for 25 minutes"
+        </ng-template>
+
+        <ng-template #carouselItem>
+            "Alexa, ask my water heater to stop boosting"
+        </ng-template>
+    </app-quote-carousel>
+  </div>
+</div>

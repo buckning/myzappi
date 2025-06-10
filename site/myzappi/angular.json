@@ -61,10 +61,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "myzappi:build:production"
+              "buildTarget": "myzappi:build:production"
             },
             "development": {
-              "browserTarget": "myzappi:build:development"
+              "buildTarget": "myzappi:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -72,7 +72,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "myzappi:build"
+            "buildTarget": "myzappi:build"
           }
         },
         "test": {

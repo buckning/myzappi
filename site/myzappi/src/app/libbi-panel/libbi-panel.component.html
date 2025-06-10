@@ -1,56 +1,62 @@
-<div class="deviceTile">
-    <h2><img class="headerIconImage" src="assets/images/batteryFull.png" alt="Battery"> Libbi</h2>
-    <div>
-        State: {{libbiState}} <app-inline-schedule-panel [bearerToken]="bearerToken" [serialNumber]="serialNumber" [actionComponentType]="libbiSetEnabledActionPanelComponent"></app-inline-schedule-panel>
-    </div>
-    <br>
-    <div>
-        State of charge: {{stateOfCharge}}%
-    </div>
-    <br>
-    <div *ngIf="registrationComplete === true">
-        <div>
-            Charge from grid: {{chargeFromGrid}} <app-inline-schedule-panel [bearerToken]="bearerToken" [serialNumber]="serialNumber" [actionComponentType]="libbiSetChargeFromGridActionPanelComponent"></app-inline-schedule-panel>
+<div class="zappi-panel">
+    <div class="libbi-panel-body">
+        <img src="assets/images/batteryFullBlack.png" alt="Battery Status" class="main-battery-icon" />
+
+        <div class="libbi-device-info">
+            <p class="libbi-name">Libbi</p>
+            <p class="libbi-serial-number">{{serialNumber}}</p>
         </div>
-        <br>
-        <div>
-            Charge target: {{energyTargetPercentage}}%
-            <br>
-            Charge target: {{energyTargetKWh}}kWh <app-inline-schedule-panel [bearerToken]="bearerToken" [serialNumber]="serialNumber" [actionComponentType]="libbiSetChargeTargetActionPanelComponent"></app-inline-schedule-panel>
+
+        <p class="libbi-charge">{{stateOfCharge}}%</p>
+        <p class="libbi-state">{{libbiState}} {{diversionAmountKW}} kW</p>
+    </div>
+    <div class="charge-controls">
+        <div class="libbi-toggles" *ngIf="registrationComplete === true">
+            <div class="libbi-toggle-row">
+                <p class="toggle-label">Libbi state: </p>
+                <span class="toggle-value">{{libbiState}}</span>
+                <app-inline-schedule-panel [bearerToken]="bearerToken" [serialNumber]="serialNumber" [actionComponentType]="libbiSetEnabledActionPanelComponent"></app-inline-schedule-panel>
+            </div>
+            <div class="libbi-toggle-row">
+                <p class="toggle-label">Charge from grid:</p>
+                <span class="toggle-value">{{chargeFromGrid ? 'Enabled' : 'Disabled'}}</span>
+                <app-inline-schedule-panel [bearerToken]="bearerToken" [serialNumber]="serialNumber" [actionComponentType]="libbiSetChargeFromGridActionPanelComponent"></app-inline-schedule-panel>
+            </div>
+            <div class="libbi-toggle-row">
+                <p class="toggle-label">Charge target:</p>
+                <span class="toggle-value">{{energyTargetPercentage}}% ({{energyTargetKWh}} kWh)</span>
+                <app-inline-schedule-panel [bearerToken]="bearerToken" [serialNumber]="serialNumber" [actionComponentType]="libbiSetChargeTargetActionPanelComponent"></app-inline-schedule-panel>
+            </div>
+        </div>
+        
+        <div class="registration-container" *ngIf="registrationComplete === false">
+            <h3>Enter myenergi credentials</h3>
+            <p class="registration-text">
+                Unlock more Libbi functionality by entering your myenergi myaccount details. 
+                These are the credentials you use to access https://myaccount.myenergi.com
+            </p>
+            <form id="loginCodeForm">
+                <div class="myenergiInputPanel">
+                    <label for="emailAddress">myenergi account email address:</label>
+                    <input class="myenergiEmailInput" type="text" [(ngModel)]="emailAddressText" name="emailAddress" autocomplete="off" required>
+                </div>
+                <div class="myenergiInputPanel">
+                    <label for="password">myenergi account passsword:</label>
+                    <input class="myenergiEmailInput" type="password" [(ngModel)]="passwordText" name="password" autocomplete="off" required>
+                </div>
+                <div class="form-button-container">
+                    <button class="confirmButton" (click)="registerMyEnergiAccount()" [disabled]="registerButtonDisabled" type="button"
+                        id="submitBtn">Submit</button>
+                </div>
+            </form>
+            
+            <div id="messageContainer" *ngIf="messageText !== ''">
+                <div class="errorMessage">{{messageText}}</div>
+            </div>
         </div>
     </div>
     
-    <br>
-    <div *ngIf="registrationComplete === false">
-        <h3>Enter myenergi credentials</h3>
-        <p>
-            Unlock more Libbi functionality by entering your myenergi myaccount details. 
-            These are the credentials you use to access https://myaccount.myenergi.com
-        </p>
-    </div>
-    <form id="loginCodeForm" *ngIf="registrationComplete === false">
-        <div class="myenergiInputPanel">
-            <label for="emailAddress">myenergi account email address:</label>
-            <input class="myenergiEmailInput" type="text" [(ngModel)]="emailAddressText" name="emailAddress" autocomplete="off" required>
-        </div>
-        <br>
-        <div class="myenergiInputPanel">
-            <label for="password">myenergi account passsword:</label>
-            <input class="myenergiEmailInput" type="password" [(ngModel)]="passwordText" name="password" autocomplete="off" required>
-        </div>
-        <br>
-        <div>
-            <button class="confirmButton" (click)="registerMyEnergiAccount()" [disabled]="registerButtonDisabled" type="button"
-                id="submitBtn">Submit</button>
-        </div>
-    </form>
-    
-    <div id="messageContainer" *ngIf="messageText !== '' && registrationComplete === false">
-        <div class="errorMessage">{{messageText}}</div>
-    </div>
-    <!-- <app-inline-schedule-panel [actionComponentType]="libbiSetChargeTargetActionPanelComponent"></app-inline-schedule-panel> -->
-    <br>
-    <div>
+    <div class="quote-container">
         <app-quote-carousel>
             <ng-template #carouselItem>
                 "Alexa, ask my battery for the state of charge"

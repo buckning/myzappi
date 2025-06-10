@@ -19,6 +19,8 @@ export class LoggedInContentComponent implements OnInit {
   registeredThisSession = false;
   tariffsRegistered = false;
   @Output() public logoutEvent = new EventEmitter();
+  @Output() public registeredStatusChange = new EventEmitter<boolean>();
+  @Output() public tariffUpdatedEvent = new EventEmitter<boolean>();
 
   constructor(private http: HttpClient, private cookieService: CookieService) { }
 
@@ -42,6 +44,7 @@ export class LoggedInContentComponent implements OnInit {
         this.loadingDevices = false;
         this.devices = data;
         this.registered = this.devices.length > 0;
+        this.registeredStatusChange.emit(this.registered);
         this.hubDetails = {};
         this.hubDetails = this.devices;
         
@@ -85,6 +88,7 @@ export class LoggedInContentComponent implements OnInit {
   registeredEvent() {
     console.log('Received register event');
     this.registered = true;
+    this.registeredStatusChange.emit(true);
     this.registeredThisSession = true;
     this.getDeploymentDetails();
   }
@@ -98,6 +102,7 @@ export class LoggedInContentComponent implements OnInit {
   tariffChangeEvent() {
     console.log("Tariffs were changed");
     this.tariffsRegistered = true;
+    this.tariffUpdatedEvent.emit(true); // Notify app component that tariffs have been updated
   }
 
   deleteZappi() {
@@ -111,6 +116,7 @@ export class LoggedInContentComponent implements OnInit {
         console.log("Deleted Zappi");
         this.hubDetails = null;
         this.registered = false;
+        this.registeredStatusChange.emit(false);
       });
   }
 }

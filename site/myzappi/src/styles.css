@@ -151,15 +151,15 @@ input {
 
 .carousel-container {
     margin: auto;
-    background-color: #36689a;
-    border: 1px solid #36628e;
+    background-color: #f7f7f7; /* Light grey background */
+    border: 1px solid #e0e0e0; /* Subtle border */
 }
 
 .panel-content {
     padding: 20px;
     margin-bottom: 10px;
-    background-color: #36689a;
-    color: #ffffff;
+    background-color: #f7f7f7;
+    color: #333;
 }
 
 .devicesTable {
@@ -168,4 +168,203 @@ input {
 }
 
 html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+body { 
+    margin: 0; 
+    font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+main {
+    padding-bottom: 10px;
+}
+
+/* New styles for Zappi Panel */
+.zappi-panel {
+    background-color: #f7f7f7; /* Light grey background */
+    color: #333;
+    padding: 20px;
+    margin: 20px auto; /* Centers the panel */
+    width: 100%; /* Changed to be responsive */
+    max-width: 400px; /* Maximum width */
+    border-radius: 8px; /* Optional: for rounded corners */
+    font-family: Roboto, "Helvetica Neue", sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Center header and body horizontally */
+    border: 1px solid #e0e0e0; /* Subtle border */
+    position: relative; /* Add this for positioning the connection icon */
+    box-sizing: border-box; /* Include padding in width calculation */
+}
+
+.zappi-icon-container { /* This targets the div holding the connection icon */
+    position: absolute;
+    top: 10px; /* Adjust as needed */
+    right: 10px; /* Adjust as needed */
+    
+}
+
+.zappi-icon-container img { /* Style for the connection icon itself */
+    width: 32px; /* Increased width */
+    height: auto; /* Maintain aspect ratio */
+}
+
+.zappi-panel-body {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Center items like the car icon and text */
+    width: 100%;
+}
+
+.main-car-icon {
+    width: 80px; /* Adjust size as needed, make it larger */
+    height: auto;
+    margin-bottom: 15px; /* Space below the car icon */
+}
+
+.zappi-device-info {
+    display: flex; /* Arrange name and SN on the same line */
+    justify-content: center; /* Center them together */
+    align-items: baseline; /* Align text nicely */
+    width: 100%;
+    margin-bottom: 5px; /* Space below this line */
+}
+
+.zappi-name,
+.zappi-serial-number {
+    font-size: 0.9em; /* Smaller font size */
+    margin: 0 5px; /* Add a little space between name and SN */
+}
+
+.zappi-power {
+    font-size: 60px;
+    font-weight: bold;
+    margin-top: 0px;
+    margin-bottom: 2px; /* Further reduced */
+}
+
+.zappi-mode {
+    font-size: 22px;
+    margin-bottom: 15px;
+}
+
+.zappi-charge-added {
+    font-size: 20px;
+    margin-top: 2px; /* Added to control space above */
+}
+
+.content.with-header {
+  padding-top: 60px; /* Adjusted to match the floating header height */
+}
+
+/* Hide default logo and welcome message from index.html if needed when header is shown */
+/* This might be better handled by removing them from index.html if they are fully replaced */
+body.user-logged-in .logo-container, 
+body.user-logged-in .welcome-message {
+  display: none; 
+}
+
+/* Responsive styles for Zappi panel on mobile devices */
+@media screen and (max-width: 480px) {
+  .zappi-panel {
+    padding: 15px;
+    margin: 15px auto;
+  }
+  
+  .main-car-icon {
+    width: 60px;
+  }
+  
+  .zappi-power {
+    font-size: 1.3em; /* Smaller font size on mobile */
+  }
+  
+  .zappi-charge-added {
+    font-size: 0.9em;
+  }
+  
+  .chargeMode {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .toggleButton {
+    margin-bottom: 5px;
+    font-size: 14px;
+    padding: 4px;
+    width: 60px;
+  }
+  
+  /* Mobile optimization for buttons */
+  .confirmButton,
+  .destructiveButton {
+    padding: 8px 16px;
+    font-size: 14px;
+    min-height: 36px; /* Ensure adequate touch target size */
+    min-width: 80px; /* Minimum width for better touch targets */
+  }
+}
+
+@media screen and (max-width: 360px) {
+  .zappi-panel {
+    padding: 10px;
+  }
+  
+  .main-car-icon {
+    width: 50px;
+  }
+  
+  .toggleButton {
+    font-size: 12px;
+    width: 50px;
+    margin-right: 3px;
+  }
+}
+
+/* Global Material Dialog styles for mobile optimization */
+.mat-dialog-container {
+  padding: 0 !important;
+  overflow: hidden !important;
+  border-radius: 8px !important;
+}
+
+/* Material Dialog mobile optimizations */
+.mat-dialog-container {
+  padding: 0 !important;
+  max-height: 85vh !important;
+  overflow-y: auto !important;
+}
+
+/* Better mobile scrolling in dialogs */
+@media (max-width: 480px) {
+  .cdk-overlay-pane {
+    max-height: 85vh !important;
+  }
+
+  /* Improved touch scrolling */
+  .mat-dialog-container {
+    -webkit-overflow-scrolling: touch !important;
+  }
+}
+
+/* Mobile dialog optimizations */
+@media screen and (max-width: 480px) {
+  .cdk-overlay-pane {
+    max-width: 95vw !important;
+  }
+  
+  /* Prevent zooming on iOS when focusing inputs */
+  input[type="text"],
+  input[type="number"],
+  input[type="email"],
+  input[type="tel"],
+  input[type="url"],
+  input[type="password"],
+  input[type="search"],
+  input[type="datetime-local"],
+  input[type="date"],
+  input[type="time"],
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+}

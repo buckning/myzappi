@@ -1,35 +1,4 @@
-<button class="scheduleButton" (click)="toggleShowScheduling()"><img src="assets/images/schedule.png" alt="Create Schedule" width="25px" height="25px"></button>
-<br>
-<div>
-    <mat-expansion-panel  [expanded]="schedulePanelExpanded" (opened)="schedulePanelExpanded = true"
-                       (closed)="schedulePanelExpanded = false">
-    <h3>Schedule Action</h3>
-    <ng-container #actionContainer></ng-container>
-    <h3>Schedule Type</h3>
-      <mat-button-toggle-group [(ngModel)]="selectedScheduleOption">
-        <mat-button-toggle value="recurring">Recurring</mat-button-toggle>
-        <mat-button-toggle value="one-time">One-time</mat-button-toggle>
-      </mat-button-toggle-group>
-
-    <h3>Schedule Details</h3>
-    <div *ngIf="selectedScheduleOption === 'one-time'">
-        Schedule time: <input type="datetime-local" [(ngModel)]="startDateTime" />
-    </div>
-    <div *ngIf="selectedScheduleOption === 'recurring'">
-        Starting at time: <input type="time" [(ngModel)]="recurringTime" />
-        <br>
-        Repeat on: <div class="days-of-week">
-            <button *ngFor="let day of daysOfWeek" class="toggleButton" [ngClass]="{ selected: selectedDays[day] }"
-                (click)="toggleDay(day)">
-                {{ day[0] }}
-            </button>
-        </div>
-    </div>
-    <mat-action-row>
-        <!-- <button mat-button color="warn" (click)="cancel()">Cancel</button> -->
-        <button mat-button color="primary" [disabled]="!isScheduleValid()" (click)="createSchedule()">Create Schedule</button>
-    </mat-action-row>
-    
-</mat-expansion-panel>
-</div>
+<button class="scheduleButton" (click)="openScheduleDialog()" aria-label="Create Schedule">
+  <img src="assets/images/schedule.png" alt="Create Schedule" width="25px" height="25px">
+</button>
 

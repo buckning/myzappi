@@ -113,6 +113,8 @@ export class CreateOnetimeSchedulePanelComponent {
       this.eddiSelected();
     } else if (deviceType === "ZAPPI") {
       this.zappiSelected();
+    } else if (deviceType === "LIBBI") {
+      this.libbiSelected();
     }
   }
 

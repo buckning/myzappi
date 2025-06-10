@@ -26,6 +26,9 @@ public class EddiStatus {
     private Watt gridExport;
     private Watt consumed;
     private Watt generated;
+    private Watt diversionAmountWatts;
+    private String tank1Name;
+    private String tank2Name;
 
     private KiloWattHour consumedThisSessionKWh;
 }

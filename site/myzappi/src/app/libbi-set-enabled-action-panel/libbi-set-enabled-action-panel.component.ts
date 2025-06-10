@@ -8,6 +8,7 @@ import { ScheduleActionComponent } from '../schedule-action.interface';
 })
 export class LibbiSetEnabledActionPanelComponent implements ScheduleActionComponent {
   enabled = false;
+  actionTypeName = "Set Libbi Enabled";
 
   getScheduleAction() {
     return {

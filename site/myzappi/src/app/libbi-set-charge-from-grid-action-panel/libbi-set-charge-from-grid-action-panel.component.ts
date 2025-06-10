@@ -9,6 +9,7 @@ import { ScheduleActionComponent } from '../schedule-action.interface';
 export class LibbiSetChargeFromGridActionPanelComponent implements ScheduleActionComponent {
   type = "setLibbiChargeFromGrid";
   chargeFromGrid = false;
+  actionTypeName = "Set Charge From Grid";
 
   getScheduleAction() {
     return {

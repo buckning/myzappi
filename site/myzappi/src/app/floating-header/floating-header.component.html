@@ -1,0 +1,16 @@
+<header class="floating-header-container">
+  <div>
+    <!-- Simplified approach -->
+    <img src="assets/images/myzappi-icon-floating-bar.png" alt="My Zappi Logo" class="header-logo">
+  </div>
+  <div class="energy-cost-container" *ngIf="showEnergyCost">
+    <span [ngClass]="energyCostClass">{{ costType }}: {{ energyCost }}</span>
+  </div>
+  <div class="energy-cost-placeholder" *ngIf="!showEnergyCost"></div>
+  <div class="logout-container">
+    <button (click)="onLogout()" class="logout-button">
+      <img src="assets/images/logout.png" alt="Logout" class="logout-icon">
+      Logout
+    </button>
+  </div>
+</header>

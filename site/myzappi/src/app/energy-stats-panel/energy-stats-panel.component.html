@@ -1,38 +1,20 @@
-<h1>Energy Usage</h1>
-<label>
-    <img class="energyUsageDiagramIcon" src="assets/images/solar.png" alt="Solar">Generating {{solarGenerationKW}}kW
-</label>
-<br>
-<label>
-    <img class="energyUsageDiagramIcon" src="assets/images/home.png" alt="Home">Consuming {{consumingKW}}kW
-</label>
-<br>
-<div>
-    <img class="energyUsageDiagramIcon" src="assets/images/electricbolt.png" alt="Home">Importing {{importingKW}}kW
-</div>
-<div>
-    <img class="energyUsageDiagramIcon" src="assets/images/electricbolt.png" alt="Home">Exporting {{exportingKW}}kW
-</div>
-<div *ngFor="let row of libbis">
-    <img class="energyUsageDiagramIcon" src="assets/images/batteryFull.png" alt="Libbi">
-    Charging {{row.usageRateKW}}kW
-</div>
-<div *ngFor="let row of eddis">
-    <img class="energyUsageDiagramIcon" src="assets/images/heater.png" alt="Eddi">
-    Using {{row.usageRateKW}}kW
-</div>
-<div *ngFor="let row of zappis">
-    <img class="energyUsageDiagramIcon" src="assets/images/car.png" alt="Zappi">
-    Charging {{row.usageRateKW}}kW
-</div>
-<br>
-<div>
-    <app-quote-carousel>
-        <ng-template #carouselItem>
-            "Alexa, ask my charger for my energy usage"
-        </ng-template>
-        <ng-template #carouselItem>
-            "Alexa, ask my charger for energy usage for today"
-        </ng-template>
-      </app-quote-carousel>
+<div class="energy-overview-panel">
+  <h2>Energy Overview</h2>
+
+  <div class="overview-item">
+    <span class="label">Solar generation</span>
+    <span class="value">{{solarGenerationKW | number:'1.1-1'}} kW</span>
+  </div>
+  <div class="overview-item">
+    <span class="label">Consuming</span>
+    <span class="value">{{consumingKW | number:'1.1-1'}} kW</span>
+  </div>
+  <div class="overview-item">
+    <span class="label">Importing from grid</span>
+    <span class="value">{{importingKW | number:'1.1-1'}} kW</span>
+  </div>
+  <div class="overview-item">
+    <span class="label">Exporting to grid</span>
+    <span class="value">{{exportingKW | number:'1.1-1'}} kW</span>
+  </div>
 </div>
