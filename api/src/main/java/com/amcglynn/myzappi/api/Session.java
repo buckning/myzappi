@@ -6,7 +6,7 @@ import java.time.Duration;
 
 public class Session {
 
-    public static final Duration DEFAULT_TTL = Duration.ofSeconds(604800); // 60 * 60 * 24 * 7 = 1 week
+    public static final Duration DEFAULT_TTL = Duration.ofSeconds(21600); // 60 * 60 * 6 (6 hours)
     private final long ttl;
     private final UserId userId;
     private final SessionId sessionId;

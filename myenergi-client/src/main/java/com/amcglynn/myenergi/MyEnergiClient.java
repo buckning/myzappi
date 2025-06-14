@@ -296,7 +296,7 @@ public class MyEnergiClient {
             handleErrorResponse(response);
             return response.body().string();
         } catch (IOException e) {
-            System.out.println("Failed with " + e.getMessage());
+            System.out.println("Failed executing " + baseUrl + endPointUrl + " with error " + e.getMessage());
             // okhttp throws IOException with this message if it cannot authenticate with the API
             if ("unsupported auth scheme: []".equals(e.getMessage())) {
                 throw new ClientException(401);

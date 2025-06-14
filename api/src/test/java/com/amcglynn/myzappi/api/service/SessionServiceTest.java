@@ -72,7 +72,7 @@ class SessionServiceTest {
         assertThat(session.getSessionId()).isNotNull();
         UUID.fromString(session.getSessionId().toString()); // throws exception if not valid UUID
         assertThat(session.getUserId()).isEqualTo(UserId.from("userId"));
-        assertThat(session.getTtl()).isEqualTo(604800);
+        assertThat(session.getTtl()).isEqualTo(21600);
     }
 
     @Test
