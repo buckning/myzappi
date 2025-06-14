@@ -51,7 +51,7 @@ public class EventBridgeHandler implements RequestHandler<Object, Void> {
     }
 
     public Void handleRequest(Object event, Context context) {
-
+        String bodyStr = "";
         var map = (LinkedHashMap<String, String>) event;
         try {
             if (map.isEmpty()) {
@@ -61,6 +61,7 @@ public class EventBridgeHandler implements RequestHandler<Object, Void> {
 
             // event needs Alexa URL, LWA user ID and Alexa user ID
             var body = new MyZappiScheduleEvent(map);
+            bodyStr = body.toString();
             log.info("Received event class {}, body {}", event.getClass(), event);
 
             if (body.isAlexaReminder()) {
@@ -71,7 +72,7 @@ public class EventBridgeHandler implements RequestHandler<Object, Void> {
                 zappiScheduleHandler.handle(body);
             }
         } catch (Exception e) {
-            log.error("Unexpected error", e);
+            log.error("Unexpected error for body = {}", bodyStr, e);
         }
         return null;
     }
