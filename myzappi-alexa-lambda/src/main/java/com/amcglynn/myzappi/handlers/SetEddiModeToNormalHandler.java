@@ -7,7 +7,6 @@ import com.amcglynn.myenergi.EddiMode;
 import com.amcglynn.myzappi.UserIdResolverFactory;
 import com.amcglynn.myzappi.core.Brand;
 import com.amcglynn.myzappi.core.service.MyEnergiService;
-import com.amcglynn.myzappi.core.service.ZappiService;
 
 import java.util.Map;
 import java.util.Optional;

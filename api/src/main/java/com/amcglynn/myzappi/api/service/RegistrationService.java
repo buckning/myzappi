@@ -7,7 +7,6 @@ import com.amcglynn.myenergi.apiresponse.StatusResponse;
 import com.amcglynn.myenergi.exception.ClientException;
 import com.amcglynn.myzappi.api.rest.response.AccountSummaryResponse;
 import com.amcglynn.myzappi.core.dal.DevicesRepository;
-import com.amcglynn.myzappi.core.model.DeviceClass;
 import com.amcglynn.myzappi.core.model.EddiDevice;
 import com.amcglynn.myzappi.core.model.EmailAddress;
 import com.amcglynn.myzappi.core.model.LibbiDevice;

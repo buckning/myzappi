@@ -5,7 +5,6 @@ import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amcglynn.lwa.LwaClient;
 import com.amcglynn.myzappi.core.config.ServiceManager;
 import com.amcglynn.myzappi.core.service.MyEnergiService;
-import com.amcglynn.myzappi.core.service.ZappiService;
 import lombok.AccessLevel;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;

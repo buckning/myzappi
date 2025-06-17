@@ -12,7 +12,6 @@ import com.amazon.ask.model.Session;
 import com.amazon.ask.model.SupportedInterfaces;
 import com.amazon.ask.model.User;
 import com.amazon.ask.model.interfaces.alexa.presentation.apl.AlexaPresentationAplInterface;
-import com.amazon.ask.model.interfaces.alexa.presentation.html.AlexaPresentationHtmlInterface;
 import com.amazon.ask.model.interfaces.system.SystemState;
 import com.amazon.ask.model.ui.SimpleCard;
 import com.amazon.ask.model.ui.SsmlOutputSpeech;

@@ -109,18 +109,12 @@ public class LibbiStatus {
         private int stateOfCharge;
         private int batterySizeWh;
         private int status;
-        private long diversionAmountWatts;
 
         LibbiStatusBuilder() {
         }
 
         public LibbiStatusBuilder serialNumber(String serialNumber) {
             this.serialNumber = serialNumber;
-            return this;
-        }
-
-        public LibbiStatusBuilder diversionAmountWatts(long diversionAmountWatts) {
-            this.diversionAmountWatts = diversionAmountWatts; // Assuming conversion to int is acceptable
             return this;
         }
 

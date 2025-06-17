@@ -8,3 +8,4 @@ site/myzappi/.vscode
 gradle
 gradlew
 gradlew.bat
+bin

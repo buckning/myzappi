@@ -8,7 +8,6 @@ import com.amcglynn.myzappi.core.model.ScheduleAction;
 import com.amcglynn.myzappi.core.model.SerialNumber;
 import com.amcglynn.myzappi.core.service.MyEnergiService;
 import com.amcglynn.myzappi.core.service.ScheduleService;
-import com.amcglynn.myzappi.core.service.ZappiService;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.Duration;

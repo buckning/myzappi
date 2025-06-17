@@ -22,7 +22,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -209,7 +208,6 @@ class ScheduleControllerTest {
                 "        \"timeOfDay\": \"09:30\"\n" +
                 "    }\n" +
                 "}";
-        var id = UUID.randomUUID().toString();
         when(mockService.createSchedule(eq(UserId.from("mockUserId")), any())).thenThrow(new MissingDeviceException("Eddi not found"));
         var serverException = catchThrowableOfType(() -> controller.createSchedule(new Request(UserId.from("mockUserId"), RequestMethod.POST, "/schedule", body)), ServerException.class);
         assertThat(serverException).isNotNull();

@@ -244,31 +244,6 @@ class AuthenticationHelper {
     }
 
     /**
-     * Calculate the secret hash to be sent along with the authentication request.
-     *
-     * @param userPoolClientId     : The client id of the app.
-     * @param userPoolClientSecret : The secret for the userpool client id.
-     * @param userName             : The username of the user trying to authenticate.
-     * @return Calculated secret hash.
-     */
-    private String calculateSecretHash(String userPoolClientId, String userPoolClientSecret, String userName) {
-        final String HMAC_SHA256_ALGORITHM = "HmacSHA256";
-
-        SecretKeySpec signingKey = new SecretKeySpec(
-                userPoolClientSecret.getBytes(StandardCharsets.UTF_8),
-                HMAC_SHA256_ALGORITHM);
-        try {
-            Mac mac = Mac.getInstance(HMAC_SHA256_ALGORITHM);
-            mac.init(signingKey);
-            mac.update(userName.getBytes(StandardCharsets.UTF_8));
-            byte[] rawHmac = mac.doFinal(userPoolClientId.getBytes(StandardCharsets.UTF_8));
-            return java.util.Base64.getEncoder().encodeToString(rawHmac);
-        } catch (Exception e) {
-            throw new RuntimeException("Error while calculating ");
-        }
-    }
-
-    /**
      * Internal class for doing the Hkdf calculations.
      */
     final static class Hkdf {

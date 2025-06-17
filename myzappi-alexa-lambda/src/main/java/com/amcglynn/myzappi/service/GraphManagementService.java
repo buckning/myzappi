@@ -4,7 +4,6 @@ import com.amazon.ask.dispatcher.request.handler.HandlerInput;
 
 import java.net.URL;
 import java.time.Duration;
-import java.util.UUID;
 
 public class GraphManagementService {
 

@@ -28,7 +28,6 @@ public class ServiceManager {
     private final MyEnergiAccountCredentialsRepository myEnergiAccountCredentialsRepository;
     @Getter
     private final DevicesRepository devicesRepository;
-    private MyEnergiService.Builder zappiServiceBuilder;
     private MyEnergiService.Builder myEnergiServiceBuilder;
     private LoginService loginService;
     private final TariffService tariffService;

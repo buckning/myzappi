@@ -1,18 +1,5 @@
 package com.amcglynn.myzappi.handlers;
 
-import com.amazon.ask.dispatcher.request.handler.HandlerInput;
-import com.amazon.ask.model.Context;
-import com.amazon.ask.model.Device;
-import com.amazon.ask.model.Intent;
-import com.amazon.ask.model.IntentRequest;
-import com.amazon.ask.model.RequestEnvelope;
-import com.amazon.ask.model.Session;
-import com.amazon.ask.model.Slot;
-import com.amazon.ask.model.SupportedInterfaces;
-import com.amazon.ask.model.User;
-import com.amazon.ask.model.interfaces.system.SystemState;
-import com.amcglynn.myenergi.ZappiDaySummary;
-import com.amcglynn.myenergi.units.KiloWattHour;
 import com.amcglynn.myzappi.TestData;
 import com.amcglynn.myzappi.core.service.ZappiService;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,17 +11,12 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.Map;
 
 import static com.amcglynn.myzappi.handlers.ResponseVerifier.verifySimpleCardInResponse;
 import static com.amcglynn.myzappi.handlers.ResponseVerifier.verifySpeechInResponse;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
