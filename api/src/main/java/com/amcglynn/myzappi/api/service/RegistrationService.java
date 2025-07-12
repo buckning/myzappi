@@ -7,7 +7,6 @@ import com.amcglynn.myenergi.apiresponse.StatusResponse;
 import com.amcglynn.myenergi.exception.ClientException;
 import com.amcglynn.myzappi.api.rest.response.AccountSummaryResponse;
 import com.amcglynn.myzappi.core.dal.DevicesRepository;
-import com.amcglynn.myzappi.core.model.DeviceClass;
 import com.amcglynn.myzappi.core.model.EddiDevice;
 import com.amcglynn.myzappi.core.model.EmailAddress;
 import com.amcglynn.myzappi.core.model.LibbiDevice;
@@ -96,9 +95,13 @@ public class RegistrationService {
     private List<StatusResponse> discoverMyEnergiDevices(SerialNumber serialNumber, String apiKey) {
         var client = myEnergiClientFactory.newMyEnergiClient(serialNumber.toString(), apiKey);
         try {
+            log.info("Discovering myenergi devices for hub = {}", serialNumber);
             return client.getStatus();
         } catch (ClientException e) {
-            log.warn("Unexpected error " + e.getMessage(), e);
+            log.warn("Unexpected error for hub = {} " + e.getMessage(), serialNumber, e);
+        } catch (Exception e) {
+            log.warn("Caught unexpected exception while discovering devices for hub = {}", serialNumber, e);
+            throw e;
         }
         return List.of();
     }

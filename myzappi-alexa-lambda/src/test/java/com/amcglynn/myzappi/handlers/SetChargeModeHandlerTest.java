@@ -5,7 +5,6 @@ import com.amcglynn.myenergi.EvConnectionStatus;
 import com.amcglynn.myenergi.ZappiChargeMode;
 import com.amcglynn.myenergi.ZappiStatusSummary;
 import com.amcglynn.myenergi.apiresponse.ZappiStatus;
-import com.amcglynn.myenergi.exception.InvalidResponseFormatException;
 import com.amcglynn.myzappi.TestData;
 import com.amcglynn.myzappi.core.service.ZappiService;
 import com.google.common.util.concurrent.MoreExecutors;
@@ -29,7 +28,6 @@ import static com.amcglynn.myzappi.handlers.ResponseVerifier.verifySimpleCardInR
 import static com.amcglynn.myzappi.handlers.ResponseVerifier.verifySpeechInResponse;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;

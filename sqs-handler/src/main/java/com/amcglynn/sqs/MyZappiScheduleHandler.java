@@ -8,7 +8,6 @@ import com.amcglynn.myzappi.core.model.ScheduleAction;
 import com.amcglynn.myzappi.core.model.SerialNumber;
 import com.amcglynn.myzappi.core.service.MyEnergiService;
 import com.amcglynn.myzappi.core.service.ScheduleService;
-import com.amcglynn.myzappi.core.service.ZappiService;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.Duration;
@@ -29,8 +28,7 @@ public class MyZappiScheduleHandler {
         this.scheduleService = scheduleService;
 
         handlers = Map.ofEntries(
-                Map.entry("setChargeMode",    (myEnergiService, scheduleAction) -> myEnergiService.getZappiServiceOrThrow()
-                        .setChargeMode(ZappiChargeMode.valueOf(scheduleAction.getValue()))),
+                Map.entry("setChargeMode", this::setChargeMode),
                 Map.entry("setZappiMgl",    (myEnergiService, scheduleAction) -> myEnergiService.getZappiServiceOrThrow()
                         .setMgl(SerialNumber.from(scheduleAction.getTarget().get()), Integer.parseInt(scheduleAction.getValue()))),
                 Map.entry("setSmartBoost",   (myEnergiService, scheduleAction) -> myEnergiService.getZappiServiceOrThrow()
@@ -85,6 +83,11 @@ public class MyZappiScheduleHandler {
             scheduleService.deleteLocalSchedule(scheduleId);
         }
 
+        if (!schedule.get().isActive()) {
+            log.info("Schedule {} is not active for user {}, skipping", scheduleId, event.getLwaUserId());
+            return;
+        }
+
         zappiService.getZappiService().ifPresent(zappiSvc -> zappiSvc.setLocalTimeSupplier(() -> LocalTime.now(schedule.get().getZoneId())));
         handler.accept(zappiService, schedule.get().getAction());
     }
@@ -116,5 +119,16 @@ public class MyZappiScheduleHandler {
         // smart boost scheduleAction format = "kwh;time"
         var tokens = scheduleAction.getValue().split(";");
         return new KiloWattHour(Double.parseDouble(tokens[0]));
+    }
+
+    private void setChargeMode(MyEnergiService myEnergiService, ScheduleAction scheduleAction) {
+        // this is for backwards compatibility with old schedules where the target was not set
+        if (scheduleAction.getTarget().isPresent()) {
+            myEnergiService.getZappiServiceOrThrow()
+                    .setChargeMode(SerialNumber.from(scheduleAction.getTarget().get()), ZappiChargeMode.valueOf(scheduleAction.getValue()));
+            return;
+        }
+        myEnergiService.getZappiServiceOrThrow()
+                .setChargeMode(ZappiChargeMode.valueOf(scheduleAction.getValue()));
     }
 }

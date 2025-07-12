@@ -59,13 +59,6 @@ public class HubController {
         }
     }
 
-    private Response post(Request request) {
-        if ("/hub/refresh".equals(request.getPath())) {
-            return refreshDeploymentDetails(request);
-        }
-        return register(request);
-    }
-
     public Response refresh(Request request) {
         return refreshDeploymentDetails(request);
     }

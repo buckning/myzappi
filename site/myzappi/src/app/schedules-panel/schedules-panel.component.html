@@ -28,7 +28,7 @@
     <div id="scheduleTable" *ngIf="filteredScheduleRows.length > 0" class="scheduleTable">
 
       <div *ngFor="let row of filteredScheduleRows; let i = index">
-        <div class="scheduleRow">
+        <div class="scheduleRow" [ngClass]="{'disabled-schedule': row.active === false}">
           <table>
             <tr>
               <td>
@@ -43,12 +43,27 @@
                     <img class="headerIconImage" src="assets/images/batteryFull.png" alt="Libbi"> <b>Libbi</b> {{row.action.target}}
                   </div>
                 </div>
-                <div>
-                  {{convertScheduleType(row)}}
-                  <br>
-                  {{getValue(row)}}
+                <div class="schedule-info">
+                  <div class="schedule-title">
+                    {{convertScheduleType(row)}}
+                    <span *ngIf="row.active === false" class="schedule-status disabled">Disabled</span>
+                    <span *ngIf="row.active !== false" class="schedule-status active">Active</span>
+                  </div>
+                  <div class="schedule-value">
+                    {{getValue(row)}}
+                  </div>
                 </div>
-                <button type="button" class="destructiveButton" (click)="deleteSchedule(row)"><img class="iconButtonImage" src="assets/images/delete.png" alt="Schedules"></button>
+                <div class="schedule-actions">
+                  <mat-slide-toggle 
+                    [checked]="row.active !== false" 
+                    (change)="toggleScheduleActive(row)" 
+                    [aria-label]="row.active !== false ? 'Disable schedule' : 'Enable schedule'"
+                    color="primary">
+                  </mat-slide-toggle>
+                  <button type="button" class="destructiveButton" (click)="deleteSchedule(row)">
+                    <img class="iconButtonImage" src="assets/images/delete.png" alt="Delete Schedule">
+                  </button>
+                </div>
               </td>
               <td class="secondCell">
                 <div *ngIf="isRecurringSchedule(row)">

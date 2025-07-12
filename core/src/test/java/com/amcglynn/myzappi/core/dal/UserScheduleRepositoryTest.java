@@ -72,6 +72,21 @@ class UserScheduleRepositoryTest {
                 }
             ]""";
 
+    private final String testDisabledScheduleString = """
+            [
+                {
+                    "id": "1234567890",
+                    "active": false,
+                    "startDateTime": "2023-09-08T14:00",
+                    "zoneId": "Europe/Dublin",
+                    "action": {
+                        "type": "chargeMode",
+                        "target": "10000001",
+                        "value": "ECO+"
+                    }
+                }
+            ]""";
+
     @BeforeEach
     void setUp() {
         repository = new UserScheduleRepository(mockDb);
@@ -117,6 +132,24 @@ class UserScheduleRepositoryTest {
         when(mockDb.getItem(any())).thenReturn(mockGetResult);
         var result = repository.read(UserId.from("userid"));
         assertThat(result).hasSize(1);
+        assertThat(result.get(0).isActive()).isTrue();
+        verifySchedulesAreEqual(result.get(0), Schedule.builder().id("1234567890")
+                .startDateTime(LocalDateTime.of(2023, 9, 8, 14, 0))
+                .zoneId(ZoneId.of("Europe/Dublin"))
+                .action(ScheduleAction.builder()
+                        .type("chargeMode")
+                        .value("ECO+").build())
+                .build());
+    }
+
+    @Test
+    void testReadForUserWhoHasEntryInDbWithDisabledSchedule() {
+        when(mockGetResult.getItem()).thenReturn(Map.of("user-id", new AttributeValue("testuser"),
+                "schedules", new AttributeValue(testDisabledScheduleString)));
+        when(mockDb.getItem(any())).thenReturn(mockGetResult);
+        var result = repository.read(UserId.from("userid"));
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).isActive()).isFalse();
         verifySchedulesAreEqual(result.get(0), Schedule.builder().id("1234567890")
                 .startDateTime(LocalDateTime.of(2023, 9, 8, 14, 0))
                 .zoneId(ZoneId.of("Europe/Dublin"))

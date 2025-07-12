@@ -8,7 +8,6 @@ import com.amazonaws.services.dynamodbv2.model.PutItemRequest;
 import com.amcglynn.myzappi.core.model.MyEnergiAccountCredentialsEncrypted;
 import lombok.extern.slf4j.Slf4j;
 
-import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Optional;
 

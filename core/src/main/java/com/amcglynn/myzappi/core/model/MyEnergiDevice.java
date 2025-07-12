@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @JsonSubTypes({
         @JsonSubTypes.Type(value = ZappiDevice.class, name = "ZAPPI"),
@@ -14,6 +15,7 @@ import lombok.NoArgsConstructor;
 })
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "deviceClass")
 @NoArgsConstructor
+@ToString
 @Getter
 public abstract class MyEnergiDevice {
 

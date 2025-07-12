@@ -7,12 +7,8 @@ package com.amcglynn.myenergi;
  * Libbis: 30000001, 30000002, 30000003
  */
 public class MockMyEnergiOAuthResponses {
-
-    private static final String ZAPPI_SERIAL_NUMBER_1 = "10000001";
-    private static final String ZAPPI_SERIAL_NUMBER_2 = "10000002";
-    private static final String EDDI_SERIAL_NUMBER_1 = "20000001";
+    
     private static final String LIBBI_SERIAL_NUMBER_1 = "30000001";
-    private static final String HARVI_SERIAL_NUMBER_1 = "40000001";
 
     private MockMyEnergiOAuthResponses() {}
 

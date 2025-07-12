@@ -44,6 +44,22 @@ public class ScheduleController {
         return new Response(204);
     }
 
+    public Response updateSchedule(Request request) {
+        var resourceId = request.getPath().split("/schedules/")[1];
+        log.info("Update schedule {} for user {}", resourceId, request.getUserId());
+
+        try {
+            var schedulerRequest = objectMapper.readValue(request.getBody(), new TypeReference<Schedule>() {
+            });
+            var enabled = schedulerRequest.isActive();
+            service.enableSchedule(request.getUserId(), resourceId, enabled);
+            return new Response(204);
+        } catch (JsonProcessingException e) {
+            log.info("Failed to deserialise object to update schedule", e);
+            throw new ServerException(400);
+        }
+    }
+
     public Response createSchedule(Request request) {
         try {
             var schedulerRequest = objectMapper.readValue(request.getBody(), new TypeReference<Schedule>() {

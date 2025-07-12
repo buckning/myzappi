@@ -242,6 +242,25 @@ public class ScheduleService {
         }
     }
 
+    public void enableSchedule(UserId userId, String scheduleId, boolean enable) {
+        var schedules = scheduleDetailsRepository.read(scheduleId);
+        if (schedules.isEmpty()) {
+            log.warn("Schedule with id {} not found", scheduleId);
+            return;
+        }
+        if (userId.equals(schedules.get().getLwaUserId())) {
+            var schedulesFromDb = repository.read(userId);
+            var remainingSchedules = new ArrayList<>(schedulesFromDb);
+
+            remainingSchedules.stream()
+                    .filter(schedule -> schedule.getId().equals(scheduleId))
+                    .findFirst()
+                    .ifPresent(schedule -> schedule.setActive(enable));
+
+            repository.update(userId, remainingSchedules);
+        }
+    }
+
     private void deleteAwsSchedule(String scheduleId) {
         try {
             schedulerClient.deleteSchedule(DeleteScheduleRequest.builder()

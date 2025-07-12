@@ -87,6 +87,7 @@ public class EndpointRouter {
         handlers.put("POST /schedules", scheduleController::createSchedule);
         handlers.put("GET /schedules", scheduleController::getSchedules);
         handlers.put("DELETE /schedules/{scheduleId}", scheduleController::deleteSchedule);
+        handlers.put("PATCH /schedules/{scheduleId}", scheduleController::updateSchedule);
         handlers.put("POST /devices/discover", devicesController::discoverDevices);
         handlers.put("GET /devices", devicesController::listDevices);
         handlers.put("DELETE /devices", devicesController::deleteDevices);

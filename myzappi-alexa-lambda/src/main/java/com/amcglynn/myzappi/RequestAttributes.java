@@ -8,7 +8,6 @@ import com.amcglynn.myzappi.core.service.ZappiService;
 
 import java.time.ZoneId;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
