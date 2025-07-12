@@ -2,7 +2,9 @@ package com.amcglynn.myzappi.core.model;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.ToString;
 
+@ToString(callSuper = true)
 @Getter
 @EqualsAndHashCode(callSuper = false)
 public class ZappiDevice extends MyEnergiDevice {

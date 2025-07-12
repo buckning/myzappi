@@ -168,6 +168,35 @@ export class SchedulesPanelComponent {
         });
   }
 
+  toggleScheduleActive(schedule: Schedule) {
+    if (!schedule.id) {
+      console.error('Cannot toggle schedule without ID');
+      return;
+    }
+    
+    const newActiveState = !schedule.active;
+    console.log(`Toggling schedule ${schedule.id} active state to ${newActiveState}`);
+    
+    let headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': this.bearerToken
+    });
+    
+    let options = { headers: headers, withCredentials: true };
+    let body = { active: newActiveState };
+    
+    this.http.patch(`https://api.myzappiunofficial.com/schedules/${schedule.id}`, body, options)
+      .subscribe({
+        next: () => {
+          console.log(`Successfully updated schedule ${schedule.id} active state to ${newActiveState}`);
+          schedule.active = newActiveState;
+        },
+        error: error => {
+          console.error(`Failed to toggle schedule active state: ${error.status}`, error);
+        }
+      });
+  }
+
   convertChargeMode(input: string): string {
     if (input in this.chargeModeMapping) {
       return this.chargeModeMapping[input];
@@ -310,7 +339,14 @@ export class SchedulesPanelComponent {
     this.http.get<Schedules>('https://api.myzappiunofficial.com/schedules', options)
       .subscribe(data => {
 
-        this.scheduleRows = data.schedules;
+        // Process schedules, ensuring each has an active property with correct value
+        this.scheduleRows = data.schedules.map(schedule => {
+          // Default to active if the property isn't explicitly set to false
+          if (schedule.active === undefined) {
+            schedule.active = true;
+          }
+          return schedule;
+        });
 
         this.createScheuleButtonDisabled = data.schedules.length > 20;
 

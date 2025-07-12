@@ -83,6 +83,11 @@ public class MyZappiScheduleHandler {
             scheduleService.deleteLocalSchedule(scheduleId);
         }
 
+        if (!schedule.get().isActive()) {
+            log.info("Schedule {} is not active for user {}, skipping", scheduleId, event.getLwaUserId());
+            return;
+        }
+
         zappiService.getZappiService().ifPresent(zappiSvc -> zappiSvc.setLocalTimeSupplier(() -> LocalTime.now(schedule.get().getZoneId())));
         handler.accept(zappiService, schedule.get().getAction());
     }
