@@ -28,7 +28,7 @@
     <div id="scheduleTable" *ngIf="filteredScheduleRows.length > 0" class="scheduleTable">
 
       <div *ngFor="let row of filteredScheduleRows; let i = index">
-        <div class="scheduleRow">
+        <div class="scheduleRow" [ngClass]="{'disabled-schedule': !row.active}">
           <table>
             <tr>
               <td>
@@ -48,7 +48,17 @@
                   <br>
                   {{getValue(row)}}
                 </div>
-                <button type="button" class="destructiveButton" (click)="deleteSchedule(row)"><img class="iconButtonImage" src="assets/images/delete.png" alt="Schedules"></button>
+                <div class="schedule-actions">
+                  <div class="toggle-container">
+                    <mat-slide-toggle 
+                      [checked]="row.active" 
+                      (change)="toggleScheduleActive(row)" 
+                      color="primary" 
+                      aria-label="Toggle schedule active state">
+                    </mat-slide-toggle>
+                    <span class="schedule-status">{{row.active ? 'Active' : 'Disabled'}}</span>
+                  </div>
+                </div>
               </td>
               <td class="secondCell">
                 <div *ngIf="isRecurringSchedule(row)">
@@ -64,6 +74,7 @@
                   <img *ngIf="!isRecurringSchedule(row)" class="headerIconImage" src="assets/images/schedule.png" alt="Date"> Start Date: {{getStartDate(row)}}
                   <br>
                 </div>
+                <button type="button" class="destructiveButton delete-aligned" (click)="deleteSchedule(row)"><img class="iconButtonImage" src="assets/images/delete.png" alt="Delete Schedule"></button>
               </td>
 
 

@@ -28,11 +28,13 @@ input[type="string"] {
     background-color: #3672af;
     padding: 10px;
     border-bottom: 10px;
+    color: white;
 }
 
 .secondCell {
     padding-left: 20px;
     vertical-align: top;
+    min-width: 250px;
 }
 .destructiveButton {
     margin-top: 10px;
@@ -92,4 +94,40 @@ input[type="string"] {
     /* background-color: #64a0ff; */
     width: 90px;
     height: 35px;
+}
+
+.disabled-schedule {
+  background-color: #5286c2; /* Lighter but still good contrast with text */
+  color: white; /* Keep text white for readability */
+  border-left: 4px solid #e53935; /* Red border to indicate disabled state */
+}
+
+.schedule-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 10px;
+  width: 100%;
+}
+
+.toggle-container {
+  display: flex;
+  align-items: center;
+}
+
+.delete-aligned {
+  margin-top: 10px;
+  display: block;
+}
+
+.schedule-status {
+  margin-left: 8px;
+  font-weight: bold;
+}
+
+/* Make toggle buttons and status visible even in disabled state */
+.disabled-schedule .schedule-status,
+.disabled-schedule .mat-slide-toggle,
+.disabled-schedule button {
+  opacity: 1;
 }

@@ -311,6 +311,13 @@ export class SchedulesPanelComponent {
       .subscribe(data => {
 
         this.scheduleRows = data.schedules;
+        
+        // Ensure all schedules have an active property (default to true)
+        this.scheduleRows.forEach(schedule => {
+          if (schedule.active === undefined) {
+            schedule.active = true;
+          }
+        });
 
         this.createScheuleButtonDisabled = data.schedules.length > 20;
 
@@ -358,5 +365,32 @@ export class SchedulesPanelComponent {
           console.log("failed to get schedules " + error.status);
           this.loaded = true;
         });
+  }
+
+  toggleScheduleActive(schedule: Schedule) {
+    if (!schedule.id) return;
+    
+    const updatedActive = !schedule.active;
+    schedule.active = updatedActive; // Update UI immediately
+    
+    let headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': this.bearerToken
+    });
+    let options = { headers: headers, withCredentials: true };
+    
+    this.http.patch(`https://api.myzappiunofficial.com/schedules/${schedule.id}`,
+      { active: updatedActive },
+      options)
+      .subscribe({
+        next: (response) => {
+          console.log(`Schedule ${schedule.id} ${updatedActive ? 'activated' : 'deactivated'}`);
+        },
+        error: (error) => {
+          console.error(`Failed to update schedule status: ${error.status}`);
+          // Revert UI state on error
+          schedule.active = !updatedActive;
+        }
+      });
   }
 }
