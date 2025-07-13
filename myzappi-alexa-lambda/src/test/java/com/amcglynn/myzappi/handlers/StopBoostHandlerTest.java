@@ -1,7 +1,5 @@
 package com.amcglynn.myzappi.handlers;
 
-import com.amazon.ask.model.Intent;
-import com.amazon.ask.model.IntentRequest;
 import com.amcglynn.myzappi.TestData;
 import com.amcglynn.myzappi.core.service.ZappiService;
 import org.junit.jupiter.api.BeforeEach;

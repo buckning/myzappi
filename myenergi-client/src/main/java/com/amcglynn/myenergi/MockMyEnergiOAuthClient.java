@@ -1,16 +1,7 @@
 package com.amcglynn.myenergi;
 
 import com.amcglynn.myenergi.apiresponse.LibbiChargeSetupResponse;
-import com.amcglynn.myenergi.apiresponse.MyEnergiResponse;
-import com.amcglynn.myenergi.exception.ClientException;
-import com.amcglynn.myenergi.exception.ServerCommunicationException;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import okhttp3.*;
-
-import java.io.IOException;
 
 @Slf4j
 public class MockMyEnergiOAuthClient extends MyEnergiOAuthClient {

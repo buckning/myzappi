@@ -5,10 +5,7 @@ import com.amazon.ask.dispatcher.request.handler.RequestHandler;
 import com.amazon.ask.model.Response;
 import com.amazon.ask.model.interfaces.alexa.presentation.apl.RenderDocumentDirective;
 import com.amazon.ask.request.RequestHelper;
-import com.amazon.ask.response.ResponseBuilder;
 import com.amcglynn.myenergi.ZappiChargeMode;
-import com.amcglynn.myenergi.ZappiStatusSummary;
-import com.amcglynn.myenergi.units.KiloWatt;
 import com.amcglynn.myenergi.units.KiloWattHour;
 import com.amcglynn.myzappi.UserIdResolverFactory;
 import com.amcglynn.myzappi.UserZoneResolver;
@@ -20,7 +17,6 @@ import com.amcglynn.myzappi.core.service.Clock;
 import com.amcglynn.myzappi.core.service.ScheduleService;
 import com.amcglynn.myzappi.exception.InvalidScheduleException;
 import com.amcglynn.myzappi.mappers.AlexaZappiChargeModeMapper;
-import com.amcglynn.myzappi.service.ControlPanelBuilder;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
@@ -33,14 +29,12 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
 import static com.amazon.ask.request.Predicates.intentName;
 import static com.amcglynn.myzappi.LocalisedResponse.cardResponse;
 import static com.amcglynn.myzappi.LocalisedResponse.voiceResponse;
-import static com.amcglynn.myzappi.RequestAttributes.getZappiServiceOrThrow;
 
 @Slf4j
 public class ScheduleJobHandler implements RequestHandler {

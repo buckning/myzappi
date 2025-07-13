@@ -19,7 +19,6 @@ import java.io.IOException;
 @Slf4j
 public class MyEnergiOAuthClient {
     private final String userPoolId = "eu-west-2_E57cCJB20";
-    private final String clientId = "2fup0dhufn5vurmprjkj599041";
     private final String accessToken;
     private static final String OAUTH_BASE_URL = "https://myaccount.myenergi.com";
     private final OkHttpClient client;

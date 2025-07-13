@@ -1,7 +1,5 @@
 package com.amcglynn.myzappi.core.service;
 
-import com.amcglynn.myenergi.units.KiloWatt;
-import com.amcglynn.myenergi.units.KiloWattHour;
 import com.amcglynn.myzappi.core.exception.UserNotLoggedInException;
 import com.amcglynn.myzappi.core.model.HubCredentials;
 import com.amcglynn.myzappi.core.model.SerialNumber;

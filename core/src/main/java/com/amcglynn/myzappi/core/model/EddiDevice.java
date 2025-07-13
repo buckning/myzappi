@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.ToString;
 
 @Getter
-@ToString
+@ToString(callSuper = true)
 @EqualsAndHashCode
 public class EddiDevice extends MyEnergiDevice {
 

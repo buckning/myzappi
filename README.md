@@ -114,6 +114,16 @@ aws dynamodb create-table \
   --attribute-definitions AttributeName=alexa-user-id,AttributeType=S \
   --key-schema AttributeName=alexa-user-id,KeyType=HASH \
   --provisioned-throughput ReadCapacityUnits=1,WriteCapacityUnits=1
+
+aws dynamodb create-table \
+  --table-name desired-device-state \
+  --attribute-definitions AttributeName=session-id,AttributeType=S \
+  --key-schema AttributeName=session-id,KeyType=HASH \
+  --provisioned-throughput ReadCapacityUnits=1,WriteCapacityUnits=1
+
+aws dynamodb desired-device-state \
+    --table-name session \
+    --time-to-live-specification "Enabled=true, AttributeName=ttl"  
 ```
 
 Contains all the schedule information for a user as a json blob

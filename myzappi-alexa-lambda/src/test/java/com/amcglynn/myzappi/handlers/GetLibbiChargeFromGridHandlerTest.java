@@ -1,7 +1,6 @@
 package com.amcglynn.myzappi.handlers;
 
 import com.amcglynn.myenergi.LibbiState;
-import com.amcglynn.myenergi.units.KiloWattHour;
 import com.amcglynn.myzappi.UserIdResolverFactory;
 import com.amcglynn.myzappi.core.exception.MissingDeviceException;
 import com.amcglynn.myzappi.core.exception.MyEnergiCredentialsNotConfiguredException;

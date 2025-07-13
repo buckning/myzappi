@@ -6,7 +6,6 @@ import com.amcglynn.myenergi.ZappiChargeMode;
 import com.amcglynn.myenergi.ZappiDaySummary;
 import com.amcglynn.myenergi.ZappiStatusSummary;
 import com.amcglynn.myenergi.apiresponse.ZappiHistory;
-import com.amcglynn.myenergi.apiresponse.ZappiStatus;
 import com.amcglynn.myenergi.units.KiloWattHour;
 import com.amcglynn.myzappi.core.model.SerialNumber;
 import lombok.extern.slf4j.Slf4j;

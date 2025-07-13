@@ -2,12 +2,8 @@ package com.amcglynn.myzappi.handlers;
 
 import com.amazon.ask.model.Intent;
 import com.amazon.ask.model.IntentRequest;
-import com.amazon.ask.model.RequestEnvelope;
-import com.amazon.ask.model.Session;
 import com.amazon.ask.model.Slot;
-import com.amazon.ask.model.User;
 import com.amcglynn.myenergi.LibbiState;
-import com.amcglynn.myenergi.ZappiChargeMode;
 import com.amcglynn.myzappi.UserIdResolverFactory;
 import com.amcglynn.myzappi.core.exception.MissingDeviceException;
 import com.amcglynn.myzappi.core.model.LibbiStatus;
@@ -22,8 +18,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
-import static com.amcglynn.myzappi.TestObjectCreator.getIntentBuilder;
-import static com.amcglynn.myzappi.TestObjectCreator.getIntentRequestBuilder;
 import static com.amcglynn.myzappi.TestObjectCreator.handlerInputBuilder;
 import static com.amcglynn.myzappi.TestObjectCreator.requestEnvelopeBuilder;
 import static com.amcglynn.myzappi.handlers.ResponseVerifier.verifySimpleCardInResponse;

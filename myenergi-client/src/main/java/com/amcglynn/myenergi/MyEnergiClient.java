@@ -47,7 +47,6 @@ public class MyEnergiClient {
 
     private final LocalTime localTimeMidnight = LocalTime.now().withMinute(0).withHour(0);
     private final KiloWattHour zeroKwh = new KiloWattHour(0.0);
-    private final KiloWattHour maxKwh = new KiloWattHour(99.0);
 
     /**
      * Build a myenergi client.

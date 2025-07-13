@@ -1,6 +1,5 @@
 package com.amcglynn.myzappi.graphing;
 
-import com.amcglynn.myzappi.graphing.AxisLabelConverter;
 import lombok.SneakyThrows;
 import org.knowm.xchart.BitmapEncoder;
 import org.knowm.xchart.XYChart;

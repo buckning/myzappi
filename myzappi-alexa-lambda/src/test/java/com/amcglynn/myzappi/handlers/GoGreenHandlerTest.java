@@ -2,8 +2,6 @@ package com.amcglynn.myzappi.handlers;
 
 import com.amcglynn.myenergi.ZappiChargeMode;
 import com.amcglynn.myzappi.TestData;
-import com.amcglynn.myzappi.UserIdResolverFactory;
-import com.amcglynn.myzappi.core.service.MyEnergiService;
 import com.amcglynn.myzappi.core.service.ZappiService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

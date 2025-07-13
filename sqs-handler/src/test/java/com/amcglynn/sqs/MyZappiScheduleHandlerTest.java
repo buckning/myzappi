@@ -63,7 +63,7 @@ class MyZappiScheduleHandlerTest {
     }
 
     @Test
-    void testSetChargeMode() {
+    void testSetChargeModeWithNoTarget() {
         var input = new LinkedHashMap<String, String>();
         input.put("type", "setChargeMode");
         var scheduleId = UUID.randomUUID().toString();
@@ -77,6 +77,25 @@ class MyZappiScheduleHandlerTest {
                 .build()));
         handler.handle(new MyZappiScheduleEvent(input));
         verify(mockZappiService).setChargeMode(ZappiChargeMode.ECO);
+        verify(mockScheduleService).deleteLocalSchedule(scheduleId);
+    }
+
+    @Test
+    void testSetChargeModeWithTarget() {
+        var input = new LinkedHashMap<String, String>();
+        input.put("type", "setChargeMode");
+        var scheduleId = UUID.randomUUID().toString();
+        input.put("scheduleId", scheduleId);
+        input.put("lwaUserId", "mockLwaUserId");
+        when(mockScheduleService.getSchedule(scheduleId)).thenReturn(Optional.of(Schedule.builder()
+                .id(scheduleId)
+                .startDateTime(LocalDateTime.of(2023, 9, 13, 14, 0))
+                .zoneId(ZoneId.of("Europe/Dublin"))
+                .action(ScheduleAction.builder().type("setChargeMode").value("ECO").target("10000001")
+                        .build())
+                .build()));
+        handler.handle(new MyZappiScheduleEvent(input));
+        verify(mockZappiService).setChargeMode(SerialNumber.from("10000001"), ZappiChargeMode.ECO);
         verify(mockScheduleService).deleteLocalSchedule(scheduleId);
     }
 
@@ -188,6 +207,25 @@ class MyZappiScheduleHandlerTest {
                 .build()));
         handler.handle(new MyZappiScheduleEvent(input));
         verify(mockEddiService).setEddiMode(EddiMode.NORMAL);
+    }
+
+    @Test
+    void testInactiveScheduleIsIgnored() {
+        var input = new LinkedHashMap<String, String>();
+        input.put("type", "setEddiMode");
+        var scheduleId = UUID.randomUUID().toString();
+        input.put("scheduleId", scheduleId);
+        input.put("lwaUserId", "mockLwaUserId");
+
+        when(mockScheduleService.getSchedule(scheduleId)).thenReturn(Optional.of(Schedule.builder()
+                .id(scheduleId)
+                .active(false)
+                .startDateTime(LocalDateTime.of(2023, 9, 13, 14, 0))
+                .zoneId(ZoneId.of("Europe/Dublin"))
+                .action(new ScheduleAction("setEddiMode", "NORMAL"))
+                .build()));
+        handler.handle(new MyZappiScheduleEvent(input));
+        verify(mockEddiService, never()).setEddiMode(EddiMode.NORMAL);
     }
 
     @Test

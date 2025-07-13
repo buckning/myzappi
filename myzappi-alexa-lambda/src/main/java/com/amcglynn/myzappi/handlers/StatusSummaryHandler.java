@@ -17,7 +17,6 @@ import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 import static com.amazon.ask.request.Predicates.intentName;
-import static com.amcglynn.myzappi.RequestAttributes.getZappiServiceOrThrow;
 import static com.amcglynn.myzappi.RequestAttributes.waitForHistory;
 import static com.amcglynn.myzappi.RequestAttributes.waitForZappiStatusSummary;
 
@@ -41,7 +40,7 @@ public class StatusSummaryHandler implements RequestHandler {
         var summary = waitForZappiStatusSummary(handlerInput);
 
         try {
-            var history = waitForHistory(handlerInput);
+            waitForHistory(handlerInput);
         } catch (ExecutionException | InterruptedException e) {
             log.warn("Failed to get history", e);
         }

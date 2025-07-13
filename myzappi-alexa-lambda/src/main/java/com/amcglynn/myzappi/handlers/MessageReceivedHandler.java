@@ -6,7 +6,6 @@ import com.amazon.ask.model.Response;
 import com.amcglynn.myenergi.EvStatusSummary;
 import com.amcglynn.myzappi.core.dal.AlexaToLwaLookUpRepository;
 import com.amcglynn.myzappi.core.service.MyEnergiService;
-import com.amcglynn.myzappi.core.service.ZappiService;
 import com.amcglynn.myzappi.service.ReminderServiceFactory;
 import lombok.extern.slf4j.Slf4j;
 

@@ -7,7 +7,6 @@ import com.amazon.ask.request.RequestHelper;
 import com.amcglynn.myzappi.UserIdResolverFactory;
 import com.amcglynn.myzappi.core.Brand;
 import com.amcglynn.myzappi.core.service.MyEnergiService;
-import com.amcglynn.myzappi.core.service.ZappiService;
 
 import java.time.Duration;
 import java.util.Optional;

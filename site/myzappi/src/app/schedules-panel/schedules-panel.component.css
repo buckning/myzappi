@@ -41,6 +41,26 @@ input[type="string"] {
     margin-bottom: 10px;
 }
 
+.schedule-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.schedule-actions .mat-slide-toggle {
+    margin-right: 6px;
+}
+
+.schedule-actions .destructiveButton {
+    padding: 6px;
+    height: 36px;
+    width: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 @media (max-width: 768px) {
     input[type="string"] {
         width: 40px;
@@ -68,6 +88,14 @@ input[type="string"] {
 
     .chargeMode {
         width: 55px;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .schedule-actions {
+        flex-direction: row;
+        justify-content: space-between;
+        width: 100%;
     }
 }
 
@@ -100,14 +128,6 @@ input[type="string"] {
   background-color: #5286c2; /* Lighter but still good contrast with text */
   color: white; /* Keep text white for readability */
   border-left: 4px solid #e53935; /* Red border to indicate disabled state */
-}
-
-.schedule-actions {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 10px;
-  width: 100%;
 }
 
 .toggle-container {

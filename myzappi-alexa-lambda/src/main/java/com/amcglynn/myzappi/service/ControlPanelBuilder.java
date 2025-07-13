@@ -12,7 +12,6 @@ import lombok.SneakyThrows;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 
 import static com.amcglynn.myzappi.RequestAttributes.getZappiServiceOrThrow;
@@ -29,7 +28,6 @@ public class ControlPanelBuilder {
     );
 
     public RenderDocumentDirective buildControlPanel(HandlerInput handlerInput) {
-        var locale = Locale.forLanguageTag(handlerInput.getRequestEnvelope().getRequest().getLocale());
         var summary = getZappiServiceOrThrow(handlerInput).getStatusSummary();
 
         return RenderDocumentDirective.builder()
@@ -39,7 +37,6 @@ public class ControlPanelBuilder {
     }
 
     public RenderDocumentDirective buildControlPanel(HandlerInput handlerInput, ZappiChargeMode newChargeMode) {
-        var locale = Locale.forLanguageTag(handlerInput.getRequestEnvelope().getRequest().getLocale());
         var summary = getZappiServiceOrThrow(handlerInput).getStatusSummary();
 
         return RenderDocumentDirective.builder()
