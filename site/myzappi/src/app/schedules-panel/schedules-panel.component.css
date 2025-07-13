@@ -28,11 +28,13 @@ input[type="string"] {
     background-color: #3672af;
     padding: 10px;
     border-bottom: 10px;
+    color: white;
 }
 
 .secondCell {
     padding-left: 20px;
     vertical-align: top;
+    min-width: 250px;
 }
 .destructiveButton {
     margin-top: 10px;
@@ -123,89 +125,29 @@ input[type="string"] {
 }
 
 .disabled-schedule {
-    background-color: #f5f5f5;
-    position: relative;
-    border-left: 4px solid #d32f2f;
+  background-color: #5286c2; /* Lighter but still good contrast with text */
+  color: white; /* Keep text white for readability */
+  border-left: 4px solid #e53935; /* Red border to indicate disabled state */
 }
 
-.disabled-schedule::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-image: repeating-linear-gradient(
-        45deg,
-        transparent,
-        transparent 10px,
-        rgba(200, 200, 200, 0.1) 10px,
-        rgba(200, 200, 200, 0.1) 20px
-    );
-    pointer-events: none;
+.toggle-container {
+  display: flex;
+  align-items: center;
 }
 
-.schedule-title {
-    display: flex;
-    align-items: center;
-    gap: 8px;
+.delete-aligned {
+  margin-top: 10px;
+  display: block;
 }
 
 .schedule-status {
-    font-size: 12px;
-    padding: 2px 6px;
-    border-radius: 10px;
-    font-weight: bold;
-    display: inline-block;
+  margin-left: 8px;
+  font-weight: bold;
 }
 
-.schedule-status.active {
-    background-color: #4CAF50;
-    color: white;
-}
-
-.schedule-status.disabled {
-    background-color: #d32f2f;
-    color: white;
-    font-weight: bold;
-}
-
-/* Enhance toggle switch visibility */
-::ng-deep .mat-slide-toggle-label {
-    color: #333333 !important;
-    font-weight: 500 !important;
-}
-
-::ng-deep .disabled-schedule .mat-slide-toggle-label {
-    color: #555555 !important;
-}
-
-::ng-deep .mat-slide-toggle-bar {
-    height: 16px !important;
-}
-
-::ng-deep .mat-slide-toggle-thumb {
-    height: 22px !important;
-    width: 22px !important;
-}
-
-/* Enhanced schedule info layout */
-.schedule-info {
-    margin: 6px 0;
-}
-
-.schedule-value {
-    margin-top: 6px;
-    font-weight: 500;
-    color: #333333;
-}
-
-/* Ensure text remains legible in disabled schedules */
-.disabled-schedule .schedule-value {
-    color: #333333;
-}
-
-.disabled-schedule .headerIconImage,
-.disabled-schedule b {
-    opacity: 0.9;
+/* Make toggle buttons and status visible even in disabled state */
+.disabled-schedule .schedule-status,
+.disabled-schedule .mat-slide-toggle,
+.disabled-schedule button {
+  opacity: 1;
 }

@@ -338,7 +338,6 @@ export class SchedulesPanelComponent {
     let options = { headers: headers, withCredentials: true };
     this.http.get<Schedules>('https://api.myzappiunofficial.com/schedules', options)
       .subscribe(data => {
-
         // Process schedules, ensuring each has an active property with correct value
         this.scheduleRows = data.schedules.map(schedule => {
           // Default to active if the property isn't explicitly set to false
@@ -395,4 +394,6 @@ export class SchedulesPanelComponent {
           this.loaded = true;
         });
   }
+
+  // toggleScheduleActive method is now defined earlier in the file
 }
