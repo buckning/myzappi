@@ -3,6 +3,7 @@ dependencies {
     implementation "com.amazonaws:aws-lambda-java-events:${awsLambdaJavaEventsVersion}"
     implementation "com.amazonaws:aws-lambda-java-core:${awsLambdaJavaCoreVersion}"
     implementation "com.amazonaws:aws-java-sdk-dynamodb:${dynamodbVersion}"
+    implementation "com.amazonaws:aws-java-sdk-sqs:${dynamodbVersion}"
     implementation project(":core")
     implementation project(":login-with-amazon")
     implementation project(":myenergi-client")

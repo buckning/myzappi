@@ -5,6 +5,7 @@ import com.amcglynn.myzappi.api.Session;
 import com.amcglynn.myzappi.api.SessionRepository;
 import com.amcglynn.myzappi.api.service.AuthenticationService;
 import com.amcglynn.myzappi.api.service.SessionService;
+import com.amcglynn.myzappi.api.service.SqsSenderService;
 import com.amcglynn.myzappi.core.config.Properties;
 import com.amcglynn.myzappi.core.config.ServiceManager;
 import com.amcglynn.myzappi.api.LwaClientFactory;
@@ -27,6 +28,7 @@ public class EndpointRouter {
     private final Map<String, Function<Request, Response>> handlers;
     private final AuthenticationService authenticationService;
     private final Properties properties;
+    private final SqsSenderService sqsSenderService;
 
     public EndpointRouter(ServiceManager serviceManager) {
         this(serviceManager, new HubController(
@@ -65,7 +67,8 @@ public class EndpointRouter {
                           AccountController accountController,
                           Properties properties) {
         this(hubController, devicesController, tariffController, authenticationService, scheduleController, energyCostController,
-                new LogoutController(authenticationService), accountController, properties);
+                new LogoutController(authenticationService), accountController,
+                    new SqsSenderService(properties), properties);
     }
 
     public EndpointRouter(HubController hubController, DevicesController devicesController,
@@ -74,7 +77,11 @@ public class EndpointRouter {
                           ScheduleController scheduleController, EnergyController energyController,
                           LogoutController logoutController,
                           AccountController accountController,
+                          SqsSenderService sqsSenderService,
                           Properties properties) {
+        this.authenticationService = authenticationService;
+        this.properties = properties;
+        this.sqsSenderService = sqsSenderService;
 
         handlers = new HashMap<>();
         handlers.put("POST /hub", hubController::register);
@@ -100,9 +107,7 @@ public class EndpointRouter {
         handlers.put("GET /energy-summary", energyController::getEnergySummary);
         handlers.put("POST /account/register", accountController::register);
         handlers.put("GET /account/summary", accountController::getAccountSummary);
-
-        this.authenticationService = authenticationService;
-        this.properties = properties;
+        handlers.put("GET /sqs-send", sqsSenderService::sendTestMessage);
     }
 
     public Response route(Request request) {
@@ -183,4 +188,5 @@ public class EndpointRouter {
             request.setUserId(request.getHeaders().get("on-behalf-of"));
         }
     }
+
 }

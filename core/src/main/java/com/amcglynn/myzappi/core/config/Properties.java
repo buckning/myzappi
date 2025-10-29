@@ -56,6 +56,10 @@ public class Properties {
         return getOrThrow("schedulerTargetLambdaArn");
     }
 
+    public String getSqsQueueUrl() {
+        return getOrDefault("sqsQueueUrl", "");
+    }
+
     private String getOrDefault(String propertyName, String defaultValue) {
         var property = System.getenv(propertyName);
         if (property == null) {
