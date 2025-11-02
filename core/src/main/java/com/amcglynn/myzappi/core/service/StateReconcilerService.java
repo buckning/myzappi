@@ -1,4 +1,4 @@
-package com.amcglynn.myzappi.reconciler;
+package com.amcglynn.myzappi.core.service;
 
 import com.amcglynn.myenergi.ZappiChargeMode;
 import com.amcglynn.myzappi.core.dal.DeviceStateReconcileRequestsRepository;
@@ -6,8 +6,6 @@ import com.amcglynn.myzappi.core.model.Action;
 import com.amcglynn.myzappi.core.model.DeviceClass;
 import com.amcglynn.myzappi.core.model.StateReconcileRequest;
 import com.amcglynn.myzappi.core.model.UserId;
-import com.amcglynn.myzappi.core.service.MyEnergiService;
-import com.amcglynn.myzappi.core.service.SqsSenderService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 

@@ -8,26 +8,22 @@ import com.amcglynn.myzappi.core.config.ServiceManager;
 import com.amcglynn.myzappi.core.model.StateReconcileRequest;
 import com.amcglynn.myzappi.core.service.MyEnergiService;
 import com.amcglynn.myzappi.core.service.SqsSenderService;
+import com.amcglynn.myzappi.core.service.StateReconcilerService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
 
 @Slf4j
 public class StateReconcilerHandler implements RequestHandler<SQSEvent, Void> {
     private final ObjectMapper objectMapper;
-    private final Properties properties;
-    private final ServiceManager serviceManager;
-    private final MyEnergiService.Builder myenergiServiceBuilder;
     private final StateReconcilerService stateReconilerService;
 
     public StateReconcilerHandler() {
         this.objectMapper = new ObjectMapper();
-        properties = new Properties();
-        serviceManager = new ServiceManager(properties);
-        myenergiServiceBuilder = new MyEnergiService.Builder(serviceManager.getLoginService());
+        var properties = new Properties();
+        var serviceManager = new ServiceManager(properties);
+        var myenergiServiceBuilder = new MyEnergiService.Builder(serviceManager.getLoginService());
         stateReconilerService = new StateReconcilerService(myenergiServiceBuilder,
                 new SqsSenderService(properties), serviceManager.getDeviceStateReconcileRequestsRepository());
     }

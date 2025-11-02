@@ -5,7 +5,6 @@ import com.amcglynn.myzappi.api.Session;
 import com.amcglynn.myzappi.api.SessionRepository;
 import com.amcglynn.myzappi.api.service.AuthenticationService;
 import com.amcglynn.myzappi.api.service.SessionService;
-import com.amcglynn.myzappi.api.service.SqsSenderService;
 import com.amcglynn.myzappi.core.config.Properties;
 import com.amcglynn.myzappi.core.config.ServiceManager;
 import com.amcglynn.myzappi.api.LwaClientFactory;
@@ -28,30 +27,38 @@ public class EndpointRouter {
     private final Map<String, Function<Request, Response>> handlers;
     private final AuthenticationService authenticationService;
     private final Properties properties;
-    private final SqsSenderService sqsSenderService;
 
     public EndpointRouter(ServiceManager serviceManager) {
         this(serviceManager, new HubController(
                         new RegistrationService(serviceManager.getLoginService(), serviceManager.getDevicesRepository(), new MyEnergiClientFactory()),
                         serviceManager.getScheduleService(), serviceManager.getTariffService()),
-                new DevicesController(new RegistrationService(serviceManager.getLoginService(), serviceManager.getDevicesRepository(), new MyEnergiClientFactory()), serviceManager.getMyEnergiServiceBuilder()),
+                new DevicesController(new RegistrationService(serviceManager.getLoginService(),
+                        serviceManager.getDevicesRepository(), new MyEnergiClientFactory()), serviceManager.getMyEnergiServiceBuilder(),
+                        serviceManager.getStateReconciliationService()),
                 new TariffController(serviceManager.getTariffService()),
                 new AccountController(new RegistrationService(serviceManager.getLoginService(), serviceManager.getDevicesRepository(), new MyEnergiClientFactory())),
                 new LwaClientFactory());
     }
 
-    public EndpointRouter(ServiceManager serviceManager, HubController hubController, DevicesController devicesController,
-                          TariffController tariffController,
-                          AccountController accountController,
-                          LwaClientFactory lwaClientFactory) {
+    public EndpointRouter(
+            ServiceManager serviceManager,
+            HubController hubController,
+            DevicesController devicesController,
+            TariffController tariffController,
+            AccountController accountController,
+            LwaClientFactory lwaClientFactory) {
         this(hubController, devicesController, tariffController, accountController, lwaClientFactory,
                 new ScheduleController(serviceManager.getScheduleService()), serviceManager);
     }
 
-    public EndpointRouter(HubController hubController, DevicesController devicesController, TariffController tariffController,
-                          AccountController accountController,
-                          LwaClientFactory lwaClientFactory,
-                          ScheduleController scheduleController, ServiceManager serviceManager) {
+    public EndpointRouter(
+            HubController hubController,
+            DevicesController devicesController,
+            TariffController tariffController,
+            AccountController accountController,
+            LwaClientFactory lwaClientFactory,
+            ScheduleController scheduleController,
+            ServiceManager serviceManager) {
         this(hubController, devicesController, tariffController,
                 new AuthenticationService(new TokenService(lwaClientFactory),
                         new SessionService(new SessionRepository(serviceManager.getAmazonDynamoDB()))),
@@ -61,27 +68,31 @@ public class EndpointRouter {
                 serviceManager.getProperties());
     }
 
-    public EndpointRouter(HubController hubController, DevicesController devicesController, TariffController tariffController,
-                          AuthenticationService authenticationService,
-                          ScheduleController scheduleController, EnergyController energyCostController,
-                          AccountController accountController,
-                          Properties properties) {
+    public EndpointRouter(
+            HubController hubController,
+            DevicesController devicesController,
+            TariffController tariffController,
+            AuthenticationService authenticationService,
+            ScheduleController scheduleController,
+            EnergyController energyCostController,
+            AccountController accountController,
+            Properties properties) {
         this(hubController, devicesController, tariffController, authenticationService, scheduleController, energyCostController,
-                new LogoutController(authenticationService), accountController,
-                    new SqsSenderService(properties), properties);
+                new LogoutController(authenticationService), accountController, properties);
     }
 
-    public EndpointRouter(HubController hubController, DevicesController devicesController,
-                          TariffController tariffController,
-                          AuthenticationService authenticationService,
-                          ScheduleController scheduleController, EnergyController energyController,
-                          LogoutController logoutController,
-                          AccountController accountController,
-                          SqsSenderService sqsSenderService,
-                          Properties properties) {
+    public EndpointRouter(
+            HubController hubController,
+            DevicesController devicesController,
+            TariffController tariffController,
+            AuthenticationService authenticationService,
+            ScheduleController scheduleController,
+            EnergyController energyController,
+            LogoutController logoutController,
+            AccountController accountController,
+            Properties properties) {
         this.authenticationService = authenticationService;
         this.properties = properties;
-        this.sqsSenderService = sqsSenderService;
 
         handlers = new HashMap<>();
         handlers.put("POST /hub", hubController::register);
@@ -107,7 +118,6 @@ public class EndpointRouter {
         handlers.put("GET /energy-summary", energyController::getEnergySummary);
         handlers.put("POST /account/register", accountController::register);
         handlers.put("GET /account/summary", accountController::getAccountSummary);
-        handlers.put("GET /sqs-send", sqsSenderService::sendTestMessage);
     }
 
     public Response route(Request request) {
@@ -149,7 +159,9 @@ public class EndpointRouter {
         return Optional.empty();
     }
 
-    private boolean matches(String url, String pattern) {
+    private boolean matches(
+            String url,
+            String pattern) {
         // Basic pattern matching logic to handle URLs with path variables
         if (pattern.equals(url)) {
             return true;
@@ -172,7 +184,10 @@ public class EndpointRouter {
         return true;
     }
 
-    private void updateSessionCookie(Request request, Session session, Response response) {
+    private void updateSessionCookie(
+            Request request,
+            Session session,
+            Response response) {
         var sessionFromHeaders = authenticationService.getSessionIdFromCookie(request.getHeaders());
         if (sessionFromHeaders.isEmpty()) {
             response.getHeaders().put("Set-Cookie", "sessionID=" + session.getSessionId() +

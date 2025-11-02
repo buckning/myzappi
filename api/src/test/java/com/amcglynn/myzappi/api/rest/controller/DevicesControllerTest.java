@@ -20,6 +20,7 @@ import com.amcglynn.myzappi.core.model.UserId;
 import com.amcglynn.myzappi.core.model.ZappiDevice;
 import com.amcglynn.myzappi.core.service.LibbiService;
 import com.amcglynn.myzappi.core.service.MyEnergiService;
+import com.amcglynn.myzappi.core.service.StateReconcilerService;
 import com.amcglynn.myzappi.core.service.ZappiService;
 import com.amcglynn.myzappi.core.service.EddiService;
 import com.amcglynn.myzappi.core.model.EddiStatus;
@@ -54,6 +55,8 @@ class DevicesControllerTest {
     private LibbiService mockLibbiService;
     @Mock
     private EddiService mockEddiService;
+    @Mock
+    private StateReconcilerService mockStateReconcilerService;
     private DevicesController controller;
     private UserId userId;
     private SerialNumber libbiSerialNumber;
@@ -62,7 +65,7 @@ class DevicesControllerTest {
     void setUp() {
         userId = UserId.from("userId");
         libbiSerialNumber = SerialNumber.from("30000001");
-        controller = new DevicesController(mockRegistrationService, mockMyEnergiServiceBuilder);
+        controller = new DevicesController(mockRegistrationService, mockMyEnergiServiceBuilder, mockStateReconcilerService);
     }
 
     @Test
