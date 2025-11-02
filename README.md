@@ -116,14 +116,14 @@ aws dynamodb create-table \
   --provisioned-throughput ReadCapacityUnits=1,WriteCapacityUnits=1
 
 aws dynamodb create-table \
-  --table-name desired-device-state \
-  --attribute-definitions AttributeName=session-id,AttributeType=S \
-  --key-schema AttributeName=session-id,KeyType=HASH \
+  --table-name device-state-reconcile-requests \
+  --attribute-definitions AttributeName=device-state-change-key,AttributeType=S \
+  --key-schema AttributeName=device-state-change-key,KeyType=HASH \
   --provisioned-throughput ReadCapacityUnits=1,WriteCapacityUnits=1
 
-aws dynamodb desired-device-state \
-    --table-name session \
-    --time-to-live-specification "Enabled=true, AttributeName=ttl"  
+aws dynamodb update-time-to-live \
+    --table-name device-state-reconcile-requests \
+    --time-to-live-specification "Enabled=true, AttributeName=ttl"
 ```
 
 Contains all the schedule information for a user as a json blob

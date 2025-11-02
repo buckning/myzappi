@@ -4,6 +4,7 @@ import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 import com.amcglynn.myzappi.core.dal.CredentialsRepository;
+import com.amcglynn.myzappi.core.dal.DeviceStateReconcileRequestsRepository;
 import com.amcglynn.myzappi.core.dal.DevicesRepository;
 import com.amcglynn.myzappi.core.dal.MyEnergiAccountCredentialsRepository;
 import com.amcglynn.myzappi.core.dal.ScheduleDetailsRepository;
@@ -13,6 +14,7 @@ import com.amcglynn.myzappi.core.service.EncryptionService;
 import com.amcglynn.myzappi.core.service.LoginService;
 import com.amcglynn.myzappi.core.service.MyEnergiService;
 import com.amcglynn.myzappi.core.service.ScheduleService;
+import com.amcglynn.myzappi.core.service.SqsSenderService;
 import com.amcglynn.myzappi.core.service.TariffService;
 import lombok.Getter;
 import software.amazon.awssdk.regions.Region;
@@ -28,6 +30,8 @@ public class ServiceManager {
     private final MyEnergiAccountCredentialsRepository myEnergiAccountCredentialsRepository;
     @Getter
     private final DevicesRepository devicesRepository;
+    @Getter
+    private final DeviceStateReconcileRequestsRepository deviceStateReconcileRequestsRepository;
     private MyEnergiService.Builder myEnergiServiceBuilder;
     private LoginService loginService;
     private final TariffService tariffService;
@@ -42,6 +46,7 @@ public class ServiceManager {
         amazonDynamoDB = AmazonDynamoDBClientBuilder.standard()
                 .withRegion(Regions.fromName(properties.getAwsRegion()))
                 .build();
+        deviceStateReconcileRequestsRepository = new DeviceStateReconcileRequestsRepository(amazonDynamoDB);
         encryptionService = new EncryptionService(properties.getKmsKeyArn());
         credentialsRepository = new CredentialsRepository(amazonDynamoDB);
         devicesRepository = new DevicesRepository(amazonDynamoDB);

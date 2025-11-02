@@ -56,7 +56,7 @@ public class Properties {
         return getOrThrow("schedulerTargetLambdaArn");
     }
 
-    public String getSqsQueueUrl() {
+    public String getReconciliationSqsQueueUrl() {
         return getOrDefault("sqsQueueUrl", "");
     }
 

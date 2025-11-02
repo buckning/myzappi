@@ -3,4 +3,5 @@ dependencies {
     implementation "com.amazonaws:aws-lambda-java-events:${awsLambdaJavaEventsVersion}"
     implementation "com.amazonaws:aws-lambda-java-core:${awsLambdaJavaCoreVersion}"
     implementation project(":core")
+    implementation project(":myenergi-client")
 }
