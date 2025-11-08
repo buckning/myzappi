@@ -1,5 +1,7 @@
 package com.amcglynn.myzappi.core.service;
 
+import com.amcglynn.myenergi.EddiMode;
+import com.amcglynn.myenergi.EddiState;
 import com.amcglynn.myenergi.ZappiChargeMode;
 import com.amcglynn.myzappi.core.dal.DeviceStateReconcileRequestsRepository;
 import com.amcglynn.myzappi.core.model.Action;
@@ -50,7 +52,37 @@ public class StateReconcilerService {
 
         if (request.getAction().getType().equals("setChargeMode")) {
             reconcileZappiChargeMode(request);
+        } else if (request.getAction().getType().equals("setEddiMode")) {
+            reconcileEddiMode(request);
+        } else {
+            log.warn("Unknown reconcile action type={} for userId={}", request.getAction().getType(), request.getUserId());
         }
+    }
+
+    private void reconcileEddiMode(StateReconcileRequest request) {
+        var target = request.getAction().getTarget();
+        var service = myenergiServiceBuilder.build(() -> request.getUserId().toString());
+        var eddiStatus = service.getEddiService().get()
+                .getStatus(target);
+        var currentState = eddiStatus.getState().toString();
+        var desiredState = request.getAction().getValue();
+
+        if (!isDesiredEddiMode(currentState, desiredState)) {
+            log.info("Eddi mode not in desired state for userId={}, eddi={}, current={}, desired={}. Reconciling",
+                    request.getUserId(), target, currentState, desiredState);
+            service.getEddiService().get()
+                    .setEddiMode(EddiMode.valueOf(desiredState));
+        } else {
+            log.info("Eddi mode in desired state for userId={}, eddi={}, current={}, desired={}. No action required",
+                    request.getUserId(), target, currentState, desiredState);
+        }
+    }
+
+    boolean isDesiredEddiMode(String currentState, String desiredMode) {
+        if (desiredMode.equals(EddiMode.STOPPED.toString())) {
+            return currentState.equals(EddiState.STOPPED.toString());
+        }
+        return !currentState.equals(EddiState.STOPPED.toString());
     }
 
     private void reconcileZappiChargeMode(StateReconcileRequest request) {
