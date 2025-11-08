@@ -40,6 +40,7 @@ public class StateReconcilerService {
         sqsSenderService.sendMessage(sqsMessage);
     }
 
+    // action, stateSupplier, isInDesiredState, setState
     public void reconcileDeviceState(StateReconcileRequest request) {
         var requestId = deviceStateReconcileRequestsRepository.read(request.getUserId(),
                 request.getAction().getTarget(), request.getAction().getType());
@@ -72,6 +73,21 @@ public class StateReconcilerService {
                     request.getUserId(), target, currentState, desiredState);
             service.getEddiService().get()
                     .setEddiMode(EddiMode.valueOf(desiredState));
+
+            if (request.getAttempt() == MAX_RETRIES) {
+                log.info("Dropping reconcile request for userId={}, type={} after {} attempts",
+                        request.getUserId(), request.getAction().getType(), request.getAttempt());
+                return;
+            }
+
+            // queue up another SQS message to set the charge mode but increment the attempt count
+            sqsSenderService.sendMessage(
+                    StateReconcileRequest.builder()
+                            .requestId(request.getRequestId())
+                            .userId(request.getUserId())
+                            .attempt(request.getAttempt() + 1)
+                            .action(request.getAction())
+                            .build());
         } else {
             log.info("Eddi mode in desired state for userId={}, eddi={}, current={}, desired={}. No action required",
                     request.getUserId(), target, currentState, desiredState);
