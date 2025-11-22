@@ -24,8 +24,7 @@ public class StateReconcilerHandler implements RequestHandler<SQSEvent, Void> {
         var properties = new Properties();
         var serviceManager = new ServiceManager(properties);
         var myenergiServiceBuilder = new MyEnergiService.Builder(serviceManager.getLoginService());
-        stateReconilerService = new StateReconcilerService(myenergiServiceBuilder,
-                new SqsSenderService(properties), serviceManager.getDeviceStateReconcileRequestsRepository());
+        stateReconilerService = serviceManager.getStateReconciliationService();
     }
 
     @Override

@@ -1,53 +1,41 @@
 package com.amcglynn.myzappi.core.service;
 
-import com.amcglynn.myenergi.EddiMode;
-import com.amcglynn.myenergi.EddiState;
-import com.amcglynn.myenergi.ZappiChargeMode;
-import com.amcglynn.myenergi.ZappiStatusSummary;
 import com.amcglynn.myzappi.core.dal.DeviceStateReconcileRequestsRepository;
 import com.amcglynn.myzappi.core.model.Action;
 import com.amcglynn.myzappi.core.model.DeviceClass;
 import com.amcglynn.myzappi.core.model.SerialNumber;
 import com.amcglynn.myzappi.core.model.StateReconcileRequest;
 import com.amcglynn.myzappi.core.model.UserId;
-import com.amcglynn.myzappi.core.model.EddiStatus;
+import com.amcglynn.myzappi.core.service.reconciler.DeviceStateReconciler;
+import com.amcglynn.myzappi.core.service.reconciler.ReconcilerRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentMatchers;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
+import java.util.Set;
 
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class StateReconcilerServiceTest {
 
     @Mock
-    private MyEnergiService.Builder myEnergiServiceBuilder;
-
-    @Mock
-    private MyEnergiService myEnergiService;
-
-    @Mock
-    private ZappiService zappiService;
-    @Mock
-    private SqsSenderService sqsSenderServiceMock;
+    private ReconcilerRegistry reconcilerRegistry;
+    
     @Mock
     private DeviceStateReconcileRequestsRepository mockDeviceStateReconcileRequestsRepository;
+    
     @Mock
-    private EddiService eddiService;
+    private SqsSenderService sqsSenderServiceMock;
+    
+    private TestReconciler testReconciler;
     @Mock
-    private EddiStatus eddiStatus;
-
-    @Mock
-    private ZappiStatusSummary statusSummary;
+    private MyEnergiService.Builder myEnergiServiceBuilder;
 
     private StateReconcilerService serviceUnderTest;
     private final UserId userId = UserId.from("userId");
@@ -55,141 +43,39 @@ class StateReconcilerServiceTest {
 
     @BeforeEach
     void setUp() {
-        serviceUnderTest = new StateReconcilerService(myEnergiServiceBuilder, sqsSenderServiceMock,
-                mockDeviceStateReconcileRequestsRepository);
+        testReconciler = new TestReconciler(sqsSenderServiceMock);
+        serviceUnderTest = new StateReconcilerService(reconcilerRegistry,
+                mockDeviceStateReconcileRequestsRepository, sqsSenderServiceMock, myEnergiServiceBuilder);
     }
 
     @Test
-    void reconcileDeviceStateDoesNothingWhenTypeIsNotSetChargeMode() {
-        var requestId = "x1";
-        var request = StateReconcileRequest.builder()
-                .userId(userId)
-                .attempt(1)
-                .requestId(requestId)
-                .action(new Action("somethingElse", null, null, null))
-                .build();
-
-        when(mockDeviceStateReconcileRequestsRepository.read(userId, null, "somethingElse"))
-                .thenReturn(Optional.of(requestId));
-
-        serviceUnderTest.reconcileDeviceState(request);
-
-        verifyNoInteractions(myEnergiServiceBuilder, sqsSenderServiceMock);
-    }
-
-    @Test
-    void reconcileDeviceStateDoesNothingWhenSetChargeModeAndDeviceNotZappi() {
-        var requestId = "x2";
-        var request = StateReconcileRequest.builder()
-                .userId(userId)
-                .attempt(1)
-                .requestId(requestId)
-                .action(new Action("setChargeMode", "ECO_PLUS", deviceId, DeviceClass.EDDI))
-                .build();
-
-        when(mockDeviceStateReconcileRequestsRepository.read(userId, deviceId, "setChargeMode"))
-                .thenReturn(Optional.of(requestId));
-
-        serviceUnderTest.reconcileDeviceState(request);
-
-        verifyNoInteractions(myEnergiServiceBuilder, sqsSenderServiceMock);
-    }
-
-    @Test
-    void reconcileDeviceStateDoesNotReconcileWhenSetChargeModeIsTheSameAsCurrentMode() {
-        var mode = ZappiChargeMode.ECO_PLUS;
+    void reconcileDeviceState_delegatesToReconciler_whenReconcilerExists() {
         var requestId = "req-1";
         var request = StateReconcileRequest.builder()
                 .userId(userId)
-                .attempt(0)
-                .requestId(requestId)
-                .action(new Action("setChargeMode", mode.toString(), deviceId, DeviceClass.ZAPPI))
-                .build();
-
-        when(mockDeviceStateReconcileRequestsRepository.read(userId, deviceId, "setChargeMode"))
-                .thenReturn(Optional.of(requestId));
-        when(myEnergiServiceBuilder.build(ArgumentMatchers.any())).thenReturn(myEnergiService);
-        when(myEnergiService.getZappiService()).thenReturn(Optional.of(zappiService));
-        when(zappiService.getStatusSummary(ArgumentMatchers.any())).thenReturn(statusSummary);
-        when(statusSummary.getChargeMode()).thenReturn(mode);
-
-        serviceUnderTest.reconcileDeviceState(request);
-
-        verify(myEnergiServiceBuilder).build(ArgumentMatchers.any());
-        verify(myEnergiService).getZappiService();
-        verify(zappiService).getStatusSummary(ArgumentMatchers.any());
-        verify(statusSummary).getChargeMode();
-        verifyNoMoreInteractions(myEnergiServiceBuilder, myEnergiService, zappiService, statusSummary);
-    }
-
-    @Test
-    void reconcileDeviceStateSetsStateWhenDesiredModeIsNotEqualToCurrentMode() {
-        var currentMode = ZappiChargeMode.ECO;
-        var desiredMode = ZappiChargeMode.ECO_PLUS;
-        var requestId = "req-2";
-        var request = StateReconcileRequest.builder()
-                .userId(userId)
                 .attempt(1)
                 .requestId(requestId)
-                .action(new Action("setChargeMode", desiredMode.toString(), deviceId, DeviceClass.ZAPPI))
+                .action(new Action("setChargeMode", "FAST", deviceId, DeviceClass.ZAPPI))
                 .build();
 
         when(mockDeviceStateReconcileRequestsRepository.read(userId, deviceId, "setChargeMode"))
                 .thenReturn(Optional.of(requestId));
-        when(myEnergiServiceBuilder.build(ArgumentMatchers.any())).thenReturn(myEnergiService);
-        when(myEnergiService.getZappiService()).thenReturn(Optional.of(zappiService));
-        when(zappiService.getStatusSummary(ArgumentMatchers.any())).thenReturn(statusSummary);
-        when(statusSummary.getChargeMode()).thenReturn(currentMode);
+        when(reconcilerRegistry.getReconciler("setChargeMode"))
+                .thenReturn(Optional.of(testReconciler));
 
         serviceUnderTest.reconcileDeviceState(request);
 
-        verify(myEnergiServiceBuilder).build(ArgumentMatchers.any());
-        verify(zappiService).getStatusSummary(ArgumentMatchers.any());
-        verify(statusSummary).getChargeMode();
-        verify(zappiService).setChargeMode(desiredMode);
-        var captor = ArgumentCaptor.forClass(StateReconcileRequest.class);
-        verify(sqsSenderServiceMock).sendMessage(captor.capture());
-        var sent = captor.getValue();
-        org.assertj.core.api.Assertions.assertThat(sent.getAttempt()).isEqualTo(2);
-        org.assertj.core.api.Assertions.assertThat(sent.getRequestId()).isEqualTo(requestId);
-        verifyNoMoreInteractions(myEnergiServiceBuilder, myEnergiService, zappiService, statusSummary);
+        // Verify the reconciler was called by checking our test reconciler's flag
+        assert testReconciler.wasReconcileCalled();
     }
 
     @Test
-    void reconcileDeviceState_zappi_differentMode_atMaxRetries_dropsWithoutQueueing() {
-        var currentMode = ZappiChargeMode.ECO;
-        var desiredMode = ZappiChargeMode.ECO_PLUS;
-        var requestId = "req-3";
-        var request = StateReconcileRequest.builder()
-                .userId(userId)
-                .attempt(3)
-                .requestId(requestId)
-                .action(new Action("setChargeMode", desiredMode.toString(), deviceId, DeviceClass.ZAPPI))
-                .build();
-
-        when(mockDeviceStateReconcileRequestsRepository.read(userId, deviceId, "setChargeMode"))
-                .thenReturn(Optional.of(requestId));
-        when(myEnergiServiceBuilder.build(ArgumentMatchers.any())).thenReturn(myEnergiService);
-        when(myEnergiService.getZappiService()).thenReturn(Optional.of(zappiService));
-        when(zappiService.getStatusSummary(ArgumentMatchers.any())).thenReturn(statusSummary);
-        when(statusSummary.getChargeMode()).thenReturn(currentMode);
-
-        serviceUnderTest.reconcileDeviceState(request);
-
-        verify(myEnergiServiceBuilder).build(ArgumentMatchers.any());
-        verify(zappiService).getStatusSummary(ArgumentMatchers.any());
-        verify(statusSummary).getChargeMode();
-        verify(zappiService).setChargeMode(desiredMode);
-        verifyNoInteractions(sqsSenderServiceMock);
-    }
-
-    @Test
-    void reconcileDeviceStateIgnoresStaleRequestWhenRequestIdIsNotSavedInTheDb() {
+    void reconcileDeviceState_ignoresStaleRequest_whenRequestIdMismatch() {
         var request = StateReconcileRequest.builder()
                 .userId(userId)
                 .attempt(1)
                 .requestId("some-id")
-                .action(new Action("setChargeMode", ZappiChargeMode.FAST.toString(), deviceId, DeviceClass.ZAPPI))
+                .action(new Action("setChargeMode", "FAST", deviceId, DeviceClass.ZAPPI))
                 .build();
 
         when(mockDeviceStateReconcileRequestsRepository.read(userId, deviceId, "setChargeMode"))
@@ -197,108 +83,88 @@ class StateReconcilerServiceTest {
 
         serviceUnderTest.reconcileDeviceState(request);
 
-        verifyNoInteractions(myEnergiServiceBuilder, sqsSenderServiceMock);
+        verifyNoInteractions(reconcilerRegistry);
     }
 
     @Test
-    void reconcileEddiModeSetsModeToStoppedWhenNotInDesiredState() {
-        var requestId = "e1";
+    void reconcileDeviceState_ignoresStaleRequest_whenRequestIdNotFound() {
+        var request = StateReconcileRequest.builder()
+                .userId(userId)
+                .attempt(1)
+                .requestId("some-id")
+                .action(new Action("setChargeMode", "FAST", deviceId, DeviceClass.ZAPPI))
+                .build();
+
+        when(mockDeviceStateReconcileRequestsRepository.read(userId, deviceId, "setChargeMode"))
+                .thenReturn(Optional.empty());
+
+        serviceUnderTest.reconcileDeviceState(request);
+
+        verifyNoInteractions(reconcilerRegistry);
+    }
+
+    @Test
+    void reconcileDeviceState_handlesUnknownActionType_whenNoReconcilerFound() {
+        var requestId = "req-1";
         var request = StateReconcileRequest.builder()
                 .userId(userId)
                 .attempt(1)
                 .requestId(requestId)
-                .action(new Action("setEddiMode", EddiMode.STOPPED.toString(), deviceId, DeviceClass.EDDI))
+                .action(new Action("unknownAction", "value", deviceId, DeviceClass.ZAPPI))
                 .build();
 
-        when(mockDeviceStateReconcileRequestsRepository.read(userId, deviceId, "setEddiMode"))
+        when(mockDeviceStateReconcileRequestsRepository.read(userId, deviceId, "unknownAction"))
                 .thenReturn(Optional.of(requestId));
-        when(myEnergiServiceBuilder.build(ArgumentMatchers.any())).thenReturn(myEnergiService);
-        when(myEnergiService.getEddiService()).thenReturn(Optional.of(eddiService));
-        when(eddiService.getStatus(deviceId)).thenReturn(eddiStatus);
-        when(eddiStatus.getState()).thenReturn(EddiState.BOOST);
+        when(reconcilerRegistry.getReconciler("unknownAction"))
+                .thenReturn(Optional.empty());
+        when(reconcilerRegistry.getSupportedActionTypes())
+                .thenReturn(Set.of("setChargeMode", "setEddiMode"));
 
         serviceUnderTest.reconcileDeviceState(request);
 
-        verify(myEnergiServiceBuilder).build(ArgumentMatchers.any());
-        org.mockito.Mockito.verify(myEnergiService, org.mockito.Mockito.times(2)).getEddiService();
-        verify(eddiService).getStatus(deviceId);
-        verify(eddiService).setEddiMode(EddiMode.STOPPED);
+        verify(reconcilerRegistry).getReconciler("unknownAction");
+        verify(reconcilerRegistry).getSupportedActionTypes();
+        // No interactions with reconciler since it wasn't found
     }
 
-    @Test
-    void reconcileEddiModeSetsModeToNormalWhenNotInDesiredState() {
-        var requestId = "e2";
-        var desired = EddiMode.NORMAL;
-        var request = StateReconcileRequest.builder()
-                .userId(userId)
-                .attempt(1)
-                .requestId(requestId)
-                .action(new Action("setEddiMode", desired.toString(), deviceId, DeviceClass.EDDI))
-                .build();
+    /**
+     * Test implementation of DeviceStateReconciler for testing purposes
+     */
+    private static class TestReconciler extends DeviceStateReconciler<String> {
+        private boolean reconcileCalled = false;
 
-        when(mockDeviceStateReconcileRequestsRepository.read(userId, deviceId, "setEddiMode"))
-                .thenReturn(Optional.of(requestId));
-        when(myEnergiServiceBuilder.build(ArgumentMatchers.any())).thenReturn(myEnergiService);
-        when(myEnergiService.getEddiService()).thenReturn(Optional.of(eddiService));
-        when(eddiService.getStatus(deviceId)).thenReturn(eddiStatus);
-        when(eddiStatus.getState()).thenReturn(EddiState.STOPPED);
+        public TestReconciler(SqsSenderService sqsSenderService) {
+            super(sqsSenderService);
+        }
 
-        serviceUnderTest.reconcileDeviceState(request);
+        @Override
+        public String getActionType() {
+            return "setChargeMode";
+        }
 
-        verify(myEnergiServiceBuilder).build(ArgumentMatchers.any());
-        org.mockito.Mockito.verify(myEnergiService, org.mockito.Mockito.times(2)).getEddiService();
-        verify(eddiService).getStatus(deviceId);
-        verify(eddiService).setEddiMode(desired);
-    }
+        @Override
+        protected String getCurrentState(StateReconcileRequest request, MyEnergiService.Builder myEnergiServiceBuilder) {
+            reconcileCalled = true; // Track that reconcile was called by tracking when getCurrentState is called
+            return "current";
+        }
 
-    @Test
-    void reconcileEddiModeIgnoredWhenAlreadyDesiredStoppedState() {
-        var requestId = "e3";
-        var request = StateReconcileRequest.builder()
-                .userId(userId)
-                .attempt(1)
-                .requestId(requestId)
-                .action(new Action("setEddiMode", EddiMode.STOPPED.toString(), deviceId, DeviceClass.EDDI))
-                .build();
+        @Override
+        protected String parseDesiredState(StateReconcileRequest request, MyEnergiService.Builder myEnergiServiceBuilder) {
+            return "desired";
+        }
 
-        when(mockDeviceStateReconcileRequestsRepository.read(userId, deviceId, "setEddiMode"))
-                .thenReturn(Optional.of(requestId));
-        when(myEnergiServiceBuilder.build(ArgumentMatchers.any())).thenReturn(myEnergiService);
-        when(myEnergiService.getEddiService()).thenReturn(Optional.of(eddiService));
-        when(eddiService.getStatus(deviceId)).thenReturn(eddiStatus);
-        when(eddiStatus.getState()).thenReturn(EddiState.STOPPED);
+        @Override
+        protected boolean isInDesiredState(String current, String desired, MyEnergiService.Builder myEnergiServiceBuilder) {
+            return true; // Always in desired state to avoid triggering setState
+        }
 
-        serviceUnderTest.reconcileDeviceState(request);
+        @Override
+        protected void setState(StateReconcileRequest request, String desired, MyEnergiService.Builder myEnergiServiceBuilder) {
+            // Do nothing
+        }
 
-        verify(myEnergiServiceBuilder).build(ArgumentMatchers.any());
-        verify(myEnergiService).getEddiService();
-        verify(eddiService).getStatus(deviceId);
-        verifyNoMoreInteractions(eddiService);
-    }
-
-    @Test
-    void reconcileEddiModeIgnoredWhenAlreadyDesiredStateNormal() {
-        var requestId = "e4";
-        var desired = EddiMode.NORMAL;
-        var request = StateReconcileRequest.builder()
-                .userId(userId)
-                .attempt(1)
-                .requestId(requestId)
-                .action(new Action("setEddiMode", desired.toString(), deviceId, DeviceClass.EDDI))
-                .build();
-
-        when(mockDeviceStateReconcileRequestsRepository.read(userId, deviceId, "setEddiMode"))
-                .thenReturn(Optional.of(requestId));
-        when(myEnergiServiceBuilder.build(ArgumentMatchers.any())).thenReturn(myEnergiService);
-        when(myEnergiService.getEddiService()).thenReturn(Optional.of(eddiService));
-        when(eddiService.getStatus(deviceId)).thenReturn(eddiStatus);
-        when(eddiStatus.getState()).thenReturn(EddiState.DIVERTING);
-
-        serviceUnderTest.reconcileDeviceState(request);
-
-        verify(myEnergiServiceBuilder).build(ArgumentMatchers.any());
-        verify(myEnergiService).getEddiService();
-        verify(eddiService).getStatus(deviceId);
-        verifyNoMoreInteractions(eddiService);
+        public boolean wasReconcileCalled() {
+            return reconcileCalled;
+        }
     }
 }
