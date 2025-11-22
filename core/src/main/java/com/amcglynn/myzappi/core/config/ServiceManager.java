@@ -4,6 +4,7 @@ import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 import com.amcglynn.myzappi.core.dal.CredentialsRepository;
+import com.amcglynn.myzappi.core.dal.DeviceStateReconcileRequestsRepository;
 import com.amcglynn.myzappi.core.dal.DevicesRepository;
 import com.amcglynn.myzappi.core.dal.MyEnergiAccountCredentialsRepository;
 import com.amcglynn.myzappi.core.dal.ScheduleDetailsRepository;
@@ -13,6 +14,8 @@ import com.amcglynn.myzappi.core.service.EncryptionService;
 import com.amcglynn.myzappi.core.service.LoginService;
 import com.amcglynn.myzappi.core.service.MyEnergiService;
 import com.amcglynn.myzappi.core.service.ScheduleService;
+import com.amcglynn.myzappi.core.service.SqsSenderService;
+import com.amcglynn.myzappi.core.service.StateReconcilerService;
 import com.amcglynn.myzappi.core.service.TariffService;
 import lombok.Getter;
 import software.amazon.awssdk.regions.Region;
@@ -23,25 +26,34 @@ import java.util.concurrent.Executors;
 
 public class ServiceManager {
 
+    @Getter
     private final EncryptionService encryptionService;
     private final CredentialsRepository credentialsRepository;
     private final MyEnergiAccountCredentialsRepository myEnergiAccountCredentialsRepository;
     @Getter
     private final DevicesRepository devicesRepository;
+    @Getter
+    private final DeviceStateReconcileRequestsRepository deviceStateReconcileRequestsRepository;
     private MyEnergiService.Builder myEnergiServiceBuilder;
     private LoginService loginService;
+    @Getter
     private final TariffService tariffService;
+    @Getter
     private final Properties properties;
+    @Getter
     private final AmazonDynamoDB amazonDynamoDB;
     @Getter
     private final ScheduleService scheduleService;
     @Getter
     private final ExecutorService executorService;
+    @Getter
+    private final StateReconcilerService stateReconciliationService;
 
     public ServiceManager(Properties properties) {
         amazonDynamoDB = AmazonDynamoDBClientBuilder.standard()
                 .withRegion(Regions.fromName(properties.getAwsRegion()))
                 .build();
+        deviceStateReconcileRequestsRepository = new DeviceStateReconcileRequestsRepository(amazonDynamoDB);
         encryptionService = new EncryptionService(properties.getKmsKeyArn());
         credentialsRepository = new CredentialsRepository(amazonDynamoDB);
         devicesRepository = new DevicesRepository(amazonDynamoDB);
@@ -57,18 +69,9 @@ public class ServiceManager {
                 getLoginService(),
                 properties.getSchedulerExecutionRoleArn(),
                 properties.getSchedulerTargetLambdaArn());
-    }
-
-    public EncryptionService getEncryptionService() {
-        return encryptionService;
-    }
-
-    public AmazonDynamoDB getAmazonDynamoDB() {
-        return amazonDynamoDB;
-    }
-
-    public String getSkillId() {
-        return properties.getSkillId();
+        this.stateReconciliationService = new StateReconcilerService(getMyEnergiServiceBuilder(),
+                new SqsSenderService(getProperties()),
+                getDeviceStateReconcileRequestsRepository());
     }
 
     public String getSchedulerExecutionRoleArn() {
@@ -77,14 +80,6 @@ public class ServiceManager {
 
     public String getSchedulerTargetLambdaArn() {
         return properties.getSchedulerTargetLambdaArn();
-    }
-
-    public Properties getProperties() {
-        return properties;
-    }
-
-    public TariffService getTariffService() {
-        return tariffService;
     }
 
     public LoginService getLoginService() {

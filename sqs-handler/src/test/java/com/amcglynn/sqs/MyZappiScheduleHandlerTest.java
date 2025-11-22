@@ -12,6 +12,7 @@ import com.amcglynn.myzappi.core.service.EddiService;
 import com.amcglynn.myzappi.core.service.LibbiService;
 import com.amcglynn.myzappi.core.service.MyEnergiService;
 import com.amcglynn.myzappi.core.service.ScheduleService;
+import com.amcglynn.myzappi.core.service.StateReconcilerService;
 import com.amcglynn.myzappi.core.service.ZappiService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -52,6 +53,8 @@ class MyZappiScheduleHandlerTest {
     private LibbiService mockLibbiService;
     @Mock
     private EddiService mockEddiService;
+    @Mock
+    private StateReconcilerService mockStateReconcilerService;
 
     @BeforeEach
     void setUp() {
@@ -59,7 +62,7 @@ class MyZappiScheduleHandlerTest {
         when(mockMyEnergiService.getEddiServiceOrThrow()).thenReturn(mockEddiService);
         when(mockMyEnergiServiceBuilder.build(any())).thenReturn(mockMyEnergiService);
         when(mockMyEnergiService.getLibbiService()).thenReturn(Optional.of(mockLibbiService));
-        handler = new MyZappiScheduleHandler(mockScheduleService, mockMyEnergiServiceBuilder);
+        handler = new MyZappiScheduleHandler(mockScheduleService, mockMyEnergiServiceBuilder, mockStateReconcilerService);
     }
 
     @Test

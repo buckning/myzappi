@@ -4,10 +4,14 @@ import com.amcglynn.myenergi.EddiMode;
 import com.amcglynn.myenergi.LibbiMode;
 import com.amcglynn.myenergi.ZappiChargeMode;
 import com.amcglynn.myenergi.units.KiloWattHour;
+import com.amcglynn.myzappi.core.model.Action;
+import com.amcglynn.myzappi.core.model.DeviceClass;
 import com.amcglynn.myzappi.core.model.ScheduleAction;
 import com.amcglynn.myzappi.core.model.SerialNumber;
+import com.amcglynn.myzappi.core.model.UserId;
 import com.amcglynn.myzappi.core.service.MyEnergiService;
 import com.amcglynn.myzappi.core.service.ScheduleService;
+import com.amcglynn.myzappi.core.service.StateReconcilerService;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.Duration;
@@ -20,12 +24,16 @@ public class MyZappiScheduleHandler {
 
     private final MyEnergiService.Builder myEnergiServiceBuilder;
     private final ScheduleService scheduleService;
+    private final StateReconcilerService stateReconcilerService;
 
     private final Map<String, BiConsumer<MyEnergiService, ScheduleAction>> handlers;
 
-    public MyZappiScheduleHandler(ScheduleService scheduleService, MyEnergiService.Builder zappiServiceBuilder) {
+    public MyZappiScheduleHandler(ScheduleService scheduleService,
+            MyEnergiService.Builder zappiServiceBuilder,
+            StateReconcilerService stateReconcilerService) {
         this.myEnergiServiceBuilder = zappiServiceBuilder;
         this.scheduleService = scheduleService;
+        this.stateReconcilerService = stateReconcilerService;
 
         handlers = Map.ofEntries(
                 Map.entry("setChargeMode", this::setChargeMode),
@@ -61,7 +69,7 @@ public class MyZappiScheduleHandler {
     }
 
     public void handle(MyZappiScheduleEvent event) {
-        var zappiService = myEnergiServiceBuilder.build(event::getLwaUserId);
+        var myEnergiService = myEnergiServiceBuilder.build(event::getLwaUserId);
 
         // resolve schedule from DB for scheduleId
         var scheduleId = event.getScheduleId();
@@ -88,8 +96,21 @@ public class MyZappiScheduleHandler {
             return;
         }
 
-        zappiService.getZappiService().ifPresent(zappiSvc -> zappiSvc.setLocalTimeSupplier(() -> LocalTime.now(schedule.get().getZoneId())));
-        handler.accept(zappiService, schedule.get().getAction());
+        myEnergiService.getZappiService().ifPresent(zappiSvc -> zappiSvc.setLocalTimeSupplier(() -> LocalTime.now(schedule.get().getZoneId())));
+        handler.accept(myEnergiService, schedule.get().getAction());
+
+        try {
+            stateReconcilerService.pushReconcileRequest(
+                    UserId.from(event.getLwaUserId()),
+                    new Action(
+                            schedule.get().getAction().getType(),
+                            schedule.get().getAction().getValue(),
+                            SerialNumber.from(schedule.get().getAction().getTarget().get()),
+                            DeviceClass.ZAPPI));
+        } catch (Exception e) {
+            log.error("Error executing reconcile job for user {}", event.getLwaUserId(), e);
+            return;
+        }
     }
 
     private int parseHeater(String value) {

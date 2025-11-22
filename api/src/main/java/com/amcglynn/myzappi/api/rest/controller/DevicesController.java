@@ -15,10 +15,12 @@ import com.amcglynn.myzappi.api.rest.response.ListDeviceResponse;
 import com.amcglynn.myzappi.api.rest.response.MyEnergiEddiStatusResponse;
 import com.amcglynn.myzappi.api.rest.response.MyEnergiDeviceStatusResponse;
 import com.amcglynn.myzappi.api.service.RegistrationService;
+import com.amcglynn.myzappi.core.model.Action;
 import com.amcglynn.myzappi.core.model.DeviceClass;
 import com.amcglynn.myzappi.core.model.SerialNumber;
 import com.amcglynn.myzappi.core.model.UserId;
 import com.amcglynn.myzappi.core.service.MyEnergiService;
+import com.amcglynn.myzappi.core.service.StateReconcilerService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -32,11 +34,14 @@ public class DevicesController {
 
     private final RegistrationService registrationService;
     private final MyEnergiService.Builder myEnergiServiceBuilder;
+    private final StateReconcilerService stateReconcilerService;
 
     public DevicesController(RegistrationService registrationService,
-                             MyEnergiService.Builder myEnergiServiceBuilder) {
+            MyEnergiService.Builder myEnergiServiceBuilder,
+            StateReconcilerService stateReconcilerService) {
         this.registrationService = registrationService;
         this.myEnergiServiceBuilder = myEnergiServiceBuilder;
+        this.stateReconcilerService = stateReconcilerService;
     }
 
     public Response getDevice(Request request) {
@@ -175,7 +180,19 @@ public class DevicesController {
                     .orElseThrow(() -> new ServerException(404));
             var service = myEnergiServiceBuilder.build(() -> request.getUserId().toString());
             if (DeviceClass.ZAPPI == device.getDeviceClass()) {
-                return handleSetZappiMode(body, service, serialNumber);
+                var response = handleSetZappiMode(body, service, serialNumber);
+                try {
+                    stateReconcilerService.pushReconcileRequest(
+                            request.getUserId(),
+                            new Action(
+                                    "setChargeMode",
+                                    new ZappiChargeModeMapper().getZappiChargeMode(body.getMode().toLowerCase()).get().toString(),
+                                    serialNumber,
+                                    DeviceClass.ZAPPI));
+                } catch (Exception e) {
+                    log.error("Failed setting reconcile request for user {}, device {}", request.getUserId(), serialNumber, e);
+                }
+                return response;
             } else if (DeviceClass.LIBBI == device.getDeviceClass()) {
                 return handleSetLibbiMode(body, service, serialNumber);
             } else {
