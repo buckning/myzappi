@@ -24,8 +24,7 @@ public class StateReconcilerHandler implements RequestHandler<SQSEvent, Void> {
         var properties = new Properties();
         var serviceManager = new ServiceManager(properties);
         var myenergiServiceBuilder = new MyEnergiService.Builder(serviceManager.getLoginService());
-        stateReconilerService = new StateReconcilerService(myenergiServiceBuilder,
-                new SqsSenderService(properties), serviceManager.getDeviceStateReconcileRequestsRepository());
+        stateReconilerService = serviceManager.getStateReconciliationService();
     }
 
     @Override
@@ -39,12 +38,12 @@ public class StateReconcilerHandler implements RequestHandler<SQSEvent, Void> {
             log.info("MessageId={} Body={}", record.getMessageId(), record.getBody());
 
             getStateReconcileRequest(record)
-                .ifPresentOrElse(
-                    request -> {
-                        stateReconilerService.reconcileDeviceState(request);
-                    },
-                    () -> log.warn("Skipping invalid StateReconcileRequest for MessageId={}", record.getMessageId())
-                );
+                    .ifPresentOrElse(
+                            request -> {
+                                stateReconilerService.reconcileDeviceState(request);
+                            },
+                            () -> log.warn("Skipping invalid StateReconcileRequest for MessageId={}", record.getMessageId())
+                    );
         }
         return null;
     }

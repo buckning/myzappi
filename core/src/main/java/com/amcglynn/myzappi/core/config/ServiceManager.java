@@ -17,6 +17,12 @@ import com.amcglynn.myzappi.core.service.ScheduleService;
 import com.amcglynn.myzappi.core.service.SqsSenderService;
 import com.amcglynn.myzappi.core.service.StateReconcilerService;
 import com.amcglynn.myzappi.core.service.TariffService;
+import com.amcglynn.myzappi.core.service.reconciler.DeviceStateReconciler;
+import com.amcglynn.myzappi.core.service.reconciler.EddiModeReconciler;
+import com.amcglynn.myzappi.core.service.reconciler.ReconcilerRegistry;
+import com.amcglynn.myzappi.core.service.reconciler.ZappiChargeReconciler;
+
+import java.util.List;
 import lombok.Getter;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.scheduler.SchedulerClient;
@@ -69,9 +75,19 @@ public class ServiceManager {
                 getLoginService(),
                 properties.getSchedulerExecutionRoleArn(),
                 properties.getSchedulerTargetLambdaArn());
-        this.stateReconciliationService = new StateReconcilerService(getMyEnergiServiceBuilder(),
-                new SqsSenderService(getProperties()),
-                getDeviceStateReconcileRequestsRepository());
+
+        var sqsSenderService = new SqsSenderService(getProperties());
+        List<DeviceStateReconciler<?>> reconcilers = List.of(
+                new ZappiChargeReconciler(sqsSenderService),
+                new EddiModeReconciler(sqsSenderService)
+        );
+        var reconcilerRegistry = new ReconcilerRegistry(reconcilers);
+
+        this.stateReconciliationService = new StateReconcilerService(
+                reconcilerRegistry,
+                getDeviceStateReconcileRequestsRepository(),
+                sqsSenderService,
+                getMyEnergiServiceBuilder());
     }
 
     public String getSchedulerExecutionRoleArn() {
