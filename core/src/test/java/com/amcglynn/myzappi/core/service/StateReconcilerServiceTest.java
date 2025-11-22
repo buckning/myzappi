@@ -26,13 +26,13 @@ class StateReconcilerServiceTest {
 
     @Mock
     private ReconcilerRegistry reconcilerRegistry;
-    
+
     @Mock
     private DeviceStateReconcileRequestsRepository mockDeviceStateReconcileRequestsRepository;
-    
+
     @Mock
     private SqsSenderService sqsSenderServiceMock;
-    
+
     private TestReconciler testReconciler;
     @Mock
     private MyEnergiService.Builder myEnergiServiceBuilder;
@@ -104,7 +104,7 @@ class StateReconcilerServiceTest {
     }
 
     @Test
-    void reconcileDeviceState_handlesUnknownActionType_whenNoReconcilerFound() {
+    void reconcileDeviceStateHandlesUnknownActionTypeWhenNoReconcilerFound() {
         var requestId = "req-1";
         var request = StateReconcileRequest.builder()
                 .userId(userId)

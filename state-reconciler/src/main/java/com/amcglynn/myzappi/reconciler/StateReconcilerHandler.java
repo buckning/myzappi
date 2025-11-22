@@ -38,12 +38,12 @@ public class StateReconcilerHandler implements RequestHandler<SQSEvent, Void> {
             log.info("MessageId={} Body={}", record.getMessageId(), record.getBody());
 
             getStateReconcileRequest(record)
-                .ifPresentOrElse(
-                    request -> {
-                        stateReconilerService.reconcileDeviceState(request);
-                    },
-                    () -> log.warn("Skipping invalid StateReconcileRequest for MessageId={}", record.getMessageId())
-                );
+                    .ifPresentOrElse(
+                            request -> {
+                                stateReconilerService.reconcileDeviceState(request);
+                            },
+                            () -> log.warn("Skipping invalid StateReconcileRequest for MessageId={}", record.getMessageId())
+                    );
         }
         return null;
     }
