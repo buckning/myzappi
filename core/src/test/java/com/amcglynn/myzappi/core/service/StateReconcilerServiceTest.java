@@ -49,7 +49,7 @@ class StateReconcilerServiceTest {
     }
 
     @Test
-    void reconcileDeviceState_delegatesToReconciler_whenReconcilerExists() {
+    void reconcileDeviceStateDelegatesToReconcilerWhenReconcilerExists() {
         var requestId = "req-1";
         var request = StateReconcileRequest.builder()
                 .userId(userId)
@@ -70,7 +70,7 @@ class StateReconcilerServiceTest {
     }
 
     @Test
-    void reconcileDeviceState_ignoresStaleRequest_whenRequestIdMismatch() {
+    void reconcileDeviceStateIgnoresStaleRequestWhenRequestIdMismatch() {
         var request = StateReconcileRequest.builder()
                 .userId(userId)
                 .attempt(1)
@@ -87,7 +87,7 @@ class StateReconcilerServiceTest {
     }
 
     @Test
-    void reconcileDeviceState_ignoresStaleRequest_whenRequestIdNotFound() {
+    void reconcileDeviceStateIgnoresStaleRequestWhenRequestIdNotFound() {
         var request = StateReconcileRequest.builder()
                 .userId(userId)
                 .attempt(1)
@@ -117,14 +117,10 @@ class StateReconcilerServiceTest {
                 .thenReturn(Optional.of(requestId));
         when(reconcilerRegistry.getReconciler("unknownAction"))
                 .thenReturn(Optional.empty());
-        when(reconcilerRegistry.getSupportedActionTypes())
-                .thenReturn(Set.of("setChargeMode", "setEddiMode"));
 
         serviceUnderTest.reconcileDeviceState(request);
 
         verify(reconcilerRegistry).getReconciler("unknownAction");
-        verify(reconcilerRegistry).getSupportedActionTypes();
-        // No interactions with reconciler since it wasn't found
     }
 
     /**
