@@ -3,7 +3,7 @@ This module handles requests from scheduled sources, like eventbridge scheduler.
 It was initially intended to be used by SQS but SQS has limitations in terms of the length
 of delay times. 
 Andrew was too lazy to rename this module, lambda name and associated roles, so it is still
-called sqs-handler.
+called sqs-handler. Don't confuse this module with the SQS handling done in the state-reconciler module.
 
 This module contains a handler which receives the event and handles one of 2 different cases.
 1. Alexa reminders: pulls out the Alexa user from the request and then pushes an Alexa skill message for the user.

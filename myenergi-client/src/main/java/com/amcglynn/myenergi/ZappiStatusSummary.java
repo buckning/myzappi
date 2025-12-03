@@ -12,17 +12,30 @@ public class ZappiStatusSummary {
 
     @Getter
     private final String serialNumber;
-    private Watt gridImport;
-    private Watt gridExport;
-    private Watt consumed;
-    private Watt generated;
-    private Watt evChargeRate;
-    private KiloWattHour chargeAddedThisSession;
-    private EvConnectionStatus evConnectionStatus;
-    private ZappiChargeMode chargeMode;
-    private ChargeStatus chargeStatus;
-    private LockStatus lockStatus;
-    private String firmwareVersion;
+    @Getter
+    private final Watt gridImport;
+    @Getter
+    private final Watt gridExport;
+    @Getter
+    private final Watt consumed;
+    @Getter
+    private final Watt generated;
+    @Getter
+    private final Watt evChargeRate;
+    @Getter
+    private final KiloWattHour chargeAddedThisSession;
+    @Getter
+    private final EvConnectionStatus evConnectionStatus;
+    @Getter
+    private final ZappiChargeMode chargeMode;
+    @Getter
+    private final ChargeStatus chargeStatus;
+    @Getter
+    private final LockStatus lockStatus;
+    @Getter
+    private final String firmwareVersion;
+    @Getter
+    private final int mgl;
 
 
     public ZappiStatusSummary(ZappiStatus zappiStatus) {
@@ -41,50 +54,7 @@ public class ZappiStatusSummary {
         lockStatus = LockStatus.from(zappiStatus.getLockStatus());
         serialNumber = zappiStatus.getSerialNumber();
         firmwareVersion = zappiStatus.getFirmwareVersion();
-    }
-
-    public Watt getGridImport() {
-        return this.gridImport;
-    }
-
-    public Watt getGridExport() {
-        return this.gridExport;
-    }
-
-    public Watt getConsumed() {
-        return this.consumed;
-    }
-
-    public Watt getGenerated() {
-        return this.generated;
-    }
-
-    public Watt getEvChargeRate() {
-        return this.evChargeRate;
-    }
-
-    public KiloWattHour getChargeAddedThisSession() {
-        return this.chargeAddedThisSession;
-    }
-
-    public EvConnectionStatus getEvConnectionStatus() {
-        return this.evConnectionStatus;
-    }
-
-    public ZappiChargeMode getChargeMode() {
-        return this.chargeMode;
-    }
-
-    public ChargeStatus getChargeStatus() {
-        return this.chargeStatus;
-    }
-
-    public LockStatus getLockStatus() {
-        return this.lockStatus;
-    }
-
-    public String getFirmwareVersion() {
-        return this.firmwareVersion;
+        mgl = zappiStatus.getMgl();
     }
 
     public String toString() {
