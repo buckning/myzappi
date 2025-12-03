@@ -9,6 +9,7 @@ public enum ScheduleActionType {
     SET_ZAPPI_BOOST_KWH("setBoostKwh", DeviceClass.ZAPPI),
     SET_ZAPPI_BOOST_UNTIL("setBoostUntil", DeviceClass.ZAPPI),
     SET_ZAPPI_BOOST_FOR("setBoostFor", DeviceClass.ZAPPI),
+    UNLOCK_ZAPPI("unlockZappi", DeviceClass.ZAPPI),
     SET_ZAPPI_SMART_BOOST("setSmartBoost", DeviceClass.ZAPPI),
     SET_ZAPPI_MGL("setZappiMgl", DeviceClass.ZAPPI),
     SET_EDDI_MODE("setEddiMode", DeviceClass.EDDI),

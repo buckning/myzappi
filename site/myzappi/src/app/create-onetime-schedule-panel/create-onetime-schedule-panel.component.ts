@@ -42,6 +42,7 @@ export class CreateOnetimeSchedulePanelComponent {
     { value: 'setSmartBoost', label: 'Set smart boost'},
     { value: 'setChargeMode', label: 'Set charge mode' },
     { value: 'setZappiMgl', label: 'Set minimum green level' },
+    { value: 'unlockZappi', label: 'Unlock Zappi' },
   ];
 
   libbiOptions: { value: string, label: string }[] = [

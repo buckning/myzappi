@@ -25,6 +25,7 @@ public class ScheduleValidator {
     private static final Map<String, Predicate<String>> SUPPORTED_TYPES = Map.ofEntries(
             Map.entry("setChargeMode", ScheduleValidator::isValidChargeMode),
             Map.entry("setBoostKwh", ScheduleValidator::isValidChargeInteger),
+            Map.entry("unlockZappi",  input -> true),   // no value to validate
             Map.entry("setBoostUntil", ScheduleValidator::isValidChargeLocalTime),
             Map.entry("setSmartBoost", ScheduleValidator::isValidSmartBoost),
             Map.entry("setBoostFor", ScheduleValidator::isValidChargeDuration),
