@@ -54,7 +54,8 @@ export class SchedulesPanelComponent {
     'setEddiBoostFor': 'Boost Eddi',
     'setLibbiEnabled': 'Enable Libbi',
     'setLibbiChargeFromGrid': 'Set charge from grid',
-    'setLibbiChargeTarget': 'Set charge target'
+    'setLibbiChargeTarget': 'Set charge target',
+    'unlockZappi': 'Unlock Zappi'
   };
 
   scheduleTypeDeviceClassMapping: { [key: string] : string } = {
@@ -64,6 +65,7 @@ export class SchedulesPanelComponent {
     'setZappiMgl': 'ZAPPI',
     'setSmartBoost': 'ZAPPI',
     'setChargeMode': 'ZAPPI',
+    'unlockZappi': 'ZAPPI',
     'setEddiMode': 'EDDI',
     'setEddiBoostFor': 'EDDI',
     'setLibbiEnabled': 'LIBBI',

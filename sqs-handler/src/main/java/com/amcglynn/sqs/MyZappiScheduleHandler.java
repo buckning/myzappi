@@ -39,6 +39,8 @@ public class MyZappiScheduleHandler {
                 Map.entry("setChargeMode", this::setChargeMode),
                 Map.entry("setZappiMgl",    (myEnergiService, scheduleAction) -> myEnergiService.getZappiServiceOrThrow()
                         .setMgl(SerialNumber.from(scheduleAction.getTarget().get()), Integer.parseInt(scheduleAction.getValue()))),
+                Map.entry("unlockZappi",    (myEnergiService, scheduleAction) -> myEnergiService.getZappiServiceOrThrow()
+                        .unlockZappi()),
                 Map.entry("setSmartBoost",   (myEnergiService, scheduleAction) -> myEnergiService.getZappiServiceOrThrow()
                         .startSmartBoost(parseSmartBoostKwh(scheduleAction), parseSmartBoostTime(scheduleAction))),
                 Map.entry("setBoostKwh",      (myEnergiService, scheduleAction) -> myEnergiService.getZappiServiceOrThrow()
