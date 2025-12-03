@@ -2,31 +2,47 @@ package com.amcglynn.myenergi.apiresponse;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Getter;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ZappiStatus {
+    @Getter
     @JsonProperty("sno")
     private String serialNumber;
+    @Getter
     @JsonProperty("gen")
     private Long solarGeneration = 0L;
+    @Getter
     @JsonProperty("div")
     private Long carDiversionAmountWatts = 0L;
+    @Getter
     @JsonProperty("che")
     private Double chargeAddedThisSessionKwh = 0.0;
+    @Getter
     @JsonProperty("grd")
     private Long gridWatts = 0L; // minus means pushing back to grid, positive means importing
+    @Getter
     @JsonProperty("zmo")
     private int zappiChargeMode;  //1=Fast, 2=Eco, 3=Eco+, 4=Stopped
+    @Getter
     @JsonProperty("lck")
     private int lockStatus = -1;
+    // mgl = minimum green level - https://support.myenergi.com/hc/en-gb/articles/15587880239249-What-is-the-Minimum-Green-Level-MGL
+    @Getter
+    @JsonProperty("mgl")
+    private int mgl = -1;
+    @Getter
     @JsonProperty("sta")
     private int chargeStatus;
 
+    @Getter
     @JsonProperty("pha")
     private int phase;
 
+    @Getter
     @JsonProperty("fwv")
     private String firmwareVersion;
+    @Getter
     @JsonProperty("pst")        // plug status
     private String evConnectionStatus;
 
@@ -52,50 +68,6 @@ public class ZappiStatus {
 
     public static ZappiStatusBuilder builder() {
         return new ZappiStatusBuilder();
-    }
-
-    public String getSerialNumber() {
-        return this.serialNumber;
-    }
-
-    public Long getSolarGeneration() {
-        return this.solarGeneration;
-    }
-
-    public Long getCarDiversionAmountWatts() {
-        return this.carDiversionAmountWatts;
-    }
-
-    public Double getChargeAddedThisSessionKwh() {
-        return this.chargeAddedThisSessionKwh;
-    }
-
-    public Long getGridWatts() {
-        return this.gridWatts;
-    }
-
-    public int getZappiChargeMode() {
-        return this.zappiChargeMode;
-    }
-
-    public int getChargeStatus() {
-        return this.chargeStatus;
-    }
-
-    public int getPhase() {
-        return this.phase;
-    }
-
-    public int getLockStatus() {
-        return this.lockStatus;
-    }
-
-    public String getEvConnectionStatus() {
-        return this.evConnectionStatus;
-    }
-
-    public String getFirmwareVersion() {
-        return this.firmwareVersion;
     }
 
     @JsonProperty("sno")

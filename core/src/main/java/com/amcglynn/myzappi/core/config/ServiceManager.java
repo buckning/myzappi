@@ -23,6 +23,8 @@ import com.amcglynn.myzappi.core.service.reconciler.ReconcilerRegistry;
 import com.amcglynn.myzappi.core.service.reconciler.ZappiChargeReconciler;
 
 import java.util.List;
+
+import com.amcglynn.myzappi.core.service.reconciler.ZappiMinimumGreenLevelReconciler;
 import lombok.Getter;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.scheduler.SchedulerClient;
@@ -79,6 +81,7 @@ public class ServiceManager {
         var sqsSenderService = new SqsSenderService(getProperties());
         List<DeviceStateReconciler<?>> reconcilers = List.of(
                 new ZappiChargeReconciler(sqsSenderService),
+                new ZappiMinimumGreenLevelReconciler(sqsSenderService),
                 new EddiModeReconciler(sqsSenderService)
         );
         var reconcilerRegistry = new ReconcilerRegistry(reconcilers);
