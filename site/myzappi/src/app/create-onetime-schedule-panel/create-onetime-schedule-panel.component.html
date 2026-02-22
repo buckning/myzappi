@@ -70,6 +70,9 @@
             Finish charging by: <input [(ngModel)]="smartBoostTime" type="time" />
         </div>
 
+        <div *ngIf="scheduleType === 'stopBoost'">
+        </div>
+
         <div *ngIf="scheduleType === 'setBoostUntil'">
             Value: <input [(ngModel)]="scheduleActionValue" type="time" />
         </div>

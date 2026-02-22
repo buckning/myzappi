@@ -49,6 +49,8 @@ public class MyZappiScheduleHandler {
                         .startSmartBoost(LocalTime.parse(scheduleAction.getValue()))),
                 Map.entry("setBoostFor",      (myEnergiService, scheduleAction) -> myEnergiService.getZappiServiceOrThrow()
                         .startSmartBoost(Duration.parse(scheduleAction.getValue()))),
+                Map.entry("stopBoost",        (myEnergiService, scheduleAction) -> myEnergiService.getZappiServiceOrThrow()
+                        .stopBoost()),
                 Map.entry("setEddiMode",      (myEnergiService, scheduleAction) -> myEnergiService.getEddiServiceOrThrow()
                         .setEddiMode(EddiMode.valueOf(scheduleAction.getValue()))),
                 Map.entry("setEddiBoostFor",  (myEnergiService, scheduleAction) -> myEnergiService.getEddiServiceOrThrow()

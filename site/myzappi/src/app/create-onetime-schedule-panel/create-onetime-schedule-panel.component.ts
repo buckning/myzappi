@@ -40,6 +40,7 @@ export class CreateOnetimeSchedulePanelComponent {
   zappiOptions: { value: string, label: string }[] = [
     { value: 'setBoostKwh', label: 'Boost until kilowatt hours reached' },
     { value: 'setSmartBoost', label: 'Set smart boost'},
+    { value: 'stopBoost', label: 'Stop boost' },
     { value: 'setChargeMode', label: 'Set charge mode' },
     { value: 'setZappiMgl', label: 'Set minimum green level' },
     { value: 'unlockZappi', label: 'Unlock Zappi' },
