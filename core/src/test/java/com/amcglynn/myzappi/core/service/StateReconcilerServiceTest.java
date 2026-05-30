@@ -17,6 +17,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Optional;
 import java.util.Set;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -121,6 +122,20 @@ class StateReconcilerServiceTest {
         serviceUnderTest.reconcileDeviceState(request);
 
         verify(reconcilerRegistry).getReconciler("unknownAction");
+    }
+
+    @Test
+    void supportsReconciliationReturnsTrueWhenRegistryHasReconciler() {
+        when(reconcilerRegistry.hasReconciler("setChargeMode")).thenReturn(true);
+
+        assertThat(serviceUnderTest.supportsReconciliation("setChargeMode")).isTrue();
+    }
+
+    @Test
+    void supportsReconciliationReturnsFalseWhenRegistryHasNoReconciler() {
+        when(reconcilerRegistry.hasReconciler("setLibbiEnabled")).thenReturn(false);
+
+        assertThat(serviceUnderTest.supportsReconciliation("setLibbiEnabled")).isFalse();
     }
 
     /**
