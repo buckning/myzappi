@@ -12,7 +12,7 @@ import java.util.Optional;
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
-@Builder
+@Builder(toBuilder = true)
 @ToString
 @JsonInclude(JsonInclude.Include.NON_ABSENT)
 public class AutomationPredicate {

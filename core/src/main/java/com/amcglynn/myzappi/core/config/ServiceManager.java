@@ -3,6 +3,9 @@ package com.amcglynn.myzappi.core.config;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
+import com.amcglynn.myzappi.core.dal.AutomationProcessorLockRepository;
+import com.amcglynn.myzappi.core.dal.AutomationRepository;
+import com.amcglynn.myzappi.core.dal.AutomationStateRepository;
 import com.amcglynn.myzappi.core.dal.CredentialsRepository;
 import com.amcglynn.myzappi.core.dal.DeviceStateReconcileRequestsRepository;
 import com.amcglynn.myzappi.core.dal.DevicesRepository;
@@ -11,12 +14,16 @@ import com.amcglynn.myzappi.core.dal.ScheduleDetailsRepository;
 import com.amcglynn.myzappi.core.dal.TariffRepository;
 import com.amcglynn.myzappi.core.dal.UserScheduleRepository;
 import com.amcglynn.myzappi.core.service.EncryptionService;
+import com.amcglynn.myzappi.core.service.Clock;
 import com.amcglynn.myzappi.core.service.LoginService;
 import com.amcglynn.myzappi.core.service.MyEnergiService;
 import com.amcglynn.myzappi.core.service.ScheduleService;
 import com.amcglynn.myzappi.core.service.SqsSenderService;
 import com.amcglynn.myzappi.core.service.StateReconcilerService;
 import com.amcglynn.myzappi.core.service.TariffService;
+import com.amcglynn.myzappi.core.service.automation.AutomationOptionsService;
+import com.amcglynn.myzappi.core.service.automation.AutomationService;
+import com.amcglynn.myzappi.core.service.automation.AutomationValidator;
 import com.amcglynn.myzappi.core.service.reconciler.DeviceStateReconciler;
 import com.amcglynn.myzappi.core.service.reconciler.EddiModeReconciler;
 import com.amcglynn.myzappi.core.service.reconciler.ReconcilerRegistry;
@@ -56,11 +63,22 @@ public class ServiceManager {
     private final ExecutorService executorService;
     @Getter
     private final StateReconcilerService stateReconciliationService;
+    @Getter
+    private final AutomationRepository automationRepository;
+    @Getter
+    private final AutomationStateRepository automationStateRepository;
+    @Getter
+    private final AutomationProcessorLockRepository automationProcessorLockRepository;
+    @Getter
+    private final AutomationService automationService;
 
     public ServiceManager(Properties properties) {
         amazonDynamoDB = AmazonDynamoDBClientBuilder.standard()
                 .withRegion(Regions.fromName(properties.getAwsRegion()))
                 .build();
+        automationRepository = new AutomationRepository(amazonDynamoDB);
+        automationStateRepository = new AutomationStateRepository(amazonDynamoDB);
+        automationProcessorLockRepository = new AutomationProcessorLockRepository(amazonDynamoDB);
         deviceStateReconcileRequestsRepository = new DeviceStateReconcileRequestsRepository(amazonDynamoDB);
         encryptionService = new EncryptionService(properties.getKmsKeyArn());
         credentialsRepository = new CredentialsRepository(amazonDynamoDB);
@@ -91,6 +109,12 @@ public class ServiceManager {
                 getDeviceStateReconcileRequestsRepository(),
                 sqsSenderService,
                 getMyEnergiServiceBuilder());
+        this.automationService = new AutomationService(
+                automationRepository,
+                automationStateRepository,
+                new AutomationValidator(getLoginService()),
+                new AutomationOptionsService(),
+                new Clock());
     }
 
     public String getSchedulerExecutionRoleArn() {
