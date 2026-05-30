@@ -8,12 +8,14 @@ import com.amcglynn.myenergi.apiresponse.StatusResponse;
 import com.amcglynn.myzappi.core.exception.MissingDeviceException;
 import com.amcglynn.myzappi.core.exception.UserNotLoggedInException;
 import com.amcglynn.myzappi.core.model.EddiDevice;
+import com.amcglynn.myzappi.core.model.AutomationSnapshot;
 import com.amcglynn.myzappi.core.model.EnergyStatus;
 import com.amcglynn.myzappi.core.model.LibbiDevice;
 import com.amcglynn.myzappi.core.model.MyEnergiDevice;
 import com.amcglynn.myzappi.core.model.SerialNumber;
 import com.amcglynn.myzappi.core.model.UserId;
 import com.amcglynn.myzappi.core.model.ZappiDevice;
+import com.amcglynn.myzappi.core.service.automation.AutomationSnapshotMapper;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -72,6 +74,10 @@ public class MyEnergiService {
                 .findFirst()
                 .orElseThrow(this::missingDeviceException);
         return new EnergyStatus(deviceStatus);
+    }
+
+    public AutomationSnapshot getAutomationSnapshot() {
+        return new AutomationSnapshotMapper().from(client.getStatus());
     }
 
     private MissingDeviceException missingDeviceException() {
