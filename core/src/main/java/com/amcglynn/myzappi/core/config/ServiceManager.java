@@ -21,9 +21,12 @@ import com.amcglynn.myzappi.core.service.ScheduleService;
 import com.amcglynn.myzappi.core.service.SqsSenderService;
 import com.amcglynn.myzappi.core.service.StateReconcilerService;
 import com.amcglynn.myzappi.core.service.TariffService;
+import com.amcglynn.myzappi.core.service.automation.AutomationActionExecutor;
 import com.amcglynn.myzappi.core.service.automation.AutomationOptionsService;
+import com.amcglynn.myzappi.core.service.automation.AutomationProcessorService;
 import com.amcglynn.myzappi.core.service.automation.AutomationService;
 import com.amcglynn.myzappi.core.service.automation.AutomationValidator;
+import com.amcglynn.myzappi.core.service.automation.PredicateEvaluator;
 import com.amcglynn.myzappi.core.service.reconciler.DeviceStateReconciler;
 import com.amcglynn.myzappi.core.service.reconciler.EddiModeReconciler;
 import com.amcglynn.myzappi.core.service.reconciler.ReconcilerRegistry;
@@ -71,6 +74,8 @@ public class ServiceManager {
     private final AutomationProcessorLockRepository automationProcessorLockRepository;
     @Getter
     private final AutomationService automationService;
+    @Getter
+    private final AutomationProcessorService automationProcessorService;
 
     public ServiceManager(Properties properties) {
         amazonDynamoDB = AmazonDynamoDBClientBuilder.standard()
@@ -114,6 +119,13 @@ public class ServiceManager {
                 automationStateRepository,
                 new AutomationValidator(getLoginService()),
                 new AutomationOptionsService(),
+                new Clock());
+        var automationActionExecutor = new AutomationActionExecutor(getStateReconciliationService());
+        this.automationProcessorService = new AutomationProcessorService(
+                automationStateRepository,
+                getMyEnergiServiceBuilder(),
+                new PredicateEvaluator(),
+                automationActionExecutor,
                 new Clock());
     }
 
