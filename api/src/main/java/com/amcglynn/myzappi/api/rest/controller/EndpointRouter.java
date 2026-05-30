@@ -37,6 +37,7 @@ public class EndpointRouter {
                         serviceManager.getStateReconciliationService()),
                 new TariffController(serviceManager.getTariffService()),
                 new AccountController(new RegistrationService(serviceManager.getLoginService(), serviceManager.getDevicesRepository(), new MyEnergiClientFactory())),
+                new AutomationController(serviceManager.getAutomationService()),
                 new LwaClientFactory());
     }
 
@@ -46,9 +47,10 @@ public class EndpointRouter {
             DevicesController devicesController,
             TariffController tariffController,
             AccountController accountController,
+            AutomationController automationController,
             LwaClientFactory lwaClientFactory) {
         this(hubController, devicesController, tariffController, accountController, lwaClientFactory,
-                new ScheduleController(serviceManager.getScheduleService()), serviceManager);
+                new ScheduleController(serviceManager.getScheduleService()), automationController, serviceManager);
     }
 
     public EndpointRouter(
@@ -58,6 +60,7 @@ public class EndpointRouter {
             AccountController accountController,
             LwaClientFactory lwaClientFactory,
             ScheduleController scheduleController,
+            AutomationController automationController,
             ServiceManager serviceManager) {
         this(hubController, devicesController, tariffController,
                 new AuthenticationService(new TokenService(lwaClientFactory),
@@ -65,6 +68,7 @@ public class EndpointRouter {
                 scheduleController,
                 new EnergyController(serviceManager.getMyEnergiServiceBuilder(), serviceManager.getTariffService()),
                 accountController,
+                automationController,
                 serviceManager.getProperties());
     }
 
@@ -76,9 +80,10 @@ public class EndpointRouter {
             ScheduleController scheduleController,
             EnergyController energyCostController,
             AccountController accountController,
+            AutomationController automationController,
             Properties properties) {
         this(hubController, devicesController, tariffController, authenticationService, scheduleController, energyCostController,
-                new LogoutController(authenticationService), accountController, properties);
+                new LogoutController(authenticationService), accountController, automationController, properties);
     }
 
     public EndpointRouter(
@@ -90,6 +95,7 @@ public class EndpointRouter {
             EnergyController energyController,
             LogoutController logoutController,
             AccountController accountController,
+            AutomationController automationController,
             Properties properties) {
         this.authenticationService = authenticationService;
         this.properties = properties;
@@ -106,6 +112,12 @@ public class EndpointRouter {
         handlers.put("GET /schedules", scheduleController::getSchedules);
         handlers.put("DELETE /schedules/{scheduleId}", scheduleController::deleteSchedule);
         handlers.put("PATCH /schedules/{scheduleId}", scheduleController::updateSchedule);
+        handlers.put("GET /automations/options", automationController::getOptions);
+        handlers.put("GET /automations", automationController::getAutomations);
+        handlers.put("POST /automations", automationController::createAutomation);
+        handlers.put("PATCH /automations/{automationId}", automationController::updateAutomation);
+        handlers.put("PUT /automations/priorities", automationController::reorderAutomations);
+        handlers.put("DELETE /automations/{automationId}", automationController::deleteAutomation);
         handlers.put("POST /devices/discover", devicesController::discoverDevices);
         handlers.put("GET /devices", devicesController::listDevices);
         handlers.put("DELETE /devices", devicesController::deleteDevices);

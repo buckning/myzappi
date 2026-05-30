@@ -3,6 +3,7 @@ package com.amcglynn.myzappi.api.rest;
 import com.amcglynn.myzappi.api.Session;
 import com.amcglynn.myzappi.api.SessionId;
 import com.amcglynn.myzappi.api.rest.controller.AccountController;
+import com.amcglynn.myzappi.api.rest.controller.AutomationController;
 import com.amcglynn.myzappi.api.rest.controller.DevicesController;
 import com.amcglynn.myzappi.api.rest.controller.EnergyController;
 import com.amcglynn.myzappi.api.rest.controller.LogoutController;
@@ -52,6 +53,8 @@ class EndpointRouterTest {
     @Mock
     private LogoutController mockLogoutController;
     @Mock
+    private AutomationController mockAutomationController;
+    @Mock
     private Properties mockProperties;
     @Mock
     private Response mockResponse;
@@ -59,7 +62,8 @@ class EndpointRouterTest {
     @BeforeEach
     void setUp() {
         router = new EndpointRouter(mockHubController, mockDevicesController, mockTariffController, mockAuthController,
-                mockScheduleController, mockEnergyController, mockLogoutController, mockAccountController, mockProperties);
+                mockScheduleController, mockEnergyController, mockLogoutController, mockAccountController,
+                mockAutomationController, mockProperties);
         when(mockResponse.getStatus()).thenReturn(200);
         when(mockResponse.getHeaders()).thenReturn(new HashMap<>());
         when(mockProperties.getAdminUser()).thenReturn("regularUser");
@@ -81,6 +85,12 @@ class EndpointRouterTest {
         when(mockEnergyController.getEnergySummary(any())).thenReturn(mockResponse);
         when(mockAccountController.register(any())).thenReturn(mockResponse);
         when(mockAccountController.getAccountSummary(any())).thenReturn(mockResponse);
+        when(mockAutomationController.getOptions(any())).thenReturn(mockResponse);
+        when(mockAutomationController.getAutomations(any())).thenReturn(mockResponse);
+        when(mockAutomationController.createAutomation(any())).thenReturn(mockResponse);
+        when(mockAutomationController.updateAutomation(any())).thenReturn(mockResponse);
+        when(mockAutomationController.reorderAutomations(any())).thenReturn(mockResponse);
+        when(mockAutomationController.deleteAutomation(any())).thenReturn(mockResponse);
         when(mockAuthController.authenticate(any())).thenReturn(Optional.of(new Session(SessionId.from("1234"), UserId.from("userId"), 3600L)));
     }
 
@@ -201,6 +211,60 @@ class EndpointRouterTest {
         var response = router.route(request);
         assertThat(response.getStatus()).isEqualTo(200);
         verify(mockAccountController).register(request);
+    }
+
+    @Test
+    void getAutomationOptionsGetsRoutedToAutomationController() {
+        var request = new Request(RequestMethod.GET, "/automations/options", null, Map.of("Authorization", "Bearer 1234"), Map.of());
+        request.setUserId("regularUser");
+        var response = router.route(request);
+        assertThat(response.getStatus()).isEqualTo(200);
+        verify(mockAutomationController).getOptions(request);
+    }
+
+    @Test
+    void getAutomationsGetsRoutedToAutomationController() {
+        var request = new Request(RequestMethod.GET, "/automations", null, Map.of("Authorization", "Bearer 1234"), Map.of());
+        request.setUserId("regularUser");
+        var response = router.route(request);
+        assertThat(response.getStatus()).isEqualTo(200);
+        verify(mockAutomationController).getAutomations(request);
+    }
+
+    @Test
+    void postAutomationsGetsRoutedToAutomationController() {
+        var request = new Request(RequestMethod.POST, "/automations", "{}", Map.of("Authorization", "Bearer 1234"), Map.of());
+        request.setUserId("regularUser");
+        var response = router.route(request);
+        assertThat(response.getStatus()).isEqualTo(200);
+        verify(mockAutomationController).createAutomation(request);
+    }
+
+    @Test
+    void patchAutomationGetsRoutedToAutomationController() {
+        var request = new Request(RequestMethod.PATCH, "/automations/automation-1", "{}", Map.of("Authorization", "Bearer 1234"), Map.of());
+        request.setUserId("regularUser");
+        var response = router.route(request);
+        assertThat(response.getStatus()).isEqualTo(200);
+        verify(mockAutomationController).updateAutomation(request);
+    }
+
+    @Test
+    void putAutomationPrioritiesGetsRoutedToAutomationController() {
+        var request = new Request(RequestMethod.PUT, "/automations/priorities", "{}", Map.of("Authorization", "Bearer 1234"), Map.of());
+        request.setUserId("regularUser");
+        var response = router.route(request);
+        assertThat(response.getStatus()).isEqualTo(200);
+        verify(mockAutomationController).reorderAutomations(request);
+    }
+
+    @Test
+    void deleteAutomationGetsRoutedToAutomationController() {
+        var request = new Request(RequestMethod.DELETE, "/automations/automation-1", null, Map.of("Authorization", "Bearer 1234"), Map.of());
+        request.setUserId("regularUser");
+        var response = router.route(request);
+        assertThat(response.getStatus()).isEqualTo(200);
+        verify(mockAutomationController).deleteAutomation(request);
     }
 
     @Test
