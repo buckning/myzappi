@@ -1,0 +1,66 @@
+<h2>Automation</h2>
+
+<form class="automationDialog" (ngSubmit)="submit()">
+  <label>
+    Name
+    <input name="name" [(ngModel)]="name" maxlength="80">
+  </label>
+
+  <label>
+    Predicate
+    <select name="predicateType" [(ngModel)]="predicate.type" (change)="onPredicateTypeChange()" required>
+      <option *ngFor="let option of data.options.predicates" [value]="option.type">{{option.type}}</option>
+    </select>
+  </label>
+
+  <label *ngIf="selectedPredicate()?.requiresTarget">
+    Predicate target
+    <select name="predicateTarget" [(ngModel)]="predicate.target" required>
+      <option *ngFor="let device of predicateTargets()" [value]="device.serialNumber">{{device.deviceClass}} {{device.serialNumber}}</option>
+    </select>
+  </label>
+
+  <label>
+    Operator
+    <select name="operator" [(ngModel)]="predicate.operator" required>
+      <option *ngFor="let operator of data.options.operators" [value]="operator">{{operator}}</option>
+    </select>
+  </label>
+
+  <label>
+    Value
+    <input name="predicateValue" [(ngModel)]="predicate.value" required>
+  </label>
+
+  <label>
+    Action
+    <select name="actionType" [(ngModel)]="action.type" (change)="onActionTypeChange()" required>
+      <option *ngFor="let option of data.options.actions" [value]="option.type">{{option.type}}</option>
+    </select>
+  </label>
+
+  <label>
+    Action target
+    <select name="actionTarget" [(ngModel)]="action.target" required>
+      <option *ngFor="let device of actionTargets()" [value]="device.serialNumber">{{device.deviceClass}} {{device.serialNumber}}</option>
+    </select>
+  </label>
+
+  <label *ngIf="selectedAction()?.allowedValues?.length">
+    Action value
+    <select name="actionValueSelect" [(ngModel)]="action.value" required>
+      <option *ngFor="let value of selectedAction()?.allowedValues" [value]="value">{{value}}</option>
+    </select>
+  </label>
+
+  <label *ngIf="!selectedAction()?.allowedValues?.length">
+    Action value
+    <input name="actionValueInput" type="number" [(ngModel)]="action.value"
+           [attr.min]="selectedAction()?.min ?? null" [attr.max]="selectedAction()?.max ?? null" required>
+  </label>
+
+  <div class="dialogActions">
+    <button type="button" class="destructiveButton" (click)="cancel()">Cancel</button>
+    <button type="submit" class="confirmButton">Save</button>
+  </div>
+</form>

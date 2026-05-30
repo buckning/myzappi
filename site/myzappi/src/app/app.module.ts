@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
+import { DragDropModule } from '@angular/cdk/drag-drop';
 
 import { AppComponent } from './app.component';
 import { LoggedOutContentComponent } from './logged-out-content/logged-out-content.component';
@@ -34,6 +35,8 @@ import { EnergyStatsPanelComponent } from './energy-stats-panel/energy-stats-pan
 import { QuoteCarouselComponent } from './quote-carousel/quote-carousel.component';
 import { EddiPanelComponent } from './eddi-panel/eddi-panel.component';
 import { ScheduleDialogComponent } from './inline-schedule-panel/schedule-dialog/schedule-dialog.component';
+import { AutomationsPanelComponent } from './automations-panel/automations-panel.component';
+import { AutomationDialogComponent } from './automation-dialog/automation-dialog.component';
 
 @NgModule({
   declarations: [
@@ -58,9 +61,12 @@ import { ScheduleDialogComponent } from './inline-schedule-panel/schedule-dialog
     QuoteCarouselComponent,
     FloatingHeaderComponent,
     EddiPanelComponent,
-    ScheduleDialogComponent
+    ScheduleDialogComponent,
+    AutomationsPanelComponent,
+    AutomationDialogComponent
   ],
   imports: [
+    DragDropModule,
     MatSlideToggleModule,
     MatExpansionModule,
     MatSliderModule,
