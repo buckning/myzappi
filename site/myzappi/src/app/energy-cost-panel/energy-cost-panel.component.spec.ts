@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { COMMON_TESTING_IMPORTS, COMMON_TESTING_SCHEMAS } from 'src/app/testing/common-testing.module';
 
 import { EnergyCostPanelComponent } from './energy-cost-panel.component';
 
@@ -8,7 +9,9 @@ describe('EnergyCostPanelComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [EnergyCostPanelComponent]
+      declarations: [EnergyCostPanelComponent],
+      imports: COMMON_TESTING_IMPORTS,
+      schemas: COMMON_TESTING_SCHEMAS
     });
     fixture = TestBed.createComponent(EnergyCostPanelComponent);
     component = fixture.componentInstance;

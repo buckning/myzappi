@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { COMMON_TESTING_IMPORTS, COMMON_TESTING_SCHEMAS } from 'src/app/testing/common-testing.module';
 
 import { TariffPanelComponent } from './tariff-panel.component';
 
@@ -8,7 +9,9 @@ describe('TariffPanelComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [TariffPanelComponent]
+      declarations: [TariffPanelComponent],
+      imports: COMMON_TESTING_IMPORTS,
+      schemas: COMMON_TESTING_SCHEMAS
     });
     fixture = TestBed.createComponent(TariffPanelComponent);
     component = fixture.componentInstance;
