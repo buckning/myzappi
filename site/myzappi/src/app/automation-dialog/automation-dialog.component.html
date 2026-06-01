@@ -1,66 +1,78 @@
-<h2>Automation</h2>
+<form class="dialog-container" (ngSubmit)="submit()">
+  <div class="dialog-header">
+    <h2>Automation</h2>
+  </div>
 
-<form class="automationDialog" (ngSubmit)="submit()">
-  <label>
-    Name
-    <input name="name" [(ngModel)]="name" maxlength="80">
-  </label>
+  <div class="dialog-subheader">
+    <div class="device-context">
+      <span>{{actionDisplayLabel(action.type) || 'Action'}}</span>
+      <span class="context-separator">•</span>
+      <span>{{selectedPredicate()?.requiresTarget ? 'Device rule' : 'Energy rule'}}</span>
+    </div>
+  </div>
 
-  <label>
-    Predicate
-    <select name="predicateType" [(ngModel)]="predicate.type" (change)="onPredicateTypeChange()" required>
-      <option *ngFor="let option of data.options.predicates" [value]="option.type">{{option.type}}</option>
+  <div class="dialog-content">
+    <h3>When</h3>
+    <label for="predicate-type">Metric</label>
+    <select id="predicate-type" name="predicateType" [(ngModel)]="predicate.type" (change)="onPredicateTypeChange()" required>
+      <option *ngFor="let option of options.predicates" [value]="option.type">{{predicateDisplayLabel(option.type)}}</option>
     </select>
-  </label>
 
-  <label *ngIf="selectedPredicate()?.requiresTarget">
-    Predicate target
-    <select name="predicateTarget" [(ngModel)]="predicate.target" required>
-      <option *ngFor="let device of predicateTargets()" [value]="device.serialNumber">{{device.deviceClass}} {{device.serialNumber}}</option>
+    <div *ngIf="selectedPredicate()?.requiresTarget">
+      <label [attr.for]="hasMultiplePredicateTargets() ? 'predicate-target' : null">Device</label>
+      <select *ngIf="hasMultiplePredicateTargets(); else implicitPredicateTarget"
+              id="predicate-target" name="predicateTarget" [(ngModel)]="predicate.target" required>
+        <option *ngFor="let device of predicateTargets()" [value]="device.serialNumber">{{deviceLabel(device)}}</option>
+      </select>
+      <ng-template #implicitPredicateTarget>
+        <div class="readonly-target">{{selectedPredicateTargetLabel()}}</div>
+      </ng-template>
+    </div>
+
+    <label for="predicate-operator">Operator</label>
+    <select id="predicate-operator" name="operator" [(ngModel)]="predicate.operator" required>
+      <option *ngFor="let operator of options.operators" [value]="operator">{{operatorDisplayLabel(operator)}}</option>
     </select>
-  </label>
 
-  <label>
-    Operator
-    <select name="operator" [(ngModel)]="predicate.operator" required>
-      <option *ngFor="let operator of data.options.operators" [value]="operator">{{operator}}</option>
+    <label for="predicate-value">{{predicateValueLabel()}}</label>
+    <input id="predicate-value" name="predicateValue" [type]="predicateValueInputType()"
+           [attr.step]="predicateValueStep()" [attr.inputmode]="isNumericPredicateValue() ? 'decimal' : null"
+           [ngModel]="predicate.value" (ngModelChange)="onPredicateValueChange($event)" required>
+    <div *ngIf="predicateValueError()" class="validation-message">{{predicateValueError()}}</div>
+
+    <h3>Then</h3>
+    <label for="action-type">Action</label>
+    <select id="action-type" name="actionType" [(ngModel)]="action.type" (change)="onActionTypeChange()" required>
+      <option *ngFor="let option of options.actions" [value]="option.type">{{actionDisplayLabel(option.type)}}</option>
     </select>
-  </label>
 
-  <label>
-    Value
-    <input name="predicateValue" [(ngModel)]="predicate.value" required>
-  </label>
-
-  <label>
-    Action
-    <select name="actionType" [(ngModel)]="action.type" (change)="onActionTypeChange()" required>
-      <option *ngFor="let option of data.options.actions" [value]="option.type">{{option.type}}</option>
+    <label [attr.for]="hasMultipleActionTargets() ? 'action-target' : null">Device</label>
+    <select *ngIf="hasMultipleActionTargets(); else implicitActionTarget"
+            id="action-target" name="actionTarget" [(ngModel)]="action.target" required>
+      <option *ngFor="let device of actionTargets()" [value]="device.serialNumber">{{deviceLabel(device)}}</option>
     </select>
-  </label>
+    <ng-template #implicitActionTarget>
+      <div class="readonly-target">{{selectedActionTargetLabel()}}</div>
+    </ng-template>
 
-  <label>
-    Action target
-    <select name="actionTarget" [(ngModel)]="action.target" required>
-      <option *ngFor="let device of actionTargets()" [value]="device.serialNumber">{{device.deviceClass}} {{device.serialNumber}}</option>
-    </select>
-  </label>
+    <ng-container *ngIf="selectedAction()?.allowedValues?.length; else numericActionValue">
+      <label for="action-value-select">{{actionValueLabel()}}</label>
+      <select id="action-value-select" name="actionValueSelect" [(ngModel)]="action.value" required>
+        <option *ngFor="let value of selectedAction()?.allowedValues" [value]="value">{{valueDisplayLabel(value)}}</option>
+      </select>
+    </ng-container>
 
-  <label *ngIf="selectedAction()?.allowedValues?.length">
-    Action value
-    <select name="actionValueSelect" [(ngModel)]="action.value" required>
-      <option *ngFor="let value of selectedAction()?.allowedValues" [value]="value">{{value}}</option>
-    </select>
-  </label>
+    <ng-template #numericActionValue>
+      <label for="action-value-input">{{actionValueLabel()}}</label>
+      <input id="action-value-input" name="actionValueInput" type="number"
+             [ngModel]="action.value" (ngModelChange)="onActionValueChange($event)"
+             [attr.min]="selectedAction()?.min ?? null" [attr.max]="selectedAction()?.max ?? null" required>
+    </ng-template>
+    <div *ngIf="actionValueError()" class="validation-message">{{actionValueError()}}</div>
+  </div>
 
-  <label *ngIf="!selectedAction()?.allowedValues?.length">
-    Action value
-    <input name="actionValueInput" type="number" [(ngModel)]="action.value"
-           [attr.min]="selectedAction()?.min ?? null" [attr.max]="selectedAction()?.max ?? null" required>
-  </label>
-
-  <div class="dialogActions">
+  <div class="dialog-actions">
     <button type="button" class="destructiveButton" (click)="cancel()">Cancel</button>
-    <button type="submit" class="confirmButton">Save</button>
+    <button type="submit" class="confirmButton" [disabled]="!canSave()">Save</button>
   </div>
 </form>

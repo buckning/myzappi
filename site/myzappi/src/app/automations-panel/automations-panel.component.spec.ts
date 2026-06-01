@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
-import { of } from 'rxjs';
+import { of, Subject, throwError } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { AutomationsPanelComponent } from './automations-panel.component';
 import { AutomationService } from '../automation.service';
@@ -63,16 +63,32 @@ describe('AutomationsPanelComponent', () => {
 
     component.openCreateDialog();
 
-    expect(dialog.open).toHaveBeenCalled();
+    expect(dialog.open).toHaveBeenCalledWith(jasmine.any(Function), jasmine.objectContaining({
+      panelClass: 'automation-dialog-panel',
+      disableClose: true
+    }));
   });
 
   it('creates an automation through the service', () => {
-    dialog.open.and.returnValue({ afterClosed: () => of({ name: 'Solar export' }) } as any);
+    const payload = { predicate: automation.predicate, action: automation.action };
+    dialog.open.and.returnValue({ afterClosed: () => of(payload) } as any);
     fixture.detectChanges();
 
     component.openCreateDialog();
 
-    expect(automationService.create).toHaveBeenCalledWith('Bearer token', { name: 'Solar export' });
+    expect(automationService.create).toHaveBeenCalledWith('Bearer token', payload);
+  });
+
+  it('shows an error when creating an automation fails', () => {
+    const payload = { predicate: automation.predicate, action: automation.action };
+    dialog.open.and.returnValue({ afterClosed: () => of(payload) } as any);
+    automationService.create.and.returnValue(throwError(() => ({ status: 400 })));
+    fixture.detectChanges();
+
+    component.openCreateDialog();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent).toContain('Could not save automation. Check the automation details and try again.');
   });
 
   it('toggles an automation active state', () => {
@@ -91,6 +107,23 @@ describe('AutomationsPanelComponent', () => {
     expect(automationService.delete).toHaveBeenCalledWith('Bearer token', 'a');
   });
 
+  it('removes the final automation from the visible list after delete succeeds', () => {
+    const deleteCompleted = new Subject<void>();
+    automationService.delete.and.returnValue(deleteCompleted.asObservable());
+    fixture.detectChanges();
+
+    component.deleteAutomation(component.automations[0]);
+
+    expect(component.automations.length).toBe(1);
+
+    deleteCompleted.next();
+    deleteCompleted.complete();
+    fixture.detectChanges();
+
+    expect(component.automations.length).toBe(0);
+    expect(fixture.nativeElement.textContent).toContain('You have no automations. Create a new automation below.');
+  });
+
   it('sends normalized ordered ids after drag and drop', () => {
     automationService.list.and.returnValue(of({ automations: [automation, { ...automation, automationId: 'b', priority: 2 }] }));
     fixture.detectChanges();
@@ -100,13 +133,41 @@ describe('AutomationsPanelComponent', () => {
     expect(automationService.reorder).toHaveBeenCalledWith('Bearer token', ['b', 'a']);
   });
 
-  it('renders name when present and summary when name is blank', () => {
+  it('renders rule summaries without visible priority or name text', () => {
     automationService.list.and.returnValue(of({ automations: [{ ...automation, name: 'Named automation' }, automation] }));
     fixture.detectChanges();
 
     const text = fixture.nativeElement.textContent;
-    expect(text).toContain('Named automation');
-    expect(text).toContain('ENERGY_EXPORTING_KW GREATER_THAN 2.0 then setChargeMode ECO_PLUS');
+    expect(text).not.toContain('Named automation');
+    expect(text).not.toContain('Priority 1');
+    expect(text).not.toContain('Priority 2');
+    expect(text).toContain('Exporting Greater than 2.0 kW then Set charge mode Eco+');
+  });
+
+  it('renders percentage units in saved automation summaries', () => {
+    automationService.list.and.returnValue(of({
+      automations: [{
+        ...automation,
+        predicate: {
+          type: 'LIBBI_STATE_OF_CHARGE_PERCENT',
+          target: '20000001',
+          operator: 'LESS_THAN' as const,
+          value: '80'
+        },
+        action: { type: 'setZappiMgl', target: '10000001', value: '45' }
+      }]
+    }));
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent)
+      .toContain('Libbi state of charge 20000001 Less than 80% then Set minimum green level 45%');
+  });
+
+  it('does not add units to unitless saved automation actions', () => {
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent).toContain('Set charge mode Eco+');
+    expect(fixture.nativeElement.textContent).not.toContain('Eco+ %');
   });
 
   it('does not render runtime state fields', () => {

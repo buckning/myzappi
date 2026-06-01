@@ -6,14 +6,16 @@
   </div>
 
   <div *ngIf="loaded">
+    <p *ngIf="errorMessage" class="automationError">{{errorMessage}}</p>
+
     <p *ngIf="automations.length === 0">
       You have no automations. Create a new automation below.
     </p>
 
     <div cdkDropList (cdkDropListDropped)="drop($event)" *ngIf="automations.length > 0" class="automationList">
       <div class="automationRow" cdkDrag *ngFor="let automation of automations" [ngClass]="{'disabledAutomation': !automation.active}">
-        <div class="dragHandle" cdkDragHandle>Priority {{automation.priority}}</div>
-        <div class="automationTitle">{{automation.name || summary(automation)}}</div>
+        <div class="dragHandle" cdkDragHandle role="button" aria-label="Drag automation to reorder" title="Drag to reorder"></div>
+        <div class="automationTitle">{{summary(automation)}}</div>
         <div class="automationActions">
           <mat-slide-toggle [checked]="automation.active" (change)="toggleActive(automation)" color="primary"></mat-slide-toggle>
           <span>{{automation.active ? 'Active' : 'Disabled'}}</span>

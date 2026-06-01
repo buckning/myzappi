@@ -113,8 +113,11 @@ Each automation has:
 
 Rules:
 
-- `name` is optional.
+- `name` is optional and retained in the backend model for compatibility with
+  manually-created or future UI-managed rules.
 - If present, `name` is trimmed and limited to 80 characters.
+- The V1 Angular UI does not create, edit, or display automation names. It
+  always shows generated predicate/action summaries instead.
 - `active` defaults to `true`.
 - Priorities are unique per user and normalized to `1..N`.
 - Priority `1` is the highest priority.
@@ -335,6 +338,8 @@ Returns backend-supported metadata for the Angular UI:
 - action device class constraints
 
 The backend is the source of truth for valid predicates and actions.
+Display labels and display units are applied by the Angular UI from known API
+strings. API payloads continue to use the canonical backend values.
 
 ### `GET /automations`
 
@@ -394,7 +399,7 @@ part of the schedules panel.
 V1 UI capabilities:
 
 - list automations
-- show optional name or generated predicate/action summary
+- show generated predicate/action summaries
 - create automation in a modal/dialog
 - enable/disable automation
 - delete automation
@@ -403,7 +408,39 @@ V1 UI capabilities:
 The create modal should use `GET /automations/options` for supported predicate
 and action metadata.
 
-V1 UI does not show runtime state, errors, skipped reasons, or timestamps.
+V1 UI behavior:
+
+- Do not show automation names in the modal or list.
+- Do not show explicit priority text in list rows. Priority is implied by the
+  order of the rows.
+- Map API values to user-facing labels in the modal and list, for example:
+  - `ECO_PLUS` displays as `Eco+`
+  - `GREATER_THAN` displays as `Greater than`
+  - `setChargeMode` displays as `Set charge mode`
+- Display units next to predicate/action values where units are known:
+  - `_KW` predicate types display values in `kW`
+  - `_PERCENT` predicate types display values in `%`
+  - `setZappiMgl` and `setLibbiChargeTarget` display action values in `%`
+  - Unitless actions such as `setChargeMode` display no unit
+- Filter predicate and action options to device classes the user currently owns.
+- For targeted predicates/actions with exactly one matching user device, show
+  the target device as read-only text instead of a dropdown.
+- For targeted predicates/actions with multiple matching devices, show a device
+  dropdown.
+- Numeric predicate values use numeric inputs and submit string values to the
+  API.
+- Non-numeric predicate values use text inputs.
+- Invalid form values show inline validation messages.
+- Save is disabled while required fields are missing or invalid.
+- Submitting an invalid form must not close the modal.
+- The modal uses the footer Cancel button as the only cancel control.
+- If the API rejects automation creation, the panel shows a visible error
+  message instead of failing silently.
+- After deleting an automation, the visible list updates immediately after the
+  delete call succeeds, including the final-row case.
+
+V1 UI does not show runtime processor state, rule execution errors, skipped
+reasons, or timestamps.
 
 ## Manual Infrastructure
 
@@ -442,7 +479,19 @@ but running deployment remains explicit/manual.
 
 - Users can create up to 10 automations through the Angular UI.
 - Users can list, delete, enable/disable, and reorder automations.
-- Automation names are optional and limited to 80 characters when present.
+- Automation names are optional and limited to 80 characters when present, but
+  the V1 Angular UI does not expose names.
+- The Angular UI lists generated predicate/action summaries with friendly labels
+  and known units.
+- The Angular UI does not show visible priority text in automation rows.
+- The Angular UI filters predicate/action choices by the user's owned device
+  classes.
+- The Angular UI uses read-only target display when only one matching target
+  device exists.
+- The Angular UI prevents saving invalid automation forms and displays inline
+  validation errors.
+- The Angular UI displays a visible error when automation creation is rejected
+  by the API.
 - Priorities are unique per user and normalized to `1..N`.
 - The backend exposes automation options metadata for the UI.
 - The API validates allowed predicates, actions, operators, values, device
@@ -509,6 +558,18 @@ but running deployment remains explicit/manual.
 
 - Automations panel renders in logged-in dashboard.
 - Create modal renders predicate/action controls from options metadata.
+- Create modal filters options by owned device class.
+- Create modal hides target dropdowns when there is only one matching device.
+- Create modal uses numeric inputs for numeric predicate values.
+- Create modal disables Save and shows validation messages for invalid values.
+- Create modal keeps API payload values unchanged while displaying friendly
+  labels.
+- Create modal shows known value units in field labels.
+- Automations list renders saved rules with friendly labels and known value
+  units.
+- Automations list does not show names or priority labels.
+- Create failure renders a visible panel error.
+- Deleting the final automation removes the row from the visible list.
 - Create, delete, active toggle, and reorder call the expected endpoints.
 - Drag/drop reorder produces normalized ordered ids.
 - Build with `ng build`.
@@ -518,5 +579,6 @@ but running deployment remains explicit/manual.
 - Composite predicates with `AND`/`OR`.
 - Runtime state display in API/UI.
 - Additional predicate value types such as booleans and enums.
+- Re-enabling automation names in the Angular UI.
 - Additional action types after safety review.
 - Infrastructure as code for tables, Lambda, and EventBridge.

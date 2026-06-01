@@ -6,6 +6,13 @@ import { Automation, AutomationAction, AutomationOptions, AutomationPredicate } 
 import { AutomationService } from '../automation.service';
 import { Device } from '../device.interface';
 import { AutomationDialogComponent } from '../automation-dialog/automation-dialog.component';
+import {
+  actionLabel,
+  automationUnitLabel,
+  automationValueLabel,
+  operatorLabel,
+  predicateLabel
+} from '../automation-labels';
 
 @Component({
   selector: 'app-automations-panel',
@@ -19,6 +26,7 @@ export class AutomationsPanelComponent implements OnInit {
   loaded = false;
   automations: Automation[] = [];
   options?: AutomationOptions;
+  errorMessage = '';
 
   constructor(private automationService: AutomationService, private dialog: MatDialog) {}
 
@@ -28,6 +36,7 @@ export class AutomationsPanelComponent implements OnInit {
 
   load(): void {
     this.loaded = false;
+    this.errorMessage = '';
     forkJoin({
       options: this.automationService.getOptions(this.bearerToken),
       automations: this.automationService.list(this.bearerToken)
@@ -45,6 +54,8 @@ export class AutomationsPanelComponent implements OnInit {
     const dialogRef = this.dialog.open(AutomationDialogComponent, {
       width: '90%',
       maxWidth: '520px',
+      panelClass: 'automation-dialog-panel',
+      disableClose: true,
       autoFocus: false,
       data: {
         bearerToken: this.bearerToken,
@@ -57,7 +68,13 @@ export class AutomationsPanelComponent implements OnInit {
       if (!result) {
         return;
       }
-      this.automationService.create(this.bearerToken, result).subscribe(() => this.load());
+      this.errorMessage = '';
+      this.automationService.create(this.bearerToken, result).subscribe({
+        next: () => this.load(),
+        error: () => {
+          this.errorMessage = 'Could not save automation. Check the automation details and try again.';
+        }
+      });
     });
   }
 
@@ -69,7 +86,11 @@ export class AutomationsPanelComponent implements OnInit {
   }
 
   deleteAutomation(automation: Automation): void {
-    this.automationService.delete(this.bearerToken, automation.automationId).subscribe(() => this.load());
+    this.automationService.delete(this.bearerToken, automation.automationId).subscribe(() => {
+      this.automations = this.automations
+        .filter(current => current.automationId !== automation.automationId)
+        .map((current, index) => ({ ...current, priority: index + 1 }));
+    });
   }
 
   drop(event: CdkDragDrop<Automation[]>): void {
@@ -84,10 +105,23 @@ export class AutomationsPanelComponent implements OnInit {
 
   predicateLabel(predicate: AutomationPredicate): string {
     const target = predicate.target ? ` ${predicate.target}` : '';
-    return `${predicate.type}${target} ${predicate.operator} ${predicate.value}`;
+    return `${predicateLabel(predicate.type)}${target} ${operatorLabel(predicate.operator)} ${this.valueWithUnit(
+      predicate.value,
+      automationUnitLabel(predicate.type)
+    )}`;
   }
 
   actionLabel(action: AutomationAction): string {
-    return `${action.type} ${action.value}`;
+    return `${actionLabel(action.type)} ${this.valueWithUnit(
+      automationValueLabel(action.value),
+      automationUnitLabel(action.type)
+    )}`;
+  }
+
+  private valueWithUnit(value: string, unit: string): string {
+    if (!unit) {
+      return value;
+    }
+    return unit === '%' ? `${value}%` : `${value} ${unit}`;
   }
 }

@@ -147,6 +147,28 @@ aws dynamodb create-table \
 aws dynamodb update-time-to-live \
     --table-name device-state-reconcile-requests \
     --time-to-live-specification "Enabled=true, AttributeName=ttl"
+
+aws dynamodb create-table \
+  --table-name automation \
+  --attribute-definitions AttributeName=user-id,AttributeType=S \
+  --key-schema AttributeName=user-id,KeyType=HASH \
+  --provisioned-throughput ReadCapacityUnits=1,WriteCapacityUnits=1
+
+aws dynamodb create-table \
+  --table-name automation-state \
+  --attribute-definitions AttributeName=user-id,AttributeType=S \
+  --key-schema AttributeName=user-id,KeyType=HASH \
+  --provisioned-throughput ReadCapacityUnits=1,WriteCapacityUnits=1
+
+aws dynamodb create-table \
+  --table-name automation-processor-lock \
+  --attribute-definitions AttributeName=lock-id,AttributeType=S \
+  --key-schema AttributeName=lock-id,KeyType=HASH \
+  --provisioned-throughput ReadCapacityUnits=1,WriteCapacityUnits=1
+
+aws dynamodb update-time-to-live \
+  --table-name automation-processor-lock \
+  --time-to-live-specification "Enabled=true, AttributeName=expiresAt"
 ```
 
 Contains all the schedule information for a user as a json blob

@@ -327,6 +327,131 @@ body.user-logged-in .welcome-message {
   border-radius: 8px !important;
 }
 
+/* Automations dialog fallback styles.
+   The app body uses white text globally, so these rules are scoped to the
+   Material panel class to keep modal labels readable even when component
+   styles are not applied by the overlay. */
+.automation-dialog-panel .mat-dialog-container,
+.automation-dialog-panel .mat-mdc-dialog-container,
+.automation-dialog-panel .mat-mdc-dialog-surface {
+  padding: 0 !important;
+  overflow: hidden !important;
+  border-radius: 4px !important;
+  color: #333333 !important;
+}
+
+.automation-dialog-panel .dialog-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-width: 300px;
+  max-width: 520px;
+  box-sizing: border-box;
+  background-color: #ffffff;
+  color: #333333;
+}
+
+.automation-dialog-panel .dialog-header {
+  display: flex;
+  align-items: center;
+  background-color: #3f7ab5;
+  color: #ffffff;
+  padding: 10px 24px;
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+}
+
+.automation-dialog-panel .dialog-header h2 {
+  margin: 0;
+  color: #ffffff;
+}
+
+.automation-dialog-panel .dialog-subheader {
+  background-color: #f0f8ff;
+  padding: 8px 24px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.automation-dialog-panel .device-context {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  color: #555555;
+  font-weight: 500;
+}
+
+.automation-dialog-panel .context-separator {
+  margin: 0 8px;
+  color: #999999;
+}
+
+.automation-dialog-panel .dialog-content {
+  padding: 20px 24px;
+  color: #333333;
+  overflow-y: auto;
+  max-height: 65vh;
+}
+
+.automation-dialog-panel .dialog-content h3 {
+  margin-top: 16px;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #333333;
+}
+
+.automation-dialog-panel .dialog-content h3:first-child {
+  margin-top: 0;
+}
+
+.automation-dialog-panel .dialog-content label {
+  display: block;
+  margin-top: 10px;
+  margin-bottom: 5px;
+  font-weight: 500;
+  color: #333333 !important;
+}
+
+.automation-dialog-panel .dialog-content input,
+.automation-dialog-panel .dialog-content select {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 38px;
+  padding: 8px;
+  border: 1px solid #cccccc;
+  border-radius: 4px;
+  background-color: #ffffff;
+  color: #333333;
+  font-size: 16px;
+}
+
+.automation-dialog-panel .readonly-target {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 38px;
+  padding: 8px;
+  border: 1px solid #dddddd;
+  border-radius: 4px;
+  background-color: #f7f7f7;
+  color: #333333;
+  display: flex;
+  align-items: center;
+}
+
+.automation-dialog-panel .validation-message {
+  margin-top: 4px;
+  color: #b00020;
+  font-size: 13px;
+  line-height: 1.3;
+}
+
+.automation-dialog-panel .dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding: 8px 24px 16px;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
 /* Material Dialog mobile optimizations */
 .mat-dialog-container {
   padding: 0 !important;
