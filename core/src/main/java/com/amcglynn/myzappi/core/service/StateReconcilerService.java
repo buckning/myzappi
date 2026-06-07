@@ -37,6 +37,10 @@ public class StateReconcilerService {
         sqsSenderService.sendMessage(sqsMessage);
     }
 
+    public boolean supportsReconciliation(String actionType) {
+        return reconcilerRegistry.hasReconciler(actionType);
+    }
+
     public void reconcileDeviceState(StateReconcileRequest request) {
         var requestId = deviceStateReconcileRequestsRepository.read(request.getUserId(),
                 request.getAction().getTarget(), request.getAction().getType());

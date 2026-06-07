@@ -11,11 +11,12 @@ It offers functionality such as:
 * Check if your E.V. is plugged in
 
 ## Architecture
-There are 3 AWS lambda functions that are used by the application and an Angular application.
-The 3 lambda functions are:
+There are 4 AWS lambda functions that are used by the application and an Angular application.
+The 4 lambda functions are:
 * `api`: contains all the REST APIs that are used by the Angular application
 * `myzappi-alexa-lambda`: contains the Alexa skill that is used to control the Zappi
 * `sqs-handler`: consumes schedule events, which were initially supposed to be from SQS, but are now from a Eventbridge scheduler
+* `automation-processor`: evaluates Automations rules on a regular EventBridge schedule
 
 ![alt text](https://github.com/buckning/myzappi/blob/main/docs/Architecture.png?raw=true)
 
@@ -26,8 +27,26 @@ This project is broken up into a number of modules and an Angular application an
 * `myenergi-client`: Client to interact with the myenergi APIs
 * `myzappi-alexa-lambda`: Contains the Alexa skill
 * `sqs-handler`: Contains the code that is used to handle schedule events
+* `automation-processor`: Contains the code that evaluates Automations rules
 * `site`: Contains the Angular application
 
+## Automations
+Automations is a web-only feature that lets a user configure simple rules such as "when solar export is greater than 3kW, set the Zappi charge mode to Eco+". Automation definitions are managed by the `api` module and evaluated by the `automation-processor` Lambda approximately every five minutes.
+
+Automation infrastructure is manually configured. The `automation-processor` Lambda needs the DynamoDB tables documented in `automation-processor/README.md`, an EventBridge schedule, and permission to invoke itself for continuation when a processing run is close to timing out.
+
+Commands invoked by the myenergi client may not take effect immediately. Automation reconciliation is best-effort and only applies to action types that have registered state reconcilers.
+
+Local backend verification:
+```
+./gradlew :core:test :api:test :automation-processor:test
+```
+
+Local web build:
+```
+cd site/myzappi
+ng build
+```
 
 ## Build
 Build the project with the following command
@@ -47,6 +66,10 @@ Build and deploy the Alexa skill
 Build and deploy the schedule handler
 ```
 ./buildAndDeploySqs.sh
+```
+Build and deploy the automation processor
+```
+./buildAndDeployAutomationProcessor.sh
 ```
 
 ### Build and deploy website
@@ -124,6 +147,28 @@ aws dynamodb create-table \
 aws dynamodb update-time-to-live \
     --table-name device-state-reconcile-requests \
     --time-to-live-specification "Enabled=true, AttributeName=ttl"
+
+aws dynamodb create-table \
+  --table-name automation \
+  --attribute-definitions AttributeName=user-id,AttributeType=S \
+  --key-schema AttributeName=user-id,KeyType=HASH \
+  --provisioned-throughput ReadCapacityUnits=1,WriteCapacityUnits=1
+
+aws dynamodb create-table \
+  --table-name automation-state \
+  --attribute-definitions AttributeName=user-id,AttributeType=S \
+  --key-schema AttributeName=user-id,KeyType=HASH \
+  --provisioned-throughput ReadCapacityUnits=1,WriteCapacityUnits=1
+
+aws dynamodb create-table \
+  --table-name automation-processor-lock \
+  --attribute-definitions AttributeName=lock-id,AttributeType=S \
+  --key-schema AttributeName=lock-id,KeyType=HASH \
+  --provisioned-throughput ReadCapacityUnits=1,WriteCapacityUnits=1
+
+aws dynamodb update-time-to-live \
+  --table-name automation-processor-lock \
+  --time-to-live-specification "Enabled=true, AttributeName=expiresAt"
 ```
 
 Contains all the schedule information for a user as a json blob
@@ -150,6 +195,33 @@ aws dynamodb create-table \
 --table-name devices \
 --attribute-definitions AttributeName=user-id,AttributeType=S \
 --key-schema AttributeName=user-id,KeyType=HASH \
+--provisioned-throughput ReadCapacityUnits=1,WriteCapacityUnits=1
+```
+
+Contains all the automation definitions for a user as a json blob. Only users with configured automations should exist in this table.
+```
+aws dynamodb create-table \
+--table-name automation \
+--attribute-definitions AttributeName=user-id,AttributeType=S \
+--key-schema AttributeName=user-id,KeyType=HASH \
+--provisioned-throughput ReadCapacityUnits=1,WriteCapacityUnits=1
+```
+
+Contains processor-owned automation runtime state for each user as a json blob.
+```
+aws dynamodb create-table \
+--table-name automation-state \
+--attribute-definitions AttributeName=user-id,AttributeType=S \
+--key-schema AttributeName=user-id,KeyType=HASH \
+--provisioned-throughput ReadCapacityUnits=1,WriteCapacityUnits=1
+```
+
+Contains the global lock used by the automation processor to prevent overlapping runs.
+```
+aws dynamodb create-table \
+--table-name automation-processor-lock \
+--attribute-definitions AttributeName=lock-id,AttributeType=S \
+--key-schema AttributeName=lock-id,KeyType=HASH \
 --provisioned-throughput ReadCapacityUnits=1,WriteCapacityUnits=1
 ```
 ## Manually create role for Lambda

@@ -60,6 +60,10 @@ public class Properties {
         return getOrDefault("sqsQueueUrl", "");
     }
 
+    public String getAutomationProcessorLambdaName() {
+        return getOrDefault("automationProcessorLambdaName", "automation-processor");
+    }
+
     private String getOrDefault(String propertyName, String defaultValue) {
         var property = System.getenv(propertyName);
         if (property == null) {

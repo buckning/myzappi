@@ -1,0 +1,37 @@
+<div class="tile">
+  <h1>Automations (Beta)</h1>
+  <p class="automationDescription">
+    Automations check your myenergi setup every few minutes. When the conditions you choose are met,
+    the action you selected is run automatically.
+  </p>
+
+  <div *ngIf="!loaded">
+    <p>Loading your automations...</p>
+  </div>
+
+  <div *ngIf="loaded">
+    <p *ngIf="errorMessage" class="automationError">{{errorMessage}}</p>
+
+    <p *ngIf="automations.length === 0">
+      You have no automations. Create a new automation below.
+    </p>
+
+    <div cdkDropList (cdkDropListDropped)="drop($event)" *ngIf="automations.length > 0" class="automationList">
+      <div class="automationRow" cdkDrag *ngFor="let automation of automations" [ngClass]="{'disabledAutomation': !automation.active}">
+        <div class="dragHandle" cdkDragHandle role="button" aria-label="Drag automation to reorder" title="Drag to reorder"></div>
+        <div class="automationTitle">{{summary(automation)}}</div>
+        <div class="automationActions">
+          <mat-slide-toggle [checked]="automation.active" (change)="toggleActive(automation)" color="primary"></mat-slide-toggle>
+          <span>{{automation.active ? 'Active' : 'Disabled'}}</span>
+          <button type="button" class="destructiveButton" (click)="deleteAutomation(automation)">
+            <img class="iconButtonImage" src="assets/images/delete.png" alt="Delete automation">
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <button type="button" class="confirmButton" (click)="openCreateDialog()" [disabled]="automations.length >= 10">
+      <img src="assets/images/add.png" alt="Create automation" width="25px" height="25px">
+    </button>
+  </div>
+</div>

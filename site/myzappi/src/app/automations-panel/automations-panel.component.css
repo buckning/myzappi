@@ -1,0 +1,64 @@
+.automationDescription {
+  max-width: 760px;
+  margin-top: -8px;
+  margin-bottom: 18px;
+  line-height: 1.4;
+}
+
+.automationList {
+  display: grid;
+  gap: 10px;
+}
+
+.automationRow {
+  display: grid;
+  grid-template-columns: 36px 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid #ddd;
+}
+
+.dragHandle {
+  cursor: move;
+  width: 28px;
+  height: 34px;
+  border-radius: 4px;
+  opacity: 0.8;
+  background:
+    linear-gradient(#ffffff, #ffffff) center 8px / 18px 3px no-repeat,
+    linear-gradient(#ffffff, #ffffff) center 16px / 18px 3px no-repeat,
+    linear-gradient(#ffffff, #ffffff) center 24px / 18px 3px no-repeat;
+}
+
+.automationTitle {
+  overflow-wrap: anywhere;
+}
+
+.automationActions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.automationError {
+  padding: 10px;
+  border-radius: 4px;
+  background-color: #f8d7da;
+  color: #721c24;
+  font-weight: 500;
+}
+
+.disabledAutomation {
+  opacity: 0.65;
+}
+
+@media (max-width: 768px) {
+  .automationRow {
+    grid-template-columns: 1fr;
+  }
+
+  .automationActions {
+    justify-content: space-between;
+  }
+}

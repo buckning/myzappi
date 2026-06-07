@@ -5,6 +5,7 @@ import com.amcglynn.myenergi.MyEnergiClientFactory;
 import com.amcglynn.myenergi.MyEnergiOAuthClient;
 import com.amcglynn.myenergi.apiresponse.MyEnergiDeviceStatus;
 import com.amcglynn.myenergi.apiresponse.StatusResponse;
+import com.amcglynn.myenergi.apiresponse.ZappiStatus;
 import com.amcglynn.myzappi.api.rest.ServerException;
 import com.amcglynn.myzappi.core.dal.DevicesRepository;
 import com.amcglynn.myzappi.core.model.DeviceClass;
@@ -60,7 +61,7 @@ class RegistrationServiceTest {
     @Mock
     private StatusResponse mockLibbiStatusResponse;
     @Mock
-    private MyEnergiDeviceStatus mockZappiDeviceStatus;
+    private ZappiStatus mockZappiDeviceStatus;
     @Mock
     private MyEnergiDeviceStatus mockEddiDeviceStatus;
     @Mock

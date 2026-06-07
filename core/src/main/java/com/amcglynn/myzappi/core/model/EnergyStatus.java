@@ -1,6 +1,7 @@
 package com.amcglynn.myzappi.core.model;
 
 import com.amcglynn.myenergi.apiresponse.MyEnergiDeviceStatus;
+import com.amcglynn.myenergi.apiresponse.ZappiStatus;
 import com.amcglynn.myenergi.units.KiloWatt;
 import com.amcglynn.myenergi.units.Watt;
 import lombok.AllArgsConstructor;
@@ -20,9 +21,17 @@ public class EnergyStatus {
     private KiloWatt exportingKW;
 
     public EnergyStatus(MyEnergiDeviceStatus status) {
-        var gridImport = new Watt(Math.max(0, status.getGridWatts()));
-        var gridExport = new Watt(Math.abs(Math.min(0, status.getGridWatts())));
-        var generated = new Watt(status.getSolarGeneration());
+        this(status.getSolarGeneration(), status.getGridWatts());
+    }
+
+    public EnergyStatus(ZappiStatus status) {
+        this(status.getSolarGeneration(), status.getGridWatts());
+    }
+
+    private EnergyStatus(Long solarGeneration, Long gridWatts) {
+        var gridImport = new Watt(Math.max(0, gridWatts));
+        var gridExport = new Watt(Math.abs(Math.min(0, gridWatts)));
+        var generated = new Watt(solarGeneration);
         var consumed = new Watt(generated).add(gridImport).subtract(gridExport);
 
         this.solarGenerationKW = new KiloWatt(generated);

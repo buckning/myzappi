@@ -32,6 +32,9 @@ public class MyEnergiDeviceStatus {
     @JsonProperty("div")
     private Long diversionAmountWatts = 0L;
 
+    @JsonProperty("soc")
+    private Integer stateOfCharge;
+
 //    {
 //        "zappi": [
 //        {
