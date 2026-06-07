@@ -57,6 +57,15 @@ describe('AutomationsPanelComponent', () => {
     expect(automationService.list).toHaveBeenCalledWith('Bearer token');
   });
 
+  it('renders the beta title and plain-language feature description', () => {
+    fixture.detectChanges();
+
+    const text = fixture.nativeElement.textContent;
+    expect(text).toContain('Automations (Beta)');
+    expect(text).toContain('Automations let MyZappi check your myenergi setup every few minutes.');
+    expect(text).toContain('MyZappi can automatically run the action you selected');
+  });
+
   it('opens the create automation dialog', () => {
     dialog.open.and.returnValue({ afterClosed: () => of(null) } as any);
     fixture.detectChanges();

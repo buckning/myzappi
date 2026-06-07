@@ -4,6 +4,7 @@ import com.amcglynn.myenergi.MyEnergiClientFactory;
 import com.amcglynn.myenergi.MyEnergiOAuthClient;
 import com.amcglynn.myenergi.apiresponse.MyEnergiDeviceStatus;
 import com.amcglynn.myenergi.apiresponse.StatusResponse;
+import com.amcglynn.myenergi.apiresponse.ZappiStatus;
 import com.amcglynn.myenergi.exception.ClientException;
 import com.amcglynn.myzappi.api.rest.response.AccountSummaryResponse;
 import com.amcglynn.myzappi.core.dal.DevicesRepository;
@@ -135,7 +136,7 @@ public class RegistrationService {
         return List.of();
     }
 
-    private MyEnergiDevice toZappiDevice(MyEnergiDeviceStatus status) {
+    private MyEnergiDevice toZappiDevice(ZappiStatus status) {
         return new ZappiDevice(SerialNumber.from(status.getSerialNumber()));
     }
 

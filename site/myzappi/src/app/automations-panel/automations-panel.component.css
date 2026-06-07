@@ -1,3 +1,10 @@
+.automationDescription {
+  max-width: 760px;
+  margin-top: -8px;
+  margin-bottom: 18px;
+  line-height: 1.4;
+}
+
 .automationList {
   display: grid;
   gap: 10px;

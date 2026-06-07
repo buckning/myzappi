@@ -23,12 +23,13 @@ import java.util.stream.Collectors;
 public class AutomationProcessorService {
 
     private static final String CONFLICT_SKIP_REASON =
-            "Skipped because a higher priority automation for the same action target triggered in this run";
+            "Skipped because a higher priority automation for the same action target matched in this run";
 
     private final AutomationStateRepository automationStateRepository;
     private final MyEnergiService.Builder myEnergiServiceBuilder;
     private final PredicateEvaluator predicateEvaluator;
     private final AutomationActionExecutor actionExecutor;
+    private final AutomationActionStateEvaluator actionStateEvaluator;
     private final Clock clock;
 
     public AutomationProcessorService(AutomationStateRepository automationStateRepository,
@@ -40,6 +41,7 @@ public class AutomationProcessorService {
         this.myEnergiServiceBuilder = myEnergiServiceBuilder;
         this.predicateEvaluator = predicateEvaluator;
         this.actionExecutor = actionExecutor;
+        this.actionStateEvaluator = new AutomationActionStateEvaluator();
         this.clock = clock;
     }
 
@@ -76,20 +78,20 @@ public class AutomationProcessorService {
                                                           List<Automation> activeAutomations,
                                                           Map<String, AutomationStateEntry> states,
                                                           LocalDateTime now) {
-        var triggered = new ArrayList<Automation>();
+        var matchedAutomations = new ArrayList<MatchedAutomation>();
         var evaluated = 0;
         var failed = 0;
 
         for (Automation automation : activeAutomations) {
+            log.info("Processing automation, {} for user {}", automation, userId);
             evaluated++;
             try {
                 var matched = predicateEvaluator.evaluate(automation.getPredicate(), snapshot);
                 var previous = states.get(automation.getAutomationId());
-                var previousMatched = previous != null && Boolean.TRUE.equals(previous.getLastPredicateMatched());
-                if (matched && !previousMatched) {
-                    triggered.add(automation);
+                if (matched) {
+                    matchedAutomations.add(new MatchedAutomation(automation, shouldExecute(automation, snapshot, previous)));
                 } else {
-                    states.put(automation.getAutomationId(), evaluatedState(matched, now, previous));
+                    states.put(automation.getAutomationId(), evaluatedState(false, now, previous));
                 }
             } catch (Exception e) {
                 failed++;
@@ -97,49 +99,66 @@ public class AutomationProcessorService {
             }
         }
 
-        var executionResult = executeTriggered(userId, myEnergiService, triggered, states, now);
+        var executionResult = executeMatched(userId, myEnergiService, matchedAutomations, states, now);
         automationStateRepository.write(userId, states);
         return AutomationProcessingResult.builder()
                 .evaluated(evaluated)
-                .triggered(triggered.size())
+                .triggered(executionResult.triggered())
                 .executed(executionResult.executed())
                 .skipped(executionResult.skipped())
                 .failed(failed + executionResult.failed())
                 .build();
     }
 
-    private ExecutionResult executeTriggered(UserId userId,
-                                             MyEnergiService myEnergiService,
-                                             List<Automation> triggered,
-                                             Map<String, AutomationStateEntry> states,
-                                             LocalDateTime now) {
-        var grouped = new LinkedHashMap<AutomationConflictKey, List<Automation>>();
-        triggered.stream()
-                .sorted(Comparator.comparingInt(Automation::getPriority))
-                .forEach(automation -> grouped.computeIfAbsent(AutomationConflictKey.from(automation), ignored -> new ArrayList<>())
-                        .add(automation));
+    private boolean shouldExecute(Automation automation,
+                                  com.amcglynn.myzappi.core.model.AutomationSnapshot snapshot,
+                                  AutomationStateEntry previous) {
+        return actionStateEvaluator.isSatisfied(automation.getAction(), snapshot)
+                .map(satisfied -> !satisfied)
+                .orElseGet(() -> previous == null || !Boolean.TRUE.equals(previous.getLastPredicateMatched()));
+    }
 
+    private ExecutionResult executeMatched(UserId userId,
+                                           MyEnergiService myEnergiService,
+                                           List<MatchedAutomation> matchedAutomations,
+                                           Map<String, AutomationStateEntry> states,
+                                           LocalDateTime now) {
+        var grouped = new LinkedHashMap<AutomationConflictKey, List<MatchedAutomation>>();
+        matchedAutomations.stream()
+                .sorted(Comparator.comparingInt(matched -> matched.automation().getPriority()))
+                .forEach(matched -> grouped.computeIfAbsent(AutomationConflictKey.from(matched.automation()), ignored -> new ArrayList<>())
+                        .add(matched));
+
+        var triggered = 0;
         var executed = 0;
         var skipped = 0;
         var failed = 0;
-        for (List<Automation> conflictGroup : grouped.values()) {
+        for (List<MatchedAutomation> conflictGroup : grouped.values()) {
             var winner = conflictGroup.get(0);
-            try {
-                actionExecutor.execute(userId, myEnergiService, winner.getAction());
-                states.put(winner.getAutomationId(), triggeredState(now));
-                executed++;
-            } catch (Exception e) {
-                states.put(winner.getAutomationId(), failedState(e, now));
-                failed++;
+            var winnerAutomation = winner.automation();
+            if (winner.shouldExecute()) {
+                triggered++;
+                try {
+                    actionExecutor.execute(userId, myEnergiService, winnerAutomation.getAction());
+                    states.put(winnerAutomation.getAutomationId(), triggeredState(now));
+                    executed++;
+                } catch (Exception e) {
+                    states.put(winnerAutomation.getAutomationId(), failedState(e, now));
+                    failed++;
+                }
+            } else {
+                states.put(winnerAutomation.getAutomationId(),
+                        evaluatedState(true, now, states.get(winnerAutomation.getAutomationId())));
             }
             for (int i = 1; i < conflictGroup.size(); i++) {
-                var skippedAutomation = conflictGroup.get(i);
+                var skippedAutomation = conflictGroup.get(i).automation();
                 states.put(skippedAutomation.getAutomationId(),
                         skippedState(states.get(skippedAutomation.getAutomationId()), now));
+                log.info("Skipped automation for user {}, {}", userId, skippedAutomation);
                 skipped++;
             }
         }
-        return new ExecutionResult(executed, skipped, failed);
+        return new ExecutionResult(triggered, executed, skipped, failed);
     }
 
     private void cleanupDisabledAndOrphanedStates(Map<String, AutomationStateEntry> states,
@@ -178,13 +197,16 @@ public class AutomationProcessorService {
 
     private AutomationStateEntry skippedState(AutomationStateEntry previous, LocalDateTime now) {
         return AutomationStateEntry.builder()
-                .lastPredicateMatched(previous != null && Boolean.TRUE.equals(previous.getLastPredicateMatched()))
+                .lastPredicateMatched(true)
                 .lastEvaluatedAt(now)
                 .lastTriggeredAt(previous == null ? null : previous.getLastTriggeredAt())
                 .lastSkippedReason(CONFLICT_SKIP_REASON)
                 .build();
     }
 
-    private record ExecutionResult(int executed, int skipped, int failed) {
+    private record MatchedAutomation(Automation automation, boolean shouldExecute) {
+    }
+
+    private record ExecutionResult(int triggered, int executed, int skipped, int failed) {
     }
 }

@@ -21,7 +21,8 @@ minutes.
   races on JSON blobs.
 - Keep DynamoDB row count low by storing per-user JSON blobs.
 - Fetch current myenergi state once per user per processor run.
-- Execute actions only when predicates move from false or missing state to true.
+- Execute actions when predicates are currently true and the selected target is
+  not already in the desired state, where current target state can be read.
 - Support priority-based conflict resolution.
 - Reuse existing action strings and state reconciliation where possible.
 
@@ -59,8 +60,8 @@ Responsibilities:
 - `automation-processor`
   - Runs from a manually configured EventBridge schedule every five minutes.
   - Scans opt-in automation definitions in batches.
-  - Evaluates active automations, executes triggered actions, writes state, and
-    handles continuation.
+  - Evaluates active automations, executes selected actions that need target
+    state changes, writes state, and handles continuation.
 
 - Existing `StateReconcilerService`
   - Used only for automation actions with an existing registered reconciler.
@@ -140,9 +141,18 @@ Each state entry may contain:
 
 State behavior:
 
-- Missing state is treated as "not previously matched".
+- Missing state is treated as "not previously matched" for action types whose
+  current target state cannot be read.
 - A newly created or re-enabled automation can execute on its first processor
   evaluation if the predicate is already true.
+- For action types whose current target state can be read, the processor uses
+  level-triggered desired-state behavior: if the predicate is true and the
+  current target state differs from the action value, execute the action even
+  when the predicate was also true in the previous run.
+- If the predicate is true but the current target state already matches the
+  action value, do not execute the action.
+- For action types whose current target state cannot be read, the processor
+  retains edge-trigger fallback behavior to avoid command spam.
 - Disabling an automation does not write state from the API. The processor
   removes the disabled automation's state entry on its next run.
 - Deleting an automation removes only the definition unless it is the final
@@ -248,10 +258,13 @@ High-level flow:
    - build `MyEnergiService` once
    - fetch one current myenergi snapshot
    - evaluate all active automations against the snapshot
-   - compare predicate results with stored state
-   - select automations transitioning from false or missing to true
-   - sort triggered automations by priority
-   - execute the highest-priority action per conflict key
+   - compare predicate results with target action state where available
+   - group currently matching automations by conflict key
+   - sort matching automations by priority
+   - select the highest-priority matching automation per conflict key
+   - execute the selected action when the target state is not already satisfied
+   - for action types without readable target state, execute only when the
+     predicate transitions from false or missing to true
    - skip lower-priority conflicting actions without fallback
    - record per-automation failures and continue
    - write updated state once for the user
@@ -260,7 +273,8 @@ High-level flow:
 6. Release the lock on normal completion.
 
 The processor must remain idempotent. Locking reduces overlap but does not
-replace transition checks and deterministic conflict handling.
+replace desired-state checks, transition fallback for unreadable action state,
+and deterministic conflict handling.
 
 ## Snapshot Strategy
 
@@ -276,8 +290,15 @@ The snapshot should include:
   - consuming
 - Zappi status values needed by predicates:
   - EV charge rate
+- Zappi status values needed by action desired-state checks:
+  - charge mode
+  - minimum green level
+- Eddi status values needed by action desired-state checks:
+  - mode derived from Eddi state
 - Libbi status values needed by predicates:
   - state of charge
+- Libbi status values needed by action desired-state checks:
+  - enabled mode where available from status
 
 If one snapshot cannot provide every required field, the design should still
 centralize data fetching per user and avoid per-rule calls.
@@ -292,17 +313,20 @@ Conflict key:
 - action type
 - target device
 
-When multiple automations trigger in one poll with the same conflict key:
+When multiple automations match in one poll with the same conflict key:
 
 1. Sort by priority.
-2. Execute only the highest-priority automation.
-3. If it fails, do not fall back to lower-priority automations.
-4. Record `lastSkippedReason` for lower-priority conflicting automations.
-5. Do not advance skipped automations' predicate transition state to true.
+2. Select only the highest-priority matching automation.
+3. If the selected automation's target state already satisfies the action, do
+   nothing and do not fall back to lower-priority automations.
+4. If the selected automation needs execution and fails, do not fall back to
+   lower-priority automations.
+5. Record `lastSkippedReason` for lower-priority conflicting automations.
+6. Record the actual predicate match state for skipped automations.
 
 This allows a lower-priority overlapping automation to run later if the
 higher-priority predicate stops matching and the lower-priority predicate is
-still or newly true.
+still true.
 
 ## State Reconciliation
 
@@ -500,8 +524,11 @@ but running deployment remains explicit/manual.
 - The processor acquires a global lock and exits on active lock contention.
 - The processor processes users in bounded batches and supports continuation.
 - The processor fetches current myenergi state once per user where possible.
-- Automations execute only when their predicate transitions from false or
-  missing state to true.
+- Automations with readable target state execute when their predicate is true
+  and their selected action target is not already in the desired state.
+- Automations without readable target state retain transition fallback and
+  execute only when their predicate transitions from false or missing state to
+  true.
 - Create and re-enable can execute on the next processor run if the predicate is
   already true.
 - Disabled automation state is cleaned by the processor.
@@ -509,7 +536,7 @@ but running deployment remains explicit/manual.
   remain.
 - Deleting the final automation deletes the user's definition row and whole
   state row.
-- Conflicting triggered actions execute according to priority with no fallback.
+- Conflicting matching actions execute according to priority with no fallback.
 - Supported automation actions enqueue existing state reconciliation requests.
 - Failed rules do not stop other rules or users from being processed.
 - V1 does not expose runtime automation state in the public API or UI.
@@ -524,7 +551,9 @@ but running deployment remains explicit/manual.
 - Automation validation for predicate/action types, operators, values, ownership,
   target requirements, max count, and name length.
 - Predicate evaluation for all V1 predicate fields.
-- Transition behavior for missing, false, and true prior state.
+- Level-triggered desired-state behavior for readable action target state.
+- Transition fallback behavior for missing, false, and true prior state when
+  action target state is not readable.
 - Active/disabled state cleanup.
 - Orphan state cleanup.
 - Priority normalization and reorder behavior.

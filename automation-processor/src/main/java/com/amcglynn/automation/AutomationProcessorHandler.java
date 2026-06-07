@@ -99,6 +99,7 @@ public class AutomationProcessorHandler implements RequestHandler<AutomationProc
 
     @SneakyThrows
     private void invokeContinuation(String runId, Map<String, AttributeValue> lastEvaluatedKey) {
+        log.info("Automation processor continuation for runId {}", runId);
         var continuation = AutomationProcessorEvent.builder()
                 .runId(runId)
                 .lastEvaluatedKey(lastEvaluatedKey)

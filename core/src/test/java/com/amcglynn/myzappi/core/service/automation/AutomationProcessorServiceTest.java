@@ -1,5 +1,6 @@
 package com.amcglynn.myzappi.core.service.automation;
 
+import com.amcglynn.myenergi.ZappiChargeMode;
 import com.amcglynn.myenergi.units.KiloWatt;
 import com.amcglynn.myenergi.units.Watt;
 import com.amcglynn.myzappi.core.dal.AutomationStateRepository;
@@ -91,8 +92,23 @@ class AutomationProcessorServiceTest {
     }
 
     @Test
-    void previousTrueAndCurrentTruePredicateDoesNotTriggerActionAgain() {
-        arrangeSnapshot();
+    void previousTrueAndCurrentTruePredicateExecutesWhenTargetStateHasDrifted() {
+        arrangeSnapshot(ZappiChargeMode.FAST, 100);
+        when(stateRepository.read(userId)).thenReturn(Map.of("a", state(true)));
+        var automation = automation("a", 1, "ENERGY_EXPORTING_KW",
+                AutomationOperator.GREATER_THAN, "2.0", action("setChargeMode", "ECO_PLUS"));
+
+        service.processUser(userId, List.of(automation));
+
+        verify(actionExecutor).execute(userId, myEnergiService, automation.getAction());
+        verify(stateRepository).write(eq(userId), stateCaptor.capture());
+        assertThat(stateCaptor.getValue().get("a").getLastPredicateMatched()).isTrue();
+        assertThat(stateCaptor.getValue().get("a").getLastTriggeredAt()).isEqualTo(now);
+    }
+
+    @Test
+    void previousTrueAndCurrentTruePredicateDoesNotExecuteWhenTargetStateIsAlreadySatisfied() {
+        arrangeSnapshot(ZappiChargeMode.ECO_PLUS, 100);
         when(stateRepository.read(userId)).thenReturn(Map.of("a", state(true)));
 
         service.processUser(userId, List.of(automation("a", 1, "ENERGY_EXPORTING_KW",
@@ -101,6 +117,18 @@ class AutomationProcessorServiceTest {
         verify(actionExecutor, never()).execute(any(), any(), any());
         verify(stateRepository).write(eq(userId), stateCaptor.capture());
         assertThat(stateCaptor.getValue().get("a").getLastPredicateMatched()).isTrue();
+    }
+
+    @Test
+    void previousTrueAndCurrentTruePredicateExecutesWhenMinimumGreenLevelHasDrifted() {
+        arrangeSnapshot(ZappiChargeMode.ECO_PLUS, 30);
+        when(stateRepository.read(userId)).thenReturn(Map.of("a", state(true)));
+        var automation = automation("a", 1, "ENERGY_EXPORTING_KW",
+                AutomationOperator.GREATER_THAN, "2.0", action("setZappiMgl", "75"));
+
+        service.processUser(userId, List.of(automation));
+
+        verify(actionExecutor).execute(userId, myEnergiService, automation.getAction());
     }
 
     @Test
@@ -188,7 +216,7 @@ class AutomationProcessorServiceTest {
     }
 
     @Test
-    void lowerPrioritySkippedConflictDoesNotAdvancePredicateMatchStateToTrue() {
+    void lowerPrioritySkippedConflictRecordsActualPredicateMatchState() {
         arrangeSnapshot();
         when(stateRepository.read(userId)).thenReturn(Map.of());
         var high = automation("high", 1, "ENERGY_EXPORTING_KW", AutomationOperator.GREATER_THAN, "2.0",
@@ -199,7 +227,24 @@ class AutomationProcessorServiceTest {
         service.processUser(userId, List.of(high, low));
 
         verify(stateRepository).write(eq(userId), stateCaptor.capture());
-        assertThat(stateCaptor.getValue().get("low").getLastPredicateMatched()).isFalse();
+        assertThat(stateCaptor.getValue().get("low").getLastPredicateMatched()).isTrue();
+    }
+
+    @Test
+    void satisfiedHigherPriorityMatchBlocksLowerPriorityConflict() {
+        arrangeSnapshot(ZappiChargeMode.ECO_PLUS, 100);
+        when(stateRepository.read(userId)).thenReturn(Map.of("high", state(true), "low", state(true)));
+        var high = automation("high", 1, "ENERGY_EXPORTING_KW", AutomationOperator.GREATER_THAN, "2.0",
+                action("setChargeMode", "ECO_PLUS"));
+        var low = automation("low", 2, "ENERGY_SOLAR_GENERATION_KW", AutomationOperator.GREATER_THAN, "4.0",
+                action("setChargeMode", "FAST"));
+
+        service.processUser(userId, List.of(high, low));
+
+        verify(actionExecutor, never()).execute(any(), any(), any());
+        verify(stateRepository).write(eq(userId), stateCaptor.capture());
+        assertThat(stateCaptor.getValue().get("high").getLastPredicateMatched()).isTrue();
+        assertThat(stateCaptor.getValue().get("low").getLastSkippedReason()).contains("higher priority");
     }
 
     @Test
@@ -236,6 +281,10 @@ class AutomationProcessorServiceTest {
     }
 
     private void arrangeSnapshot() {
+        arrangeSnapshot(ZappiChargeMode.FAST, 30);
+    }
+
+    private void arrangeSnapshot(ZappiChargeMode zappiChargeMode, int mgl) {
         when(myEnergiServiceBuilder.build(any(UserIdResolver.class))).thenReturn(myEnergiService);
         when(myEnergiService.getAutomationSnapshot()).thenReturn(AutomationSnapshot.builder()
                 .energyStatus(EnergyStatus.builder()
@@ -245,6 +294,8 @@ class AutomationProcessorServiceTest {
                         .consumingKW(new KiloWatt(new Watt(2000L)))
                         .build())
                 .zappiEvChargeRateKWBySerialNumber(Map.of(SerialNumber.from("10000001"), new KiloWatt(new Watt(3000L))))
+                .zappiChargeModeBySerialNumber(Map.of(SerialNumber.from("10000001"), zappiChargeMode))
+                .zappiMinimumGreenLevelBySerialNumber(Map.of(SerialNumber.from("10000001"), mgl))
                 .libbiStateOfChargePercentBySerialNumber(Map.of(SerialNumber.from("30000001"), 80))
                 .build());
     }

@@ -6,7 +6,7 @@ import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class StatusResponse {
-    private List<MyEnergiDeviceStatus> zappi;
+    private List<ZappiStatus> zappi;
     private List<MyEnergiDeviceStatus> eddi;
     private List<MyEnergiDeviceStatus> libbi;
     private List<MyEnergiDeviceStatus> harvi;
@@ -62,11 +62,11 @@ public class StatusResponse {
         this.libbi = libbi;
     }
 
-    public List<MyEnergiDeviceStatus> getZappi() {
+    public List<ZappiStatus> getZappi() {
         return this.zappi;
     }
 
-    public void setZappi(List<MyEnergiDeviceStatus> zappi) {
+    public void setZappi(List<ZappiStatus> zappi) {
         this.zappi = zappi;
     }
 }

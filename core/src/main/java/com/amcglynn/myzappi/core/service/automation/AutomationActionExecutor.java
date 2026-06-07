@@ -22,6 +22,8 @@ public class AutomationActionExecutor {
     }
 
     public void execute(UserId userId, MyEnergiService myEnergiService, AutomationAction action) {
+        log.info("AutomationActionExecutor executing {} on device {} with value {} for user {}",
+                action.getType(), action.getTarget(), action.getValue(), userId);
         var target = SerialNumber.from(action.getTarget().orElseThrow());
         switch (action.getType()) {
             case "setChargeMode" -> myEnergiService.getZappiServiceOrThrow()
