@@ -1,11 +1,5 @@
 package com.amcglynn.myzappi.api;
 
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
-import com.amazonaws.services.dynamodbv2.model.AttributeValue;
-import com.amazonaws.services.dynamodbv2.model.DeleteItemRequest;
-import com.amazonaws.services.dynamodbv2.model.GetItemRequest;
-import com.amazonaws.services.dynamodbv2.model.GetItemResult;
-import com.amazonaws.services.dynamodbv2.model.PutItemRequest;
 import com.amcglynn.myzappi.core.model.UserId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,10 +10,18 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
+import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
+import software.amazon.awssdk.services.dynamodb.model.DeleteItemRequest;
+import software.amazon.awssdk.services.dynamodb.model.GetItemRequest;
+import software.amazon.awssdk.services.dynamodb.model.GetItemRequest;
+import software.amazon.awssdk.services.dynamodb.model.GetItemResponse;
+import software.amazon.awssdk.services.dynamodb.model.PutItemRequest;
 
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static com.amcglynn.myzappi.core.dal.DynamoDbAttributeValues.numberValue;
+import static com.amcglynn.myzappi.core.dal.DynamoDbAttributeValues.stringValue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -29,7 +31,7 @@ import static org.mockito.Mockito.when;
 class SessionRepositoryTest {
 
     @Mock
-    private AmazonDynamoDB mockDbClient;
+    private DynamoDbClient mockDbClient;
 
     @Captor
     private ArgumentCaptor<GetItemRequest> getItemCaptor;
@@ -38,18 +40,16 @@ class SessionRepositoryTest {
     @Captor
     private ArgumentCaptor<PutItemRequest> putItemCaptor;
 
-    @Mock
-    private GetItemResult mockGetResult;
-
     private SessionRepository sessionRepository;
     private final SessionId sessionId = SessionId.from("03662064-99b5-404c-b4c7-a0bd04257f95");
 
     @BeforeEach
     void setUp() {
-        when(mockGetResult.getItem()).thenReturn(Map.of("amazon-user-id", new AttributeValue("userId"),
-                "session-id", new AttributeValue(sessionId.toString()),
-                "ttl", new AttributeValue().withN("12345678")));
-        when(mockDbClient.getItem(any())).thenReturn(mockGetResult);
+        when(mockDbClient.getItem(any(GetItemRequest.class))).thenReturn(GetItemResponse.builder()
+                .item(Map.of("amazon-user-id", stringValue("userId"),
+                        "session-id", stringValue(sessionId.toString()),
+                        "ttl", numberValue("12345678")))
+                .build());
         sessionRepository = new SessionRepository(mockDbClient);
     }
 
@@ -59,7 +59,7 @@ class SessionRepositoryTest {
 
         verify(mockDbClient).getItem(getItemCaptor.capture());
         assertThat(getItemCaptor.getValue()).isNotNull();
-        assertThat(getItemCaptor.getValue().getTableName()).isEqualTo("session");
+        assertThat(getItemCaptor.getValue().tableName()).isEqualTo("session");
         assertThat(result).isNotNull().isPresent();
         assertThat(result.get().getUserId()).hasToString("userId");
         assertThat(result.get().getTtl()).isEqualTo(12345678L);
@@ -68,13 +68,13 @@ class SessionRepositoryTest {
 
     @Test
     void readReturnsEmptyOptionalWhenItDoesNotExistInTheDb() {
-        when(mockGetResult.getItem()).thenReturn(null);
+        when(mockDbClient.getItem(any(GetItemRequest.class))).thenReturn(GetItemResponse.builder().build());
 
         assertThat(sessionRepository.read(SessionId.from("unknownSession"))).isEmpty();
 
         verify(mockDbClient).getItem(getItemCaptor.capture());
         assertThat(getItemCaptor.getValue()).isNotNull();
-        assertThat(getItemCaptor.getValue().getTableName()).isEqualTo("session");
+        assertThat(getItemCaptor.getValue().tableName()).isEqualTo("session");
     }
 
     @Test
@@ -82,8 +82,8 @@ class SessionRepositoryTest {
         sessionRepository.delete(new Session(sessionId, UserId.from("userId"), 123L));
         verify(mockDbClient).deleteItem(deleteItemCaptor.capture());
         assertThat(deleteItemCaptor.getValue()).isNotNull();
-        assertThat(deleteItemCaptor.getValue().getTableName()).isEqualTo("session");
-        assertThat(deleteItemCaptor.getValue().getKey().get("session-id").getS()).isEqualTo(sessionId.toString());
+        assertThat(deleteItemCaptor.getValue().tableName()).isEqualTo("session");
+        assertThat(deleteItemCaptor.getValue().key().get("session-id").s()).isEqualTo(sessionId.toString());
     }
 
     @Test
@@ -91,9 +91,9 @@ class SessionRepositoryTest {
         sessionRepository.write(new Session(sessionId, UserId.from("userId"), 123L));
         verify(mockDbClient).putItem(putItemCaptor.capture());
         assertThat(putItemCaptor.getValue()).isNotNull();
-        assertThat(putItemCaptor.getValue().getTableName()).isEqualTo("session");
-        assertThat(putItemCaptor.getValue().getItem().get("session-id").getS()).isEqualTo(sessionId.toString());
-        assertThat(putItemCaptor.getValue().getItem().get("ttl").getN()).isEqualTo("123");
-        assertThat(putItemCaptor.getValue().getItem().get("amazon-user-id").getS()).isEqualTo("userId");
+        assertThat(putItemCaptor.getValue().tableName()).isEqualTo("session");
+        assertThat(putItemCaptor.getValue().item().get("session-id").s()).isEqualTo(sessionId.toString());
+        assertThat(putItemCaptor.getValue().item().get("ttl").n()).isEqualTo("123");
+        assertThat(putItemCaptor.getValue().item().get("amazon-user-id").s()).isEqualTo("userId");
     }
 }

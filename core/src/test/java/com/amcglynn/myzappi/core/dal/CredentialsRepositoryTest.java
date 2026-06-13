@@ -1,12 +1,7 @@
 package com.amcglynn.myzappi.core.dal;
 
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
-import com.amazonaws.services.dynamodbv2.model.AttributeValue;
-import com.amazonaws.services.dynamodbv2.model.DeleteItemRequest;
-import com.amazonaws.services.dynamodbv2.model.GetItemResult;
-import com.amazonaws.services.dynamodbv2.model.PutItemRequest;
-import com.amcglynn.myzappi.core.model.SerialNumber;
 import com.amcglynn.myzappi.core.model.MyEnergiDeployment;
+import com.amcglynn.myzappi.core.model.SerialNumber;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,11 +9,18 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
+import software.amazon.awssdk.services.dynamodb.model.DeleteItemRequest;
+import software.amazon.awssdk.services.dynamodb.model.GetItemRequest;
+import software.amazon.awssdk.services.dynamodb.model.GetItemResponse;
+import software.amazon.awssdk.services.dynamodb.model.PutItemRequest;
 
 import java.nio.ByteBuffer;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static com.amcglynn.myzappi.core.dal.DynamoDbAttributeValues.binaryValue;
+import static com.amcglynn.myzappi.core.dal.DynamoDbAttributeValues.stringValue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -27,9 +29,7 @@ import static org.mockito.Mockito.when;
 class CredentialsRepositoryTest {
 
     @Mock
-    private AmazonDynamoDB mockDb;
-    @Mock
-    private GetItemResult mockGetResult;
+    private DynamoDbClient mockDb;
 
     @Captor
     private ArgumentCaptor<PutItemRequest> putItemCaptor;
@@ -47,8 +47,7 @@ class CredentialsRepositoryTest {
 
     @Test
     void testReadCredentialsForUserWhoDoesNotExistReturnsEmptyOptional() {
-        when(mockGetResult.getItem()).thenReturn(null);
-        when(mockDb.getItem(any())).thenReturn(mockGetResult);
+        when(mockDb.getItem(any(GetItemRequest.class))).thenReturn(GetItemResponse.builder().build());
         var result = credentialsRepository.read("unknownuserid");
         assertThat(result).isEmpty();
     }
@@ -59,19 +58,20 @@ class CredentialsRepositoryTest {
         credentialsRepository.write(creds);
         verify(mockDb).putItem(putItemCaptor.capture());
         assertThat(putItemCaptor.getValue()).isNotNull();
-        assertThat(putItemCaptor.getValue().getItem()).hasSize(3);
-        assertThat(putItemCaptor.getValue().getTableName()).isEqualTo("zappi-login-creds");
-        assertThat(putItemCaptor.getValue().getItem().get("amazon-user-id").getS()).isEqualTo("userid");
-        assertThat(putItemCaptor.getValue().getItem().get("serial-number").getS()).isEqualTo("12345678");
-        assertThat(putItemCaptor.getValue().getItem().get("encrypted-api-key").getB()).isEqualTo(encryptedApiKey);
+        assertThat(putItemCaptor.getValue().item()).hasSize(3);
+        assertThat(putItemCaptor.getValue().tableName()).isEqualTo("zappi-login-creds");
+        assertThat(putItemCaptor.getValue().item().get("amazon-user-id").s()).isEqualTo("userid");
+        assertThat(putItemCaptor.getValue().item().get("serial-number").s()).isEqualTo("12345678");
+        assertThat(putItemCaptor.getValue().item().get("encrypted-api-key").b().asByteBuffer()).isEqualTo(encryptedApiKey);
     }
 
 
     @Test
     void testReadCredentialsForUserWhoHasSuccessfullyLoggedInAndWhoHasAnEddi() {
-        when(mockGetResult.getItem()).thenReturn(Map.of("serial-number", new AttributeValue("12345678"),
-                "encrypted-api-key", new AttributeValue().withB(encryptedApiKey)));
-        when(mockDb.getItem(any())).thenReturn(mockGetResult);
+        when(mockDb.getItem(any(GetItemRequest.class))).thenReturn(GetItemResponse.builder()
+                .item(Map.of("serial-number", stringValue("12345678"),
+                        "encrypted-api-key", binaryValue(encryptedApiKey)))
+                .build());
         var result = credentialsRepository.read("userid");
         assertThat(result).isPresent();
         assertThat(result.get().getUserId()).isEqualTo("userid");
@@ -85,7 +85,7 @@ class CredentialsRepositoryTest {
         credentialsRepository.delete("userid");
         verify(mockDb).deleteItem(deleteItemCaptor.capture());
         assertThat(deleteItemCaptor.getValue()).isNotNull();
-        assertThat(deleteItemCaptor.getValue().getTableName()).isEqualTo("zappi-login-creds");
-        assertThat(deleteItemCaptor.getValue().getKey().get("amazon-user-id").getS()).isEqualTo("userid");
+        assertThat(deleteItemCaptor.getValue().tableName()).isEqualTo("zappi-login-creds");
+        assertThat(deleteItemCaptor.getValue().key().get("amazon-user-id").s()).isEqualTo("userid");
     }
 }

@@ -1,6 +1,5 @@
 package com.amcglynn.myzappi.core.model;
 
-import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -15,7 +14,7 @@ import java.util.Map;
 @Builder
 public class AutomationScanPage {
     private List<UserAutomations> userAutomations;
-    private Map<String, AttributeValue> lastEvaluatedKey;
+    private Map<String, String> lastEvaluatedKey;
 
     public boolean hasMore() {
         return lastEvaluatedKey != null && !lastEvaluatedKey.isEmpty();

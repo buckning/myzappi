@@ -2,8 +2,8 @@ dependencies {
     implementation "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}"
     implementation "com.amazonaws:aws-lambda-java-events:${awsLambdaJavaEventsVersion}"
     implementation "com.amazonaws:aws-lambda-java-core:${awsLambdaJavaCoreVersion}"
-    implementation "com.amazonaws:aws-java-sdk-dynamodb:${dynamodbVersion}"
-    implementation "com.amazonaws:aws-java-sdk-lambda:${dynamodbVersion}"
+    implementation "software.amazon.awssdk:dynamodb"
+    implementation "software.amazon.awssdk:lambda"
     implementation project(":core")
     implementation project(":login-with-amazon")
     implementation project(":myenergi-client")

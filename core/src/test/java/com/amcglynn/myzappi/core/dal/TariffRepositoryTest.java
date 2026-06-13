@@ -1,9 +1,5 @@
 package com.amcglynn.myzappi.core.dal;
 
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
-import com.amazonaws.services.dynamodbv2.model.AttributeValue;
-import com.amazonaws.services.dynamodbv2.model.GetItemResult;
-import com.amazonaws.services.dynamodbv2.model.PutItemRequest;
 import com.amcglynn.myzappi.core.model.DayTariff;
 import com.amcglynn.myzappi.core.model.Tariff;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,12 +9,17 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
+import software.amazon.awssdk.services.dynamodb.model.GetItemRequest;
+import software.amazon.awssdk.services.dynamodb.model.GetItemResponse;
+import software.amazon.awssdk.services.dynamodb.model.PutItemRequest;
 
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static com.amcglynn.myzappi.core.dal.DynamoDbAttributeValues.stringValue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -26,9 +27,7 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class TariffRepositoryTest {
     @Mock
-    private AmazonDynamoDB mockDb;
-    @Mock
-    private GetItemResult mockGetResult;
+    private DynamoDbClient mockDb;
 
     @Captor
     private ArgumentCaptor<PutItemRequest> putItemCaptor;
@@ -80,18 +79,18 @@ class TariffRepositoryTest {
 
     @Test
     void testReadForUserWhoDoesNotExistReturnsEmptyOptional() {
-        when(mockGetResult.getItem()).thenReturn(null);
-        when(mockDb.getItem(any())).thenReturn(mockGetResult);
+        when(mockDb.getItem(any(GetItemRequest.class))).thenReturn(GetItemResponse.builder().build());
         var result = repository.read("unknownuserid");
         assertThat(result).isEmpty();
     }
 
     @Test
     void testReadForUserWhoHasEntryInDbButEmptyTariffList() {
-        when(mockGetResult.getItem()).thenReturn(Map.of("user-id", new AttributeValue("testuser"),
-                "tariffs", new AttributeValue("[]"),
-                "currency", new AttributeValue("EUR")));
-        when(mockDb.getItem(any())).thenReturn(mockGetResult);
+        when(mockDb.getItem(any(GetItemRequest.class))).thenReturn(GetItemResponse.builder()
+                .item(Map.of("user-id", stringValue("testuser"),
+                        "tariffs", stringValue("[]"),
+                        "currency", stringValue("EUR")))
+                .build());
         var result = repository.read("userid");
         assertThat(result).isPresent();
         assertThat(result.get().getCurrency()).isEqualTo("EUR");
@@ -100,10 +99,11 @@ class TariffRepositoryTest {
 
     @Test
     void testReadForUserWhoHasEntryInDb() {
-        when(mockGetResult.getItem()).thenReturn(Map.of("user-id", new AttributeValue("testuser"),
-                "tariffs", new AttributeValue(testTariffString),
-                "currency", new AttributeValue("EUR")));
-        when(mockDb.getItem(any())).thenReturn(mockGetResult);
+        when(mockDb.getItem(any(GetItemRequest.class))).thenReturn(GetItemResponse.builder()
+                .item(Map.of("user-id", stringValue("testuser"),
+                        "tariffs", stringValue(testTariffString),
+                        "currency", stringValue("EUR")))
+                .build());
         var result = repository.read("userid");
         assertThat(result).isPresent();
         assertThat(result.get().getCurrency()).isEqualTo("EUR");
@@ -135,11 +135,11 @@ class TariffRepositoryTest {
         repository.write("testUser", dayTariff);
         verify(mockDb).putItem(putItemCaptor.capture());
         assertThat(putItemCaptor.getValue()).isNotNull();
-        assertThat(putItemCaptor.getValue().getItem()).hasSize(3);
-        assertThat(putItemCaptor.getValue().getTableName()).isEqualTo("tariff");
-        assertThat(putItemCaptor.getValue().getItem().get("currency").getS()).isEqualTo("EUR");
-        assertThat(putItemCaptor.getValue().getItem().get("user-id").getS()).isEqualTo("testUser");
-        assertThat(putItemCaptor.getValue().getItem().get("tariffs").getS())
+        assertThat(putItemCaptor.getValue().item()).hasSize(3);
+        assertThat(putItemCaptor.getValue().tableName()).isEqualTo("tariff");
+        assertThat(putItemCaptor.getValue().item().get("currency").s()).isEqualTo("EUR");
+        assertThat(putItemCaptor.getValue().item().get("user-id").s()).isEqualTo("testUser");
+        assertThat(putItemCaptor.getValue().item().get("tariffs").s())
                 .isEqualTo("[{\"start\":\"00:00\",\"end\":\"08:00\",\"name\":\"Tariff1\",\"importCostPerKwh\":0.2092,\"exportCostPerKwh\":0.21}," +
                         "{\"start\":\"08:00\",\"end\":\"17:00\",\"name\":\"Tariff2\",\"importCostPerKwh\":0.4241,\"exportCostPerKwh\":0.1}," +
                         "{\"start\":\"17:00\",\"end\":\"19:00\",\"name\":\"Tariff3\",\"importCostPerKwh\":0.5,\"exportCostPerKwh\":0.2}," +

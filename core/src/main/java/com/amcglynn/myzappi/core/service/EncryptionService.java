@@ -1,36 +1,38 @@
 package com.amcglynn.myzappi.core.service;
 
-import com.amazonaws.services.kms.AWSKMS;
-import com.amazonaws.services.kms.AWSKMSClientBuilder;
-import com.amazonaws.services.kms.model.DecryptRequest;
-import com.amazonaws.services.kms.model.EncryptRequest;
+import software.amazon.awssdk.core.SdkBytes;
+import software.amazon.awssdk.services.kms.KmsClient;
+import software.amazon.awssdk.services.kms.model.DecryptRequest;
+import software.amazon.awssdk.services.kms.model.EncryptRequest;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
 public class EncryptionService {
 
-    private final AWSKMS kmsClient;
+    private final KmsClient kmsClient;
     private final String kmsKeyArn;
 
     public EncryptionService(String kmsKeyArn) {
         this.kmsKeyArn = kmsKeyArn;
-        kmsClient = AWSKMSClientBuilder.standard().build();
+        kmsClient = KmsClient.builder().build();
     }
 
     public ByteBuffer encrypt(String data) {
-        var encryptRequest = new EncryptRequest().withKeyId(kmsKeyArn)
-                .withPlaintext(ByteBuffer.wrap(data.getBytes()));
+        var encryptRequest = EncryptRequest.builder()
+                .keyId(kmsKeyArn)
+                .plaintext(SdkBytes.fromByteBuffer(ByteBuffer.wrap(data.getBytes(StandardCharsets.UTF_8))))
+                .build();
         var encryptResult = kmsClient.encrypt(encryptRequest);
-        return encryptResult.getCiphertextBlob();
+        return encryptResult.ciphertextBlob().asByteBuffer();
     }
 
     public String decrypt(ByteBuffer encryptedData) {
-        var decryptRequest = new DecryptRequest()
-                .withCiphertextBlob(encryptedData)
-                .withKeyId(kmsKeyArn);
+        var decryptRequest = DecryptRequest.builder()
+                .ciphertextBlob(SdkBytes.fromByteBuffer(encryptedData))
+                .keyId(kmsKeyArn)
+                .build();
         var decryptResult = kmsClient.decrypt(decryptRequest);
-        var plaintextKey = decryptResult.getPlaintext();
-        return new String(plaintextKey.array(), StandardCharsets.UTF_8);
+        return decryptResult.plaintext().asString(StandardCharsets.UTF_8);
     }
 }

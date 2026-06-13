@@ -1,12 +1,5 @@
 package com.amcglynn.myzappi.core.dal;
 
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
-import com.amazonaws.services.dynamodbv2.model.AttributeValue;
-import com.amazonaws.services.dynamodbv2.model.DeleteItemRequest;
-import com.amazonaws.services.dynamodbv2.model.GetItemResult;
-import com.amazonaws.services.dynamodbv2.model.PutItemRequest;
-import com.amazonaws.services.dynamodbv2.model.ScanRequest;
-import com.amazonaws.services.dynamodbv2.model.ScanResult;
 import com.amcglynn.myzappi.core.model.Automation;
 import com.amcglynn.myzappi.core.model.AutomationAction;
 import com.amcglynn.myzappi.core.model.AutomationOperator;
@@ -22,11 +15,19 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
+import software.amazon.awssdk.services.dynamodb.model.DeleteItemRequest;
+import software.amazon.awssdk.services.dynamodb.model.GetItemRequest;
+import software.amazon.awssdk.services.dynamodb.model.GetItemResponse;
+import software.amazon.awssdk.services.dynamodb.model.PutItemRequest;
+import software.amazon.awssdk.services.dynamodb.model.ScanRequest;
+import software.amazon.awssdk.services.dynamodb.model.ScanResponse;
 
 import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static com.amcglynn.myzappi.core.dal.DynamoDbAttributeValues.stringValue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -35,9 +36,7 @@ import static org.mockito.Mockito.when;
 class AutomationRepositoryTest {
 
     @Mock
-    private AmazonDynamoDB mockDb;
-    @Mock
-    private GetItemResult mockGetResult;
+    private DynamoDbClient mockDb;
     @Captor
     private ArgumentCaptor<PutItemRequest> putItemCaptor;
     @Captor
@@ -55,8 +54,7 @@ class AutomationRepositoryTest {
 
     @Test
     void readReturnsEmptyListWhenDefinitionRowDoesNotExist() {
-        when(mockGetResult.getItem()).thenReturn(null);
-        when(mockDb.getItem(any())).thenReturn(mockGetResult);
+        when(mockDb.getItem(any(GetItemRequest.class))).thenReturn(GetItemResponse.builder().build());
 
         var result = repository.read(UserId.from("user-1"));
 
@@ -69,9 +67,9 @@ class AutomationRepositoryTest {
 
         verify(mockDb).putItem(putItemCaptor.capture());
         var request = putItemCaptor.getValue();
-        assertThat(request.getTableName()).isEqualTo("automation");
-        assertThat(request.getItem().get("user-id").getS()).isEqualTo("user-1");
-        var automations = objectMapper.readValue(request.getItem().get("automations").getS(),
+        assertThat(request.tableName()).isEqualTo("automation");
+        assertThat(request.item().get("user-id").s()).isEqualTo("user-1");
+        var automations = objectMapper.readValue(request.item().get("automations").s(),
                 new TypeReference<List<Automation>>() {
                 });
         assertThat(automations).hasSize(1);
@@ -83,30 +81,31 @@ class AutomationRepositoryTest {
         repository.delete(UserId.from("user-1"));
 
         verify(mockDb).deleteItem(deleteItemCaptor.capture());
-        assertThat(deleteItemCaptor.getValue().getTableName()).isEqualTo("automation");
-        assertThat(deleteItemCaptor.getValue().getKey().get("user-id").getS()).isEqualTo("user-1");
+        assertThat(deleteItemCaptor.getValue().tableName()).isEqualTo("automation");
+        assertThat(deleteItemCaptor.getValue().key().get("user-id").s()).isEqualTo("user-1");
     }
 
     @Test
     void scanReturnsUserIdsDefinitionsAndLastEvaluatedKey() {
-        var lastEvaluatedKey = Map.of("user-id", new AttributeValue("user-2"));
-        var result = new ScanResult()
-                .withItems(List.of(
-                        Map.of("user-id", new AttributeValue("user-1"),
-                                "automations", new AttributeValue("""
+        var lastEvaluatedKey = Map.of("user-id", stringValue("user-2"));
+        var result = ScanResponse.builder()
+                .items(List.of(
+                        Map.of("user-id", stringValue("user-1"),
+                                "automations", stringValue("""
                                         [{"automationId":"automation-1","priority":1,"predicate":{"type":"ENERGY_EXPORTING_KW","operator":"GREATER_THAN","value":"2.0"},"action":{"type":"setChargeMode","target":"10000001","value":"ECO_PLUS"}}]
                                         """))))
-                .withLastEvaluatedKey(lastEvaluatedKey);
+                .lastEvaluatedKey(lastEvaluatedKey)
+                .build();
         when(mockDb.scan(any(ScanRequest.class))).thenReturn(result);
 
-        var page = repository.scan(Map.of("user-id", new AttributeValue("previous-user")), 25);
+        var page = repository.scan(Map.of("user-id", "previous-user"), 25);
 
         verify(mockDb).scan(scanRequestCaptor.capture());
-        assertThat(scanRequestCaptor.getValue().getTableName()).isEqualTo("automation");
-        assertThat(scanRequestCaptor.getValue().getLimit()).isEqualTo(25);
-        assertThat(scanRequestCaptor.getValue().getExclusiveStartKey().get("user-id").getS()).isEqualTo("previous-user");
+        assertThat(scanRequestCaptor.getValue().tableName()).isEqualTo("automation");
+        assertThat(scanRequestCaptor.getValue().limit()).isEqualTo(25);
+        assertThat(scanRequestCaptor.getValue().exclusiveStartKey().get("user-id").s()).isEqualTo("previous-user");
         assertThat(page.hasMore()).isTrue();
-        assertThat(page.getLastEvaluatedKey()).isEqualTo(lastEvaluatedKey);
+        assertThat(page.getLastEvaluatedKey()).isEqualTo(Map.of("user-id", "user-2"));
         assertThat(page.getUserAutomations()).hasSize(1);
         assertThat(page.getUserAutomations().get(0).getUserId()).isEqualTo(UserId.from("user-1"));
         assertThat(page.getUserAutomations().get(0).getAutomations()).hasSize(1);
@@ -114,13 +113,15 @@ class AutomationRepositoryTest {
 
     @Test
     void scanSkipsMalformedRowsAndKeepsValidRowsInTheSameBatch() {
-        var result = new ScanResult().withItems(List.of(
-                Map.of("user-id", new AttributeValue("bad-user"),
-                        "automations", new AttributeValue("not-json")),
-                Map.of("user-id", new AttributeValue("good-user"),
-                        "automations", new AttributeValue("""
+        var result = ScanResponse.builder()
+                .items(List.of(
+                        Map.of("user-id", stringValue("bad-user"),
+                                "automations", stringValue("not-json")),
+                        Map.of("user-id", stringValue("good-user"),
+                                "automations", stringValue("""
                                 [{"automationId":"automation-1","priority":1,"predicate":{"type":"ENERGY_EXPORTING_KW","operator":"GREATER_THAN","value":"2.0"},"action":{"type":"setChargeMode","target":"10000001","value":"ECO_PLUS"}}]
-                                """))));
+                                """))))
+                .build();
         when(mockDb.scan(any(ScanRequest.class))).thenReturn(result);
 
         var page = repository.scan(null, 25);

@@ -1,9 +1,5 @@
 package com.amcglynn.automation;
 
-import com.amazonaws.services.dynamodbv2.model.AttributeValue;
-import com.amazonaws.services.lambda.AWSLambda;
-import com.amazonaws.services.lambda.AWSLambdaClientBuilder;
-import com.amazonaws.services.lambda.model.InvokeRequest;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amcglynn.myzappi.core.config.Properties;
@@ -21,6 +17,10 @@ import java.time.Instant;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Supplier;
+import software.amazon.awssdk.core.SdkBytes;
+import software.amazon.awssdk.services.lambda.LambdaClient;
+import software.amazon.awssdk.services.lambda.model.InvocationType;
+import software.amazon.awssdk.services.lambda.model.InvokeRequest;
 
 @Slf4j
 public class AutomationProcessorHandler implements RequestHandler<AutomationProcessorEvent, Void> {
@@ -32,7 +32,7 @@ public class AutomationProcessorHandler implements RequestHandler<AutomationProc
     private final AutomationRepository automationRepository;
     private final AutomationProcessorLockRepository lockRepository;
     private final AutomationProcessorService processorService;
-    private final AWSLambda lambdaClient;
+    private final LambdaClient lambdaClient;
     private final String lambdaName;
     private final Supplier<Instant> instantSupplier;
     private final ObjectMapper objectMapper;
@@ -42,7 +42,7 @@ public class AutomationProcessorHandler implements RequestHandler<AutomationProc
         this.automationRepository = serviceManager.getAutomationRepository();
         this.lockRepository = serviceManager.getAutomationProcessorLockRepository();
         this.processorService = serviceManager.getAutomationProcessorService();
-        this.lambdaClient = AWSLambdaClientBuilder.defaultClient();
+        this.lambdaClient = LambdaClient.create();
         this.lambdaName = serviceManager.getProperties().getAutomationProcessorLambdaName();
         this.instantSupplier = Instant::now;
         this.objectMapper = new ObjectMapper();
@@ -51,7 +51,7 @@ public class AutomationProcessorHandler implements RequestHandler<AutomationProc
     AutomationProcessorHandler(AutomationRepository automationRepository,
                                AutomationProcessorLockRepository lockRepository,
                                AutomationProcessorService processorService,
-                               AWSLambda lambdaClient,
+                               LambdaClient lambdaClient,
                                String lambdaName,
                                Supplier<Instant> instantSupplier) {
         this.automationRepository = automationRepository;
@@ -98,15 +98,16 @@ public class AutomationProcessorHandler implements RequestHandler<AutomationProc
     }
 
     @SneakyThrows
-    private void invokeContinuation(String runId, Map<String, AttributeValue> lastEvaluatedKey) {
+    private void invokeContinuation(String runId, Map<String, String> lastEvaluatedKey) {
         log.info("Automation processor continuation for runId {}", runId);
         var continuation = AutomationProcessorEvent.builder()
                 .runId(runId)
                 .lastEvaluatedKey(lastEvaluatedKey)
                 .build();
-        lambdaClient.invoke(new InvokeRequest()
-                .withFunctionName(lambdaName)
-                .withInvocationType("Event")
-                .withPayload(ByteBuffer.wrap(objectMapper.writeValueAsBytes(continuation))));
+        lambdaClient.invoke(InvokeRequest.builder()
+                .functionName(lambdaName)
+                .invocationType(InvocationType.EVENT)
+                .payload(SdkBytes.fromByteBuffer(ByteBuffer.wrap(objectMapper.writeValueAsBytes(continuation))))
+                .build());
     }
 }

@@ -1,6 +1,5 @@
 package com.amcglynn.automation;
 
-import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -14,5 +13,5 @@ import java.util.Map;
 @Getter
 public class AutomationProcessorEvent {
     private String runId;
-    private Map<String, AttributeValue> lastEvaluatedKey;
+    private Map<String, String> lastEvaluatedKey;
 }

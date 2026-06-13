@@ -1,10 +1,5 @@
 package com.amcglynn.myzappi.core.dal;
 
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
-import com.amazonaws.services.dynamodbv2.model.AttributeValue;
-import com.amazonaws.services.dynamodbv2.model.DeleteItemRequest;
-import com.amazonaws.services.dynamodbv2.model.GetItemResult;
-import com.amazonaws.services.dynamodbv2.model.PutItemRequest;
 import com.amcglynn.myzappi.core.model.AutomationStateEntry;
 import com.amcglynn.myzappi.core.model.UserId;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -17,11 +12,17 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
+import software.amazon.awssdk.services.dynamodb.model.DeleteItemRequest;
+import software.amazon.awssdk.services.dynamodb.model.GetItemRequest;
+import software.amazon.awssdk.services.dynamodb.model.GetItemResponse;
+import software.amazon.awssdk.services.dynamodb.model.PutItemRequest;
 
 import java.time.LocalDateTime;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static com.amcglynn.myzappi.core.dal.DynamoDbAttributeValues.stringValue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -30,9 +31,7 @@ import static org.mockito.Mockito.when;
 class AutomationStateRepositoryTest {
 
     @Mock
-    private AmazonDynamoDB mockDb;
-    @Mock
-    private GetItemResult mockGetResult;
+    private DynamoDbClient mockDb;
     @Captor
     private ArgumentCaptor<PutItemRequest> putItemCaptor;
     @Captor
@@ -48,8 +47,7 @@ class AutomationStateRepositoryTest {
 
     @Test
     void readReturnsEmptyMapWhenStateRowDoesNotExist() {
-        when(mockGetResult.getItem()).thenReturn(null);
-        when(mockDb.getItem(any())).thenReturn(mockGetResult);
+        when(mockDb.getItem(any(GetItemRequest.class))).thenReturn(GetItemResponse.builder().build());
 
         var result = repository.read(UserId.from("user-1"));
 
@@ -66,9 +64,9 @@ class AutomationStateRepositoryTest {
 
         verify(mockDb).putItem(putItemCaptor.capture());
         var request = putItemCaptor.getValue();
-        assertThat(request.getTableName()).isEqualTo("automation-state");
-        assertThat(request.getItem().get("user-id").getS()).isEqualTo("user-1");
-        var states = objectMapper.readValue(request.getItem().get("states").getS(),
+        assertThat(request.tableName()).isEqualTo("automation-state");
+        assertThat(request.item().get("user-id").s()).isEqualTo("user-1");
+        var states = objectMapper.readValue(request.item().get("states").s(),
                 new TypeReference<Map<String, AutomationStateEntry>>() {
                 });
         assertThat(states).containsKey("automation-1");
@@ -81,7 +79,7 @@ class AutomationStateRepositoryTest {
         repository.delete(UserId.from("user-1"));
 
         verify(mockDb).deleteItem(deleteItemCaptor.capture());
-        assertThat(deleteItemCaptor.getValue().getTableName()).isEqualTo("automation-state");
-        assertThat(deleteItemCaptor.getValue().getKey().get("user-id").getS()).isEqualTo("user-1");
+        assertThat(deleteItemCaptor.getValue().tableName()).isEqualTo("automation-state");
+        assertThat(deleteItemCaptor.getValue().key().get("user-id").s()).isEqualTo("user-1");
     }
 }
