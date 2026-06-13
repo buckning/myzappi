@@ -1,104 +1,133 @@
 <div class="tile">
   <h1><img src="assets/images/calendar.png" alt="Schedules" width="25px" height="25px"> Schedules</h1>
 
-  <div *ngIf="!loaded">
-    <p>
-      Loading your schedules...
-    </p>
-  </div>
-
-  <div *ngIf="loaded && listSchedulesVisible">
-    <p *ngIf="scheduleRows.length === 0">
-      You have no schedules. Create a new schedule below.
-    </p>
-
-    <div *ngIf="scheduleRows.length > 0">
-      <div *ngIf="hasMultipleDeviceClasses()">
-        Filter by
-        <mat-button-toggle-group name="deviceFilter" [(ngModel)]="deviceFilter" (change)="onValChange($event.value)">
-          <mat-button-toggle *ngIf="hasDevice('ZAPPI')" value="ZAPPI"><img class="filterIconButtonImage" src="assets/images/carBlack.png" alt="Zappi">Zappi</mat-button-toggle>
-          <mat-button-toggle *ngIf="hasDevice('EDDI')" value="EDDI"><img class="filterIconButtonImage" src="assets/images/heaterBlack.png" alt="Eddi"> Eddi</mat-button-toggle>
-          <mat-button-toggle *ngIf="hasDevice('LIBBI')" value="LIBBI"><img class="filterIconButtonImage" src="assets/images/batteryFullBlack.png" alt="Libbi"> Libbi</mat-button-toggle>
-        </mat-button-toggle-group>
-      </div>
-      <p *ngIf="filteredScheduleRows.length === 0">
-        No schedules found.
+  @if (!loaded) {
+    <div>
+      <p>
+        Loading your schedules...
       </p>
     </div>
-    <div id="scheduleTable" *ngIf="filteredScheduleRows.length > 0" class="scheduleTable">
+  }
 
-      <div *ngFor="let row of filteredScheduleRows; let i = index">
-        <div class="scheduleRow" [ngClass]="{'disabled-schedule': !row.active}">
-          <table>
-            <tr>
-              <td>
-                <div>
-                  <div *ngIf="getDeviceClass(row) === 'ZAPPI'">
-                    <img class="headerIconImage" src="assets/images/car.png" alt="Zappi"> <b>Zappi</b> {{row.action.target}}
-                  </div>
-                  <div *ngIf="getDeviceClass(row) === 'EDDI'">
-                    <img class="headerIconImage" src="assets/images/heater.png" alt="Eddi"> <b>Eddi</b> {{row.action.target}}
-                  </div>
-                  <div *ngIf="getDeviceClass(row) === 'LIBBI'">
-                    <img class="headerIconImage" src="assets/images/batteryFull.png" alt="Libbi"> <b>Libbi</b> {{row.action.target}}
-                  </div>
-                </div>
-                <div>
-                  {{convertScheduleType(row)}}
-                  <br>
-                  {{getValue(row)}}
-                </div>
-                <div class="schedule-actions">
-                  <div class="toggle-container">
-                    <mat-slide-toggle 
-                      [checked]="row.active" 
-                      (change)="toggleScheduleActive(row)" 
-                      color="primary" 
-                      aria-label="Toggle schedule active state">
-                    </mat-slide-toggle>
-                    <span class="schedule-status">{{row.active ? 'Active' : 'Disabled'}}</span>
-                  </div>
-                </div>
-              </td>
-              <td class="secondCell">
-                <div *ngIf="isRecurringSchedule(row)">
-                  <img class="headerIconImage" src="assets/images/clock.png" alt="Time"> <b>Start Time</b> {{row.recurrence?.timeOfDay}}
-                  <br>
-                  <img class="headerIconImage" src="assets/images/recurringSchedule.png" alt="Recurring schedule">
-                  <b>Repeat</b> {{calculateDisplayString(row)}}
-                  <br>
-                </div>
-                <div *ngIf="!isRecurringSchedule(row)">
-                  <img *ngIf="!isRecurringSchedule(row)" class="headerIconImage" src="assets/images/clock.png" alt="Time"> Start Time: {{getStartTime(row)}}
-                  <br>
-                  <img *ngIf="!isRecurringSchedule(row)" class="headerIconImage" src="assets/images/schedule.png" alt="Date"> Start Date: {{getStartDate(row)}}
-                  <br>
-                </div>
-                <button type="button" class="destructiveButton delete-aligned" (click)="deleteSchedule(row)"><img class="iconButtonImage" src="assets/images/delete.png" alt="Delete Schedule"></button>
-              </td>
-
-
-
-
-            </tr>
-
-          </table>
-
-          <mat-divider></mat-divider>
-
+  @if (loaded && listSchedulesVisible) {
+    <div>
+      @if (scheduleRows.length === 0) {
+        <p>
+          You have no schedules. Create a new schedule below.
+        </p>
+      }
+      @if (scheduleRows.length > 0) {
+        <div>
+          @if (hasMultipleDeviceClasses()) {
+            <div>
+              Filter by
+              <mat-button-toggle-group name="deviceFilter" [(ngModel)]="deviceFilter" (change)="onValChange($event.value)">
+                @if (hasDevice('ZAPPI')) {
+                  <mat-button-toggle value="ZAPPI"><img class="filterIconButtonImage" src="assets/images/carBlack.png" alt="Zappi">Zappi</mat-button-toggle>
+                }
+                @if (hasDevice('EDDI')) {
+                  <mat-button-toggle value="EDDI"><img class="filterIconButtonImage" src="assets/images/heaterBlack.png" alt="Eddi"> Eddi</mat-button-toggle>
+                }
+                @if (hasDevice('LIBBI')) {
+                  <mat-button-toggle value="LIBBI"><img class="filterIconButtonImage" src="assets/images/batteryFullBlack.png" alt="Libbi"> Libbi</mat-button-toggle>
+                }
+              </mat-button-toggle-group>
+            </div>
+          }
+          @if (filteredScheduleRows.length === 0) {
+            <p>
+              No schedules found.
+            </p>
+          }
         </div>
-      </div>
-    </div>
+      }
+      @if (filteredScheduleRows.length > 0) {
+        <div id="scheduleTable" class="scheduleTable">
+          @for (row of filteredScheduleRows; track row; let i = $index) {
+            <div>
+              <div class="scheduleRow" [ngClass]="{'disabled-schedule': !row.active}">
+                <table>
+                  <tr>
+                    <td>
+                      <div>
+                        @if (getDeviceClass(row) === 'ZAPPI') {
+                          <div>
+                            <img class="headerIconImage" src="assets/images/car.png" alt="Zappi"> <b>Zappi</b> {{row.action.target}}
+                          </div>
+                        }
+                        @if (getDeviceClass(row) === 'EDDI') {
+                          <div>
+                            <img class="headerIconImage" src="assets/images/heater.png" alt="Eddi"> <b>Eddi</b> {{row.action.target}}
+                          </div>
+                        }
+                        @if (getDeviceClass(row) === 'LIBBI') {
+                          <div>
+                            <img class="headerIconImage" src="assets/images/batteryFull.png" alt="Libbi"> <b>Libbi</b> {{row.action.target}}
+                          </div>
+                        }
+                      </div>
+                      <div>
+                        {{convertScheduleType(row)}}
+                        <br>
+                          {{getValue(row)}}
+                        </div>
+                        <div class="schedule-actions">
+                          <div class="toggle-container">
+                            <mat-slide-toggle
+                              [checked]="row.active"
+                              (change)="toggleScheduleActive(row)"
+                              color="primary"
+                              aria-label="Toggle schedule active state">
+                            </mat-slide-toggle>
+                            <span class="schedule-status">{{row.active ? 'Active' : 'Disabled'}}</span>
+                          </div>
+                        </div>
+                      </td>
+                      <td class="secondCell">
+                        @if (isRecurringSchedule(row)) {
+                          <div>
+                            <img class="headerIconImage" src="assets/images/clock.png" alt="Time"> <b>Start Time</b> {{row.recurrence?.timeOfDay}}
+                            <br>
+                              <img class="headerIconImage" src="assets/images/recurringSchedule.png" alt="Recurring schedule">
+                              <b>Repeat</b> {{calculateDisplayString(row)}}
+                              <br>
+                              </div>
+                            }
+                            @if (!isRecurringSchedule(row)) {
+                              <div>
+                                @if (!isRecurringSchedule(row)) {
+                                  <img class="headerIconImage" src="assets/images/clock.png" alt="Time">
+                                  } Start Time: {{getStartTime(row)}}
+                                  <br>
+                                    @if (!isRecurringSchedule(row)) {
+                                      <img class="headerIconImage" src="assets/images/schedule.png" alt="Date">
+                                      } Start Date: {{getStartDate(row)}}
+                                      <br>
+                                      </div>
+                                    }
+                                    <button type="button" class="destructiveButton delete-aligned" (click)="deleteSchedule(row)"><img class="iconButtonImage" src="assets/images/delete.png" alt="Delete Schedule"></button>
+                                  </td>
+                                </tr>
+                              </table>
+                              <mat-divider></mat-divider>
+                            </div>
+                          </div>
+                        }
+                      </div>
+                    }
+                  </div>
+                }
+                <div>
+                  @if (listSchedulesVisible) {
+                    <button type="submit" class="confirmButton"
+                      (click)="createSchedule()" [disabled]="createScheuleButtonDisabled"><img src="assets/images/add.png" alt="Schedules" width="25px" height="25px"></button>
+                    }
+                  </div>
 
-
-  </div>
-  <div>
-    <button type="submit" *ngIf="listSchedulesVisible" class="confirmButton"
-            (click)="createSchedule()" [disabled]="createScheuleButtonDisabled"><img src="assets/images/add.png" alt="Schedules" width="25px" height="25px"></button>
-  </div>
-
-  <div *ngIf="createOneTimeScheduleVisible">
-    <app-create-onetime-schedule-panel [bearerToken]="bearerToken" [hubDetails]="hubDetails"
-                                       (viewListSchedulesScreen)="viewListSchedulesScreen()"></app-create-onetime-schedule-panel>
-  </div>
-</div>
+                  @if (createOneTimeScheduleVisible) {
+                    <div>
+                      <app-create-onetime-schedule-panel [bearerToken]="bearerToken" [hubDetails]="hubDetails"
+                      (viewListSchedulesScreen)="viewListSchedulesScreen()"></app-create-onetime-schedule-panel>
+                    </div>
+                  }
+                </div>

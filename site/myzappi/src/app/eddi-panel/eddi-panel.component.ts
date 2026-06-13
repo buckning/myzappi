@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, OnDestroy } from '@angular/core';
+import { Component, Input, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { EnergyOverviewService } from '../energy-overview.service';
 import { EnergySummary, DeviceEnergyUsage } from '../energySummary.interface';
@@ -21,9 +21,11 @@ interface EddiStatus {
 }
 
 @Component({
-  selector: 'app-eddi-panel',
-  templateUrl: './eddi-panel.component.html',
-  styleUrls: ['./eddi-panel.component.css']
+    selector: 'app-eddi-panel',
+    templateUrl: './eddi-panel.component.html',
+    styleUrls: ['./eddi-panel.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class EddiPanelComponent implements OnInit, OnDestroy {
   @Input() public serialNumber: any;

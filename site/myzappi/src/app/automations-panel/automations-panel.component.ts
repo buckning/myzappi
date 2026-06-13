@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { MatDialog } from '@angular/material/dialog';
 import { forkJoin } from 'rxjs';
@@ -15,9 +15,11 @@ import {
 } from '../automation-labels';
 
 @Component({
-  selector: 'app-automations-panel',
-  templateUrl: './automations-panel.component.html',
-  styleUrls: ['./automations-panel.component.css']
+    selector: 'app-automations-panel',
+    templateUrl: './automations-panel.component.html',
+    styleUrls: ['./automations-panel.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class AutomationsPanelComponent implements OnInit {
   @Input() public bearerToken: any;

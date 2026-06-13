@@ -1,10 +1,12 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { ScheduleActionComponent } from '../schedule-action.interface';
 
 @Component({
-  selector: 'app-zappi-set-charge-mode-action-panel',
-  templateUrl: './zappi-set-charge-mode-action-panel.component.html',
-  styleUrls: ['./zappi-set-charge-mode-action-panel.component.css']
+    selector: 'app-zappi-set-charge-mode-action-panel',
+    templateUrl: './zappi-set-charge-mode-action-panel.component.html',
+    styleUrls: ['./zappi-set-charge-mode-action-panel.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class ZappiSetChargeModeActionPanelComponent implements ScheduleActionComponent {
 

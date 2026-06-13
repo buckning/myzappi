@@ -1,9 +1,11 @@
-import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, ChangeDetectionStrategy } from '@angular/core';
 
 @Component({
-  selector: 'app-floating-header',
-  templateUrl: './floating-header.component.html',
-  styleUrls: ['./floating-header.component.css']
+    selector: 'app-floating-header',
+    templateUrl: './floating-header.component.html',
+    styleUrls: ['./floating-header.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class FloatingHeaderComponent implements OnInit {
   @Input() energyCost: string | null = 'N/A';

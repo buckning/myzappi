@@ -1,4 +1,4 @@
-import { Component, Output, Input, EventEmitter } from '@angular/core';
+import { Component, Output, Input, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Device } from '../device.interface';
 import { Schedule } from '../schedule.interface';
@@ -10,9 +10,11 @@ interface AccountSummary {
 }
 
 @Component({
-  selector: 'app-create-onetime-schedule-panel',
-  templateUrl: './create-onetime-schedule-panel.component.html',
-  styleUrls: ['./create-onetime-schedule-panel.component.css']
+    selector: 'app-create-onetime-schedule-panel',
+    templateUrl: './create-onetime-schedule-panel.component.html',
+    styleUrls: ['./create-onetime-schedule-panel.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class CreateOnetimeSchedulePanelComponent {
   @Input() public bearerToken: any;

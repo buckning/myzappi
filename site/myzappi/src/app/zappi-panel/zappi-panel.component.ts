@@ -1,4 +1,4 @@
-import { Component, Input, HostListener, OnDestroy } from '@angular/core';
+import { Component, Input, HostListener, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { ZappiSetChargeModeActionPanelComponent } from '../zappi-set-charge-mode-action-panel/zappi-set-charge-mode-action-panel.component';
 import { EnergyOverviewService } from '../energy-overview.service';
@@ -26,9 +26,11 @@ interface SetChargeMode {
 }
 
 @Component({
-  selector: 'app-zappi-panel',
-  templateUrl: './zappi-panel.component.html',
-  styleUrls: ['./zappi-panel.component.css']
+    selector: 'app-zappi-panel',
+    templateUrl: './zappi-panel.component.html',
+    styleUrls: ['./zappi-panel.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class ZappiPanelComponent {
   @Input() public serialNumber: any;

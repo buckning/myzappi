@@ -1,11 +1,13 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 
 declare const amazon: any;
 
 @Component({
-  selector: 'app-logged-out-content',
-  templateUrl: './logged-out-content.component.html',
-  styleUrls: ['./logged-out-content.component.css']
+    selector: 'app-logged-out-content',
+    templateUrl: './logged-out-content.component.html',
+    styleUrls: ['./logged-out-content.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class LoggedOutContentComponent {
 

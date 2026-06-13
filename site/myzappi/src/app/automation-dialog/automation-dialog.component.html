@@ -15,60 +15,79 @@
     <h3>When</h3>
     <label for="predicate-type">Metric</label>
     <select id="predicate-type" name="predicateType" [(ngModel)]="predicate.type" (change)="onPredicateTypeChange()" required>
-      <option *ngFor="let option of options.predicates" [value]="option.type">{{predicateDisplayLabel(option.type)}}</option>
+      @for (option of options.predicates; track option) {
+        <option [value]="option.type">{{predicateDisplayLabel(option.type)}}</option>
+      }
     </select>
 
-    <div *ngIf="selectedPredicate()?.requiresTarget">
-      <label [attr.for]="hasMultiplePredicateTargets() ? 'predicate-target' : null">Device</label>
-      <select *ngIf="hasMultiplePredicateTargets(); else implicitPredicateTarget"
-              id="predicate-target" name="predicateTarget" [(ngModel)]="predicate.target" required>
-        <option *ngFor="let device of predicateTargets()" [value]="device.serialNumber">{{deviceLabel(device)}}</option>
-      </select>
-      <ng-template #implicitPredicateTarget>
-        <div class="readonly-target">{{selectedPredicateTargetLabel()}}</div>
-      </ng-template>
-    </div>
+    @if (selectedPredicate()?.requiresTarget) {
+      <div>
+        <label [attr.for]="hasMultiplePredicateTargets() ? 'predicate-target' : null">Device</label>
+        @if (hasMultiplePredicateTargets()) {
+          <select
+            id="predicate-target" name="predicateTarget" [(ngModel)]="predicate.target" required>
+            @for (device of predicateTargets(); track device) {
+              <option [value]="device.serialNumber">{{deviceLabel(device)}}</option>
+            }
+          </select>
+        } @else {
+          <div class="readonly-target">{{selectedPredicateTargetLabel()}}</div>
+        }
+      </div>
+    }
 
     <label for="predicate-operator">Operator</label>
     <select id="predicate-operator" name="operator" [(ngModel)]="predicate.operator" required>
-      <option *ngFor="let operator of options.operators" [value]="operator">{{operatorDisplayLabel(operator)}}</option>
+      @for (operator of options.operators; track operator) {
+        <option [value]="operator">{{operatorDisplayLabel(operator)}}</option>
+      }
     </select>
 
     <label for="predicate-value">{{predicateValueLabel()}}</label>
     <input id="predicate-value" name="predicateValue" [type]="predicateValueInputType()"
-           [attr.step]="predicateValueStep()" [attr.inputmode]="isNumericPredicateValue() ? 'decimal' : null"
-           [ngModel]="predicate.value" (ngModelChange)="onPredicateValueChange($event)" required>
-    <div *ngIf="predicateValueError()" class="validation-message">{{predicateValueError()}}</div>
+      [attr.step]="predicateValueStep()" [attr.inputmode]="isNumericPredicateValue() ? 'decimal' : null"
+      [ngModel]="predicate.value" (ngModelChange)="onPredicateValueChange($event)" required>
+    @if (predicateValueError()) {
+      <div class="validation-message">{{predicateValueError()}}</div>
+    }
 
     <h3>Then</h3>
     <label for="action-type">Action</label>
     <select id="action-type" name="actionType" [(ngModel)]="action.type" (change)="onActionTypeChange()" required>
-      <option *ngFor="let option of options.actions" [value]="option.type">{{actionDisplayLabel(option.type)}}</option>
+      @for (option of options.actions; track option) {
+        <option [value]="option.type">{{actionDisplayLabel(option.type)}}</option>
+      }
     </select>
 
     <label [attr.for]="hasMultipleActionTargets() ? 'action-target' : null">Device</label>
-    <select *ngIf="hasMultipleActionTargets(); else implicitActionTarget"
-            id="action-target" name="actionTarget" [(ngModel)]="action.target" required>
-      <option *ngFor="let device of actionTargets()" [value]="device.serialNumber">{{deviceLabel(device)}}</option>
-    </select>
-    <ng-template #implicitActionTarget>
+    @if (hasMultipleActionTargets()) {
+      <select
+        id="action-target" name="actionTarget" [(ngModel)]="action.target" required>
+        @for (device of actionTargets(); track device) {
+          <option [value]="device.serialNumber">{{deviceLabel(device)}}</option>
+        }
+      </select>
+    } @else {
       <div class="readonly-target">{{selectedActionTargetLabel()}}</div>
-    </ng-template>
+    }
 
-    <ng-container *ngIf="selectedAction()?.allowedValues?.length; else numericActionValue">
+    @if (selectedAction()?.allowedValues?.length) {
       <label for="action-value-select">{{actionValueLabel()}}</label>
       <select id="action-value-select" name="actionValueSelect" [(ngModel)]="action.value" required>
-        <option *ngFor="let value of selectedAction()?.allowedValues" [value]="value">{{valueDisplayLabel(value)}}</option>
+        @for (value of selectedAction()?.allowedValues; track value) {
+          <option [value]="value">{{valueDisplayLabel(value)}}</option>
+        }
       </select>
-    </ng-container>
-
-    <ng-template #numericActionValue>
+    } @else {
       <label for="action-value-input">{{actionValueLabel()}}</label>
       <input id="action-value-input" name="actionValueInput" type="number"
-             [ngModel]="action.value" (ngModelChange)="onActionValueChange($event)"
-             [attr.min]="selectedAction()?.min ?? null" [attr.max]="selectedAction()?.max ?? null" required>
-    </ng-template>
-    <div *ngIf="actionValueError()" class="validation-message">{{actionValueError()}}</div>
+        [ngModel]="action.value" (ngModelChange)="onActionValueChange($event)"
+        [attr.min]="selectedAction()?.min ?? null" [attr.max]="selectedAction()?.max ?? null" required>
+    }
+
+    @if (actionValueError()) {
+      <div class="validation-message">{{actionValueError()}}</div>
+    }
   </div>
 
   <div class="dialog-actions">

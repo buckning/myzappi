@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 interface EnergyCost {
@@ -10,9 +10,11 @@ interface EnergyCost {
 }
 
 @Component({
-  selector: 'app-energy-cost-panel',
-  templateUrl: './energy-cost-panel.component.html',
-  styleUrls: ['./energy-cost-panel.component.css']
+    selector: 'app-energy-cost-panel',
+    templateUrl: './energy-cost-panel.component.html',
+    styleUrls: ['./energy-cost-panel.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class EnergyCostPanelComponent {
   @Input() public bearerToken: any;

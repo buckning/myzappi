@@ -1,12 +1,14 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 import { EnergyOverviewService } from '../energy-overview.service';
 import { DeviceEnergyUsage, EnergySummary } from '../energySummary.interface';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 @Component({
-  selector: 'app-energy-stats-panel',
-  templateUrl: './energy-stats-panel.component.html',
-  styleUrls: ['./energy-stats-panel.component.css']
+    selector: 'app-energy-stats-panel',
+    templateUrl: './energy-stats-panel.component.html',
+    styleUrls: ['./energy-stats-panel.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class EnergyStatsPanelComponent {
 

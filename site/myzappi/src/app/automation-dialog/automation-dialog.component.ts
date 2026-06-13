@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { ActionOption, AutomationAction, AutomationOptions, AutomationPredicate } from '../automation.interface';
 import { Device } from '../device.interface';
@@ -18,9 +18,11 @@ export interface AutomationDialogData {
 }
 
 @Component({
-  selector: 'app-automation-dialog',
-  templateUrl: './automation-dialog.component.html',
-  styleUrls: ['./automation-dialog.component.css']
+    selector: 'app-automation-dialog',
+    templateUrl: './automation-dialog.component.html',
+    styleUrls: ['./automation-dialog.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class AutomationDialogComponent implements OnInit {
   options: AutomationOptions = {

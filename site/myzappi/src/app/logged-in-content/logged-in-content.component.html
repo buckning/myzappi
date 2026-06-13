@@ -1,83 +1,105 @@
-<div *ngIf="registered === false">
+@if (registered === false) {
+  <div>
     <app-register-panel [bearerToken]="bearerToken" (registeredEvent)="registeredEvent()"></app-register-panel>
-</div>
+  </div>
+}
 
 
-<div class="tile" *ngIf="hubDetails == null && registered !== false">
+@if (hubDetails == null && registered !== false) {
+  <div class="tile">
     <p>
-        Loading your details...
+      Loading your details...
     </p>
-</div>
+  </div>
+}
 
-<div *ngIf="registered === true && hubDetails !== null">
-    <div *ngIf="registeredThisSession === true">
+@if (registered === true && hubDetails !== null) {
+  <div>
+    @if (registeredThisSession === true) {
+      <div>
         <app-help-panel></app-help-panel>
-    </div>
+      </div>
+    }
     <br>
-    <app-energy-stats-panel [bearerToken]="bearerToken"></app-energy-stats-panel>
-    <br>
-    
-    <!-- Device panels outside of table structure -->
-    <ng-container *ngIf="loadingDevices === false && devices && devices.length > 0">
-        <ng-container *ngFor="let device of devices">
-            <br *ngIf="device.deviceClass === 'ZAPPI'">
-            <app-zappi-panel *ngIf="device.deviceClass === 'ZAPPI'" 
-                [serialNumber]="device.serialNumber" 
-                [bearerToken]="bearerToken">
-            </app-zappi-panel>
-            
-            <br *ngIf="device.deviceClass === 'LIBBI'">
-            <app-libbi-panel *ngIf="device.deviceClass === 'LIBBI'" 
-                [serialNumber]="device.serialNumber" 
-                [bearerToken]="bearerToken">
-            </app-libbi-panel>
-            
-            <br *ngIf="device.deviceClass === 'EDDI'">
-            <app-eddi-panel *ngIf="device.deviceClass === 'EDDI'" 
-                [serialNumber]="device.serialNumber" 
-                [bearerToken]="bearerToken">
-            </app-eddi-panel>
-        </ng-container>
-    </ng-container>
-    <div *ngIf="hubDetails != null">
-        <div class="tile">
-            <div>
-                <h1>Devices</h1>
-            </div>
+      <app-energy-stats-panel [bearerToken]="bearerToken"></app-energy-stats-panel>
+      <br>
+        <!-- Device panels outside of table structure -->
+        @if (loadingDevices === false && devices && devices.length > 0) {
+          @for (device of devices; track device) {
+            @if (device.deviceClass === 'ZAPPI') {
+              <br>
+              }
+              @if (device.deviceClass === 'ZAPPI') {
+                <app-zappi-panel
+                  [serialNumber]="device.serialNumber"
+                  [bearerToken]="bearerToken">
+                </app-zappi-panel>
+              }
+              @if (device.deviceClass === 'LIBBI') {
+                <br>
+                }
+                @if (device.deviceClass === 'LIBBI') {
+                  <app-libbi-panel
+                    [serialNumber]="device.serialNumber"
+                    [bearerToken]="bearerToken">
+                  </app-libbi-panel>
+                }
+                @if (device.deviceClass === 'EDDI') {
+                  <br>
+                  }
+                  @if (device.deviceClass === 'EDDI') {
+                    <app-eddi-panel
+                      [serialNumber]="device.serialNumber"
+                      [bearerToken]="bearerToken">
+                    </app-eddi-panel>
+                  }
+                }
+              }
+              @if (hubDetails != null) {
+                <div>
+                  <div class="tile">
+                    <div>
+                      <h1>Devices</h1>
+                    </div>
+                    @if (loadingDevices === true) {
+                      <div>
+                        <p>
+                          Loading your devices...
+                        </p>
+                      </div>
+                    }
+                    @if (loadingDevices === false) {
+                      <div>
+                        <button (click)="refreshDeploymentDetails()" class="confirmButton">Refresh</button>
+                        <button (click)="deleteZappi()" id="forgetMyDetailsButton" class="destructiveButton">
+                          Unregister
+                        </button>
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+              <br>
+                <app-schedules-panel [bearerToken]="bearerToken" [hubDetails]="hubDetails"></app-schedules-panel>
+                <br>
+                  <app-automations-panel [bearerToken]="bearerToken" [hubDetails]="hubDetails"></app-automations-panel>
+                  <br>
+                    <app-tariff-panel [bearerToken]="bearerToken" (tariffChangeEvent)="tariffChangeEvent()"></app-tariff-panel>
+                    <br>
+                      @if (registeredThisSession === false) {
+                        <div>
+                          <app-help-panel></app-help-panel>
+                        </div>
+                      }
+                      <br>
+                        <div class="bmc">
+                          <a href="https://www.buymeacoffee.com/andrewmcglynn">
+                            <img src="https://myzappi-site.s3.eu-west-1.amazonaws.com/bmc-button.png" width="218" height="62" alt="Help keep the servers running">
+                          </a>
+                        </div>
+                      </div>
+                    }
 
-            <div *ngIf="loadingDevices === true">
-                <p>
-                    Loading your devices...
-                </p>
-            </div>
+                    <div class="logoutButtonContainer">
 
-            <div *ngIf="loadingDevices === false">
-                <button (click)="refreshDeploymentDetails()" class="confirmButton">Refresh</button>
-                <button (click)="deleteZappi()" id="forgetMyDetailsButton" class="destructiveButton">
-                    Unregister
-                </button>
-            </div>
-        </div>
-    </div>
-    <br>
-    <app-schedules-panel [bearerToken]="bearerToken" [hubDetails]="hubDetails"></app-schedules-panel>
-    <br>
-    <app-automations-panel [bearerToken]="bearerToken" [hubDetails]="hubDetails"></app-automations-panel>
-    <br>
-    <app-tariff-panel [bearerToken]="bearerToken" (tariffChangeEvent)="tariffChangeEvent()"></app-tariff-panel>
-    <br>
-    
-    <div *ngIf="registeredThisSession === false">
-        <app-help-panel></app-help-panel>
-    </div>
-    <br>
-    <div class="bmc">
-        <a href="https://www.buymeacoffee.com/andrewmcglynn">
-            <img src="https://myzappi-site.s3.eu-west-1.amazonaws.com/bmc-button.png" width="218" height="62" alt="Help keep the servers running">
-        </a>
-    </div>
-</div>
-
-<div class="logoutButtonContainer">
-
-</div>
+                    </div>

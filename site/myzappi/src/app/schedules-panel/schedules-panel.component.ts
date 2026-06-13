@@ -1,13 +1,15 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { SchedulerService } from '../scheduler.service';
 import { Schedule, Schedules } from '../schedule.interface';
 import { Device } from '../device.interface';
 
 @Component({
-  selector: 'app-schedules-panel',
-  templateUrl: './schedules-panel.component.html',
-  styleUrls: ['./schedules-panel.component.css']
+    selector: 'app-schedules-panel',
+    templateUrl: './schedules-panel.component.html',
+    styleUrls: ['./schedules-panel.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class SchedulesPanelComponent {
   @Input() public bearerToken: any;
