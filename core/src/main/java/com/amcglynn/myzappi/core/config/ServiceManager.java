@@ -1,8 +1,5 @@
 package com.amcglynn.myzappi.core.config;
 
-import com.amazonaws.regions.Regions;
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 import com.amcglynn.myzappi.core.dal.AutomationProcessorLockRepository;
 import com.amcglynn.myzappi.core.dal.AutomationRepository;
 import com.amcglynn.myzappi.core.dal.AutomationStateRepository;
@@ -37,6 +34,7 @@ import java.util.List;
 import com.amcglynn.myzappi.core.service.reconciler.ZappiMinimumGreenLevelReconciler;
 import lombok.Getter;
 import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.scheduler.SchedulerClient;
 
 import java.util.concurrent.ExecutorService;
@@ -59,7 +57,7 @@ public class ServiceManager {
     @Getter
     private final Properties properties;
     @Getter
-    private final AmazonDynamoDB amazonDynamoDB;
+    private final DynamoDbClient amazonDynamoDB;
     @Getter
     private final ScheduleService scheduleService;
     @Getter
@@ -78,8 +76,8 @@ public class ServiceManager {
     private final AutomationProcessorService automationProcessorService;
 
     public ServiceManager(Properties properties) {
-        amazonDynamoDB = AmazonDynamoDBClientBuilder.standard()
-                .withRegion(Regions.fromName(properties.getAwsRegion()))
+        amazonDynamoDB = DynamoDbClient.builder()
+                .region(Region.of(properties.getAwsRegion()))
                 .build();
         automationRepository = new AutomationRepository(amazonDynamoDB);
         automationStateRepository = new AutomationStateRepository(amazonDynamoDB);

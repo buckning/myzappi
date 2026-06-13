@@ -1,57 +1,66 @@
 package com.amcglynn.myzappi.api;
 
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
-import com.amazonaws.services.dynamodbv2.model.AttributeValue;
-import com.amazonaws.services.dynamodbv2.model.DeleteItemRequest;
-import com.amazonaws.services.dynamodbv2.model.GetItemRequest;
-import com.amazonaws.services.dynamodbv2.model.PutItemRequest;
 import com.amcglynn.myzappi.core.model.UserId;
+import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
+import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
+import software.amazon.awssdk.services.dynamodb.model.DeleteItemRequest;
+import software.amazon.awssdk.services.dynamodb.model.GetItemRequest;
+import software.amazon.awssdk.services.dynamodb.model.PutItemRequest;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
+
+import static com.amcglynn.myzappi.core.dal.DynamoDbAttributeValues.numberValue;
+import static com.amcglynn.myzappi.core.dal.DynamoDbAttributeValues.stringValue;
 
 public class SessionRepository {
 
-    private final AmazonDynamoDB dbClient;
+    private final DynamoDbClient dbClient;
     private static final String TABLE_NAME = "session";
     private static final String SESSION_ID_COLUMN = "session-id";
     private static final String USER_ID_COLUMN = "amazon-user-id";
     private static final String TTL_COLUMN = "ttl";
 
-    public SessionRepository(AmazonDynamoDB dbClient) {
+    public SessionRepository(DynamoDbClient dbClient) {
         this.dbClient = dbClient;
     }
 
     public Optional<Session> read(SessionId sessionId) {
-        var request = new GetItemRequest()
-                .withTableName(TABLE_NAME)
-                .addKeyEntry(SESSION_ID_COLUMN, new AttributeValue(sessionId.toString()));
+        var request = GetItemRequest.builder()
+                .tableName(TABLE_NAME)
+                .key(Map.of(SESSION_ID_COLUMN, stringValue(sessionId.toString())))
+                .build();
 
         var result = dbClient.getItem(request);
-        if (result.getItem() == null) {
+        if (!result.hasItem()) {
             return Optional.empty();
         }
 
         return Optional.of(new Session(sessionId,
-                UserId.from(result.getItem().get(USER_ID_COLUMN).getS()),
-                Long.parseLong(result.getItem().get(TTL_COLUMN).getN())));
+                UserId.from(result.item().get(USER_ID_COLUMN).s()),
+                Long.parseLong(result.item().get(TTL_COLUMN).n())));
     }
 
     public void write(Session session) {
         var item = new HashMap<String, AttributeValue>();
-        item.put(SESSION_ID_COLUMN, new AttributeValue(session.getSessionId().toString()));
-        item.put(USER_ID_COLUMN, new AttributeValue(session.getUserId().toString()));
-        item.put(TTL_COLUMN, new AttributeValue().withN(String.valueOf(session.getTtl())));
+        item.put(SESSION_ID_COLUMN, stringValue(session.getSessionId().toString()));
+        item.put(USER_ID_COLUMN, stringValue(session.getUserId().toString()));
+        item.put(TTL_COLUMN, numberValue(session.getTtl()));
 
-        var request = new PutItemRequest()
-                .withTableName(TABLE_NAME)
-                .withItem(item);
+        var request = PutItemRequest.builder()
+                .tableName(TABLE_NAME)
+                .item(item)
+                .build();
         dbClient.putItem(request);
     }
 
     public void delete(Session session) {
         var deleteItem = new HashMap<String, AttributeValue>();
-        deleteItem.put(SESSION_ID_COLUMN, new AttributeValue(session.getSessionId().toString()));
-        dbClient.deleteItem(new DeleteItemRequest(TABLE_NAME, deleteItem));
+        deleteItem.put(SESSION_ID_COLUMN, stringValue(session.getSessionId().toString()));
+        dbClient.deleteItem(DeleteItemRequest.builder()
+                .tableName(TABLE_NAME)
+                .key(deleteItem)
+                .build());
     }
 }

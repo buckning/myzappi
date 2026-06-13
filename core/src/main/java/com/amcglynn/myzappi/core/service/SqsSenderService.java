@@ -5,8 +5,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.extern.slf4j.Slf4j;
-import com.amazonaws.services.sqs.AmazonSQSClientBuilder;
-import com.amazonaws.services.sqs.model.SendMessageRequest;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.sqs.SqsClient;
+import software.amazon.awssdk.services.sqs.model.SendMessageRequest;
 
 import java.util.UUID;
 
@@ -23,18 +24,19 @@ public class SqsSenderService {
     public void sendMessage(Object message) {
         try {
             var serializedMessage = new ObjectMapper().writeValueAsString(message);
-            var sqs = AmazonSQSClientBuilder.standard()
-                    .withRegion(awsRegion)
+            var send = SendMessageRequest.builder()
+                    .queueUrl(reconciliationSqsQueueUrl)
+                    .messageBody(serializedMessage)
+                    .messageGroupId("default")
+                    .messageDeduplicationId(UUID.randomUUID().toString())
                     .build();
 
-            var send = new SendMessageRequest()
-                    .withQueueUrl(reconciliationSqsQueueUrl)
-                    .withMessageBody(serializedMessage)
-                    .withMessageGroupId("default")
-                    .withMessageDeduplicationId(UUID.randomUUID().toString());
-
-            var result = sqs.sendMessage(send);
-            log.info("SQS message sent. MessageId={} MD5OfBody={}", result.getMessageId(), result.getMD5OfMessageBody());
+            try (var sqs = SqsClient.builder()
+                    .region(Region.of(awsRegion))
+                    .build()) {
+                var result = sqs.sendMessage(send);
+                log.info("SQS message sent. MessageId={} MD5OfBody={}", result.messageId(), result.md5OfMessageBody());
+            }
         } catch (JsonProcessingException e) {
             log.error("Could not serialize message={}", message, e);
         }

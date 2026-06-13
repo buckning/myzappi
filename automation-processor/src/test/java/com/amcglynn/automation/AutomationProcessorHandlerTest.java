@@ -1,9 +1,6 @@
 package com.amcglynn.automation;
 
-import com.amazonaws.services.lambda.AWSLambda;
-import com.amazonaws.services.lambda.model.InvokeRequest;
 import com.amazonaws.services.lambda.runtime.Context;
-import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.amcglynn.myzappi.core.dal.AutomationProcessorLockRepository;
 import com.amcglynn.myzappi.core.dal.AutomationRepository;
 import com.amcglynn.myzappi.core.model.Automation;
@@ -17,6 +14,9 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import software.amazon.awssdk.services.lambda.LambdaClient;
+import software.amazon.awssdk.services.lambda.model.InvocationType;
+import software.amazon.awssdk.services.lambda.model.InvokeRequest;
 
 import java.time.Instant;
 import java.util.List;
@@ -40,7 +40,7 @@ class AutomationProcessorHandlerTest {
     @Mock
     private AutomationProcessorService processorService;
     @Mock
-    private AWSLambda lambdaClient;
+    private LambdaClient lambdaClient;
     @Mock
     private Context context;
     @Captor
@@ -82,14 +82,14 @@ class AutomationProcessorHandlerTest {
         when(lockRepository.acquire(any(), any())).thenReturn(true);
         when(automationRepository.scan(null, 25)).thenReturn(AutomationScanPage.builder()
                 .userAutomations(List.of(userAutomations("user-1")))
-                .lastEvaluatedKey(Map.of("user-id", new AttributeValue("user-1")))
+                .lastEvaluatedKey(Map.of("user-id", "user-1"))
                 .build());
 
         handler.handleRequest(new AutomationProcessorEvent(), context);
 
         verify(lambdaClient).invoke(invokeRequestCaptor.capture());
-        assertThat(invokeRequestCaptor.getValue().getFunctionName()).isEqualTo("automation-processor");
-        assertThat(invokeRequestCaptor.getValue().getInvocationType()).isEqualTo("Event");
+        assertThat(invokeRequestCaptor.getValue().functionName()).isEqualTo("automation-processor");
+        assertThat(invokeRequestCaptor.getValue().invocationType()).isEqualTo(InvocationType.EVENT);
     }
 
     @Test
@@ -123,7 +123,7 @@ class AutomationProcessorHandlerTest {
         when(lockRepository.acquire(any(), any())).thenReturn(true);
         when(automationRepository.scan(null, 25)).thenReturn(AutomationScanPage.builder()
                 .userAutomations(List.of())
-                .lastEvaluatedKey(Map.of("user-id", new AttributeValue("user-1")))
+                .lastEvaluatedKey(Map.of("user-id", "user-1"))
                 .build());
 
         handler.handleRequest(new AutomationProcessorEvent(), context);
