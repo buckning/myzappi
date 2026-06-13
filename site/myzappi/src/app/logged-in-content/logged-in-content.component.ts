@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, ChangeDetectionStrategy } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { CookieService } from 'ngx-cookie-service';
 import { Device } from '../device.interface';
@@ -6,9 +6,11 @@ import { Device } from '../device.interface';
 declare const amazon: any;
 
 @Component({
-  selector: 'app-logged-in-content',
-  templateUrl: './logged-in-content.component.html',
-  styleUrls: ['./logged-in-content.component.css']
+    selector: 'app-logged-in-content',
+    templateUrl: './logged-in-content.component.html',
+    styleUrls: ['./logged-in-content.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class LoggedInContentComponent implements OnInit {
   @Input() public bearerToken: any;

@@ -1,9 +1,11 @@
-import { Component, ContentChildren, QueryList, AfterContentInit, OnDestroy, TemplateRef } from '@angular/core';
+import { Component, ContentChildren, QueryList, AfterContentInit, OnDestroy, TemplateRef, ChangeDetectionStrategy } from '@angular/core';
 
 @Component({
-  selector: 'app-quote-carousel',
-  templateUrl: './quote-carousel.component.html',
-  styleUrls: ['./quote-carousel.component.css']
+    selector: 'app-quote-carousel',
+    templateUrl: './quote-carousel.component.html',
+    styleUrls: ['./quote-carousel.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class QuoteCarouselComponent implements AfterContentInit, OnDestroy {
   @ContentChildren('carouselItem') panels!: QueryList<TemplateRef<any>>;

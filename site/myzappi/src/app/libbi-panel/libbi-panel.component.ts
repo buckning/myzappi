@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, OnDestroy } from '@angular/core';
+import { Component, Input, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { LibbiSetChargeTargetActionPanelComponent } from '../libbi-set-charge-target-action-panel/libbi-set-charge-target-action-panel.component';
 import { LibbiSetChargeFromGridActionPanelComponent } from '../libbi-set-charge-from-grid-action-panel/libbi-set-charge-from-grid-action-panel.component';
@@ -29,9 +29,11 @@ interface LibbiSummary {
 }
 
 @Component({
-  selector: 'app-libbi-panel',
-  templateUrl: './libbi-panel.component.html',
-  styleUrls: ['./libbi-panel.component.css']
+    selector: 'app-libbi-panel',
+    templateUrl: './libbi-panel.component.html',
+    styleUrls: ['./libbi-panel.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class LibbiPanelComponent {
   @Input() public serialNumber: any;

@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, ViewChild, ViewContainerRef } from '@angular/core';
+import { Component, Inject, OnInit, ViewChild, ViewContainerRef, ChangeDetectionStrategy } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ScheduleActionComponent } from '../../schedule-action.interface';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
@@ -6,9 +6,11 @@ import { SchedulerService } from '../../scheduler.service';
 import { Schedule } from '../../schedule.interface';
 
 @Component({
-  selector: 'app-schedule-dialog',
-  templateUrl: './schedule-dialog.component.html',
-  styleUrls: ['./schedule-dialog.component.css']
+    selector: 'app-schedule-dialog',
+    templateUrl: './schedule-dialog.component.html',
+    styleUrls: ['./schedule-dialog.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class ScheduleDialogComponent implements OnInit {
   @ViewChild('actionContainer', { read: ViewContainerRef, static: true }) actionContainer!: ViewContainerRef;
@@ -45,8 +47,7 @@ export class ScheduleDialogComponent implements OnInit {
     
     // Create the action component
     setTimeout(() => {
-      const componentFactory = this.data.componentFactoryResolver.resolveComponentFactory(this.data.actionComponentType);
-      const componentRef = this.actionContainer.createComponent(componentFactory);
+      const componentRef = this.actionContainer.createComponent(this.data.actionComponentType);
       this.actionComponent = componentRef.instance as ScheduleActionComponent;
       
       // Get the action type directly from the component instance

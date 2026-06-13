@@ -1,25 +1,27 @@
 <style>
-  
+
 </style>
 
-<app-floating-header 
-    *ngIf="loggedIn" 
-    [logoUrl]="logoUrl" 
-    [energyCost]="energyCost" 
+@if (loggedIn) {
+  <app-floating-header
+    [logoUrl]="logoUrl"
+    [energyCost]="energyCost"
     [costType]="costOrCredit"
     [showEnergyCost]="hubRegistered && tariffsAvailable && energyCost !== 'N/A' && energyCost !== 'Error'"
     (logoutClicked)="logOut()">
-</app-floating-header>
+  </app-floating-header>
+}
 
 <div class="content" role="main" [class.with-header]="loggedIn">
-  <app-logged-in-content 
-    [bearerToken]="bearerToken" 
-    (logoutEvent)="logOut()" 
-    (registeredStatusChange)="onRegisteredStatusChange($event)" 
-    (tariffUpdatedEvent)="onTariffUpdated($event)" 
-    *ngIf="loggedIn; else elseBlock">
-  </app-logged-in-content>
-  <ng-template #elseBlock>
+  @if (loggedIn) {
+    <app-logged-in-content
+      [bearerToken]="bearerToken"
+      (logoutEvent)="logOut()"
+      (registeredStatusChange)="onRegisteredStatusChange($event)"
+      (tariffUpdatedEvent)="onTariffUpdated($event)"
+      >
+    </app-logged-in-content>
+  } @else {
     <app-logged-out-content></app-logged-out-content>
-  </ng-template>
+  }
 </div>

@@ -1,10 +1,12 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 @Component({
-  selector: 'app-register-panel',
-  templateUrl: './register-panel.component.html',
-  styleUrls: ['./register-panel.component.css']
+    selector: 'app-register-panel',
+    templateUrl: './register-panel.component.html',
+    styleUrls: ['./register-panel.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class RegisterPanelComponent {
   @Input() public bearerToken: any;

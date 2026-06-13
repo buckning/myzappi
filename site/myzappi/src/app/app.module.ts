@@ -6,7 +6,7 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
 import { AppComponent } from './app.component';
 import { LoggedOutContentComponent } from './logged-out-content/logged-out-content.component';
 import { LoggedInContentComponent } from './logged-in-content/logged-in-content.component';
-import { HttpClientModule } from '@angular/common/http';
+import { provideHttpClient, withInterceptorsFromDi, withXhr } from '@angular/common/http';
 import { RegisterPanelComponent } from './register-panel/register-panel.component';
 import { TariffPanelComponent } from './tariff-panel/tariff-panel.component';
 import { SchedulesPanelComponent } from './schedules-panel/schedules-panel.component';
@@ -38,49 +38,42 @@ import { ScheduleDialogComponent } from './inline-schedule-panel/schedule-dialog
 import { AutomationsPanelComponent } from './automations-panel/automations-panel.component';
 import { AutomationDialogComponent } from './automation-dialog/automation-dialog.component';
 
-@NgModule({
-  declarations: [
-    AppComponent,
-    LoggedOutContentComponent,
-    LoggedInContentComponent,
-    RegisterPanelComponent,
-    TariffPanelComponent,
-    SchedulesPanelComponent,
-    CreateRecurringSchedulePanelComponent,
-    CreateOnetimeSchedulePanelComponent,
-    EnergyCostPanelComponent,
-    HelpPanelComponent,
-    ZappiPanelComponent,
-    LibbiPanelComponent,
-    InlineSchedulePanelComponent,
-    ZappiSetChargeModeActionPanelComponent,
-    LibbiSetChargeTargetActionPanelComponent,
-    LibbiSetChargeFromGridActionPanelComponent,
-    LibbiSetEnabledActionPanelComponent,
-    EnergyStatsPanelComponent,
-    QuoteCarouselComponent,
-    FloatingHeaderComponent,
-    EddiPanelComponent,
-    ScheduleDialogComponent,
-    AutomationsPanelComponent,
-    AutomationDialogComponent
-  ],
-  imports: [
-    DragDropModule,
-    MatSlideToggleModule,
-    MatExpansionModule,
-    MatSliderModule,
-    MatButtonToggleModule,
-    MatDividerModule,
-    MatTabsModule,
-    MatStepperModule,
-    MatDialogModule,
-    BrowserModule,
-    HttpClientModule,
-    FormsModule,
-    BrowserAnimationsModule
-  ],
-  providers: [],
-  bootstrap: [AppComponent]
-})
+@NgModule({ declarations: [
+        AppComponent,
+        LoggedOutContentComponent,
+        LoggedInContentComponent,
+        RegisterPanelComponent,
+        TariffPanelComponent,
+        SchedulesPanelComponent,
+        CreateRecurringSchedulePanelComponent,
+        CreateOnetimeSchedulePanelComponent,
+        EnergyCostPanelComponent,
+        HelpPanelComponent,
+        ZappiPanelComponent,
+        LibbiPanelComponent,
+        InlineSchedulePanelComponent,
+        ZappiSetChargeModeActionPanelComponent,
+        LibbiSetChargeTargetActionPanelComponent,
+        LibbiSetChargeFromGridActionPanelComponent,
+        LibbiSetEnabledActionPanelComponent,
+        EnergyStatsPanelComponent,
+        QuoteCarouselComponent,
+        FloatingHeaderComponent,
+        EddiPanelComponent,
+        ScheduleDialogComponent,
+        AutomationsPanelComponent,
+        AutomationDialogComponent
+    ],
+    bootstrap: [AppComponent], imports: [DragDropModule,
+        MatSlideToggleModule,
+        MatExpansionModule,
+        MatSliderModule,
+        MatButtonToggleModule,
+        MatDividerModule,
+        MatTabsModule,
+        MatStepperModule,
+        MatDialogModule,
+        BrowserModule,
+        FormsModule,
+        BrowserAnimationsModule], providers: [provideHttpClient(withXhr(), withInterceptorsFromDi())] })
 export class AppModule { }

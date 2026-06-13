@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 
@@ -15,9 +15,11 @@ interface TariffData {
 
 
 @Component({
-  selector: 'app-tariff-panel',
-  templateUrl: './tariff-panel.component.html',
-  styleUrls: ['./tariff-panel.component.css']
+    selector: 'app-tariff-panel',
+    templateUrl: './tariff-panel.component.html',
+    styleUrls: ['./tariff-panel.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class TariffPanelComponent {
   @Input() public bearerToken: any;
