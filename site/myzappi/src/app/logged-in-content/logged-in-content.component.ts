@@ -2,6 +2,7 @@ import { Component, EventEmitter, Input, OnInit, Output, ChangeDetectionStrategy
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { CookieService } from 'ngx-cookie-service';
 import { Device } from '../device.interface';
+import { deviceClassLabel } from '../automation-labels';
 
 declare const amazon: any;
 
@@ -105,6 +106,15 @@ export class LoggedInContentComponent implements OnInit {
     console.log("Tariffs were changed");
     this.tariffsRegistered = true;
     this.tariffUpdatedEvent.emit(true); // Notify app component that tariffs have been updated
+  }
+
+  deviceDisplayName(device: Device): string {
+    return deviceClassLabel(device.deviceClass);
+  }
+
+  deviceTankNames(device: Device): string[] {
+    return [device.tank1Name, device.tank2Name]
+      .filter((name): name is string => !!name && name.trim().length > 0);
   }
 
   deleteZappi() {
