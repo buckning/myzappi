@@ -1,11 +1,13 @@
 package com.amcglynn.myzappi;
 
+import com.amazon.ask.SkillStreamHandler;
 import com.amcglynn.myzappi.core.config.ServiceManager;
 import com.amcglynn.myzappi.service.ReminderServiceFactory;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -27,6 +29,17 @@ class MyZappiSkillStreamHandlerTest {
     void testConstructorDoesNotThrowAnException() {
         new MyZappiSkillStreamHandler(mock(ServiceManager.class), mock(UserIdResolverFactory.class),
                 mock(UserZoneResolver.class), mock(ReminderServiceFactory.class));
+    }
+
+    @Test
+    void testSkillHasApiClientConfiguredForAlexaServiceCalls() throws Exception {
+        var streamHandler = new MyZappiSkillStreamHandler(mock(ServiceManager.class), mock(UserIdResolverFactory.class),
+                mock(UserZoneResolver.class), mock(ReminderServiceFactory.class));
+
+        var skill = skills(streamHandler).get(0);
+        var apiClient = field(skill.getClass(), "apiClient").get(skill);
+
+        assertThat(apiClient).isNotNull();
     }
 
     @Test
@@ -58,5 +71,24 @@ class MyZappiSkillStreamHandlerTest {
             }
         }
         return fileList;
+    }
+
+    @SuppressWarnings("unchecked")
+    private List<Object> skills(SkillStreamHandler streamHandler) throws IllegalAccessException, NoSuchFieldException {
+        return (List<Object>) field(SkillStreamHandler.class, "skills").get(streamHandler);
+    }
+
+    private Field field(Class<?> type, String name) throws NoSuchFieldException {
+        Class<?> currentType = type;
+        while (currentType != null) {
+            try {
+                var field = currentType.getDeclaredField(name);
+                field.setAccessible(true);
+                return field;
+            } catch (NoSuchFieldException e) {
+                currentType = currentType.getSuperclass();
+            }
+        }
+        throw new NoSuchFieldException(name);
     }
 }

@@ -86,9 +86,10 @@ public class AutomationProcessorService {
             log.info("Processing automation, {} for user {}", automation, userId);
             evaluated++;
             try {
-                var matched = predicateEvaluator.evaluate(automation.getPredicate(), snapshot);
+                var evaluation = predicateEvaluator.evaluateWithResult(automation.getPredicate(), snapshot);
+                logPredicateEvaluation(userId, automation, evaluation);
                 var previous = states.get(automation.getAutomationId());
-                if (matched) {
+                if (evaluation.conditionMet()) {
                     matchedAutomations.add(new MatchedAutomation(automation, shouldExecute(automation, snapshot, previous)));
                 } else {
                     states.put(automation.getAutomationId(), evaluatedState(false, now, previous));
@@ -108,6 +109,20 @@ public class AutomationProcessorService {
                 .skipped(executionResult.skipped())
                 .failed(failed + executionResult.failed())
                 .build();
+    }
+
+    private void logPredicateEvaluation(UserId userId, Automation automation, PredicateEvaluationResult evaluation) {
+        var predicate = automation.getPredicate();
+        log.info("Automation condition evaluated userId={} automationId={} predicateType={} target={} "
+                        + "deviceValue={} operator={} configuredValue={} conditionMet={}",
+                userId,
+                automation.getAutomationId(),
+                predicate.getType(),
+                predicate.getTarget().orElse("account"),
+                evaluation.deviceValue().toPlainString(),
+                evaluation.operator(),
+                evaluation.configuredValue().toPlainString(),
+                evaluation.conditionMet());
     }
 
     private boolean shouldExecute(Automation automation,

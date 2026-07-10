@@ -12,14 +12,18 @@ import java.math.BigDecimal;
 public class PredicateEvaluator {
 
     public boolean evaluate(AutomationPredicate predicate, AutomationSnapshot snapshot) {
+        return evaluateWithResult(predicate, snapshot).conditionMet();
+    }
+
+    public PredicateEvaluationResult evaluateWithResult(AutomationPredicate predicate, AutomationSnapshot snapshot) {
         var actual = actualValue(predicate, snapshot);
         var expected = new BigDecimal(predicate.getValue());
         var comparison = actual.compareTo(expected);
         if (predicate.getOperator() == AutomationOperator.GREATER_THAN) {
-            return comparison > 0;
+            return new PredicateEvaluationResult(actual, expected, predicate.getOperator(), comparison > 0);
         }
         if (predicate.getOperator() == AutomationOperator.LESS_THAN) {
-            return comparison < 0;
+            return new PredicateEvaluationResult(actual, expected, predicate.getOperator(), comparison < 0);
         }
         throw new AutomationValidationException("Unsupported automation operator " + predicate.getOperator());
     }

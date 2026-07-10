@@ -4,7 +4,6 @@
   </div>
 }
 
-
 @if (hubDetails == null && registered !== false) {
   <div class="tile">
     <p>
@@ -20,86 +19,108 @@
         <app-help-panel></app-help-panel>
       </div>
     }
+
     <br>
-      <app-energy-stats-panel [bearerToken]="bearerToken"></app-energy-stats-panel>
-      <br>
-        <!-- Device panels outside of table structure -->
-        @if (loadingDevices === false && devices && devices.length > 0) {
-          @for (device of devices; track device) {
-            @if (device.deviceClass === 'ZAPPI') {
-              <br>
-              }
-              @if (device.deviceClass === 'ZAPPI') {
-                <app-zappi-panel
-                  [serialNumber]="device.serialNumber"
-                  [bearerToken]="bearerToken">
-                </app-zappi-panel>
-              }
-              @if (device.deviceClass === 'LIBBI') {
-                <br>
-                }
-                @if (device.deviceClass === 'LIBBI') {
-                  <app-libbi-panel
-                    [serialNumber]="device.serialNumber"
-                    [bearerToken]="bearerToken">
-                  </app-libbi-panel>
-                }
-                @if (device.deviceClass === 'EDDI') {
-                  <br>
-                  }
-                  @if (device.deviceClass === 'EDDI') {
-                    <app-eddi-panel
-                      [serialNumber]="device.serialNumber"
-                      [bearerToken]="bearerToken">
-                    </app-eddi-panel>
-                  }
-                }
-              }
-              @if (hubDetails != null) {
-                <div>
-                  <div class="tile">
-                    <div>
-                      <h1>Devices</h1>
-                    </div>
-                    @if (loadingDevices === true) {
-                      <div>
-                        <p>
-                          Loading your devices...
-                        </p>
-                      </div>
-                    }
-                    @if (loadingDevices === false) {
-                      <div>
-                        <button (click)="refreshDeploymentDetails()" class="confirmButton">Refresh</button>
-                        <button (click)="deleteZappi()" id="forgetMyDetailsButton" class="destructiveButton">
-                          Unregister
-                        </button>
-                      </div>
-                    }
-                  </div>
+    <app-energy-stats-panel [bearerToken]="bearerToken"></app-energy-stats-panel>
+    <br>
+
+    @if (loadingDevices === false && devices && devices.length > 0) {
+      @for (device of devices; track device.serialNumber) {
+        @if (device.deviceClass === 'ZAPPI') {
+          <br>
+          <app-zappi-panel
+            [serialNumber]="device.serialNumber"
+            [bearerToken]="bearerToken">
+          </app-zappi-panel>
+        }
+
+        @if (device.deviceClass === 'LIBBI') {
+          <br>
+          <app-libbi-panel
+            [serialNumber]="device.serialNumber"
+            [bearerToken]="bearerToken">
+          </app-libbi-panel>
+        }
+
+        @if (device.deviceClass === 'EDDI') {
+          <br>
+          <app-eddi-panel
+            [serialNumber]="device.serialNumber"
+            [bearerToken]="bearerToken">
+          </app-eddi-panel>
+        }
+      }
+    }
+
+    <br>
+    <app-schedules-panel [bearerToken]="bearerToken" [hubDetails]="hubDetails"></app-schedules-panel>
+    <br>
+    <app-automations-panel [bearerToken]="bearerToken" [hubDetails]="hubDetails"></app-automations-panel>
+    <br>
+    <app-tariff-panel [bearerToken]="bearerToken" (tariffChangeEvent)="tariffChangeEvent()"></app-tariff-panel>
+    <br>
+
+    <div class="tile" data-testid="registered-devices-panel">
+      <div>
+        <h1>Devices</h1>
+      </div>
+
+      @if (loadingDevices === true) {
+        <div>
+          <p>
+            Loading your devices...
+          </p>
+        </div>
+      }
+
+      @if (loadingDevices === false) {
+        @if (devices && devices.length > 0) {
+          <ul class="registeredDeviceList">
+            @for (device of devices; track device.serialNumber) {
+              <li class="registeredDeviceItem">
+                <div class="registeredDeviceSummary">
+                  <span class="registeredDeviceType">{{ deviceDisplayName(device) }}</span>
+                  <span class="registeredDeviceSerial">{{ device.serialNumber }}</span>
                 </div>
-              }
-              <br>
-                <app-schedules-panel [bearerToken]="bearerToken" [hubDetails]="hubDetails"></app-schedules-panel>
-                <br>
-                  <app-automations-panel [bearerToken]="bearerToken" [hubDetails]="hubDetails"></app-automations-panel>
-                  <br>
-                    <app-tariff-panel [bearerToken]="bearerToken" (tariffChangeEvent)="tariffChangeEvent()"></app-tariff-panel>
-                    <br>
-                      @if (registeredThisSession === false) {
-                        <div>
-                          <app-help-panel></app-help-panel>
-                        </div>
-                      }
-                      <br>
-                        <div class="bmc">
-                          <a href="https://www.buymeacoffee.com/andrewmcglynn">
-                            <img src="https://myzappi-site.s3.eu-west-1.amazonaws.com/bmc-button.png" width="218" height="62" alt="Help keep the servers running">
-                          </a>
-                        </div>
-                      </div>
-                    }
 
-                    <div class="logoutButtonContainer">
+                @if (deviceTankNames(device).length > 0) {
+                  <div class="registeredDeviceDetail">
+                    Tanks: {{ deviceTankNames(device).join(', ') }}
+                  </div>
+                }
+              </li>
+            }
+          </ul>
+        }
 
-                    </div>
+        @if (!devices || devices.length === 0) {
+          <p>No registered devices found.</p>
+        }
+
+        <div class="deviceActions">
+          <button (click)="refreshDeploymentDetails()" class="confirmButton">Refresh</button>
+          <button (click)="deleteZappi()" id="forgetMyDetailsButton" class="destructiveButton">
+            Unregister
+          </button>
+        </div>
+      }
+    </div>
+
+    <br>
+    @if (registeredThisSession === false) {
+      <div>
+        <app-help-panel></app-help-panel>
+      </div>
+    }
+
+    <br>
+    <div class="bmc">
+      <a href="https://www.buymeacoffee.com/andrewmcglynn">
+        <img src="https://myzappi-site.s3.eu-west-1.amazonaws.com/bmc-button.png" width="218" height="62" alt="Help keep the servers running">
+      </a>
+    </div>
+  </div>
+}
+
+<div class="logoutButtonContainer">
+</div>

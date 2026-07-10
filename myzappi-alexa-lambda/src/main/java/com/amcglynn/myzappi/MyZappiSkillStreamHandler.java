@@ -2,6 +2,7 @@ package com.amcglynn.myzappi;
 
 import com.amazon.ask.SkillStreamHandler;
 import com.amazon.ask.builder.CustomSkillBuilder;
+import com.amazon.ask.services.ApacheHttpApiClient;
 import com.amcglynn.lwa.LwaClient;
 import com.amcglynn.myzappi.core.config.Properties;
 import com.amcglynn.myzappi.core.config.ServiceManager;
@@ -62,6 +63,7 @@ public class MyZappiSkillStreamHandler extends SkillStreamHandler {
     public MyZappiSkillStreamHandler(ServiceManager serviceManager, UserIdResolverFactory userIdResolverFactory,
                                      UserZoneResolver userZoneResolver, ReminderServiceFactory reminderServiceFactory) {
         super(new CustomSkillBuilder()
+                .withApiClient(ApacheHttpApiClient.standard())
                 .addRequestInterceptor(new ZappiServiceInjectorInterceptor(serviceManager.getMyEnergiServiceBuilder(),
                         userZoneResolver,
                         userIdResolverFactory))

@@ -29,6 +29,51 @@
     margin-right: 10px;
 }
 
+.registeredDeviceList {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 15px;
+}
+
+.registeredDeviceItem {
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 10px;
+    margin-bottom: 8px;
+    background: #fff;
+    color: #333;
+}
+
+.registeredDeviceSummary {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    align-items: baseline;
+}
+
+.registeredDeviceType {
+    font-weight: 600;
+}
+
+.registeredDeviceSerial,
+.registeredDeviceDetail {
+    color: #555;
+}
+
+.registeredDeviceSerial {
+    overflow-wrap: anywhere;
+    text-align: right;
+}
+
+.registeredDeviceDetail {
+    margin-top: 4px;
+    font-size: 14px;
+}
+
+.deviceActions {
+    margin-top: 10px;
+}
+
 .bmc {
     padding: 10px;
     margin: 0 auto;
@@ -69,6 +114,16 @@
 @media (max-width: 480px) {
     .tile {
         padding: 10px;
+    }
+
+    .registeredDeviceSummary {
+        display: block;
+    }
+
+    .registeredDeviceSerial {
+        display: block;
+        text-align: left;
+        margin-top: 2px;
     }
     
     br {
