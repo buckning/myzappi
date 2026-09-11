@@ -64,6 +64,19 @@ describe('LoggedInContentComponent', () => {
     expect(getComputedStyle(deviceType).color).toBe('rgb(51, 51, 51)');
   });
 
+  it('only shows the energy usage panel when a Zappi is registered', () => {
+    renderRegisteredContent([
+      { serialNumber: '20000001', deviceClass: 'LIBBI', tank1Name: '', tank2Name: '' },
+      { serialNumber: '30000001', deviceClass: 'EDDI', tank1Name: '', tank2Name: '' }
+    ]);
+    expect(fixture.nativeElement.querySelector('app-energy-usage-panel')).toBeNull();
+
+    renderRegisteredContent([
+      { serialNumber: '10000001', deviceClass: 'ZAPPI', tank1Name: '', tank2Name: '' }
+    ]);
+    expect(fixture.nativeElement.querySelector('app-energy-usage-panel')).toBeTruthy();
+  });
+
   function renderRegisteredContent(devices: Device[]): void {
     component.registered = true;
     component.hubDetails = devices;

@@ -128,6 +128,7 @@ public class EndpointRouter {
         handlers.put("PUT /devices/{deviceId}/target-energy", devicesController::setLibbiTargetEnergy);
         handlers.put("GET /energy-cost", energyController::getEnergyCost);
         handlers.put("GET /energy-summary", energyController::getEnergySummary);
+        handlers.put("GET /energy-usage", energyController::getEnergyUsage);
         handlers.put("POST /account/register", accountController::register);
         handlers.put("GET /account/summary", accountController::getAccountSummary);
     }

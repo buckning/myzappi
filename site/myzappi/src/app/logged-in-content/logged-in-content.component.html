@@ -23,6 +23,10 @@
     <br>
     <app-energy-stats-panel [bearerToken]="bearerToken"></app-energy-stats-panel>
     <br>
+    @if (hasZappiDevice()) {
+      <app-energy-usage-panel [bearerToken]="bearerToken"></app-energy-usage-panel>
+      <br>
+    }
 
     @if (loadingDevices === false && devices && devices.length > 0) {
       @for (device of devices; track device.serialNumber) {
