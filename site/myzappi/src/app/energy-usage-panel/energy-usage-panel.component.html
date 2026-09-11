@@ -1,0 +1,27 @@
+<div class="energy-usage-panel">
+  <h2>Energy Usage</h2>
+  <p class="subtitle">Historical energy flow for the selected day</p>
+
+  <div class="energy-usage-controls">
+    <div class="date-navigation">
+      <button type="button" aria-label="Previous day" (click)="moveDay(-1)">‹</button>
+      <label>
+        Date
+        <input type="date" [value]="selectedDate" [max]="todayDate" (change)="setDate($event)">
+      </label>
+      <button type="button" aria-label="Next day" [disabled]="isTodaySelected()" (click)="moveDay(1)">›</button>
+    </div>
+  </div>
+
+  @if (isLoadingEnergyUsage) {
+    <p class="energy-usage-message">Loading energy usage...</p>
+  }
+
+  @if (energyUsageError) {
+    <p class="energy-usage-message error">Energy usage could not be loaded.</p>
+  }
+
+  <div class="energy-usage-chart" [class.hidden]="isLoadingEnergyUsage || energyUsageError">
+    <canvas #energyUsageCanvas aria-label="Energy usage graph"></canvas>
+  </div>
+</div>

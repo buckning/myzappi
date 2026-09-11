@@ -117,6 +117,10 @@ export class LoggedInContentComponent implements OnInit {
       .filter((name): name is string => !!name && name.trim().length > 0);
   }
 
+  hasZappiDevice(): boolean {
+    return this.devices.some(device => device.deviceClass === 'ZAPPI');
+  }
+
   deleteZappi() {
     this.loadingDevices = true;
     let headers = new HttpHeaders({

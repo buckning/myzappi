@@ -1,0 +1,502 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: MyZappi staging foundation resources.
+
+Parameters:
+  EnvironmentName:
+    Type: String
+    Default: staging
+    Description: Lowercase name used to isolate resource names in this environment.
+    AllowedPattern: '^[a-z0-9][a-z0-9-]*$'
+    MaxLength: 20
+
+Resources:
+  DataKey:
+    Type: AWS::KMS::Key
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      Description:
+        Fn::Sub: KMS key for MyZappi ${EnvironmentName} application data.
+      EnableKeyRotation: true
+      PendingWindowInDays: 7
+      KeyPolicy:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: EnableAccountRootPermissions
+            Effect: Allow
+            Principal:
+              AWS:
+                Fn::Sub: arn:${AWS::Partition}:iam::${AWS::AccountId}:root
+            Action: 'kms:*'
+            Resource: '*'
+      Tags:
+        - Key: Application
+          Value: MyZappi
+        - Key: Environment
+          Value:
+            Ref: EnvironmentName
+        - Key: ManagedBy
+          Value: CloudFormation
+
+  DataKeyAlias:
+    Type: AWS::KMS::Alias
+    Properties:
+      AliasName: alias/myZappiApiKey
+      TargetKeyId:
+        Ref: DataKey
+
+  SessionTable:
+    Type: AWS::DynamoDB::Table
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      TableName:
+        session
+      DeletionProtectionEnabled: true
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: session-id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: session-id
+          KeyType: HASH
+      SSESpecification:
+        SSEEnabled: true
+      TimeToLiveSpecification:
+        AttributeName: ttl
+        Enabled: true
+      Tags:
+        - Key: Application
+          Value: MyZappi
+        - Key: Environment
+          Value:
+            Ref: EnvironmentName
+        - Key: ManagedBy
+          Value: CloudFormation
+
+  ZappiLoginCredentialsTable:
+    Type: AWS::DynamoDB::Table
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      TableName: zappi-login-creds
+      DeletionProtectionEnabled: true
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: amazon-user-id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: amazon-user-id
+          KeyType: HASH
+      SSESpecification:
+        SSEEnabled: true
+      Tags:
+        - Key: Application
+          Value: MyZappi
+        - Key: Environment
+          Value:
+            Ref: EnvironmentName
+        - Key: ManagedBy
+          Value: CloudFormation
+
+  MyEnergiCredentialsTable:
+    Type: AWS::DynamoDB::Table
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      TableName: myenergi-creds
+      DeletionProtectionEnabled: true
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: amazon-user-id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: amazon-user-id
+          KeyType: HASH
+      SSESpecification:
+        SSEEnabled: true
+      Tags:
+        - Key: Application
+          Value: MyZappi
+        - Key: Environment
+          Value:
+            Ref: EnvironmentName
+        - Key: ManagedBy
+          Value: CloudFormation
+
+  TariffTable:
+    Type: AWS::DynamoDB::Table
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      TableName: tariff
+      DeletionProtectionEnabled: true
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: user-id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: user-id
+          KeyType: HASH
+      SSESpecification:
+        SSEEnabled: true
+      Tags:
+        - Key: Application
+          Value: MyZappi
+        - Key: Environment
+          Value:
+            Ref: EnvironmentName
+        - Key: ManagedBy
+          Value: CloudFormation
+
+  AlexaToLwaLookupTable:
+    Type: AWS::DynamoDB::Table
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      TableName: alexa-to-lwa-users-lookup
+      DeletionProtectionEnabled: true
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: alexa-user-id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: alexa-user-id
+          KeyType: HASH
+      SSESpecification:
+        SSEEnabled: true
+      Tags:
+        - Key: Application
+          Value: MyZappi
+        - Key: Environment
+          Value:
+            Ref: EnvironmentName
+        - Key: ManagedBy
+          Value: CloudFormation
+
+  DeviceStateReconcileRequestsTable:
+    Type: AWS::DynamoDB::Table
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      TableName: device-state-reconcile-requests
+      DeletionProtectionEnabled: true
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: device-state-change-key
+          AttributeType: S
+      KeySchema:
+        - AttributeName: device-state-change-key
+          KeyType: HASH
+      SSESpecification:
+        SSEEnabled: true
+      TimeToLiveSpecification:
+        AttributeName: ttl
+        Enabled: true
+      Tags:
+        - Key: Application
+          Value: MyZappi
+        - Key: Environment
+          Value:
+            Ref: EnvironmentName
+        - Key: ManagedBy
+          Value: CloudFormation
+
+  AutomationTable:
+    Type: AWS::DynamoDB::Table
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      TableName: automation
+      DeletionProtectionEnabled: true
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: user-id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: user-id
+          KeyType: HASH
+      SSESpecification:
+        SSEEnabled: true
+      Tags:
+        - Key: Application
+          Value: MyZappi
+        - Key: Environment
+          Value:
+            Ref: EnvironmentName
+        - Key: ManagedBy
+          Value: CloudFormation
+
+  AutomationStateTable:
+    Type: AWS::DynamoDB::Table
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      TableName: automation-state
+      DeletionProtectionEnabled: true
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: user-id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: user-id
+          KeyType: HASH
+      SSESpecification:
+        SSEEnabled: true
+      Tags:
+        - Key: Application
+          Value: MyZappi
+        - Key: Environment
+          Value:
+            Ref: EnvironmentName
+        - Key: ManagedBy
+          Value: CloudFormation
+
+  AutomationProcessorLockTable:
+    Type: AWS::DynamoDB::Table
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      TableName: automation-processor-lock
+      DeletionProtectionEnabled: true
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: lock-id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: lock-id
+          KeyType: HASH
+      SSESpecification:
+        SSEEnabled: true
+      TimeToLiveSpecification:
+        AttributeName: expiresAt
+        Enabled: true
+      Tags:
+        - Key: Application
+          Value: MyZappi
+        - Key: Environment
+          Value:
+            Ref: EnvironmentName
+        - Key: ManagedBy
+          Value: CloudFormation
+
+  ScheduleTable:
+    Type: AWS::DynamoDB::Table
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      TableName: schedule
+      DeletionProtectionEnabled: true
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: user-id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: user-id
+          KeyType: HASH
+      SSESpecification:
+        SSEEnabled: true
+      Tags:
+        - Key: Application
+          Value: MyZappi
+        - Key: Environment
+          Value:
+            Ref: EnvironmentName
+        - Key: ManagedBy
+          Value: CloudFormation
+
+  ScheduleDetailsTable:
+    Type: AWS::DynamoDB::Table
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      TableName: schedule-details
+      DeletionProtectionEnabled: true
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: schedule-id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: schedule-id
+          KeyType: HASH
+      SSESpecification:
+        SSEEnabled: true
+      Tags:
+        - Key: Application
+          Value: MyZappi
+        - Key: Environment
+          Value:
+            Ref: EnvironmentName
+        - Key: ManagedBy
+          Value: CloudFormation
+
+  DevicesTable:
+    Type: AWS::DynamoDB::Table
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      TableName: devices
+      DeletionProtectionEnabled: true
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: user-id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: user-id
+          KeyType: HASH
+      SSESpecification:
+        SSEEnabled: true
+      Tags:
+        - Key: Application
+          Value: MyZappi
+        - Key: Environment
+          Value:
+            Ref: EnvironmentName
+        - Key: ManagedBy
+          Value: CloudFormation
+
+Outputs:
+  DataKeyArn:
+    Description: ARN of the staging KMS key.
+    Value:
+      Fn::GetAtt: DataKey.Arn
+    Export:
+      Name:
+        Fn::Sub: ${AWS::StackName}-DataKeyArn
+  DataKeyAliasArn:
+    Description: ARN of the staging KMS key alias.
+    Value:
+      Fn::Sub: arn:${AWS::Partition}:kms:${AWS::Region}:${AWS::AccountId}:alias/myZappiApiKey
+  SessionTableName:
+    Description: Name of the staging session table.
+    Value:
+      Ref: SessionTable
+  SessionTableArn:
+    Description: ARN of the staging session table.
+    Value:
+      Fn::GetAtt: SessionTable.Arn
+    Export:
+      Name:
+        Fn::Sub: ${AWS::StackName}-SessionTableArn
+  ZappiLoginCredentialsTableName:
+    Description: Name of the login credential table.
+    Value:
+      Ref: ZappiLoginCredentialsTable
+  ZappiLoginCredentialsTableArn:
+    Description: ARN of the login credential table.
+    Value:
+      Fn::GetAtt: ZappiLoginCredentialsTable.Arn
+    Export:
+      Name:
+        Fn::Sub: ${AWS::StackName}-ZappiLoginCredentialsTableArn
+  MyEnergiCredentialsTableName:
+    Description: Name of the myenergi credential table.
+    Value:
+      Ref: MyEnergiCredentialsTable
+  MyEnergiCredentialsTableArn:
+    Description: ARN of the myenergi credential table.
+    Value:
+      Fn::GetAtt: MyEnergiCredentialsTable.Arn
+    Export:
+      Name:
+        Fn::Sub: ${AWS::StackName}-MyEnergiCredentialsTableArn
+  TariffTableName:
+    Description: Name of the tariff table.
+    Value:
+      Ref: TariffTable
+  TariffTableArn:
+    Description: ARN of the tariff table.
+    Value:
+      Fn::GetAtt: TariffTable.Arn
+    Export:
+      Name:
+        Fn::Sub: ${AWS::StackName}-TariffTableArn
+  AlexaToLwaLookupTableName:
+    Description: Name of the Alexa-to-LWA lookup table.
+    Value:
+      Ref: AlexaToLwaLookupTable
+  AlexaToLwaLookupTableArn:
+    Description: ARN of the Alexa-to-LWA lookup table.
+    Value:
+      Fn::GetAtt: AlexaToLwaLookupTable.Arn
+    Export:
+      Name:
+        Fn::Sub: ${AWS::StackName}-AlexaToLwaLookupTableArn
+  DeviceStateReconcileRequestsTableName:
+    Description: Name of the device state reconciliation table.
+    Value:
+      Ref: DeviceStateReconcileRequestsTable
+  DeviceStateReconcileRequestsTableArn:
+    Description: ARN of the device state reconciliation table.
+    Value:
+      Fn::GetAtt: DeviceStateReconcileRequestsTable.Arn
+    Export:
+      Name:
+        Fn::Sub: ${AWS::StackName}-DeviceStateReconcileRequestsTableArn
+  AutomationTableName:
+    Description: Name of the automation table.
+    Value:
+      Ref: AutomationTable
+  AutomationTableArn:
+    Description: ARN of the automation table.
+    Value:
+      Fn::GetAtt: AutomationTable.Arn
+    Export:
+      Name:
+        Fn::Sub: ${AWS::StackName}-AutomationTableArn
+  AutomationStateTableName:
+    Description: Name of the automation state table.
+    Value:
+      Ref: AutomationStateTable
+  AutomationStateTableArn:
+    Description: ARN of the automation state table.
+    Value:
+      Fn::GetAtt: AutomationStateTable.Arn
+    Export:
+      Name:
+        Fn::Sub: ${AWS::StackName}-AutomationStateTableArn
+  AutomationProcessorLockTableName:
+    Description: Name of the automation processor lock table.
+    Value:
+      Ref: AutomationProcessorLockTable
+  AutomationProcessorLockTableArn:
+    Description: ARN of the automation processor lock table.
+    Value:
+      Fn::GetAtt: AutomationProcessorLockTable.Arn
+    Export:
+      Name:
+        Fn::Sub: ${AWS::StackName}-AutomationProcessorLockTableArn
+  ScheduleTableName:
+    Description: Name of the schedule table.
+    Value:
+      Ref: ScheduleTable
+  ScheduleTableArn:
+    Description: ARN of the schedule table.
+    Value:
+      Fn::GetAtt: ScheduleTable.Arn
+    Export:
+      Name:
+        Fn::Sub: ${AWS::StackName}-ScheduleTableArn
+  ScheduleDetailsTableName:
+    Description: Name of the schedule details table.
+    Value:
+      Ref: ScheduleDetailsTable
+  ScheduleDetailsTableArn:
+    Description: ARN of the schedule details table.
+    Value:
+      Fn::GetAtt: ScheduleDetailsTable.Arn
+    Export:
+      Name:
+        Fn::Sub: ${AWS::StackName}-ScheduleDetailsTableArn
+  DevicesTableName:
+    Description: Name of the devices table.
+    Value:
+      Ref: DevicesTable
+  DevicesTableArn:
+    Description: ARN of the devices table.
+    Value:
+      Fn::GetAtt: DevicesTable.Arn
+    Export:
+      Name:
+        Fn::Sub: ${AWS::StackName}-DevicesTableArn

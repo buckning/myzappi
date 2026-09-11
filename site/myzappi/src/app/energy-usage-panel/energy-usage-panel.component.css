@@ -1,0 +1,108 @@
+.energy-usage-panel {
+  background-color: #f7f7f7;
+  padding: 20px;
+  border-radius: 8px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  max-width: 400px;
+  margin: 20px auto;
+  color: #333;
+  border: 1px solid #e0e0e0;
+}
+
+.energy-usage-panel h2 {
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0 0 5px;
+  color: #222;
+}
+
+.subtitle {
+  font-size: 16px;
+  color: #555;
+  margin: 0 0 20px;
+  border-bottom: 1px solid #e0e0e0;
+  padding-bottom: 10px;
+}
+
+.energy-usage-controls {
+  display: flex;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.date-navigation {
+  align-items: flex-end;
+  display: flex;
+  gap: 8px;
+  width: 100%;
+}
+
+.date-navigation label {
+  flex: 1;
+}
+
+.date-navigation label {
+  color: #444;
+  display: flex;
+  flex-direction: column;
+  font-size: 13px;
+  gap: 4px;
+}
+
+.date-navigation input {
+  background: #fff;
+  border: 1px solid #cfcfcf;
+  border-radius: 4px;
+  color: #333;
+  font: inherit;
+  padding: 7px 8px;
+}
+
+.date-navigation button {
+  background: #fff;
+  border: 1px solid #cfcfcf;
+  border-radius: 4px;
+  color: #333;
+  cursor: pointer;
+  font-size: 28px;
+  height: 38px;
+  line-height: 24px;
+  width: 38px;
+}
+
+.date-navigation button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.energy-usage-chart {
+  background-color: #000;
+  border-radius: 4px;
+  height: 330px;
+  padding: 10px;
+  position: relative;
+}
+
+.energy-usage-chart canvas {
+  display: block;
+}
+
+.energy-usage-chart.hidden {
+  display: none;
+}
+
+.energy-usage-message {
+  color: #555;
+  margin: 12px 0;
+  text-align: center;
+}
+
+.energy-usage-message.error {
+  color: #b3261e;
+}
+
+@media (max-width: 600px) {
+  .energy-usage-chart {
+    height: 260px;
+  }
+}

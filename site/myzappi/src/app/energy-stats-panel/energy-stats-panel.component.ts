@@ -1,7 +1,7 @@
-import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { EnergyOverviewService } from '../energy-overview.service';
 import { DeviceEnergyUsage, EnergySummary } from '../energySummary.interface';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 @Component({
     selector: 'app-energy-stats-panel',
@@ -12,7 +12,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 })
 export class EnergyStatsPanelComponent {
 
-  @Input() public bearerToken: any;
+  @Input() public bearerToken: string | null = null;
   solarGenerationKW = 0;
   consumingKW = 0;
   importingKW = 0;
@@ -22,7 +22,7 @@ export class EnergyStatsPanelComponent {
   libbis: DeviceEnergyUsage[] = [];
   refreshInterval = 15000;
 
-  constructor(private http: HttpClient, private energyOverviewService: EnergyOverviewService) {}
+  constructor(private readonly http: HttpClient, private readonly energyOverviewService: EnergyOverviewService) {}
 
   ngOnInit() {
     this.energyOverviewService.updateEnergySummaryEvent$.subscribe((energySummary) => {
@@ -35,7 +35,7 @@ export class EnergyStatsPanelComponent {
   loadEnergySummary() {
     let headers = new HttpHeaders({
       'Content-Type': 'application/json',
-      'Authorization': this.bearerToken });
+      'Authorization': this.bearerToken ?? '' });
     let options = { headers: headers, withCredentials: true };
     this.http.get<EnergySummary>('https://api.myzappiunofficial.com/energy-summary', options)
       .subscribe(data => {
@@ -72,4 +72,5 @@ export class EnergyStatsPanelComponent {
       }
     });
   }
+
 }

@@ -134,4 +134,54 @@ class EnergyControllerTest {
 
         verify(mockZappiService).getHistory(LocalDate.of(2023, 1, 6), ZoneId.of("Europe/Dublin"));
     }
+
+    @Test
+    void getEnergyUsageReturnsMinuteReadingsAsLocalisedEnergyAndPower() {
+        when(mockZappiService.getHistory(LocalDate.of(2023, 1, 6), ZoneId.of("Europe/Dublin")))
+                .thenReturn(List.of(new ZappiHistory(2023, 6, 1, 0, 1, "Friday",
+                        3600000L, 600000L, 0L, 0L, 1200000L)));
+
+        Request request = new Request(RequestMethod.GET, "/energy-usage", null, Map.of(), Map.of(
+                "date", "2023-01-06",
+                "zoneId", "Europe%2FDublin",
+                "resolution", "minute"));
+        request.setUserId("mockUserId");
+
+        var response = controller.getEnergyUsage(request);
+
+        assertThat(response.getStatus()).isEqualTo(200);
+        assertThat(response.getBody()).hasValue("""
+                {"date":"2023-01-06","zoneId":"Europe/Dublin","resolution":"minute","readings":[{"timestamp":"2023-01-06T00:01Z","solarGenerationKWh":1.0,"importedKWh":0.333333,"exportedKWh":0.166667,"consumedKWh":0.833333,"importedKW":20.0,"exportedKW":10.0,"consumedKW":50.0}]}\
+                """);
+    }
+
+    @Test
+    void getEnergyUsageMapsHourlyResolutionToHourlyHistory() {
+        when(mockZappiService.getHourlyHistory(LocalDate.of(2023, 1, 6), ZoneId.of("Europe/London")))
+                .thenReturn(List.of(new ZappiHistory(2023, 6, 1, 12, 0, "Friday",
+                        7200000L, 3600000L, 0L, 0L, 1800000L)));
+
+        Request request = new Request(RequestMethod.GET, "/energy-usage", null, Map.of(), Map.of(
+                "date", "2023-01-06",
+                "resolution", "hourly"));
+        request.setUserId("mockUserId");
+
+        var response = controller.getEnergyUsage(request);
+
+        assertThat(response.getStatus()).isEqualTo(200);
+        assertThat(response.getBody()).hasValue("""
+                {"date":"2023-01-06","zoneId":"Europe/London","resolution":"hourly","readings":[{"timestamp":"2023-01-06T12:00Z","solarGenerationKWh":2.0,"importedKWh":0.5,"exportedKWh":1.0,"consumedKWh":1.0,"importedKW":0.5,"exportedKW":1.0,"consumedKW":1.0}]}\
+                """);
+        verify(mockZappiService).getHourlyHistory(LocalDate.of(2023, 1, 6), ZoneId.of("Europe/London"));
+    }
+
+    @Test
+    void getEnergyUsageReturnsBadRequestForUnknownResolution() {
+        Request request = new Request(RequestMethod.GET, "/energy-usage", null, Map.of(), Map.of("resolution", "daily"));
+        request.setUserId("mockUserId");
+
+        var serverException = catchThrowableOfType(() -> controller.getEnergyUsage(request), ServerException.class);
+
+        assertThat(serverException.getStatus()).isEqualTo(400);
+    }
 }

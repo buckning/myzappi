@@ -37,6 +37,7 @@ import { EddiPanelComponent } from './eddi-panel/eddi-panel.component';
 import { ScheduleDialogComponent } from './inline-schedule-panel/schedule-dialog/schedule-dialog.component';
 import { AutomationsPanelComponent } from './automations-panel/automations-panel.component';
 import { AutomationDialogComponent } from './automation-dialog/automation-dialog.component';
+import { EnergyUsagePanelComponent } from './energy-usage-panel/energy-usage-panel.component';
 
 @NgModule({ declarations: [
         AppComponent,
@@ -62,7 +63,8 @@ import { AutomationDialogComponent } from './automation-dialog/automation-dialog
         EddiPanelComponent,
         ScheduleDialogComponent,
         AutomationsPanelComponent,
-        AutomationDialogComponent
+        AutomationDialogComponent,
+        EnergyUsagePanelComponent
     ],
     bootstrap: [AppComponent], imports: [DragDropModule,
         MatSlideToggleModule,

@@ -43,6 +43,30 @@ GET /energy-summary
 }
 ```
 
+### Get energy usage history
+```
+GET /energy-usage?date=2023-01-06&zoneId=Europe%2FDublin&resolution=hourly
+```
+
+`resolution` may be `hourly` or `minute` and defaults to `minute`. The response contains localised ISO-8601 timestamps, interval energy in kWh, and equivalent power in kW for graphing. `consumedKWh` and `consumedKW` represent on-site solar consumption (`solarGeneration` minus `exported`); grid imports are reported separately.
+```
+{
+  "date": "2023-01-06",
+  "zoneId": "Europe/Dublin",
+  "resolution": "hourly",
+  "readings": [{
+    "timestamp": "2023-01-06T12:00Z",
+    "solarGenerationKWh": 2.0,
+    "importedKWh": 0.5,
+    "exportedKWh": 1.0,
+    "consumedKWh": 1.0,
+    "importedKW": 0.5,
+    "exportedKW": 1.0,
+    "consumedKW": 1.0
+  }]
+}
+```
+
 ### Get summary of connected accounts
 ```
 GET /account/summary API

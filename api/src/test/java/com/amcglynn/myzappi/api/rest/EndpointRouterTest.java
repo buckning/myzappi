@@ -83,6 +83,7 @@ class EndpointRouterTest {
         when(mockHubController.register(any())).thenReturn(mockResponse);
         when(mockEnergyController.getEnergyCost(any())).thenReturn(mockResponse);
         when(mockEnergyController.getEnergySummary(any())).thenReturn(mockResponse);
+        when(mockEnergyController.getEnergyUsage(any())).thenReturn(mockResponse);
         when(mockAccountController.register(any())).thenReturn(mockResponse);
         when(mockAccountController.getAccountSummary(any())).thenReturn(mockResponse);
         when(mockAutomationController.getOptions(any())).thenReturn(mockResponse);
@@ -202,6 +203,15 @@ class EndpointRouterTest {
         var response = router.route(request);
         assertThat(response.getStatus()).isEqualTo(200);
         verify(mockEnergyController).getEnergySummary(request);
+    }
+
+    @Test
+    void getEnergyUsageGetsRoutedToEnergyController() {
+        var request = new Request(RequestMethod.GET, "/energy-usage", null, Map.of("Authorization", "Bearer 1234"), Map.of());
+        request.setUserId("regularUser");
+        var response = router.route(request);
+        assertThat(response.getStatus()).isEqualTo(200);
+        verify(mockEnergyController).getEnergyUsage(request);
     }
 
     @Test
